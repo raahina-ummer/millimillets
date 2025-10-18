@@ -1,15 +1,17 @@
 const express = require("express")
-const app = express();
 const path = require("path")
 const env = require("dotenv").config()
-const db = require("./config/db.js")
-const userRouter = require("./Routes/userRouter.js");
 const session = require("express-session");
 const passport = require("./config/passport.js")
+const db = require("./config/db.js")
+const userRouter = require("./Routes/userRouter.js");
+const adminRouter = require("./Routes/adminRouter.js");
+
+
 db()
 
 
-
+const app = express();
 
 app.use(express.json()); //middleware to convert formdata to json 
 app.use(express.urlencoded({extended :true}));  //convert querystrng data
@@ -40,6 +42,7 @@ app.set("views",[path.join(__dirname,"views/user"),path.join(__dirname,"views/ad
 app.use(express.static(path.join(__dirname, "public"))); //to serve static files
 
 app.use("/",userRouter) //specify user route
+app.use("/admin",adminRouter) //handle all request that comes to admin route
 
 
 app.listen(process.env.PORT,()=>{
