@@ -1,0 +1,33 @@
+const mongoose = require("mongoose");
+const {Schema} = mongoose;
+
+const categorySchema = new mongooseSchema({
+    name:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    description:{
+        type:String,
+        required:true
+    },
+    isListed:{
+        type:Boolean,
+        default:true,
+    },
+    categoryOffer:{
+        type:Number,
+        default:0,
+    },
+    image:{
+        type:String,
+        required:true,
+    },
+    createdAt :{
+        type:Date,
+        default: Date.now
+    }
+})
+
+const Category = moongoose.model("Category",categorySchema)
+modules.exports = Category

@@ -1,0 +1,280 @@
+<style>
+    /* Footer Styles */
+    footer {
+        background-color: #F5EFE7;
+        padding: 60px 0 0;
+        margin-top: 0;
+    }
+
+    .footer-section h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .footer-section p {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin-top: 10px;
+    }
+
+    .footer-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-section ul li {
+        margin-bottom: 12px;
+    }
+
+    .footer-section ul li a {
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.3s;
+    }
+
+    .footer-section ul li a:hover {
+        color: #8B7355;
+    }
+
+    /* Social Icons */
+    .social-icons {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .social-icon {
+        width: 36px;
+        height: 36px;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .social-icon:hover {
+        background-color: #8B7355;
+        color: white;
+        border-color: #8B7355;
+    }
+
+    /* Footer Bottom */
+    .footer-bottom {
+        border-top: 1px solid #ddd;
+        padding: 25px 0;
+        margin-top: 40px;
+    }
+
+    .footer-bottom p {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* Payment Icons */
+    .payment-icons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: end;
+    }
+
+    .payment-icon {
+        width: 48px;
+        height: 32px;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-icon:nth-child(1) {
+        background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"><rect fill="%23000" width="48" height="32" rx="4"/><text x="50%25" y="50%25" fill="white" font-size="10" font-weight="bold" text-anchor="middle" dy=".3em">VISA</text></svg>') no-repeat center;
+        background-size: contain;
+    }
+
+    .payment-icon:nth-child(2) {
+        background: white;
+        position: relative;
+    }
+
+    .payment-icon:nth-child(2)::before {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #EB001B;
+        left: 8px;
+    }
+
+    .payment-icon:nth-child(2)::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #FF5F00;
+        right: 8px;
+        opacity: 0.8;
+    }
+
+    .payment-icon:nth-child(3) {
+        background: white;
+        font-weight: bold;
+        color: #003087;
+        font-size: 8px;
+        font-family: Verdana, sans-serif;
+    }
+
+    .payment-icon:nth-child(3)::before {
+        content: 'PayPal';
+    }
+
+    .payment-icon:nth-child(4) {
+        background: white;
+        position: relative;
+    }
+
+    .payment-icon:nth-child(4)::before {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 14px;
+        background: linear-gradient(to bottom, #5469d4 0%, #5469d4 50%, white 50%, white 100%);
+        border-radius: 2px;
+    }
+
+    .payment-icon:nth-child(5) {
+        background: linear-gradient(135deg, #1A1F71 0%, #00A3E0 100%);
+        position: relative;
+    }
+
+    .payment-icon:nth-child(5)::before {
+        content: 'G';
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+    }
+
+    @media (max-width: 767px) {
+        .payment-icons {
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .footer-bottom p {
+            text-align: center;
+        }
+    }
+</style>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <!-- MILLETMART Section -->
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+                <div class="footer-section">
+                    <h4>MILLETMART</h4>
+                    <p>We have clothes that suits your style and which you're proud to wear. From women to men.</p>
+                    <div class="social-icons">
+                        <div class="social-icon">f</div>
+                        <div class="social-icon">t</div>
+                        <div class="social-icon">in</div>
+                        <div class="social-icon">g</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- COMPANY Section -->
+            <div class="col-lg-2 col-md-6 col-sm-6 col-6 mb-4">
+                <div class="footer-section">
+                    <h4>COMPANY</h4>
+                    <ul>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/features">Features</a></li>
+                        <li><a href="/works">Works</a></li>
+                        <li><a href="/career">Career</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- HELP Section -->
+            <div class="col-lg-2 col-md-6 col-sm-6 col-6 mb-4">
+                <div class="footer-section">
+                    <h4>HELP</h4>
+                    <ul>
+                        <li><a href="/customer-support">Customer Support</a></li>
+                        <li><a href="/delivery">Delivery Details</a></li>
+                        <li><a href="/terms">Terms & Conditions</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- FAQ Section -->
+            <div class="col-lg-2 col-md-6 col-sm-6 col-6 mb-4">
+                <div class="footer-section">
+                    <h4>FAQ</h4>
+                    <ul>
+                        <li><a href="/account">Account</a></li>
+                        <li><a href="/manage-deliveries">Manage Deliveries</a></li>
+                        <li><a href="/orders">Orders</a></li>
+                        <li><a href="/payments">Payments</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- RESOURCES Section -->
+            <div class="col-lg-3 col-md-6 col-sm-6 col-6 mb-4">
+                <div class="footer-section">
+                    <h4>RESOURCES</h4>
+                    <ul>
+                        <li><a href="/ebooks">Free eBooks</a></li>
+                        <li><a href="/tutorials">Development Tutorial</a></li>
+                        <li><a href="/blog">How to - Blog</a></li>
+                        <li><a href="/playlist">Youtube Playlist</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="row align-items-center">
+                <div class="col-md-6 col-12">
+                    <p>Shop.co © 2000-2023, All Rights Reserved</p>
+                </div>
+                <div class="col-md-6 col-12">
+                    <div class="payment-icons">
+                        <div class="payment-icon"></div>
+                        <div class="payment-icon"></div>
+                        <div class="payment-icon"></div>
+                        <div class="payment-icon"></div>
+                        <div class="payment-icon"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
