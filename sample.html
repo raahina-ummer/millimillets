@@ -1,4 +1,4 @@
-
+<!-- 
 <%-include('../partials/admin/header.ejs') %>
 <main class="main-wrap">
 
@@ -16,4 +16,183 @@
     </section> <!-- content-main end// -->
     
 </main>
-<%= include("../partials/admin/footer.ejs") %>
+<!-- <%= include("../partials/admin/footer.ejs") %> --> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Management - Add Product</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #ece7df;
+        }
+        .sidebar {
+            background: #f4ecde;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            padding-top: 30px;
+        }
+        .sidebar .nav-link {
+            color: #7c6c57;
+            font-size: 1.1rem;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+        .profile-box {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            background: #d1c49b;
+            width: 220px;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .add-product-modal {
+            background: #c3ab76;
+            border-radius: 18px;
+            padding: 20px 30px;
+            max-width: 700px;
+            margin: 40px auto;
+            box-shadow: 0 0 20px #b9a67578;
+        }
+        .add-product-modal h3 {
+            color: #433a2a;
+            text-align: center;
+            font-weight: 700;
+        }
+        .product-images {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 15px;
+        }
+        .product-images img,
+        .product-images .browse {
+            width: 84px;
+            height: 84px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 8px #b9a67578;
+            background: #f8edd7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .desc-box {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px 13px;
+            margin-bottom: 18px;
+            font-size: 0.95rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #433a2a;
+        }
+        .btn-add, .btn-cancel {
+            border-radius: 25px;
+            font-weight: 500;
+            min-width: 100px;
+        }
+        .btn-add {
+            background: #413a28;
+            color: #fff;
+        }
+        .btn-cancel {
+            background: #7c6c57;
+            color: #fff;
+        }
+        .variant-row .form-control {
+            width: 120px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column">
+        <h2 class="mb-2 px-3" style="color: #856534;">MILLIMILLET</h2>
+        <nav class="nav flex-column px-3">
+            <a class="nav-link" href="#">Dashboard</a>
+            <a class="nav-link" href="#">Category</a>
+            <a class="nav-link" href="#">Products</a>
+            <a class="nav-link" href="#">Customers</a>
+            <a class="nav-link" href="#">Orders</a>
+            <a class="nav-link" href="#">Banner</a>
+            <a class="nav-link" href="#">Coupon</a>
+            <a class="nav-link" href="#">Settings</a>
+            <a class="nav-link" href="#">Offer</a>
+            <a class="nav-link" href="#">Logout</a>
+        </nav>
+    </div>
+    <!-- Profile Box -->
+    <div class="profile-box">
+        <img src="https://i.pravatar.cc/40?img=3" class="rounded-circle" width="40" alt="Admin">
+        <div>
+            <div style="font-weight:600;">Rahina Ummer</div>
+            <div style="font-size:0.9rem;color:#433a2a;">Admin</div>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="add-product-modal">
+            <h3>Add Product</h3>
+            <form>
+                <div class="product-images mb-2">
+                    <img src="https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=100&q=80" alt="Seedbar">
+                    <div class="browse">Browse Image</div>
+                    <div class="browse">Browse Image</div>
+                </div>
+                <div class="desc-box">
+                    Seed bars are certainly healthy since they are packed with fiber and protein. These are simple breakfast options that boost energy and are good for your health. However, you must check the ingredients used in the seed bar you are choosing, since some people are allergic to certain seeds and nuts.
+                </div>
+                <div class="mb-3 variant-row">
+                    <label class="form-label">Select variant</label>
+                    <input type="text" class="form-control" placeholder="weight">
+                    <input type="text" class="form-control mx-2" placeholder="Unit">
+                    <input type="text" class="form-control" placeholder="Regular Price">
+                    <input type="text" class="form-control mx-2" placeholder="Sale Price">
+                    <input type="text" class="form-control" placeholder="Stock">
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Category</label>
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" value="2024-12-10">
+                    </div>
+                    <div class="col">
+                        <label class="form-label">GST</label>
+                        <input type="text" class="form-control" value="18%">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-4 mt-4">
+                    <button type="submit" class="btn btn-add btn-lg">Add</button>
+                    <button type="button" class="btn btn-cancel btn-lg">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

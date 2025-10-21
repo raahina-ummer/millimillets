@@ -1,51 +1,475 @@
-<%- include('../partials/admin/header.ejs')  %>
-        <section class="content-main">
-            <div class="content-header">
-                <h2 class="content-title">Product list</h2>
-                <div>
-                    <a href="/admin/addProduct" class="btn btn-primary"><i class="material-icons md-plus"></i> Create new</a>
-                </div>
+<%- include('../partials/admin/header.ejs') %>
+
+<style>
+    body {
+        background-color: #2c2c2c;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .admin-container {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: 250px;
+        background-color: #3a3a3a;
+        padding: 0;
+        position: fixed;
+        height: 100vh;
+        left: 0;
+        top: 0;
+    }
+
+    .logo-section {
+        background-color: #E8DCC4;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo-icon {
+        width: 28px;
+        height: 28px;
+        color: #8B6F47;
+    }
+
+    .logo-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #8B6F47;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .sidebar-menu {
+        padding: 20px 0;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        color: #ccc;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 14px;
+        border-left: 3px solid transparent;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+        background-color: #4a4a4a;
+        color: #fff;
+        border-left-color: #B8A572;
+    }
+
+    .menu-item i {
+        font-size: 18px;
+        width: 20px;
+    }
+
+    .submenu-item {
+        padding-left: 55px;
+        font-size: 13px;
+    }
+
+    /* Main Content Area */
+    .content-main {
+        margin-left: 250px;
+        background-color: #E8DCC4;
+        min-height: 100vh;
+        padding: 0;
+        width: calc(100% - 250px);
+    }
+
+    .admin-header {
+        background-color: #E8DCC4;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #d4c5a9;
+    }
+
+    .search-box {
+        flex: 1;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 20px 10px 40px;
+        border-radius: 20px;
+        border: 1px solid #d4c5a9;
+        background-color: #fff;
+        font-size: 14px;
+    }
+
+    .search-box-wrapper {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-info {
+        text-align: right;
+    }
+
+    .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2c2c2c;
+        margin: 0;
+    }
+
+    .user-role {
+        font-size: 11px;
+        color: #666;
+        margin: 0;
+    }
+
+    /* Page Content */
+    .page-container {
+        padding: 30px;
+    }
+
+    .page-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #2c2c2c;
+        margin: 0;
+    }
+
+    .btn-add-product {
+        background-color: #2c2c2c;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s;
+    }
+
+    .btn-add-product:hover {
+        background-color: #1a1a1a;
+        color: #fff;
+    }
+
+    .refresh-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .refresh-icon {
+        cursor: pointer;
+    }
+
+    /* Table Card */
+    .table-card {
+        background-color: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .product-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+    .product-table thead {
+        background-color: #f8f8f8;
+    }
+
+    .product-table thead th {
+        padding: 12px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e8e8e8;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .product-table tbody td {
+        padding: 12px 10px;
+        font-size: 13px;
+        color: #2c2c2c;
+        border-bottom: 1px solid #f5f5f5;
+        vertical-align: middle;
+    }
+
+    .product-table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .product-table tbody tr.selected {
+        background-color: #e3f2fd;
+        border-left: 3px solid #2196F3;
+    }
+
+    .product-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .action-icon {
+        cursor: pointer;
+        color: #666;
+        font-size: 16px;
+        padding: 5px;
+        transition: all 0.3s;
+    }
+
+    .action-icon:hover {
+        color: #2c2c2c;
+    }
+
+    .delete-icon {
+        background-color: #2c2c2c;
+        color: #fff;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .delete-icon:hover {
+        background-color: #1a1a1a;
+    }
+
+    /* Pagination */
+    .pagination-area {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .page-item .page-link {
+        border: none;
+        background-color: #fff;
+        color: #2c2c2c;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-weight: 500;
+        font-size: 13px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .page-item.active .page-link {
+        background-color: #2c2c2c;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        background-color: #f5f5f5;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .page-item:not(.disabled) .page-link:hover {
+        background-color: #e8dcc4;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    .status-active {
+        background-color: #4CAF50;
+        color: #fff;
+    }
+
+    .status-blocked {
+        background-color: #F44336;
+        color: #fff;
+    }
+
+    @media (max-width: 992px) {
+        .sidebar {
+            width: 70px;
+        }
+
+        .logo-text,
+        .menu-item span {
+            display: none;
+        }
+
+        .content-main {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+        }
+    }
+</style>
+
+<div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-section">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            <span class="logo-text">MILLIMILLET</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="/admin/dashboard" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/categories" class="menu-item">
+                <i class="fas fa-list"></i>
+                <span>Category</span>
+            </a>
+            <a href="/admin/products" class="menu-item active">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+            </a>
+            <a href="/admin/customers" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </a>
+            <a href="/admin/orders" class="menu-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </a>
+            <a href="/admin/banner" class="menu-item">
+                <i class="fas fa-image"></i>
+                <span>Banner</span>
+            </a>
+            <a href="/admin/coupons" class="menu-item">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Coupon&</span>
+            </a>
+            <a href="/admin/settings" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="/admin/offer" class="menu-item submenu-item">
+                <span>Offer</span>
+            </a>
+            <a href="/admin/logout" class="menu-item submenu-item">
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <section class="content-main">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="search-box-wrapper search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search..." id="searchInput">
             </div>
-            <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
-                            <input  type="text" placeholder="Search..." class="form-control">
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-6">
-                            <select class="form-select">
-                                <option>Status</option>
-                                <option>Active</option>
-                                <option>Disabled</option>
-                                <option>Show all</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-6">
-                            <select class="form-select">
-                                <option>Show 20</option>
-                                <option>Show 30</option>
-                                <option>Show 40</option>
-                            </select>
-                        </div>
-                    </div>
-                </header> <!-- card-header end// -->
-                
-                    <table class="table table-hover">
+            <div class="user-profile">
+                <div class="user-info">
+                    <p class="user-name">Rahina Ummer</p>
+                    <p class="user-role">Admin</p>
+                </div>
+                <img src="<%= adminProfile || '/images/default-avatar.jpg' %>" alt="Admin" class="user-avatar">
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-container">
+            <div class="page-title-section">
+                <h1 class="page-title">Product Management</h1>
+                <a href="/admin/addProduct" class="btn-add-product">
+                    ADD PRODUCT
+                </a>
+            </div>
+
+            <div class="refresh-section">
+                <i class="fas fa-sync-alt refresh-icon" onclick="location.reload()"></i>
+                <span>Refresh</span>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="product-table">
                         <thead>
                             <tr>
-                                <th>Product Image</th>
+                                <th></th>
                                 <th>Product Name</th>
-                                <th>Brand</th>
+                                <th>Product ID</th>
                                 <th>Category</th>
-                                <th>Category off</th>
-                                <th>Regular Price</th>
                                 <th>Sale Price</th>
-                                <th>Product Off </th>
-                                <th>Product Off action</th>
+                                <th>Offer Price</th>
+                                <th>Offer</th>
                                 <th>Quantity</th>
-                                <th>Status</th>
-                                <th>Block/unBlock</th>
-                                <th class="text-end">Action</th>
+                                <th>Actions</th>
+                                <th>Edit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -129,21 +553,18 @@
                             <% } %>
                         </tbody>
                     </table>
-                    
+                </div>
+            </div>
 
-                
-            </div> <!-- card end// -->
-            <div class="pagination-area mt-15 mb-50">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-center">
-                        <!-- Previous Arrow -->
+            <div class="pagination-area">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
                         <li class="page-item <%= currentpage === 1 ? 'disabled' : '' %>">
-                            <a class="page-link" href="?page=<%= currentpage - 1 %>" tabindex="-1" aria-disabled="true">
-                                &laquo; 
+                            <a class="page-link" href="?page=<%= currentpage - 1 %>">
+                                &laquo;
                             </a>
                         </li>
-            
-                        <!-- Page Numbers -->
+                        
                         <% for (let i = 1; i <= totalPages; i++) { %>
                             <li class="page-item <%= i === currentpage ? 'active' : '' %>">
                                 <a class="page-link" href="?page=<%= i %>">
@@ -151,25 +572,74 @@
                                 </a>
                             </li>
                         <% } %>
-            
-                        <!-- Next Arrow -->
+                        
                         <li class="page-item <%= currentpage === totalPages ? 'disabled' : '' %>">
                             <a class="page-link" href="?page=<%= currentpage + 1 %>">
-                             &raquo;
+                                &raquo;
                             </a>
                         </li>
                     </ul>
                 </nav>
             </div>
+        </div>
+    </section>
+</div>
 
-            
-        </section> <!-- content-main end// -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <!-- jQuery CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-
 <script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('.product-table tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Delete product function
+function deleteProduct(productId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/admin/deleteProduct',
+                method: 'POST',
+                data: { productId: productId },
+                success: (response) => {
+                    if (response.status === true) {
+                        Swal.fire({
+                            text: 'Product has been deleted successfully',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Failed', response.message || 'Failed to delete product', 'error');
+                    }
+                },
+                error: (err) => {
+                    console.error(err);
+                    Swal.fire('Error', 'There was an error processing your request', 'error');
+                }
+            });
+        }
+    });
+}
+
+// Add product offer function
 async function addOffer(productId) {
     const { value: amount } = await Swal.fire({
         title: "Offer in percentage",
@@ -193,10 +663,10 @@ async function addOffer(productId) {
                         icon: "success",
                         timer: 1000, 
                         timerProgressBar: true,
-                        toast:true,
+                        toast: true,
                         position: "top-end",
                         background: 'purple',
-                        color:"gold"
+                        color: "gold"
                     }).then(() => {
                         location.reload(); 
                     });
@@ -212,6 +682,7 @@ async function addOffer(productId) {
     }
 }
 
+// Remove product offer function
 function removeOffer(productId) { 
     Swal.fire({
         text: 'Are you sure you want to remove this product offer?',
@@ -220,10 +691,10 @@ function removeOffer(productId) {
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, remove",
-        toast:true,
+        toast: true,
         position: "top-end",
         background: 'purple',
-        color:"gold"
+        color: "gold"
     }).then(async (result) => {
         if (result.isConfirmed) {
             $.ajax({
@@ -239,10 +710,10 @@ function removeOffer(productId) {
                             icon: "success",
                             timer: 1000, 
                             timerProgressBar: true,
-                            toast:true,
+                            toast: true,
                             position: "top-end",
-                              background: 'purple',
-                            color:"gold"
+                            background: 'purple',
+                            color: "gold"
                         }).then(() => {
                             location.reload(); 
                         });
@@ -260,8 +731,6 @@ function removeOffer(productId) {
         console.error(err);
     });
 }
-
 </script>
 
-
-<%- include('../partials/admin/footer.ejs')  %>
+<%- include('../partials/admin/footer.ejs') %>
