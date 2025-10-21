@@ -1,0 +1,267 @@
+<%- include('../partials/admin/header.ejs')  %>
+        <section class="content-main">
+            <div class="content-header">
+                <h2 class="content-title">Product list</h2>
+                <div>
+                    <a href="/admin/addProduct" class="btn btn-primary"><i class="material-icons md-plus"></i> Create new</a>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3">
+                        <div class="col-lg-4 col-md-6 me-auto">
+                            <input  type="text" placeholder="Search..." class="form-control">
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <select class="form-select">
+                                <option>Status</option>
+                                <option>Active</option>
+                                <option>Disabled</option>
+                                <option>Show all</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <select class="form-select">
+                                <option>Show 20</option>
+                                <option>Show 30</option>
+                                <option>Show 40</option>
+                            </select>
+                        </div>
+                    </div>
+                </header> <!-- card-header end// -->
+                
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Product Image</th>
+                                <th>Product Name</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Category off</th>
+                                <th>Regular Price</th>
+                                <th>Sale Price</th>
+                                <th>Product Off </th>
+                                <th>Product Off action</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Block/unBlock</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i =0; i <data.length ; i++) { %>
+                                <tr>
+                                    <!-- Product Image -->
+                                    <td class="text-center">
+                                        <div
+                                            class="d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden;">
+                                            <img
+                                                src="/uploads/images/<%= data[i].productImage[0] %>"
+                                                alt="Product Image"
+                                                class="img-fluid rounded-circle"
+                                                style="width: 100%; height: auto;"
+                                            />
+                                        </div>
+                                    </td>
+                    
+                                    <!-- Product Details -->
+                                    <td><%= data[i].productName %></td>
+                                    <td><%= data[i].brand %></td>
+                                    <td><%= data[i].category.name %></td>
+                                    <td><%= data[i].category.categoryOffer %> %</td>
+                                    <td><%= data[i].regularPrice.toFixed(2) %></td>
+                                    <td><%= data[i].salePrice ? data[i].salePrice.toFixed(2) : data[i].regularPrice.toFixed(2) %></td>
+                    
+                                    <!-- Offer Price -->
+                                    <td>
+                                        <%= data[i].productOffer || '0' %> %
+                                    </td>
+                    
+                                    <!-- Offer Button -->
+                                    <td>
+                                        <% if (data[i].productOffer === 0) { %>
+                                            <button class="btn btn-md rounded font-sm hover-up"
+                                                    onclick="addOffer('<%= data[i]._id %>')">Add</button>
+                                        <% } else { %>
+                                            <button class=" btn btn-md  rounded font-sm hover-up" style="background-color:rgb(209, 26, 26);"
+                                                    onclick="removeOffer('<%= data[i]._id %>')">Remove</button>
+                                        <% } %>
+                                    </td>
+                    
+                                    <!-- Quantity -->
+                                    <td><%= data[i].quantity %> Packets</td>
+                                    <td>
+                                        <% if(data[i].isBlocked===false) { %>
+                                            <span class="badge rounded-pill alert-success">Active</span>
+                                            <% } else { %>
+                                                <span class="badge rounded-pill alert-danger">Blocked</span>
+                                                <% } %>
+                                    </td>
+                                    <td>
+                                        <% if(data[i].isBlocked===false) { %>
+                                            <a href="/admin/blockProduct?id=<%= data[i]._id %>">
+                                                <button class="btn btn-md rounded font-sm hover-up">Block</button>
+                                            </a>
+                                        <% } else { %>
+                                            <a href="/admin/unBlockProduct?id=<%= data[i]._id %>">
+                                                <button class=" btn btn-md  rounded font-sm hover-up" style="background-color:rgb(209, 26, 26);">unBlock</button>
+                                            </a>
+                                        <% } %>
+                                    </td>
+                                    
+
+                    
+                                    <!-- Action Dropdown -->
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
+                                                <i class="material-icons md-more_horiz"></i>
+                                            </a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#">Action</a>
+                                                <a class="dropdown-item" href="/admin/editProduct?id=<%= data[i]._id %>">Edit Product</a>
+                                                <a class="dropdown-item text-danger" href="#">Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    
+
+                
+            </div> <!-- card end// -->
+            <div class="pagination-area mt-15 mb-50">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous Arrow -->
+                        <li class="page-item <%= currentpage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentpage - 1 %>" tabindex="-1" aria-disabled="true">
+                                &laquo; 
+                            </a>
+                        </li>
+            
+                        <!-- Page Numbers -->
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentpage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+            
+                        <!-- Next Arrow -->
+                        <li class="page-item <%= currentpage === totalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentpage + 1 %>">
+                             &raquo;
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            
+        </section> <!-- content-main end// -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- jQuery CDN -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<script>
+async function addOffer(productId) {
+    const { value: amount } = await Swal.fire({
+        title: "Offer in percentage",
+        input: 'number',
+        inputLabel: 'Percentage',
+        inputPlaceholder: '%',
+    });
+
+    if (amount) { 
+        $.ajax({
+            url: '/admin/addProductOffer',
+            method: 'post',
+            data: {
+                percentage: amount,
+                productId: productId,
+            },
+            success: (response) => {
+                if (response.status === true) {
+                    Swal.fire({
+                        text: "The offer has been added successfully",
+                        icon: "success",
+                        timer: 1000, 
+                        timerProgressBar: true,
+                        toast:true,
+                        position: "top-end",
+                        background: 'purple',
+                        color:"gold"
+                    }).then(() => {
+                        location.reload(); 
+                    });
+                } else {
+                    Swal.fire('Failed', response.message || 'Failed to add offer', 'error');
+                }
+            },
+            error: (err) => {
+                console.error(err);
+                Swal.fire('Error', 'There was an error processing your request', 'error');
+            }
+        });
+    }
+}
+
+function removeOffer(productId) { 
+    Swal.fire({
+        text: 'Are you sure you want to remove this product offer?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, remove",
+        toast:true,
+        position: "top-end",
+        background: 'purple',
+        color:"gold"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/admin/removeProductOffer',
+                method: "post",
+                data: {
+                    productId: productId,
+                },
+                success: (response) => {
+                    if (response.status === true) {
+                        Swal.fire({
+                            text: "The product offer has been removed successfully",
+                            icon: "success",
+                            timer: 1000, 
+                            timerProgressBar: true,
+                            toast:true,
+                            position: "top-end",
+                              background: 'purple',
+                            color:"gold"
+                        }).then(() => {
+                            location.reload(); 
+                        });
+                    } else {
+                        Swal.fire('Failed', 'Failed to remove offer', 'error');
+                    }
+                },
+                error: (err) => {
+                    console.error(err);
+                    Swal.fire('Error', 'There was an error processing your request', 'error');
+                }
+            });
+        }
+    }).catch((err) => {
+        console.error(err);
+    });
+}
+
+</script>
+
+
+<%- include('../partials/admin/footer.ejs')  %>

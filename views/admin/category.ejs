@@ -1,0 +1,378 @@
+<%- include('../partials/admin/header.ejs') %>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Categories </h2>
+                <p>Add, edit or delete a category</p>
+            </div>
+            <div>
+                <input type="text" placeholder="Search Categories" class="form-control bg-white">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <form action="/admin/category" method="post" onsubmit="return handleFormSubmit(event)">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Name</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                                    name="name" />
+                                <span id="name-error" class="error-message text-danger" style="display: none;"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <textarea placeholder="Type here" class="form-control" id="description"
+                                    name="description"></textarea>
+                                <span id="description-error" class="error-message text-danger"
+                                    style="display: none;"></span>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Create category</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-9">
+
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Offer %</th>
+                                    <th>Offer Action</th>
+                                    <th>Status</th>
+                                    <th>List Action</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% cat.reverse().forEach((category,index)=>{ %>
+
+                                    <tr>
+
+                                        <td><b>
+                                                <%=category.name %>
+                                            </b></td>
+                                        <td>
+                                            <%=category.description %>
+                                        </td>
+                                        <td>
+                                            <% if(category.categoryOffer){%>
+                                                <%= category.categoryOffer %> %
+                                                    <% }else{%>
+                                                        0 %
+                                                        <% } %>
+                                        </td>
+
+                                        <td>
+                                            <% if(category.categoryOffer===0){ %>
+                                                <button class="btn btn-md rounded font-sm hover-up"
+                                                    onclick="addCategoryOffer('<%=category._id%>')">Add</button>
+                                                <% }else{ %>
+                                                    <button class="btn btn-danger md rounded  font-sm hover-up"
+                                                        onclick="removeCategoryOffer('<%=category._id%>')">Remove</button>
+                                                    <% } %>
+                                        </td>
+                                        <td>
+                                            <% if(category.isListed) { %>
+                                                <span class="badge rounded-pill alert-success">Listed</span>
+                                                <% } else { %>
+                                                    <span class="badge rounded-pill alert-danger">Unlisted</span>
+                                                    <% } %>
+                                        </td>
+
+                                        <td>
+                                            <% if(category.isListed) { %>
+                                                <a href="/admin/ListCategory?id=<%= category._id %>">
+                                                    <button class="btn btn-md rounded font-sm hover-up">Unlist</button>
+                                                </a>
+                                                <% } else { %>
+                                                    <a href="/admin/unListCategory?id=<%= category._id %>">
+                                                        <button
+                                                            class="btn btn-md rounded font-sm hover-up">List</button>
+                                                    </a>
+                                                    <% } %>
+                                        </td>
+
+
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <a href="#" data-bs-toggle="dropdown"
+                                                    class="btn btn-light rounded btn-sm font-sm"> <i
+                                                        class="material-icons md-more_horiz"></i> </a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#">View detail</a>
+                                                    <a class="dropdown-item"
+                                                        href="/admin/editCategory?id=<%= category._id %>">Edit
+                                                        Category</a>
+                                                    <a class="dropdown-item text-danger" href="#">Delete</a>
+                                                </div>
+                                            </div> <!-- dropdown //end -->
+                                        </td>
+                                    </tr>
+
+                                    <% }) %>
+                            </tbody>
+                        </table>
+
+                    </div> <!-- .col// -->
+                </div> <!-- .row // -->
+            </div> <!-- card body .// -->
+        </div> <!-- card .// -->
+        <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Arrow -->
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1" aria-disabled="true">
+                            &laquo;
+                        </a>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    <% for (let i=1; i <=totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                        <% } %>
+
+                            <!-- Next Arrow -->
+                            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                <a class="page-link" href="?page=<%= currentPage + 1 %>">
+                                    &raquo;
+                                </a>
+                            </li>
+                </ul>
+            </nav>
+        </div>
+
+    </section> <!-- content-main end// -->
+
+    <script>
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            if (!validateForm()) {
+                return;
+            }
+
+            const nameInput = document.getElementsByName('name')[0];
+            nameInput.value = capitalizeFirstLetters(nameInput.value);
+
+            const name = nameInput.value;
+            const description = document.getElementById('description').value;
+
+            fetch('/admin/category', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, description })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    location.reload();
+                })
+                .catch(error => {
+                    if (error.message === "Category already exists") {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops",
+                            text: "Category already exists",
+                            toast: true,
+                            position:"top-end",
+                            background: 'purple',
+                            color: "gold"
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops",
+                            text: "An error occurred while adding category",
+                            toast: true,
+                            position:"top-end",
+                            background: 'purple',
+                            color: "gold"
+                        });
+                    }
+                });
+        }
+        // Function to capitalize the first letter of every word
+        function capitalizeFirstLetters(input) {
+            return input
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        function validateForm() {
+            clearErrorMessages();
+            const name = document.getElementById('product_name').value.trim();
+            const description = document.getElementById('description').value.trim();
+            let isValid = true;
+
+            if (name === '') {
+                displayErrorMessages('name-error', "Please enter a name.");
+                isValid = false;
+            } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+                displayErrorMessages('name-error', "Category name should contain only alphabetic characters.");
+                isValid = false;
+            }
+            if (description === '') {
+                displayErrorMessages('description-error', "Please enter a description.");
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        function displayErrorMessages(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
+        }
+
+        function clearErrorMessages() {
+            const errorElements = document.getElementsByClassName("error-message");
+            Array.from(errorElements).forEach((element) => {
+                element.innerText = '';
+                element.style.display = "none";
+            });
+        };
+
+        async function addCategoryOffer(categoryId) {
+            const { value: amount } = await Swal.fire({
+                title: "Offer in percentage",
+                input: "number",
+                inputLabel: "Percentage",
+                inputPlaceholder: "%",
+                toast: true,
+                position:"top-end",
+                showConfirmButton: true // For input prompt
+            });
+
+            if (amount) {
+                try {
+                    const response = await fetch("/admin/addCategoryOffer", {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            percentage: amount,
+                            categoryId: categoryId,
+                        }),
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.status === true) {
+                        Swal.fire({
+                            text: "Offer has been added",
+                            icon: "success",
+                            toast: true,
+                            position:"top-end",
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: 'purple',
+                            color: "gold"
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            text: data.message || "Adding offer failed",
+                            icon: "error",
+                            toast: true,
+                            position:"top-end",
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: 'purple',
+                            color: "gold"
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        
+                        text: "An error occurred while adding the offer",
+                        icon: "error",
+                        toast: true,
+                        position:"top-end",
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: 'purple',
+                        color: "gold"
+                    });
+                }
+            }
+        }
+
+        async function removeCategoryOffer(categoryId) {
+            try {
+                const response = await fetch("/admin/removeCategoryOffer", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json",
+                    },
+                    body: JSON.stringify({ categoryId: categoryId })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.status === true) {
+                    Swal.fire({
+                        text: "The offer has been removed",
+                        icon: "success",
+                        toast: true,
+                        position:"top-end",
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: 'purple',
+                        color: "gold"
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                       
+                        text: data.message || "Remove offer failed",
+                        icon: "error",
+                        toast: true,
+                        position:"top-end",
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: 'purple',
+                        color: "gold"
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    text: "An error occurred while removing the offer",
+                    icon: "error",
+                    toast: true,
+                    position:"top-end",
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: 'purple',
+                    color: "gold"
+                });
+            }
+        }
+
+
+
+    </script>
+<!-- 
+<!-- 
+    <%- include("../partials/admin/footer.ejs") %> --> -->

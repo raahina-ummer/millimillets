@@ -41,8 +41,9 @@ app.set("view engine" ,"ejs") //configure ejs
 app.set("views",[path.join(__dirname,"views/user"),path.join(__dirname,"views/admin")]); //mentioning where is the views folder
 app.use(express.static(path.join(__dirname, "public"))); //to serve static files
 
-app.use("/",userRouter) //specify user route
 app.use("/admin",adminRouter) //handle all request that comes to admin route
+app.use("/",userRouter) //specify user route
+
 
 
 app.listen(process.env.PORT,()=>{
