@@ -8,6 +8,7 @@ const productController= require("../controllers/admin/productController.js")
 const multer= require('multer');
 const storage= require('../helpers/multer');
 const uploads= multer({storage:storage});
+const passport = require("passport");
 
 
 
@@ -30,18 +31,22 @@ router.get("/unblockCustomer",adminAuth,customerController.customerunBlocked);
 
 // //category management
 router.get("/category",adminAuth,categoryController.categoryInfo);
+router.get("/addCategory",adminAuth,categoryController.loadAddCategory);
 router.post("/addCategory",adminAuth,categoryController.addCategory);
+router.get("/editCategory",adminAuth,categoryController.getEditCategory);
+router.post("/editCategory/:id",adminAuth,categoryController.editCategory)
+
+
 router.post("/addCategoryOffer",adminAuth,categoryController.addCategoryOffer);
 router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer);
 router.get("/listCategory",adminAuth,categoryController.getListCategory);
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory);
-router.get("/editCategory",adminAuth,categoryController.getEditCategory);
-router.post("/editCategory/:id",adminAuth,categoryController.editCategory)
+
 
 //Product Management
-router.get("/addProducts",adminAuth,productController.getProductAddPage);
-router.post("/addProducts",adminAuth,uploads.array("images",4),productController.addProducts);
-router.get("/products",adminAuth,productController.getAllProducts);
+router.get("/addProduct",adminAuth,productController.getProductAddPage);
+router.post("/addProduct",uploads.array("images",4),productController.addProducts);
+router.get("/products",productController.getAllProducts);
 router.post("/addProductOffer",adminAuth,productController.addProductOffer);
 router.post("/removeProductOffer",adminAuth,productController.removeProductOffer);
 router.get("/blockProduct",adminAuth,productController.blockProduct);

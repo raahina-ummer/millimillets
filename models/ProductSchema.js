@@ -39,7 +39,7 @@ const productSchema = new Schema ({
         required:true,
     },
     variant:[{
-        unit:{
+        unitType:{
             type:String,
             required:true
         },
@@ -62,4 +62,4 @@ const productSchema = new Schema ({
 
 
 const Product = mongoose.model("Product",productSchema)
-module.export = Product
+module.exports = Product

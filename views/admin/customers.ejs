@@ -1,89 +1,443 @@
-<%-include('../partials/admin/header.ejs') %>
-<section class="content-main">
-    <div class="content-header">
-        <h2 class="content-title">Customer List</h2>
-    </div>
-    <div class="card mb-4">
-        <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control">
+<%- include('../partials/admin/header.ejs') %>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #d4c4a8;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #8b7355;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 0 20px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-brand h3 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: white;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header */
+        .top-header {
+            background-color: #d4c4a8;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .admin-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Customers Panel */
+        .customers-panel {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .search-box {
+            position: relative;
+            width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 35px 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        /* Table */
+        .customers-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .customers-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .customers-table thead {
+            background-color: #f8f9fa;
+        }
+
+        .customers-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .customers-table td {
+            padding: 15px 12px;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .customers-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .customer-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #8b7355;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-blocked {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .action-btn:hover {
+            color: #333;
+        }
+
+        /* Pagination */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 25px;
+            gap: 10px;
+        }
+
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f0f0f0;
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            background-color: #8b7355;
+            color: white;
+        }
+
+        .page-btn.active {
+            background-color: #8b7355;
+            color: white;
+        }
+
+        /* User Control Section */
+        .user-control {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .control-options {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .update-btn {
+            padding: 8px 30px;
+            background-color: #8b7355;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .update-btn:hover {
+            background-color: #6f5c46;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar-brand h3,
+            .sidebar-menu span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .customers-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+<body>
+    
+
+   
+
+        <!-- Customers Panel -->
+        <div class="customers-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Customers Panel</h2>
+                <div class="search-box">
+                    <input type="text" placeholder="Search...">
+                    <i class="fas fa-search"></i>
                 </div>
             </div>
-        </header> <!-- card-header end// -->
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+
+            <div class="customers-table">
+                <table>
                     <thead>
                         <tr>
-                            <th>Customer</th>
-                            <th>Email</th>
+                            <th>Customer Name</th>
+                            <th>Email ID</th>
+                            <th>Date of Transaction</th>
+                            <th>No. of Purchases</th>
                             <th>Status</th>
-                            <th>Phone Number</th>
-                            <th class="text-end"> Action </th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% for(let i = 0; i < data.length; i++) { %>
-                        <tr>
-                            <td width="40%">
-                                <a href="#" class="itemside">
-                                   
-                                    <div class="info pl-3">
-                                        <h6 class="mb-0 title"><%= data[i].name %></h6>
-                                    </div>
-                                </a>
-                            </td>
-                            <td><%= data[i].email %></td>
-                            <td>
-                                <% if (data[i].isBlocked) { %>
-                                    <span class="badge rounded-pill alert-danger">Blocked</span>
-                                <% } else { %>
-                                    <span class="badge rounded-pill alert-success">Active</span>
-                                <% } %>
-                            </td>
-                            <td><%= data[i].phone%></td>
-                            <td class="text-end">
-                                <% if (!data[i].isBlocked) { %>
-                                    <a href="/admin/blockCustomer?id=<%= data[i]._id %>" class="btn btn-sm btn-brand rounded font-sm mt-15">Block</a>
-                                <% } else { %>
-                                    <a href="/admin/unBlockCustomer?id=<%= data[i]._id %>" class="btn btn-sm btn-brand rounded font-sm mt-15">Activate</a>
-                                <% } %>
-                            </td>
-                        </tr>
-                        <% } %>
+                        <tbody>
+    <% if (data && data.length > 0) { %>
+        <% for(let i = 0; i < data.length; i++) { %>
+            <tr>
+                <td>
+                    <div class="customer-info">
+                        <div class="customer-avatar">
+                            <%= data[i].name ? data[i].name.charAt(0).toUpperCase() : 'U' %>
+                        </div>
+                        <span><%= data[i].name %></span>
+                    </div>
+                </td>
+                <td><%= data[i].email %></td>
+                <td><%= data[i].username %></td>
+                <td><%= data[i].createdAt ? data[i].createdAt.toLocaleDateString() : '-' %></td>
+                <td><%= data[i].purchaseCount || 0 %></td>
+                
+                <td>
+                    <% if (data[i].isBlocked) { %>
+                        <span class="status-badge status-blocked">Blocked</span>
+                    <% } else { %>
+                        <span class="status-badge status-active">Active</span>
+                    <% } %>
+                </td>
+
+                <td>
+                    <% if (!data[i].isBlocked) { %>
+                        <a href="/admin/blockCustomer?id=<%= data[i]._id %>" class="update-btn">Block</a>
+                    <% } else { %>
+                        <a href="/admin/unBlockCustomer?id=<%= data[i]._id %>" class="update-btn">Activate</a>
+                    <% } %>
+                </td>
+            </tr>
+        <% } %>
+    <% } else { %>
+        <tr>
+            <td colspan="7" style="text-align:center;">No customers found</td>
+        </tr>
+    <% } %>
+</tbody>
+
                     </tbody>
-                </table> <!-- table-responsive.// -->
+                </table>
             </div>
-        </div> <!-- card-body end// -->
-    </div> <!-- card end// -->
-    <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <!-- Previous Arrow -->
-                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1" aria-disabled="true">
-                        &laquo;
-                    </a>
-                </li>
-    
-                <!-- Page Numbers -->
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>">
-                            <%= i %>
-                        </a>
-                    </li>
-                <% } %>
-    
-                <!-- Next Arrow -->
-                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>">
-                        &raquo;
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</section> <!-- content-main end// -->
-<%-include('../partials/admin/footer.ejs') %>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+<%- include('../partials/admin/footer.ejs') %>

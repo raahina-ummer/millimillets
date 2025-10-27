@@ -372,74 +372,8 @@
     }
 </style>
 
-<div class="admin-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo-section">
-            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-            </svg>
-            <span class="logo-text">MILLIMILLET</span>
-        </div>
 
-        <nav class="sidebar-menu">
-            <a href="/admin/dashboard" class="menu-item">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="/admin/categories" class="menu-item">
-                <i class="fas fa-list"></i>
-                <span>Category</span>
-            </a>
-            <a href="/admin/products" class="menu-item active">
-                <i class="fas fa-box"></i>
-                <span>Products</span>
-            </a>
-            <a href="/admin/customers" class="menu-item">
-                <i class="fas fa-users"></i>
-                <span>Customers</span>
-            </a>
-            <a href="/admin/orders" class="menu-item">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Orders</span>
-            </a>
-            <a href="/admin/banner" class="menu-item">
-                <i class="fas fa-image"></i>
-                <span>Banner</span>
-            </a>
-            <a href="/admin/coupons" class="menu-item">
-                <i class="fas fa-ticket-alt"></i>
-                <span>Coupon&</span>
-            </a>
-            <a href="/admin/settings" class="menu-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-            <a href="/admin/offer" class="menu-item submenu-item">
-                <span>Offer</span>
-            </a>
-            <a href="/admin/logout" class="menu-item submenu-item">
-                <span>Logout</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <section class="content-main">
-        <!-- Header -->
-        <div class="admin-header">
-            <div class="search-box-wrapper search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search..." id="searchInput">
-            </div>
-            <div class="user-profile">
-                <div class="user-info">
-                    <p class="user-name">Rahina Ummer</p>
-                    <p class="user-role">Admin</p>
-                </div>
-                <img src="<%= adminProfile || '/images/default-avatar.jpg' %>" alt="Admin" class="user-avatar">
-            </div>
-        </div>
+      
 
         <!-- Page Content -->
         <div class="page-container">
@@ -494,8 +428,8 @@
                                     <td><%= data[i].brand %></td>
                                     <td><%= data[i].category.name %></td>
                                     <td><%= data[i].category.categoryOffer %> %</td>
-                                    <td><%= data[i].regularPrice.toFixed(2) %></td>
-                                    <td><%= data[i].salePrice ? data[i].salePrice.toFixed(2) : data[i].regularPrice.toFixed(2) %></td>
+                                    <td><%= data[i].regularPrice %></td>
+                                    <td><%= data[i].salePrice ? data[i].salePrice : data[i].regularPrice %></td>
                     
                                     <!-- Offer Price -->
                                     <td>

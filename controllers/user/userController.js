@@ -1,7 +1,10 @@
 const User = require("../../models/userSchema.js");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const Product = require("../../models/ProductSchema.js");
+const Category = require("../../models/CategorySchema");
+
 
 const pageNotFound = async (req, res) => {
   try {
@@ -13,20 +16,31 @@ const pageNotFound = async (req, res) => {
   }
 };
 
+
 const loadHomepage = async (req, res) => {
   try {
-    const user = req.session.user
-    if(user){
-      const userData = await User.findOne({_d:user.id});
-        res.render("home",{user:userData});
-    }else{
-    return res.render("home"); //rendering homepage
+    const user = req.session.user;
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.length > 0 ? categories.map(cat => cat._id) : [];
+    const productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    }).sort({ createdAt: -1 }).limit(8);
+
+    if (user) {
+      const userData = await User.findById(user);
+      return res.render("home", { user: userData, products: productData, categories });
+    } else {
+      return res.render("home", { products: productData, categories });
     }
   } catch (error) {
-    console.log("Home Page not Found");
+    console.log("Home Page not Found", error);
     res.status(500).send("Server error");
   }
 };
+
+
 
 
 
@@ -34,10 +48,25 @@ const loadSignup = async (req, res) => {
   try {
     return res.render("signup");
   } catch (error) {
-    console.log("Something went wrong!", error);
+    console.log("Something went wrong while signup!", error);
     res.status(500).send("Server Error");
   }
 };
+
+const signup = async (req, res) => {
+  try {
+    const { name, phone, email, password, cPassword } = req.body;
+
+    if (password !== cPassword) {
+      return res.render("signup", { message: "Passwords do not match" });
+    }
+
+    const existUser = await User.findOne({ email });
+    if (existUser) {
+      return res.render("signup", {
+        message: "User with this email already exists",
+      });
+    }
 
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000).toString();
@@ -70,20 +99,7 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
-const signup = async (req, res) => {
-  try {
-    const { name, phone, email, password, cPassword } = req.body;
 
-    if (password !== cPassword) {
-      return res.render("signup", { message: "Passwords do not match" });
-    }
-
-    const existUser = await User.findOne({ email });
-    if (existUser) {
-      return res.render("signup", {
-        message: "User with this email already exists",
-      });
-    }
 
     const otp = generateOtp();
     const emailSent = await sendVerificationEmail(email, otp);
@@ -93,6 +109,7 @@ const signup = async (req, res) => {
     req.session.userOtp = otp;
     console.log("otp is:", req.session.userOtp);
     req.session.userData = { name, phone, email, password };
+    req.session.timer = new Date ()
     res.render("verifyOtp");
     console.log("OTP sent", otp);
   } catch (error) {
@@ -116,15 +133,22 @@ const verifyOtp = async (req, res) => {
 
     const { otp } = req.body;
     console.log(otp);
+const timeDiff = (req.session.timer - new Date())
+    if(timeDiff >60000){
+    return res.status(400).json({ success: false, message: "OTP timer Expired" })
+    }
     if (otp === req.session.userOtp) {
       const user = req.session.userData
       const passwordHash = await securePassword(user.password);
+      delete req.session.userOtp;
+
       const saveUserData = new User({
         name: user.name,
         email: user.email,
         phone: user.phone,
         password: passwordHash
       })
+
       await saveUserData.save();
       req.session.user = saveUserData._id;
       res.json({ success: true, redirectUrl: "/login" })
@@ -147,6 +171,7 @@ const resendOtp = async (req, res) => {
 
     const otp = generateOtp();
     req.session.userOtp = otp;
+    req.session.timer = new Date();
 
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {

@@ -1,91 +1,92 @@
 const mongoose = require("mongoose")
-const {Schema} =mongoose;
+const { Schema } = mongoose;
 
 
 const userSchema = new Schema({
-    name:{
-        type:String,
+    name: {
+        type: String,
         required: true
     },
-    email:{
-        type:String,
-        required :true,
-         unique:true,
-    },
-    phone:{
-        type:Number,
-        required: false, //single signup
-        unique:false,
-        sparse:true,
-        default :null
-    },
-    googleId:{
-        type:String,
+    email: {
+        type: String,
+        required: true,
         unique: true,
-        
     },
-    password:{
-        type:String,
-        required:false, //single sign - user doesnt enter password
+    phone: {
+        type: Number,
+        required: false, //single signup
+        unique: false,
+        sparse: true,
+        default: null
     },
-     confirmPassword:{
-        type:String,
-        required:false, //single sign - user doesnt enter password
+    googleId: {
+        type: String,
+        sparse: true,
+        unique: false
     },
-    isBlocked:{
-        type:Boolean,
-        default:false
+
+    password: {
+        type: String,
+        required: false, //single sign - user doesnt enter password
     },
-    isAdmin:{
-        type:Boolean,
-        default:false, //bydefault consider user
+    confirmPassword: {
+        type: String,
+        required: false, //single sign - user doesnt enter password
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false, //bydefault consider user
     },
     cart: [{
         type: Schema.Types.ObjectId,
-        ref:"Cart"
+        ref: "Cart"
     }],
-    wallet:{
-        type:Number,
-        default:0
+    wallet: {
+        type: Number,
+        default: 0
     },
-    wishlist:[{
-        type:Schema.Types.ObjectId,
-        ref:"Wishlist"
+    wishlist: [{
+        type: Schema.Types.ObjectId,
+        ref: "Wishlist"
     }],
-    orderHistory:[{
-        type:Schema.Types.ObjectId,
-        ref:"Order"
+    orderHistory: [{
+        type: Schema.Types.ObjectId,
+        ref: "Order"
     }],
-    createdOn:{
-        type:Date,
-        default:Date.now
+    createdOn: {
+        type: Date,
+        default: Date.now
     },
-    referralCode:{
-        type:String
+    referralCode: {
+        type: String
     },
-    redeemed:{
-        type:Boolean
+    redeemed: {
+        type: Boolean
     },
-    redeemedUsers:[{
-        type:Schema.Types.ObjectId,
-        ref:"User"
+    redeemedUsers: [{
+        type: Schema.Types.ObjectId,
+        ref: "User"
     }],
     searchHistory: [{
-        category:{
-            type:Schema.Types.ObjectId,
-            ref:"Category",
+        category: {
+            type: Schema.Types.ObjectId,
+            ref: "Category",
         },
-        product:{
-            type:String
+        product: {
+            type: String
         },
-        searchOn:{
-            type:Date,
-            default:Date.now
+        searchOn: {
+            type: Date,
+            default: Date.now
         }
     }]
 })
 
 
 
-const User = mongoose.model("User",userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User

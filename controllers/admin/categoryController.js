@@ -7,11 +7,11 @@ const Product = require("../../models/ProductSchema")
 const categoryInfo = async(req,res)=>{
     try {
         const page = parseInt(req.query.page)||1;
-        const limit =3;
+        const limit =6;
         const skip = (page-1)*limit;
 
         const categoryData = await Category.find({})
-            .sort({createAt:-1})
+            .sort({createdAt:-1})
             .skip(skip)
             .limit(limit)
 
@@ -30,9 +30,20 @@ const categoryInfo = async(req,res)=>{
     }
 }
 
+const loadAddCategory = (req, res) => {
+  try {
+    return res.render("addcategory");
+  } catch (error) {
+    return res.send("Error in loading add category");
+  }
+};
+
+
 
 
 const addCategory = async(req,res)=>{
+    console.log("Add Category Invocked");
+     console.log(" REQ BODY:", req.body);
     const {name,description} = req.body;
     try {
         const existingCategory = await Category.findOne({name})
@@ -49,6 +60,7 @@ const addCategory = async(req,res)=>{
         await newCategory.save();
         return res.json({message:"Category added Successfully"})
     } catch (error) {
+        console.log("error",error)
         return res.status(500).json({error:"Internal Server Error"})
         
     }
@@ -178,6 +190,7 @@ const editCategory = async (req,res)=>{
 module.exports = {
     categoryInfo,
     addCategory,
+    loadAddCategory,
     addCategoryOffer,
     removeCategoryOffer,
     getListCategory,

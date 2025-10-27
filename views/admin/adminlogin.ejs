@@ -18,7 +18,7 @@
 
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #2a2a2a;
+        background-color: #e8dcc4;
       }
 
       /* Promo Banner */
@@ -54,7 +54,8 @@
       .main-container {
         max-width: 100%;
         margin: 0 auto;
-        background: white;
+        background: #e8dcc4;
+        overflow: visible;
       }
 
       /* Header Section */
@@ -62,8 +63,9 @@
         background: white;
         padding: 40px 20px 30px;
         text-align: center;
-      }
 
+        margin-left: calc(-50vw + 50%); /* ADD THIS LINE */
+      }
       .brand-logo {
         width: 60px;
         height: auto;
@@ -79,11 +81,11 @@
 
       /* Login Section */
       .login-section {
-        background: linear-gradient(180deg, #e8dcc4 0%, #d4c4a8 100%);
-        padding: 60px 20px;
+        background: #e8dcc4;
+        padding: 60px 100px;
         text-align: center;
       }
-      .login-form-wrapper {
+      #loginForm {
         max-width: 500px;
         margin: 0 auto;
       }
@@ -107,8 +109,24 @@
         display: block;
       }
 
+      .form-input {
+        border-radius: 5px;
+        border: 1px solid #aaa;
+        padding: 14px 20px;
+        font-size: 14px;
+        background: #fff;
+        width: 100%;
+        margin-bottom: 25px;
+      }
+
+      .form-input:focus {
+        border-color: #8b6f47;
+        box-shadow: none;
+        outline: none;
+      }
+
       .form-control {
-        border-radius: 25px;
+        border-radius: 5px;
         border: 1px solid #aaa;
         padding: 14px 20px;
         font-size: 14px;
@@ -123,6 +141,26 @@
         outline: none;
       }
 
+      .password-container {
+        position: relative;
+      }
+
+      .password-container .form-input,
+      .password-container .form-control {
+        padding-right: 45px; /* space for the eye icon */
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
       /* Buttons */
       .button-group {
         display: flex;
@@ -134,7 +172,7 @@
       .btn-custom {
         padding: 12px 45px;
         border: none;
-        border-radius: 30px;
+        border-radius: 5px;
         font-size: 13px;
         font-weight: 700;
         cursor: pointer;
@@ -188,7 +226,7 @@
 
       /* Google Button */
       .google-btn {
-        border-radius: 25px;
+        border-radius: 5px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -214,8 +252,13 @@
       .footer-section {
         background: white;
         padding: 50px 40px 30px;
+        width: 100vw; /* ADD THIS LINE */
+        position: relative; /* ADD THIS LINE */
+        left: 50%; /* ADD THIS LINE */
+        right: 50%; /* ADD THIS LINE */
+        margin-left: -50vw; /* ADD THIS LINE */
+        margin-right: -50vw; /* ADD THIS LINE */
       }
-
       .footer-content {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -315,20 +358,6 @@
         font-weight: 600;
       }
 
-      .password-toggle {
-        position: absolute;
-        right: 35px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #666;
-        font-size: 16px;
-      }
-
-      .password-wrapper {
-        position: relative;
-      }
-
       .error-message {
         color: #dc3545;
         font-size: 11px;
@@ -384,95 +413,78 @@
       </div>
 
       <!-- Login Section -->
-
       <div class="login-section">
-        <div class="login-form-wrapper">
-          <h2 class="login-title">LOGIN</h2>
+        <h2 class="login-title">LOGIN</h2>
 
-          <form
-            id="loginForm"
-            action="/login"
-            method="POST"
-            onsubmit="return validateLoginForm()"
-          >
-            <div class="mb-3">
-              <label for="email" class="form-label">E-mail :</label>
-              <input
-                type="email"
-                class="form-control"
-                id="email"
-                name="email"
-                placeholder=""
-                onblur="validateEmail()"
-                required
-              />
-              <span id="emailError" class="error-message"></span>
-            </div>
-
-           <div class="mb-3 password-wrapper">
-              <label for="password" class="form-label">Password :</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                name="password"
-                placeholder="Password"
-                onblur="validatePassword()"
-                required
-              />
-              <span
-                class="password-toggle"
-                onclick="togglePasswordVisibility('password')"
-                >👁️</span
-              >
-              <span id="passwordError" class="error-message"></span>
-            </div>
-            <%if(locals.message && message.length>0){%>
-            <div class="alert alert-danger text-center"><%=message%></div>
-            <%}%>
-            <div class="button-group">
-              <button type="submit" class="btn-custom btn-login">Login</button>
-              <button
-                type="button"
-                class="btn-custom btn-signup"
-                onclick="window.location.href='/signup'"
-              >
-                Signup
-              </button>
-            </div>
-          </form>
-
-          <div class="divider-container">
-            <div class="divider-line"></div>
-            <span class="divider-text">or</span>
-            <div class="divider-line"></div>
+        <form id="loginForm" action="/admin/login" method="post" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="admin@company.com"
+              required
+            />
           </div>
 
-          <button
-            class="google-btn"
-            onclick="window.location.href='/auth/google'"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18">
-              <path
-                fill="#4285F4"
-                d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <div class="password-container">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-input"
+                placeholder="Enter your password"
+                required
               />
-              <path
-                fill="#34A853"
-                d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
-              />
-              <path
-                fill="#EA4335"
-                d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
-              />
-            </svg>
-            Login with Google
+              <button
+                type="button"
+                class="toggle-password"
+                onclick="togglePassword()"
+              >
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-custom btn-login" id="loginBtn">
+            Sign In
           </button>
+        </form>
+
+        <div class="divider-container">
+          <div class="divider-line"></div>
+          <span class="divider-text">or</span>
+          <div class="divider-line"></div>
         </div>
+
+        <button
+          class="google-btn"
+          onclick="window.location.href='/auth/google'"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18">
+            <path
+              fill="#4285F4"
+              d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+            />
+            <path
+              fill="#34A853"
+              d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
+            />
+            <path
+              fill="#EA4335"
+              d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
+            />
+          </svg>
+          Login with Google
+        </button>
       </div>
 
       <!-- Footer -->
@@ -484,10 +496,7 @@
               alt="Logo"
               class="footer-brand-logo"
             />
-            <p class="brand-tagline">
-              We have clothes that suits your style and which you're proud to
-              wear. From women to men.
-            </p>
+            <p class="brand-tagline"></p>
             <div class="social-links">
               <a href="#" aria-label="Twitter">T</a>
               <a href="#" aria-label="Facebook">F</a>
@@ -554,15 +563,87 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // Function to toggle password visibility
-      function togglePasswordVisibility(inputId) {
-        const passwordInput = document.getElementById(inputId);
+      function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const toggleBtn = document.querySelector(".toggle-password");
         if (passwordInput.type === "password") {
           passwordInput.type = "text";
+          toggleBtn.textContent = "🙈";
         } else {
           passwordInput.type = "password";
+          toggleBtn.textContent = "👁️";
         }
       }
+
+      function handleForgotPassword() {
+        alert("Password reset functionality would be implemented here.");
+      }
+
+      // document.addEventListener("DOMContentLoaded", () => {
+      //   const form = document.getElementById("loginForm");
+      //   const emailInput = document.getElementById("email");
+      //   const passwordInput = document.getElementById("password");
+      //   const loginButton = document.getElementById("loginBtn");
+
+      //   form.addEventListener("submit", function (e) {
+      //     e.preventDefault();
+      //     clearErrors();
+
+      //     loginButton.disabled = true;
+      //     loginButton.textContent = "Loading...";
+
+      //     let valid = true;
+
+      //     if (!emailInput.value.trim()) {
+      //       showError(emailInput, "Email is required");
+      //       valid = false;
+      //     } else if (
+      //       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())
+      //     ) {
+      //       showError(emailInput, "Enter a valid email");
+      //       valid = false;
+      //     }
+
+      //     if (!passwordInput.value.trim()) {
+      //       showError(passwordInput, "Password is required");
+      //       valid = false;
+      //     } else if (passwordInput.value.trim().length < 6) {
+      //       showError(passwordInput, "Password must be at least 6 characters");
+      //       valid = false;
+      //     }
+
+      //     if (valid) {
+      //       form.submit();
+      //     } else {
+      //       // Re-enable button if validation fails
+      //       loginButton.disabled = false;
+      //       loginButton.textContent = "Sign In";
+      //     }
+      //   });
+
+      //   function showError(input, message) {
+      //     const error = document.createElement("div");
+      //     error.className = "error-message";
+      //     error.style.color = "#e53e3e";
+      //     error.style.fontSize = "12px";
+      //     error.style.marginTop = "4px";
+      //     error.textContent = message;
+      //     input.style.borderColor = "#e53e3e";
+      //     input.parentElement.appendChild(error);
+      //   }
+
+      //   function clearErrors() {
+      //     document
+      //       .querySelectorAll(".error-message")
+      //       .forEach((el) => el.remove());
+      //     document.querySelectorAll(".form-input").forEach((input) => {
+      //       input.style.borderColor = "#e2e8f0";
+      //     });
+      //   }
+      // });
+    </script>
+
+    <!-- <script>
       function validateEmail() {
         const email = document.getElementById("email").value;
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -608,6 +689,6 @@
           return false;
         }
       }
-    </script>
+    </script> -->
   </body>
 </html>

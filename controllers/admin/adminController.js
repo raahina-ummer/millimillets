@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt")
 
 
 const pageerror= async(req,res)=>{
-    res.render("admin-error")
+    res.render("pagerror")
 }
 
 
@@ -12,10 +12,12 @@ const loadLogin =  (req,res)=>{
     if(req.session.admin){
         return res.redirect("/admin/dashboard")
     }
-    res.render("admin-login",{message:null})
+    res.render("adminlogin",{message:null})
 }
 
 const login = async (req,res)=>{
+
+    
     try {
         const {email,password} = req.body;
         const admin = await User.findOne({email:email,isAdmin:true})
@@ -29,14 +31,14 @@ const login = async (req,res)=>{
 
                 return res.redirect("/admin/dashboard")
             }else{
-                return res.redirect("admin-login")
+                return res.render("adminlogin")
             }
         }else{
-            return res.redirect("admin-login")
+            return res.render("adminlogin")
         }
     } catch (error) {
         console.log("login error",error);
-        return res.redirect("/p-404")
+        return res.redirect("/pageerror")
     }
 }
 
@@ -46,7 +48,7 @@ const loadDashboard = async(req,res)=>{
     try {
         res.render("dashboard");
     } catch (error) {
-       res.redirect("/pageNotFound") 
+       res.redirect("/admin/pageNotFound") 
     }
 
 }else{

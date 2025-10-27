@@ -31,34 +31,39 @@ const customerInfo = async (req, res) => {
       ],
     }).countDocuments();
 
-    res.render("customers");
-  } catch (error) {}
+    res.render("customers", {
+      data: userData,        //  user list
+      currentPage: page,     // current page number
+      totalPages: Math.ceil(count / limit) // total number of pages
+    });
+
+  } catch (error) { }
 };
 
 
-const customerBlocked = async(req,res)=>{
-    try {
+const customerBlocked = async (req, res) => {
+  try {
 
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:true}})
-        res.redirect("/admin/users");
-        
-    } catch (error) {
-        res.redirect("/pageerror")
-    }
+    let id = req.query.id;
+    await User.updateOne({ _id: id }, { $set: { isBlocked: true } })
+    res.redirect("/admin/users");
+
+  } catch (error) {
+    res.redirect("/pageerror")
+  }
 }
 
 
-const customerunBlocked = async(req,res)=>{
-    try {
-        
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:false}})
-        res.redirect("/admin/users");
-        
-    } catch (error) {
-         res.redirect("/pageerror")
-    }
+const customerunBlocked = async (req, res) => {
+  try {
+
+    let id = req.query.id;
+    await User.updateOne({ _id: id }, { $set: { isBlocked: false } })
+    res.redirect("/admin/users");
+
+  } catch (error) {
+    res.redirect("/pageerror")
+  }
 }
 
 module.exports = {
