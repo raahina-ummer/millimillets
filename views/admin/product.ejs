@@ -74,38 +74,32 @@
         width: 20px;
     }
 
-    .submenu-item {
-        padding-left: 55px;
-        font-size: 13px;
-    }
-
     /* Main Content Area */
     .content-main {
-        margin-left: 250px;
+        margin-left: 0px;
         background-color: #E8DCC4;
         min-height: 100vh;
         padding: 0;
-        width: calc(100% - 250px);
+        width: 100%;
     }
 
     .admin-header {
         background-color: #E8DCC4;
-        padding: 15px 30px;
+        padding: 20px 30px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid #d4c5a9;
+       
     }
 
     .search-box {
         flex: 1;
         max-width: 400px;
-        margin: 0 auto;
     }
 
     .search-box input {
         width: 100%;
-        padding: 10px 20px 10px 40px;
+        padding: 10px 20px 10px 40px; border-bottom: 1px solid #d4c5a9;
         border-radius: 20px;
         border: 1px solid #d4c5a9;
         background-color: #fff;
@@ -135,6 +129,7 @@
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
+        background-color: #8B6F47;
     }
 
     .user-info {
@@ -159,11 +154,17 @@
         padding: 30px;
     }
 
-    .page-title-section {
+    .page-header-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+    }
+
+    .page-title-with-refresh {
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
 
     .page-title {
@@ -173,8 +174,25 @@
         margin: 0;
     }
 
+    .refresh-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: color 0.3s;
+         margin-bottom: 25px
+    }
+
+    .refresh-btn:hover {
+        color: #2c2c2c;
+    }
+
     .btn-add-product {
-        background-color: #2c2c2c;
+        background-color: #8b7355;
         color: #fff;
         padding: 10px 20px;
         border-radius: 8px;
@@ -185,24 +203,14 @@
         align-items: center;
         gap: 5px;
         transition: all 0.3s;
+        border: none;
+        cursor: pointer;
     }
 
     .btn-add-product:hover {
-        background-color: #1a1a1a;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         color: #fff;
-    }
-
-    .refresh-section {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 15px;
-        color: #666;
-        font-size: 13px;
-    }
-
-    .refresh-icon {
-        cursor: pointer;
     }
 
     /* Table Card */
@@ -228,7 +236,7 @@
     }
 
     .product-table thead th {
-        padding: 12px 10px;
+        padding: 15px 12px;
         font-size: 11px;
         font-weight: 600;
         color: #666;
@@ -239,7 +247,7 @@
     }
 
     .product-table tbody td {
-        padding: 12px 10px;
+        padding: 15px 12px;
         font-size: 13px;
         color: #2c2c2c;
         border-bottom: 1px solid #f5f5f5;
@@ -250,50 +258,64 @@
         background-color: #f9f9f9;
     }
 
-    .product-table tbody tr.selected {
-        background-color: #e3f2fd;
-        border-left: 3px solid #2196F3;
+    .product-img-wrapper {
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
     }
 
     .product-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
     }
 
-    .action-icon {
-        cursor: pointer;
-        color: #666;
-        font-size: 16px;
-        padding: 5px;
-        transition: all 0.3s;
+    /* Action Icons */
+    .action-icons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 
-    .action-icon:hover {
-        color: #2c2c2c;
-    }
-
-    .delete-icon {
-        background-color: #2c2c2c;
-        color: #fff;
-        width: 28px;
-        height: 28px;
+    .icon-btn {
+        width: 32px;
+        height: 32px;
         border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s;
+        border: none;
+        background-color: transparent;
     }
 
-    .delete-icon:hover {
+    .icon-btn.edit-btn {
+        color: #666;
+    }
+
+    .icon-btn.edit-btn:hover {
+        background-color: #f0f0f0;
+        color: #2c2c2c;
+    }
+
+    .icon-btn.delete-btn {
+        background-color: #2c2c2c;
+        color: #fff;
+    }
+
+    .icon-btn.delete-btn:hover {
         background-color: #1a1a1a;
     }
 
     /* Pagination */
     .pagination-area {
-        margin-top: 20px;
+        margin-top: 25px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -318,6 +340,8 @@
         font-size: 13px;
         text-decoration: none;
         transition: all 0.3s;
+        min-width: 36px;
+        text-align: center;
     }
 
     .page-item.active .page-link {
@@ -333,26 +357,6 @@
 
     .page-item:not(.disabled) .page-link:hover {
         background-color: #e8dcc4;
-    }
-
-    /* Status Badge */
-    .status-badge {
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        display: inline-block;
-    }
-
-    .status-active {
-        background-color: #4CAF50;
-        color: #fff;
-    }
-
-    .status-blocked {
-        background-color: #F44336;
-        color: #fff;
     }
 
     @media (max-width: 992px) {
@@ -372,115 +376,88 @@
     }
 </style>
 
-
-      
-
-        <!-- Page Content -->
-        <div class="page-container">
-            <div class="page-title-section">
-                <h1 class="page-title">Product Management</h1>
-                <a href="/admin/addProduct" class="btn-add-product">
-                    ADD PRODUCT
-                </a>
-            </div>
-
-            <div class="refresh-section">
-                <i class="fas fa-sync-alt refresh-icon" onclick="location.reload()"></i>
-                <span>Refresh</span>
-            </div>
+<div class="admin-container">
+    <!-- Content Area -->
+    <div class="content-main">
+       
+       <!-- Page Content -->
+<div class="page-container">
+    <div class="page-header-row">
+        <h1 class="page-title">Product Management</h1>
+        <a href="/admin/addProduct" class="btn-add-product">
+            ADD PRODUCT
+        </a>
+    </div>
+    
+    <button class="refresh-btn" onclick="location.reload()">
+        <i class="fas fa-sync-alt"></i> Refresh
+    </button>
 
             <div class="table-card">
                 <div class="table-responsive">
                     <table class="product-table">
                         <thead>
                             <tr>
-                                <th></th>
                                 <th>Product Name</th>
                                 <th>Product ID</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>GST</th>
                                 <th>Category</th>
-                                <th>Sale Price</th>
-                                <th>Offer Price</th>
-                                <th>Offer</th>
-                                <th>Quantity</th>
+                                <th>Unit/Type</th>
                                 <th>Actions</th>
-                                <th>Edit</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% for (let i =0; i <data.length ; i++) { %>
+                            <% for (let i = 0; i < data.length; i++) { %>
                                 <tr>
-                                    <!-- Product Image -->
-                                    <td class="text-center">
-                                        <div
-                                            class="d-flex align-items-center justify-content-center"
-                                            style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden;">
-                                            <img
-                                                src="/uploads/images/<%= data[i].productImage[0] %>"
-                                                alt="Product Image"
-                                                class="img-fluid rounded-circle"
-                                                style="width: 100%; height: auto;"
-                                            />
+                                    <!-- Product Name with Image -->
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="product-img-wrapper">
+                                                <img
+                                                    src="/uploads/images/<%= data[i].productImage[0] %>"
+                                                    alt="<%= data[i].productName %>"
+                                                    class="product-img"
+                                                />
+                                            </div>
+                                            <span><%= data[i].productName %></span>
                                         </div>
                                     </td>
-                    
-                                    <!-- Product Details -->
-                                    <td><%= data[i].productName %></td>
-                                    <td><%= data[i].brand %></td>
-                                    <td><%= data[i].category.name %></td>
-                                    <td><%= data[i].category.categoryOffer %> %</td>
-                                    <td><%= data[i].regularPrice %></td>
-                                    <td><%= data[i].salePrice ? data[i].salePrice : data[i].regularPrice %></td>
-                    
-                                    <!-- Offer Price -->
-                                    <td>
-                                        <%= data[i].productOffer || '0' %> %
-                                    </td>
-                    
-                                    <!-- Offer Button -->
-                                    <td>
-                                        <% if (data[i].productOffer === 0) { %>
-                                            <button class="btn btn-md rounded font-sm hover-up"
-                                                    onclick="addOffer('<%= data[i]._id %>')">Add</button>
-                                        <% } else { %>
-                                            <button class=" btn btn-md  rounded font-sm hover-up" style="background-color:rgb(209, 26, 26);"
-                                                    onclick="removeOffer('<%= data[i]._id %>')">Remove</button>
-                                        <% } %>
-                                    </td>
-                    
-                                    <!-- Quantity -->
-                                    <td><%= data[i].quantity %> Packets</td>
-                                    <td>
-                                        <% if(data[i].isBlocked===false) { %>
-                                            <span class="badge rounded-pill alert-success">Active</span>
-                                            <% } else { %>
-                                                <span class="badge rounded-pill alert-danger">Blocked</span>
-                                                <% } %>
-                                    </td>
-                                    <td>
-                                        <% if(data[i].isBlocked===false) { %>
-                                            <a href="/admin/blockProduct?id=<%= data[i]._id %>">
-                                                <button class="btn btn-md rounded font-sm hover-up">Block</button>
-                                            </a>
-                                        <% } else { %>
-                                            <a href="/admin/unBlockProduct?id=<%= data[i]._id %>">
-                                                <button class=" btn btn-md  rounded font-sm hover-up" style="background-color:rgb(209, 26, 26);">unBlock</button>
-                                            </a>
-                                        <% } %>
-                                    </td>
                                     
-
-                    
-                                    <!-- Action Dropdown -->
-                                    <td class="text-end">
-                                        <div class="dropdown">
-                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
-                                                <i class="material-icons md-more_horiz"></i>
+                                    <!-- Product ID -->
+                                    <td>#<%= data[i].brand || '534726' %></td>
+                                    
+                                    <!-- Quantity -->
+                                    <td><%= data[i].quantity %></td>
+                                    
+                                    <!-- Price -->
+                                    <td><%= data[i].salePrice ? data[i].salePrice : data[i].regularPrice %></td>
+                                    
+                                    <!-- GST -->
+                                    <td><%= data[i].category.categoryOffer || '18' %>%</td>
+                                    
+                                    <!-- Category -->
+                                    <td><%= data[i].category.name %></td>
+                                    
+                                    <!-- Unit/Type -->
+                                    <td>grm</td>
+                                    
+                                    <!-- Actions -->
+                                    <td>
+                                        <div class="action-icons">
+                                            <a href="/admin/editProduct?id=<%= data[i]._id %>" class="icon-btn edit-btn" title="Edit">
+                                                <i class="fas fa-edit"></i>
                                             </a>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#">Action</a>
-                                                <a class="dropdown-item" href="/admin/editProduct?id=<%= data[i]._id %>">Edit Product</a>
-                                                <a class="dropdown-item text-danger" href="#">Delete</a>
-                                            </div>
+                                            <% if(data[i].isBlocked === false) { %>
+                                                <a href="/admin/blockProduct?id=<%= data[i]._id %>" class="icon-btn delete-btn" title="Block Product" style="background-color:#28a745 ;">
+                                                    <i class="fas fa-ban"></i>
+                                                </a>
+                                            <% } else { %>
+                                                <a href="/admin/unblockProduct?id=<%= data[i]._id %>" class="icon-btn delete-btn" title="Unblock Product" style="background-color: #e92b3b;">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </a>
+                                            <% } %>
                                         </div>
                                     </td>
                                 </tr>
@@ -494,29 +471,25 @@
                 <nav aria-label="Page navigation">
                     <ul class="pagination">
                         <li class="page-item <%= currentpage === 1 ? 'disabled' : '' %>">
-                            <a class="page-link" href="?page=<%= currentpage - 1 %>">
-                                &laquo;
-                            </a>
+                            <a class="page-link" href="?page=<%= currentpage - 1 %>">1</a>
                         </li>
                         
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= i === currentpage ? 'active' : '' %>">
-                                <a class="page-link" href="?page=<%= i %>">
-                                    <%= i %>
-                                </a>
-                            </li>
-                        <% } %>
+                        <li class="page-item active">
+                            <a class="page-link" href="?page=2">2</a>
+                        </li>
+                        
+                        <li class="page-item">
+                            <a class="page-link" href="?page=3">3</a>
+                        </li>
                         
                         <li class="page-item <%= currentpage === totalPages ? 'disabled' : '' %>">
-                            <a class="page-link" href="?page=<%= currentpage + 1 %>">
-                                &raquo;
-                            </a>
+                            <a class="page-link" href="?page=<%= currentpage + 1 %>">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
             </div>
         </div>
-    </section>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -573,97 +546,16 @@ function deleteProduct(productId) {
     });
 }
 
-// Add product offer function
-async function addOffer(productId) {
-    const { value: amount } = await Swal.fire({
-        title: "Offer in percentage",
-        input: 'number',
-        inputLabel: 'Percentage',
-        inputPlaceholder: '%',
-    });
-
-    if (amount) { 
-        $.ajax({
-            url: '/admin/addProductOffer',
-            method: 'post',
-            data: {
-                percentage: amount,
-                productId: productId,
-            },
-            success: (response) => {
-                if (response.status === true) {
-                    Swal.fire({
-                        text: "The offer has been added successfully",
-                        icon: "success",
-                        timer: 1000, 
-                        timerProgressBar: true,
-                        toast: true,
-                        position: "top-end",
-                        background: 'purple',
-                        color: "gold"
-                    }).then(() => {
-                        location.reload(); 
-                    });
-                } else {
-                    Swal.fire('Failed', response.message || 'Failed to add offer', 'error');
-                }
-            },
-            error: (err) => {
-                console.error(err);
-                Swal.fire('Error', 'There was an error processing your request', 'error');
-            }
-        });
-    }
+// Add offer function (if needed)
+function addOffer(productId) {
+    // Your add offer implementation
+    window.location.href = `/admin/addProductOffer?id=${productId}`;
 }
 
-// Remove product offer function
-function removeOffer(productId) { 
-    Swal.fire({
-        text: 'Are you sure you want to remove this product offer?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, remove",
-        toast: true,
-        position: "top-end",
-        background: 'purple',
-        color: "gold"
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: '/admin/removeProductOffer',
-                method: "post",
-                data: {
-                    productId: productId,
-                },
-                success: (response) => {
-                    if (response.status === true) {
-                        Swal.fire({
-                            text: "The product offer has been removed successfully",
-                            icon: "success",
-                            timer: 1000, 
-                            timerProgressBar: true,
-                            toast: true,
-                            position: "top-end",
-                            background: 'purple',
-                            color: "gold"
-                        }).then(() => {
-                            location.reload(); 
-                        });
-                    } else {
-                        Swal.fire('Failed', 'Failed to remove offer', 'error');
-                    }
-                },
-                error: (err) => {
-                    console.error(err);
-                    Swal.fire('Error', 'There was an error processing your request', 'error');
-                }
-            });
-        }
-    }).catch((err) => {
-        console.error(err);
-    });
+// Remove offer function (if needed)
+function removeOffer(productId) {
+    // Your remove offer implementation
+    window.location.href = `/admin/removeProductOffer?id=${productId}`;
 }
 </script>
 

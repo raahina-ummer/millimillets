@@ -52,7 +52,7 @@ const loadDashboard = async(req,res)=>{
     }
 
 }else{
-    return res.redirect("/login");
+    return res.redirect("/admin/login");
 }
 }
 

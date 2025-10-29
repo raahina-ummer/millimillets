@@ -35,10 +35,6 @@ router.get("/addCategory",adminAuth,categoryController.loadAddCategory);
 router.post("/addCategory",adminAuth,categoryController.addCategory);
 router.get("/editCategory",adminAuth,categoryController.getEditCategory);
 router.post("/editCategory/:id",adminAuth,categoryController.editCategory)
-
-
-router.post("/addCategoryOffer",adminAuth,categoryController.addCategoryOffer);
-router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer);
 router.get("/listCategory",adminAuth,categoryController.getListCategory);
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory);
 
@@ -47,8 +43,6 @@ router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory);
 router.get("/addProduct",adminAuth,productController.getProductAddPage);
 router.post("/addProduct",uploads.array("images",4),productController.addProducts);
 router.get("/products",productController.getAllProducts);
-router.post("/addProductOffer",adminAuth,productController.addProductOffer);
-router.post("/removeProductOffer",adminAuth,productController.removeProductOffer);
 router.get("/blockProduct",adminAuth,productController.blockProduct);
 router.get("/unblockProduct",adminAuth,productController.unblockProduct);
 router.get("/editProduct",adminAuth,productController.getEditProduct);

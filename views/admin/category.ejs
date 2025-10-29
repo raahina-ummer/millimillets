@@ -212,6 +212,23 @@
             background-color: #fee;
         }
 
+        .action-icon.toggle-list:hover {
+    color: #8b7355;
+    background-color: #f5f0eb;
+  }
+  
+  .action-icon.toggle-list i {
+    font-size: 18px;
+  }      
+        .action-icon.toggle-list.listed {
+  color: #28a745 !important;
+}
+
+.action-icon.toggle-list.unlisted {
+  color: #dc3545 !important;
+}
+
+
         .pagination-container {
             display: flex;
             justify-content: space-between;
@@ -338,8 +355,8 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                      <tbody>
-  <% if (cat && cat.length > 0) { %>
+ <tbody>
+    <% if (cat && cat.length > 0) { %>
     <% cat.forEach((category, index) => { %>
       <tr>
         <td>
@@ -361,12 +378,14 @@
             <button class="action-icon edit" data-id="<%= category._id %>">
               <i class="fas fa-pen"></i>
             </button>
-            <button class="action-icon view" data-id="<%= category._id %>">
-              <i class="fas fa-eye"></i>
-            </button>
-            <button class="action-icon delete" data-id="<%= category._id %>">
-              <i class="fas fa-trash"></i>
-            </button>
+         
+            <!-- Toggle List/Unlist Button -->
+         <button class="action-icon toggle-list <%= category.isListed ? 'listed' : 'unlisted' %>" 
+        data-id="<%= category._id %>" 
+        data-listed="<%= category.isListed %>"
+        title="<%= category.isListed ? 'Unlist Category' : 'List Category' %>">
+  <i class="fas <%= category.isListed ? 'fa-toggle-on' : 'fa-toggle-off' %>"></i>
+</button>
           </div>
         </td>
       </tr>
@@ -376,7 +395,10 @@
       <td colspan="6" class="text-center">No categories found.</td>
     </tr>
   <% } %>
-                </tbody>
+
+</tbody>
+
+
                 </table>
             </div>
 
@@ -419,25 +441,25 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Select All Checkbox
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-        });
+          // Select All Checkbox
+  document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+  });
 
-        // Individual checkbox change
-        document.querySelectorAll('.category-checkbox:not(#selectAll)').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const allCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
-                const checkedCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll):checked');
-                document.getElementById('selectAll').checked = allCheckboxes.length === checkedCheckboxes.length;
-            });
-        });
+  // Individual checkbox change
+  document.querySelectorAll('.category-checkbox:not(#selectAll)').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const allCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
+      const checkedCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll):checked');
+      document.getElementById('selectAll').checked = allCheckboxes.length === checkedCheckboxes.length;
+    });
+  });
 
-   
   // Edit button click
   document.querySelectorAll(".action-icon.edit").forEach(button => {
     button.addEventListener("click", function() {
@@ -446,18 +468,43 @@
     });
   });
 
-  // Delete button click with confirmation
-  document.querySelectorAll(".action-icon.delete").forEach(button => {
+  // View button click
+  document.querySelectorAll(".action-icon.view").forEach(button => {
     button.addEventListener("click", function() {
       const categoryId = this.getAttribute("data-id");
-      const confirmDelete = confirm("Are you sure you want to delete this category?");
-      if (confirmDelete) {
-        window.location.href = `/admin/deleteCategory?id=${categoryId}`;
-      }
+      window.location.href = `/admin/viewCategory?id=${categoryId}`;
     });
   });
 
-
+  // Toggle List/Unlist button click 
+document.querySelectorAll(".action-icon.toggle-list").forEach(button => {
+  button.addEventListener("click", function() {
+    const categoryId = this.getAttribute("data-id");
+    const isListed = this.getAttribute("data-listed") === "true";
+    
+    const action = isListed ? "unlist" : "list";
+    const actionTitle = isListed ? "Unlist Category" : "List Category";
+    const confirmButtonColor = isListed ? '#dc3545' : '#28a745';
+    
+    Swal.fire({
+      title: actionTitle,
+      text: `Are you sure you want to ${action} this category?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#8b7355',
+      cancelButtonColor: confirmButtonColor,
+      confirmButtonText: `Yes, ${action} it!`,
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const url = isListed 
+          ? `/admin/listCategory?id=${categoryId}` 
+          : `/admin/unlistCategory?id=${categoryId}`;
+        window.location.href = url;
+      }
+    });
+  });
+});
     </script>
 </body>
 </html>

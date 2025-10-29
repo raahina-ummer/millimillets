@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const userController = require("../controllers/user/userController.js")
-
-
+const profileController = require("../controllers/user/profileController.js")
+const {userAuth,adminAuth}= require("../middleware/auth");
 
 router.get("/pageNotFound",userController.pageNotFound)
 
@@ -23,7 +23,18 @@ router.post("/login",userController.login)
 //homePage and Shopping page
 router.get("/",userController.loadHomepage)
 router.get("/logout",userController.logout)
+router.get("/shop",userAuth,userController.loadShoppingPage);
 
+
+//profile management
+router.get("/forgotPassword",profileController.getForgotPassword);
+router.post("/forgotEmailValid",profileController.forgotEmailValid)
+router.get("/verifyForgotOtp",profileController.getVerifyOtp)
+router.post("/verifyForgotOtp", profileController.verifyForgotOtp);
+
+router.post("/resendOtp",profileController.resendOtp)
+router.get("/resetPassword",profileController.getPostNewPassword)
+router.post("/resetPassword",profileController.postNewPassword)
 
 
 

@@ -130,36 +130,42 @@ const securePassword = async (password) => {
 }
 const verifyOtp = async (req, res) => {
   try {
-
     const { otp } = req.body;
-    console.log(otp);
-const timeDiff = (req.session.timer - new Date())
-    if(timeDiff >60000){
-    return res.status(400).json({ success: false, message: "OTP timer Expired" })
+    console.log("Entered OTP:", otp);
+    console.log("Session OTP:", req.session.userOtp);
+
+    
+    const timeDiff = (req.session.timer - new Date());
+    if (timeDiff > 60000) {
+      return res.status(400).json({ success: false, message: "OTP timer expired" });
     }
-    if (otp === req.session.userOtp) {
-      const user = req.session.userData
-      const passwordHash = await securePassword(user.password);
+
+    if (String(otp) === String(req.session.userOtp)) {
+      const email = req.session.email;
+
+      if (!email) {
+        return res.status(400).json({ success: false, message: "Session expired. Please try again." });
+      }
+
+      // OTP verified successfully
       delete req.session.userOtp;
 
-      const saveUserData = new User({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: passwordHash
-      })
+      // redirect to reset password page
+      return res.json({
+        success: true,
+        redirectUrl: "/resetPassword"
+      });
 
-      await saveUserData.save();
-      req.session.user = saveUserData._id;
-      res.json({ success: true, redirectUrl: "/login" })
     } else {
-      res.status(400).json({ success: false, message: "Invalid OTP,Please try again" })
+      return res.status(400).json({ success: false, message: "Invalid OTP, please try again" });
     }
+
   } catch (error) {
-    console.error("Error Verifying Otp", error)
-    res.status(500).json({ success: false, message: "An error Occured" })
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({ success: false, message: "An error occurred while verifying OTP" });
   }
-}
+};
+
 
 
 const resendOtp = async (req, res) => {
@@ -249,6 +255,14 @@ const logout = async (req,res)=>{
   }
 }
 
+
+const loadShoppingPage = async(req,res)=>{
+  try {
+    res.render("shop")
+  } catch (error) {
+    res.redirect("/pageNotFound")
+  }
+}
 module.exports = {
   loadHomepage,
   pageNotFound,
@@ -258,5 +272,6 @@ module.exports = {
   resendOtp,
   loadLogin,
   login,
-  logout
+  logout,
+  loadShoppingPage
 };
