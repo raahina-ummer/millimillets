@@ -1,9 +1,44 @@
 const User = require("../../models/userSchema.js");
 const env = require("dotenv").config();
-const nodemailer = require("nodemailer");
+
 const bcrypt = require('bcrypt');
 const Product = require("../../models/ProductSchema.js");
 const Category = require("../../models/CategorySchema");
+const {sendVerificationEmail,generateOtp} = require("../../Helpers/emailandaotpservices.js")
+
+
+
+
+// function generateOtp() {
+//   return Math.floor(1000 + Math.random() * 9000).toString();
+// }
+
+// async function sendVerificationEmail(email, otp) {
+//   try {
+//     const transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       port: 587,
+//       secure: false,
+//       requireTLS: true,
+//       auth: {
+//         user: process.env.NODEMAILER_EMAIL,
+//         pass: process.env.NODEMAILER_PASSWORD,
+//       },
+//     });
+
+//     const info = await transporter.sendMail({
+//       from: process.env.NODEMAILER_EMAIL,
+//       to: email,
+//       subject: "Verify your account",
+//       text: `Your OTP is ${otp}`,
+//       html: `<b>Your OTP :${otp}</b>`,
+//     });
+//     return info.accepted.length > 0;
+//   } catch (error) {
+//     console.log("Error sending email", error);
+//     return false;
+//   }
+// }
 
 
 const pageNotFound = async (req, res) => {
@@ -19,7 +54,7 @@ const pageNotFound = async (req, res) => {
 
 const loadHomepage = async (req, res) => {
   try {
-    const user = req.session.user;
+    const userId = req.session?.user?.id;
     const categories = await Category.find({ isListed: true });
     const categoryIds = categories.length > 0 ? categories.map(cat => cat._id) : [];
     const productData = await Product.find({
@@ -28,11 +63,11 @@ const loadHomepage = async (req, res) => {
       quantity: { $gt: 0 },
     }).sort({ createdAt: -1 }).limit(8);
 
-    if (user) {
-      const userData = await User.findById(user);
+    if (userId) {
+      const userData = await User.findById(userId);
       return res.render("home", { user: userData, products: productData, categories });
     } else {
-      return res.render("home", { products: productData, categories });
+      return res.render("home", { user:null,products: productData, categories });
     }
   } catch (error) {
     console.log("Home Page not Found", error);
@@ -56,6 +91,7 @@ const loadSignup = async (req, res) => {
 const signup = async (req, res) => {
   try {
     const { name, phone, email, password, cPassword } = req.body;
+    console.log(req.body)
 
     if (password !== cPassword) {
       return res.render("signup", { message: "Passwords do not match" });
@@ -68,39 +104,6 @@ const signup = async (req, res) => {
       });
     }
 
-function generateOtp() {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-}
-
-async function sendVerificationEmail(email, otp) {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD,
-      },
-    });
-
-    const info = await transporter.sendMail({
-      from: process.env.NODEMAILER_EMAIL,
-      to: email,
-      subject: "Verify your account",
-      text: `Your OTP is ${otp}`,
-      html: `<b>Your OTP :${otp}</b>`,
-    });
-    return info.accepted.length > 0;
-  } catch (error) {
-    console.log("Error sending email", error);
-    return false;
-  }
-}
-
-
-
     const otp = generateOtp();
     const emailSent = await sendVerificationEmail(email, otp);
     if (!emailSent) {
@@ -108,7 +111,9 @@ async function sendVerificationEmail(email, otp) {
     }
     req.session.userOtp = otp;
     console.log("otp is:", req.session.userOtp);
-    req.session.userData = { name, phone, email, password };
+    const passwordHash = await securePassword(password)
+    req.session.userData = { name, phone, email, passwordHash};
+    req.session.email = email;
     req.session.timer = new Date ()
     res.render("verifyOtp");
     console.log("OTP sent", otp);
@@ -133,6 +138,11 @@ const verifyOtp = async (req, res) => {
     const { otp } = req.body;
     console.log("Entered OTP:", otp);
     console.log("Session OTP:", req.session.userOtp);
+    let redirectUrl ="";
+    if(req.session.userData)
+    {
+      redirectUrl = "/"
+    }
 
     
     const timeDiff = (req.session.timer - new Date());
@@ -147,17 +157,39 @@ const verifyOtp = async (req, res) => {
         return res.status(400).json({ success: false, message: "Session expired. Please try again." });
       }
 
+      console.log(req.session.userData);
+
+      if(req.session.userData){
+        
+        const saveUserData = new User({
+        name: req.session.userData.name,
+        email: req.session.userData.email,
+        phone: req.session.userData.phone,
+        password: req.session.userData.passwordHash
+      });
+
+      req.session.user = {
+        id:saveUserData._id,
+        name:req.session.userData.name,
+        email:req.session.userData.email
+      }
+
+      await saveUserData.save();
+
+      }
+
       // OTP verified successfully
       delete req.session.userOtp;
+      console.log("hai hello")
 
       // redirect to reset password page
-      return res.json({
+      return res.status(200).json({
         success: true,
-        redirectUrl: "/resetPassword"
+        redirectUrl 
       });
 
     } else {
-      return res.status(400).json({ success: false, message: "Invalid OTP, please try again" });
+      return res.status(400).json({ success: false, message: "Invalid OTP, please try again backend" });
     }
 
   } catch (error) {
@@ -170,7 +202,7 @@ const verifyOtp = async (req, res) => {
 
 const resendOtp = async (req, res) => {
   try {
-    const { email } = req.session.userData;
+    const { email } = req.session.userData || req.session.email;
     if (!email) {
       return res.status(400).json({ success: false, message: "Email not found in session" })
     }
@@ -228,7 +260,9 @@ const login = async (req, res) => {
       return res.render("login", { message: "Incorrect Password" })
     }
 
-    req.session.user = findUser._id;
+    req.session.user = {
+      id: findUser._id
+    }
     res.redirect("/")
 
   } catch (error) {
@@ -255,14 +289,122 @@ const logout = async (req,res)=>{
   }
 }
 
+const loadShoppingPage = async (req, res) => {
+    try {
+        const search = req.query.search || '';
+        const currentCategory = req.query.category || null;
+        const currentSort = req.query.sort || 'newest';
+        const currentPage = parseInt(req.query.page) || 1;
+        
+        const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice) : undefined;
+        const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice) : undefined;
+        
+        const currentPriceRange = {
+            min: minPrice,
+            max: maxPrice
+        };
+        
+        // Define price ranges
+        const priceRanges = [
+            { min: 0, max: 500 },
+            { min: 500, max: 1000 },
+            { min: 1000, max: 2000 },
+            { min: 2000, max: 5000 },
+            { min: 5000, max: Infinity }
+        ];
+        
+        // Get categories with counts
+        const categoryGroups = await Category.aggregate([
+            { $match: { isListed: true } },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: '_id',
+                    foreignField: 'category',
+                    as: 'products'
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    count: { $size: '$products' }
+                }
+            }
+        ]);
+        
+        // Build product query
+        let productQuery = { isBlocked: false };
+        
+        if (search) {
+            productQuery.productName = { $regex: search, $options: 'i' };
+        }
+        
+        if (currentCategory) {
+            productQuery.category = currentCategory;
+        }
 
-const loadShoppingPage = async(req,res)=>{
+        const userData = await User.findById(req.session.user.id);
+        
+        if (minPrice !== undefined) {
+            productQuery['variant.salePrice'] = { 
+                $gte: minPrice,
+                ...(maxPrice !== Infinity ? { $lte: maxPrice } : {})
+            };
+        }
+        
+        // Get products
+        let products = await Product.find(productQuery)
+            .populate('category')
+            .lean();
+        
+        // Apply sorting
+        if (currentSort === 'price-asc') {
+            products.sort((a, b) => (a.variant[0]?.salePrice || 0) - (b.variant[0]?.salePrice || 0));
+        } else if (currentSort === 'price-desc') {
+            products.sort((a, b) => (b.variant[0]?.salePrice || 0) - (a.variant[0]?.salePrice || 0));
+        } else if (currentSort === 'name-asc') {
+            products.sort((a, b) => a.productName.localeCompare(b.productName));
+        } else if (currentSort === 'name-desc') {
+            products.sort((a, b) => b.productName.localeCompare(a.productName));
+        } else if (currentSort === 'popularity') {
+            // Add your popularity logic here
+            products.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+        } else {
+            // Default: newest first
+            products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        
+         return res.render('shop', {
+            products,
+            categoryGroups,
+            priceRanges,
+            currentCategory,
+            currentSort,
+            currentPriceRange,
+            search,
+            currentPage,
+            user:userData
+        });
+        
+    } catch (error) {
+        console.error('Shop page error:', error);
+         return res.redirect('/pageError');
+    }
+};
+
+
+
+
+const sample = async(req,res)=>{
   try {
-    res.render("shop")
+    console.log("Hello Sample")
   } catch (error) {
-    res.redirect("/pageNotFound")
+    console.log(error)
   }
 }
+
+
+
 module.exports = {
   loadHomepage,
   pageNotFound,
@@ -273,5 +415,6 @@ module.exports = {
   loadLogin,
   login,
   logout,
-  loadShoppingPage
+  loadShoppingPage,
+  sample,
 };

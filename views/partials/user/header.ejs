@@ -141,9 +141,9 @@
             <li><a href="/shop">Shop</a></li>
             <li><a href="/about">About</a></li>
             <li><a href="/contact">Contact</a></li>
-            <%if(locals.user){%>
+            <%if(user){%>
             <li class="dropdown">
-              <a href="#" class="signin-link"><%=locals.user.name%></a>
+              <a href="#" class="signin-link"><%=user.name%></a>
               <div class="dropdown-content">
                 <a href="/userProfile">Profile</a>
                 <a href="/logout">Logout</a>

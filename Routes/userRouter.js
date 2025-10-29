@@ -4,6 +4,7 @@ const passport = require("passport");
 const userController = require("../controllers/user/userController.js")
 const profileController = require("../controllers/user/profileController.js")
 const {userAuth,adminAuth}= require("../middleware/auth");
+const productController=require("../controllers/user/productController.js")
 
 router.get("/pageNotFound",userController.pageNotFound)
 
@@ -11,7 +12,7 @@ router.get("/pageNotFound",userController.pageNotFound)
 router.get("/signup",userController.loadSignup);
 router.post("/signup",userController.signup)
 router.post("/verifyOtp",userController.verifyOtp)
-router.post("/resendOtp",userController.resendOtp)
+// router.post("/resendOtp",userController.resendOtp)
 router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
 router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:'/signup'}),(req,res)=>{
     res.redirect("/")
@@ -37,6 +38,13 @@ router.get("/resetPassword",profileController.getPostNewPassword)
 router.post("/resetPassword",profileController.postNewPassword)
 
 
+// //product management
+router.get("/productDetails",userAuth,productController.productDetails);
+
+
+
+//sample
+router.post("/sample",userController.sample)
 
 
 

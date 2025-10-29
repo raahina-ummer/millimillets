@@ -10,7 +10,7 @@ const customerInfo = async (req, res) => {
     if (req.query.page) {
       page = req.query.page;
     }
-    const limit = 3;
+    const limit = 6;
     const userData = await User.find({
       isAdmin: false,
       $or: [
@@ -45,7 +45,8 @@ const customerBlocked = async (req, res) => {
   try {
 
     let id = req.query.id;
-    await User.updateOne({ _id: id }, { $set: { isBlocked: true } })
+    await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
+    delete req.session.user;
     res.redirect("/admin/users");
 
   } catch (error) {

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Millmillet</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-color: #d97706;
+            --primary-dark: #b45309;
+            --secondary-color: #fef3c7;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        body {
+            background-color: #fef3c7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .top-banner {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+
+        .product-image-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 80px;
+            object-fit: contain;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail:hover, .thumbnail.active {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .wishlist-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-btn:hover {
+            background: #fef3c7;
+            transform: scale(1.1);
+        }
+
+        .wishlist-btn.active i {
+            color: #ef4444;
+        }
+
+        .price-section {
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .current-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .old-price {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+
+        .discount-badge {
+            background: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .variant-btn {
+            border: 2px solid #d1d5db;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .variant-btn:hover {
+            border-color: var(--primary-color);
+        }
+
+        .variant-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .quantity-control {
+            display: inline-flex;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quantity-control button {
+            background: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .quantity-control button:hover {
+            background: #f3f4f6;
+        }
+
+        .quantity-control input {
+            border: none;
+            border-left: 2px solid #d1d5db;
+            border-right: 2px solid #d1d5db;
+            width: 80px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 12px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+
+        .icon-btn {
+            border: 2px solid #d1d5db;
+            background: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--primary-color);
+            background: #fef3c7;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--text-light);
+            font-weight: 500;
+            padding: 15px 30px;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--text-dark);
+            border-bottom: 3px solid var(--text-dark);
+        }
+
+        .rating-display {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .stars {
+            color: #fbbf24;
+            font-size: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .product-card img {
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .newsletter-section {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            border-radius: 12px;
+            color: white;
+            padding: 50px;
+        }
+
+        footer {
+            background: #fef3c7;
+            padding: 50px 0 20px;
+            margin-top: 50px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .social-icon:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .product-main-image {
+                height: 300px;
+            }
+            
+            .current-price {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>Final Sale starts NOW . Best Offers</span>
+                <button class="btn-close btn-close-white" onclick="this.parentElement.parentElement.parentElement.style.display='none'"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/category/<%= product.category %>"><%= product.category %></a></li>
+                <li class="breadcrumb-item"><a href="/category/<%= product.subcategory %>"><%= product.subcategory %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= product.name %></li>
+            </ol>
+        </nav>
+
+        <!-- Product Section -->
+        <div class="row mb-5">
+            <!-- Product Images -->
+            <div class="col-lg-6 mb-4">
+                <div class="product-image-container position-relative">
+                    <button class="wishlist-btn" id="wishlistBtn" onclick="toggleWishlist()">
+                        <i class="bi bi-heart fs-5"></i>
+                    </button>
+                    
+                    <img src="/uploads/images/<%= product.productImage[0] %>" alt="<%= product.productName %>" 
+                         class="product-main-image" id="mainImage">
+                    
+                    <div class="row g-2 mt-2">
+                        <% product.productImage.forEach((image, index) => { %>
+                        <div class="col-3">
+                            <img src="<%= image %>" alt="Thumbnail <%= index + 1 %>" 
+                                 class="thumbnail <%= index === 0 ? 'active' : '' %>" 
+                                 onclick="changeMainImage('<%= image %>', this)">
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-lg-6">
+                <h1 class="mb-3"><%= product.productName %></h1>
+                
+                <div class="price-section">
+                    <span class="current-price" id="currentPrice">Rs <%= product.price %></span>
+                    <% if (product.originalPrice) { %>
+                    <span class="old-price">Rs <%= product.originalPrice %></span>
+                    <span class="discount-badge">-<%= Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) %>%</span>
+                    <% } %>
+                </div>
+
+                <p class="text-muted mb-4"><%= product.description %></p>
+
+                <!-- Action Icons -->
+                <div class="mb-4">
+                    <button class="icon-btn me-2" onclick="addToCart()">
+                        <i class="bi bi-cart3"></i>
+                    </button>
+                    <button class="icon-btn me-2" onclick="toggleWishlist()">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                    <button class="icon-btn" onclick="shareProduct()">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </div>
+
+                <!-- Product Variants -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Product Variant</label>
+                    <div class="d-flex gap-2 flex-wrap" id="variantBtns">
+                        <% product.variant.forEach((varian, index) => { %>
+                        <button class="variant-btn <%= index === 0 ? 'active' : '' %>" 
+                                data-variant="<%= varian.size %>" 
+                                data-price="<%= varian.price %>"
+                                onclick="selectVariant(this)">
+                            <%= varian.size %>
+                        </button>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Quantity and Add to Cart -->
+                <div class="d-flex gap-3 align-items-center mb-4">
+                    <div class="quantity-control">
+                        <button onclick="decreaseQuantity()">−</button>
+                        <input type="number" id="quantity" value="1" min="1" readonly>
+                        <button onclick="increaseQuantity()">+</button>
+                    </div>
+                    <button class="btn-primary-custom flex-grow-1" onclick="addToCart()">
+                        ADD TO CART
+                    </button>
+                </div>
+
+                <!-- Product Features -->
+                <% if (product.features && product.features.length > 0) { %>
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Key Features:</h6>
+                    <ul class="text-muted">
+                        <% product.features.forEach(feature => { %>
+                        <li class="mb-2"><%= feature %></li>
+                        <% }); %>
+                    </ul>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Tabs Section -->
+        <div class="bg-white rounded-3 p-4 mb-5">
+            <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="details-tab" data-bs-toggle="tab" 
+                            data-bs-target="#details" type="button">
+                        Product Details
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" 
+                            data-bs-target="#reviews" type="button">
+                        Rating & Reviews
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="faqs-tab" data-bs-toggle="tab" 
+                            data-bs-target="#faqs" type="button">
+                        FAQs
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="productTabContent">
+                <div class="tab-pane fade show active" id="details" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Product Information</h5>
+                            <p><%= product.fullDescription || product.description %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Specifications</h5>
+                            <% if (product.specifications) { %>
+                            <table class="table">
+                                <% Object.entries(product.specifications).forEach(([key, value]) => { %>
+                                <tr>
+                                    <td class="fw-bold"><%= key %></td>
+                                    <td><%= value %></td>
+                                </tr>
+                                <% }); %>
+                            </table>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rating-display"><%= product.rating || '4.8' %></div>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                        <div>
+                            <select class="form-select d-inline-block w-auto me-2">
+                                <option>Latest</option>
+                                <option>Highest Rating</option>
+                                <option>Lowest Rating</option>
+                            </select>
+                            <button class="btn-primary-custom">Write Review</button>
+                        </div>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <% if (product.reviews && product.reviews.length > 0) { %>
+                        <% product.reviews.forEach(review => { %>
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0"><%= review.userName %></h6>
+                                <small class="text-muted"><%= review.date %></small>
+                            </div>
+                            <div class="stars mb-2" style="font-size: 1rem;">
+                                <%= '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating) %>
+                            </div>
+                            <p class="text-muted mb-0"><%= review.comment %></p>
+                        </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-center text-muted">No reviews yet. Be the first to review!</p>
+                    <% } %>
+                </div>
+
+                <div class="tab-pane fade" id="faqs" role="tabpanel">
+                    <% if (product.faqs && product.faqs.length > 0) { %>
+                        <% product.faqs.forEach((faq, index) => { %>
+                        <div class="mb-3">
+                            <h6 class="fw-bold"><%= faq.question %></h6>
+                            <p class="text-muted"><%= faq.answer %></p>
+                        </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-muted">No FAQs available for this product.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="mb-5">
+            <h2 class="text-center mb-4">You might also like</h2>
+            <div class="row g-4">
+                <% relatedProducts.forEach(relProduct => { %>
+                <div class="col-md-3">
+                    <div class="product-card">
+                        <img src="<%= relProduct.image %>" alt="<%= relProduct.name %>" class="w-100">
+                        <h6 class="mb-2"><%= relProduct.name %></h6>
+                        <div class="d-flex align-items-baseline gap-2 mb-3">
+                            <span class="fw-bold fs-5">Rs <%= relProduct.price %></span>
+                            <% if (relProduct.originalPrice) { %>
+                            <span class="text-muted text-decoration-line-through">Rs <%= relProduct.originalPrice %></span>
+                            <span class="badge bg-danger">-<%= Math.round(((relProduct.originalPrice - relProduct.price) / relProduct.originalPrice) * 100) %>%</span>
+                            <% } %>
+                        </div>
+                        <button class="icon-btn w-100" onclick="window.location.href='/product/<%= relProduct.id %>'">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="newsletter-section text-center mb-5">
+            <h2 class="mb-2">STAY UPTO DATE ABOUT OUR</h2>
+            <h3 class="mb-4">LATEST OFFERS</h3>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <form onsubmit="subscribeNewsletter(event)">
+                        <div class="mb-3">
+                            <input type="email" class="form-control form-control-lg" 
+                                   placeholder="Enter your email address" required>
+                        </div>
+                        <button type="submit" class="btn btn-light btn-lg w-100 fw-bold" 
+                                style="color: var(--primary-color);">
+                            Subscribe to Newsletter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">MILLMILLET</h5>
+                    <p class="text-muted mb-3">
+                        We have products that suits your style and which you're proud to use. 
+                        From healthy snacks to premium foods.
+                    </p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3">COMPANY</h6>
+                    <ul class="footer-links">
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/features">Features</a></li>
+                        <li><a href="/works">Works</a></li>
+                        <li><a href="/career">Career</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3">HELP</h6>
+                    <ul class="footer-links">
+                        <li><a href="/support">Customer Support</a></li>
+                        <li><a href="/delivery">Delivery Details</a></li>
+                        <li><a href="/terms">Terms & Conditions</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3">FAQ</h6>
+                    <ul class="footer-links">
+                        <li><a href="/account">Account</a></li>
+                        <li><a href="/deliveries">Manage Deliveries</a></li>
+                        <li><a href="/orders">Orders</a></li>
+                        <li><a href="/payments">Payments</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <h6 class="fw-bold mb-3">RESOURCES</h6>
+                    <ul class="footer-links">
+                        <li><a href="/ebooks">Free eBooks</a></li>
+                        <li><a href="/tutorial">Development Tutorial</a></li>
+                        <li><a href="/blog">How to - Blog</a></li>
+                        <li><a href="/youtube">Youtube Playlist</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <p class="text-muted mb-0">Millmillet © 2000-2025, All Rights Reserved</p>
+                <div class="d-flex gap-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" 
+                         alt="Visa" style="height: 30px; background: white; padding: 5px; border-radius: 4px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
+                         alt="Mastercard" style="height: 30px; background: white; padding: 5px; border-radius: 4px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
+                         alt="PayPal" style="height: 30px; background: white; padding: 5px; border-radius: 4px;">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script
+        // Product Data (passed from server)
+        // const productData = <%- JSON.stringify(product) %>;
+        // let selectedVariant = productData.variants[0];
+        // let quantity = 1;
+        // let isWishlisted = <%= wishlist ? 'true' : 'false' %>;
+
+    //     // Change Main Image
+    //     function changeMainImage(imageSrc, element) {
+    //         document.getElementById('mainImage').src = imageSrc;
+    //         document.querySelectorAll('.thumbnail').forEach(thumb => {
+    //             thumb.classList.remove('active');
+    //         });
+    //         element.classList.add('active');
+    //     }
+
+    //     // Select Variant
+    //     function selectVariant(button) {
+    //         document.querySelectorAll('.variant-btn').forEach(btn => {
+    //             btn.classList.remove('active');
+    //         });
+    //         button.classList.add('active');
+            
+    //         const variant = button.dataset.variant;
+    //         const price = button.dataset.price;
+    //         selectedVariant = productData.variants.find(v => v.size === variant);
+            
+    //         document.getElementById('currentPrice').textContent = 'Rs ' + price;
+    //     }
+
+    //     // Quantity Controls
+    //     function increaseQuantity() {
+    //         quantity++;
+    //         document.getElementById('quantity').value = quantity;
+    //     }
+
+    //     function decreaseQuantity() {
+    //         if (quantity > 1) {
+    //             quantity--;
+    //             document.getElementById('quantity').value = quantity;
+    //         }
+    //     }
+
+    //     // Add to Cart
+    //     function addToCart() {
+    //         const cartData = {
+    //             productId: productData.id,
+    //             name: productData.name,
+    //             variant: selectedVariant.size,
+    //             price: selectedVariant.price,
+    //             quantity: quantity,
+    //             image: productData.images[0]
+    //         };
+
+    //         // Send to server
+    //         fetch('/api/cart/add', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(cartData)
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.success) {
+    //                 alert('Product added to cart successfully!');
+    //                 // Update cart count in header if exists
+    //                 updateCartCount();
+    //             }
+    //         })
+    //         .catch(error => {
+    //             console.error('Error:', error);
+    //             alert('Failed to add product to cart');
+    //         });
+    //     }
+
+    //     // Toggle Wishlist
+    //     // function toggleWishlist() {
+    //     //     const btn = document.getElementById('wishlistBtn');
+    //     //     const icon = btn.querySelector('i');
+            
+    //     //     fetch('/api/wishlist/toggle', {
+    //     //         method: 'POST',
+    //     //         headers: {
+    //     //             'Content-Type': 'application/json',
+    //     //         },
+    //     //         body: JSON.stringify({ productId: productData.id })
+    //     //     })
+    //     //     .then(response => response.json())
+    //     //     .then(data => {
+    //     //         if (data.success) {
+    //     //             isWishlisted = data.wishlisted;
+    //     //             if (isWishlisted) {
+    //     //                 icon.classList.replace('bi-heart', 'bi-heart-fill');
+    //     //                 btn.classList.add('active');
+    //     //             } else {
+    //     //                 icon.classList.replace('bi-heart-fill', 'bi-heart');
+    //     //                 btn.classList.remove('active');
+    //     //             }
+    //     //         }
+    //     //     })
+    //     //     .catch(error => console.error('Error:', error));
+    //     // }
+
+    //     // Share Product
+    //     function shareProduct() {
+    //         if (navigator.share) {
+    //             navigator.share({
+    //                 title: productData.name,
+    //                 text: productData.description,
+    //                 url: window.location.href
+    //             }).catch(err => console.error('Error sharing:', err));
+    //         } else {
+    //             // Fallback: Copy to clipboard
+    //             navigator.clipboard.writeText(window.location.href)
+    //                 .then(() => alert('Link copied to clipboard!'))
+    //                 .catch(err => console.error('Error copying:', err));
+    //         }
+    //     }
+
+    //     // Newsletter Subscribe
+    //     function subscribeNewsletter(event) {
+    //         event.preventDefault();
+    //         const email = event.target.querySelector('input[type="email"]').value;
+            
+    //         fetch('/api/newsletter/subscribe', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({ email })
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.success) {
+    //                 alert('Successfully subscribed to newsletter!');
+    //                 event.target.reset();
+    //             }
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    //     }
+
+    //     // Update Cart Count
+    //     function updateCartCount() {
+    //         fetch('/api/cart/count')
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 const cartBadge = document.querySelector('.cart-count');
+    //                 if (cartBadge) {
+    //                     cartBadge.textContent = data.count;
+    //                 }
+    //             })
+    //             .catch(error => console.error('Error:', error));
+    //     }
+
+    //     // Initialize wishlist state on page load
+    //     // document.addEventListener('DOMContentLoaded', function() {
+    //     //     if (isWishlisted) {
+    //     //         const btn = document.getElementById('wishlistBtn');
+    //     //         const icon = btn.querySelector('i');
+    //     //         icon.classList.replace('bi-heart', 'bi-heart-fill');
+    //     //         btn.classList.add('active');
+    //     //     }
+    //     // });
+    // </script>
+</body>
+</html>

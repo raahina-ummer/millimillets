@@ -72,13 +72,14 @@ const forgotEmailValid = async (req, res) => {
         const findUser = await User.findOne({ email: email });
 
         if (findUser) {
+        
             const otp = generateOtp();
             const emailSent = await sendVerificationEmail(email, otp);
 
             if (emailSent) {
                 req.session.userOtp = otp;
                 req.session.email = email;
-                console.log("✅ Before redirecting to /verifyOtp");
+
                 res.redirect("/verifyForgotOtp");
                 console.log("OTP:", otp);
             } else {
@@ -108,26 +109,22 @@ const getVerifyOtp = (req, res) => {
 
 const verifyForgotOtp = async (req, res) => {
   try {
-
+    console.log("hai this verify otp forget")
     const { otp } = req.body;
-    console.log(otp);
+    console.log("Otp of",otp);
 const timeDiff = (req.session.timer - new Date())
+console.log("session  "+req.session.timer);
+console.log(timeDiff)
     if(timeDiff >60000){
          delete req.session.userOtp;
          delete req.session.timer
     return res.status(400).json({ success: false, message: "OTP has Expires. Please request for new one" })
     }
     if (String(req.session.userOtp) === String(otp)) {
-      const user = req.session.userData
-      const passwordHash = await securePassword(user.password);
+    
       delete req.session.userOtp;
 
-      const saveUserData = new User({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: passwordHash
-      })
+      
 
       await saveUserData.save();
       req.session.user = saveUserData._id;
@@ -143,8 +140,13 @@ const timeDiff = (req.session.timer - new Date())
 
 
 const resendOtp = async (req, res) => {
+  console.log("Resend OTP invocked");
   try {
-    const { email } = req.session.userData;
+    console.log("email",req.session.email);
+    // const { email } = req.session.userData || req.session.email;
+
+    const email = req.session?.userData?.email || req.session?.email;
+
     if (!email) {
       return res.status(400).json({ success: false, message: "Email not found in session" })
     }
@@ -188,18 +190,21 @@ const postNewPassword = async(req,res)=>{
     try {
         console.log("postNewPassword invocked")
         const {password,confirmPassword} = req.body;
+        console.log(password,confirmPassword)
         const email = req.session.email;
         if(password === confirmPassword){
-            const passwordHash = await securePassword(newPass1);
+            const passwordHash = await securePassword(password);
             await User.updateOne(
                 {email:email },
             {$set:{password:passwordHash}}
         )
-        res.redirect("/login")
+        res.json({success:true ,message:"success"});
         }else{
-            res.render("resetpassword",{message:"Password do not match"})
+          console.log("haia")
+            res.json({success:"false", message:"Password do not match"})
         }
     } catch (error) {
+      console.log(error)
         res.redirect("/pageNotFound");
     }
 }
