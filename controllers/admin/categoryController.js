@@ -9,7 +9,7 @@ const categoryInfo = async(req,res)=>{
         const page = parseInt(req.query.page)||1;
         const limit = 6;
         const skip = (page-1)*limit;
-        const search = req.query.search || ''; // Add this line
+        const search = req.query.search || ''; 
 
         // Build search query
         const searchQuery = search 
@@ -29,7 +29,7 @@ const categoryInfo = async(req,res)=>{
             currentPage: page,
             totalPages: totalPages,
             totalCategories: totalCategories,
-            search: search  // Add this line
+            search: search  
         })
         
     } catch (error) {

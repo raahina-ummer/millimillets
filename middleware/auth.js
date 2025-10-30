@@ -26,34 +26,6 @@ const userAuth = async (req,res,next)=>{
 
 
 
-
-
-
-
-// const userAuth = (req, res, next) => {
-//   if (req.session.user) {
-//      User.findById(req.session.user)
-//       .then(data => {
-//         if (data && !data.isBlocked) {
-//           //  User exists and is not blocked — proceed
-//           next();
-//         } else {
-//           //  User blocked or not found — redirect
-//           req.session.destroy;
-//           res.redirect("/login");
-//         }
-//       })
-//       .catch(error => {
-//         console.log("Error in user auth middleware:", error);
-//         res.status(500).send("Internal Server Error");
-//       });
-//   } else {
-//     // No session user — redirect to login
-//     res.redirect("/login");
-//   }
-// };
-
-
 const adminAuth = (req,res,next)=>{
     try{
         if(!req.session?.admin)
@@ -68,22 +40,6 @@ const adminAuth = (req,res,next)=>{
 
     }
 }
-
-
-// const adminAuth = (req,res,next)=>{
-//     User.findOne({isAdmin:true})
-//     .then(data=>{
-//         if(data){
-//             next();
-//         }else{
-//             res.redirect("/admin/login")
-//         }
-//     })
-//     .catch(error=>{
-//         console.log("Error in adminauth middleware",error);
-//         res.status(500).send("Internal Server Error")
-//     })
-// }
 
 
 
