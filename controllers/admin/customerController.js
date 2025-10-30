@@ -33,8 +33,10 @@ const customerInfo = async (req, res) => {
 
     res.render("customers", {
       data: userData,        //  user list
-      currentPage: page,     // current page number
-      totalPages: Math.ceil(count / limit) // total number of pages
+      currentPage: page,  
+      totalCategories: count,   
+      totalPages: Math.ceil(count / limit),
+      search,
     });
 
   } catch (error) { }

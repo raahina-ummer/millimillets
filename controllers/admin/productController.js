@@ -112,7 +112,8 @@ const getAllProducts = async (req, res) => {
     if (category) {
       res.render("product", {
         data: productData,
-        currentpage: page,
+        currentPage: page,
+         totalCategories: count,
         totalPages: Math.ceil(count / limit),
         cat: category,
         search,

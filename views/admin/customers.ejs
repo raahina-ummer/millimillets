@@ -119,7 +119,7 @@
 
         /* Customers Panel */
         .customers-panel {
-            background-color: white;
+            background-color: #d4c4a8;
             border-radius: 8px;
             padding: 25px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -246,35 +246,59 @@
         }
 
         /* Pagination */
-        .pagination-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 25px;
-            gap: 10px;
-        }
+        /* Pagination (Updated for Bootstrap pagination classes) */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
 
-        .page-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: none;
-            background-color: #f0f0f0;
-            color: #666;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+.pagination-info {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+}
 
-        .page-btn:hover {
-            background-color: #8b7355;
-            color: white;
-        }
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
 
-        .page-btn.active {
-            background-color: #8b7355;
-            color: white;
-        }
+.pagination .page-link {
+    background: rgba(139, 115, 85, 0.2); /* blur brown tone */
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    color: #333;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #8b7355;
+    color: #fff;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #8b7355;
+    color: #fff;
+    font-weight: 600;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #eee;
+    color: #aaa;
+    pointer-events: none;
+}
+
 
         /* User Control Section */
         .user-control {
@@ -427,11 +451,43 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-wrapper">
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-            </div>
+<div class="pagination-container">
+    <div class="pagination-info">
+        Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories) %> from <%= totalCategories %>
+    </div>
+    <nav>
+        <ul class="pagination">
+            <!-- Previous Button -->
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage > 1 ? `/admin/customer?page=${currentPage - 1}&search=${search || ''}` : '#' %>" tabindex="-1">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/customer?page=<%= i %>&search=<%= search || '' %>">
+                            <%= i < 10 ? '0' + i : i %>
+                        </a>
+                    </li>
+                <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                <% } %>
+            <% } %>
+
+            <!-- Next Button -->
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage < totalPages ? `/admin/customer?page=${currentPage + 1}&search=${search || ''}` : '#' %>">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
         </div>
 
     </main>

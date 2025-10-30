@@ -107,7 +107,7 @@
         }
 
         .table-card {
-            background: white;
+            background: #d4c4a8;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             overflow: hidden;
@@ -115,10 +115,11 @@
 
         .table {
             margin-bottom: 0;
+           
         }
 
         .table thead {
-            background-color: #f8f9fa;
+            background-color: #d4c4a8;
         }
 
         .table thead th {
@@ -141,6 +142,10 @@
         .table tbody tr:last-child td {
             border-bottom: none;
         }
+        .table tbody tr {
+  background-color: #d4c4a8; 
+}
+
 
         .table tbody tr:hover {
             background-color: #fafafa;
@@ -167,11 +172,13 @@
         .category-info {
             display: flex;
             align-items: center;
+            
         }
 
         .category-name {
             font-weight: 500;
             color: var(--text-dark);
+            
         }
 
         .action-icons {
@@ -277,6 +284,9 @@
         .dropdown-toggle::after {
             margin-left: 8px;
         }
+        .body-content{
+            background-color: #d4c4a8;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -334,7 +344,7 @@
                     <thead>
                         <tr>
                             <th style="width: 50px;">
-                                <input type="checkbox" class="category-checkbox" id="selectAll">
+                                <!-- <input type="checkbox" class="category-checkbox" id="selectAll"> -->
                             </th>
                             <th>
                                 Category Name
@@ -355,17 +365,25 @@
                             <th>Action</th>
                         </tr>
                     </thead>
- <tbody>
+ <tbody class="body-content">
     <% if (cat && cat.length > 0) { %>
     <% cat.forEach((category, index) => { %>
       <tr>
         <td>
-          <input type="checkbox" class="category-checkbox">
+         
         </td>
         <td>
           <div class="category-info">
             <div class="category-image">
-              <i class="fas fa-image" style="color: #ccc;"></i>
+              <!-- <i class="fas fa-image" style="color: #ccc;"></i> -->
+               <div class="category-image">
+  <% if (category.image && category.image.length > 0) { %>
+    <img src="/uploads/images/<%= category.image %>" alt="<%= category.name %>" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+  <% } else { %>
+    <i class="fas fa-image" style="color:#ccc;"></i>
+  <% } %>
+</div>
+
             </div>
             <span class="category-name"><%= category.name %></span>
           </div>
@@ -403,24 +421,44 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    Showing 1-10 from 100
-                </div>
-                <nav>
-                    <ul class="pagination">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item active">
-                            <a class="page-link" href="#">01</a>
-                        </li>
-                        
-                    </ul>
-                </nav>
-            </div>
+           <!-- Pagination -->
+<div class="pagination-container">
+    <div class="pagination-info">
+        Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories) %> from <%= totalCategories %>
+    </div>
+    <nav>
+        <ul class="pagination">
+            <!-- Previous Button -->
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage > 1 ? `/admin/category?page=${currentPage - 1}&search=${search || ''}` : '#' %>" tabindex="-1">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/category?page=<%= i %>&search=<%= search || '' %>">
+                            <%= i < 10 ? '0' + i : i %>
+                        </a>
+                    </li>
+                <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                <% } %>
+            <% } %>
+
+            <!-- Next Button -->
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage < totalPages ? `/admin/category?page=${currentPage + 1}&search=${search || ''}` : '#' %>">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
         </div>
     </div>
 
@@ -428,21 +466,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
           // Select All Checkbox
-  document.getElementById('selectAll').addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
-    checkboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
-    });
-  });
+//   document.getElementById('selectAll').addEventListener('change', function() {
+//     const checkboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
+//     checkboxes.forEach(checkbox => {
+//       checkbox.checked = this.checked;
+//     });
+//   });
 
   // Individual checkbox change
-  document.querySelectorAll('.category-checkbox:not(#selectAll)').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      const allCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
-      const checkedCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll):checked');
-      document.getElementById('selectAll').checked = allCheckboxes.length === checkedCheckboxes.length;
-    });
-  });
+//   document.querySelectorAll('.category-checkbox:not(#selectAll)').forEach(checkbox => {
+//     checkbox.addEventListener('change', function() {
+//       const allCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll)');
+//       const checkedCheckboxes = document.querySelectorAll('.category-checkbox:not(#selectAll):checked');
+//       document.getElementById('selectAll').checked = allCheckboxes.length === checkedCheckboxes.length;
+//     });
+//   });
 
   // Edit button click
   document.querySelectorAll(".action-icon.edit").forEach(button => {

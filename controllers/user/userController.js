@@ -8,39 +8,6 @@ const {sendVerificationEmail,generateOtp} = require("../../Helpers/emailandaotps
 
 
 
-
-// function generateOtp() {
-//   return Math.floor(1000 + Math.random() * 9000).toString();
-// }
-
-// async function sendVerificationEmail(email, otp) {
-//   try {
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       port: 587,
-//       secure: false,
-//       requireTLS: true,
-//       auth: {
-//         user: process.env.NODEMAILER_EMAIL,
-//         pass: process.env.NODEMAILER_PASSWORD,
-//       },
-//     });
-
-//     const info = await transporter.sendMail({
-//       from: process.env.NODEMAILER_EMAIL,
-//       to: email,
-//       subject: "Verify your account",
-//       text: `Your OTP is ${otp}`,
-//       html: `<b>Your OTP :${otp}</b>`,
-//     });
-//     return info.accepted.length > 0;
-//   } catch (error) {
-//     console.log("Error sending email", error);
-//     return false;
-//   }
-// }
-
-
 const pageNotFound = async (req, res) => {
   try {
     return res.render("p-404");
@@ -61,7 +28,7 @@ const loadHomepage = async (req, res) => {
       isBlocked: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
-    }).sort({ createdAt: -1 }).limit(8);
+    }).sort({ createdAt: -1 }).limit(4);
 
     if (userId) {
       const userData = await User.findById(userId);

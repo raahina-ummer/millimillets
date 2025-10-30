@@ -7,26 +7,34 @@ const Product = require("../../models/ProductSchema")
 const categoryInfo = async(req,res)=>{
     try {
         const page = parseInt(req.query.page)||1;
-        const limit =6;
+        const limit = 6;
         const skip = (page-1)*limit;
+        const search = req.query.search || ''; // Add this line
 
-        const categoryData = await Category.find({})
+        // Build search query
+        const searchQuery = search 
+            ? { name: { $regex: search, $options: 'i' } } 
+            : {};
+
+        const categoryData = await Category.find(searchQuery)
             .sort({createdAt:-1})
             .skip(skip)
             .limit(limit)
 
-            const totalCategories = await Category.countDocuments();
-            const totalPages = Math.ceil(totalCategories/limit)
-            res.render("category",{cat:categoryData,
-                currentPage:page,
-                totalPages:totalPages,
-                totalCategories:totalCategories
-            })
+        const totalCategories = await Category.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalCategories/limit)
+        
+        res.render("category",{
+            cat: categoryData,
+            currentPage: page,
+            totalPages: totalPages,
+            totalCategories: totalCategories,
+            search: search  // Add this line
+        })
         
     } catch (error) {
         console.error(error);
-        resredirect("/pageerror")
-        
+        res.redirect("/pageerror")
     }
 }
 

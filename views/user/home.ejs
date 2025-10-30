@@ -81,6 +81,7 @@
         overflow: hidden;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
     }
 
     .product-card:hover {
@@ -91,8 +92,34 @@
     .product-image {
         width: 100%;
         height: 280px;
-        background: linear-gradient(135deg, #D4AF37 0%, #C4A747 100%);
         position: relative;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-offer-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: linear-gradient(45deg, #dc3545, #e4606d);
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 2;
     }
 
     .product-info {
@@ -102,10 +129,20 @@
     }
 
     .product-info h3 {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 600;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         color: #5D4E37;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .product-price {
+        font-size: 22px;
+        font-weight: 700;
+        color: #dc3545;
+        margin-bottom: 15px;
     }
 
     .btn-shop {
@@ -120,10 +157,13 @@
         transition: background-color 0.3s;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        text-decoration: none;
+        display: inline-block;
     }
 
     .btn-shop:hover {
         background-color: #6D5A43;
+        color: white;
     }
 
     /* Shop By Categories */
@@ -378,44 +418,64 @@
 
 <!-- Best Selling Items -->
 <section class="best-selling">
-    <h2 class="section-title">BEST SELLING ITEMS*</h2>
+    <h2 class="section-title">BEST SELLING ITEMS</h2>
     <div class="products-grid">
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
+        <% if (products && products.length > 0) { %>
+            <% for(let i = 0; i < products.length && i < 4; i++) { %>
+            <div class="product-card">
+                <div class="product-image">
+                    <% if (products[i].productOffer > 0) { %>
+                        <span class="product-offer-badge">
+                            <%= products[i].productOffer %>% Off
+                        </span>
+                    <% } %>
+                    <a href="/product/details/<%= products[i]._id %>">
+                        <img src="<%= products[i].productImage[0].path %>" 
+                             alt="<%= products[i].productName %>">
+                    </a>
+                </div>
+                <div class="product-info">
+                    <h3><%= products[i].productName %></h3>
+                    <div class="product-price">
+                        ₹<%= products[i].variant[0].salePrice.toFixed(2) %>
+                    </div>
+                    <a href="/product/details/<%= products[i]._id %>" class="btn-shop">
+                        SHOP NOW
+                    </a>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>Finger Millet (Ragi)</h3>
-                <button class="btn-shop">SHOP NOW</button>
+            <% } %>
+        <% } else { %>
+            <!-- Placeholder cards if no products -->
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Finger Millet (Ragi)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Pearl Millet (Bajra)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>Pearl Millet (Bajra)</h3>
-                <button class="btn-shop">SHOP NOW</button>
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Sorghum Millet (Jowar)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Foxtail Millet (Korra)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>Sorghum Millet (Jowar)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
-            </div>
-            <div class="product-info">
-                <h3>Foxtail Millet (Korra/korra)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
+        <% } %>
     </div>
 </section>
 
@@ -423,24 +483,37 @@
 <section class="categories">
     <h2 class="section-title">Shop By Categories</h2>
     <div class="category-grid">
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
+        <% if (categories && categories.length > 0) { %>
+            <% for(let i = 0; i < categories.length && i < 3; i++) { %>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <a href="/shop?category=<%= categories[i]._id %>">
+                        <button class="btn-shop"><%= categories[i].name %></button>
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
+            <% } %>
+        <% } else { %>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
+            </div>
+        <% } %>
     </div>
 </section>
 
@@ -498,7 +571,7 @@
                     <span class="verified">✓</span>
                 </div>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">“I started buying MilliMillet products because I wanted to eat healthier, but now I continue because I believe in what they stand for. They source locally, support farmers, and promote sustainable agriculture — something I truly respect. I’ve tried almost every product, and the consistency is always top-notch. It’s heartwarming to see an Indian brand making traditional grains cool again!”</p>
+                <p class="testimonial-text">"I started buying MilliMillet products because I wanted to eat healthier, but now I continue because I believe in what they stand for. They source locally, support farmers, and promote sustainable agriculture — something I truly respect."</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">
@@ -506,7 +579,7 @@
                     <span class="verified">✓</span>
                 </div>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">“My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!”</p>
+                <p class="testimonial-text">"My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!"</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">

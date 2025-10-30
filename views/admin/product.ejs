@@ -215,7 +215,7 @@
 
     /* Table Card */
     .table-card {
-        background-color: #fff;
+        background-color:#d4c4a8;
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -359,6 +359,60 @@
         background-color: #e8dcc4;
     }
 
+    /* Pagination (Updated for Bootstrap pagination classes) */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.pagination .page-link {
+    background: rgba(139, 115, 85, 0.2); /* blur brown tone */
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    color: #333;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #8b7355;
+    color: #fff;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #8b7355;
+    color: #fff;
+    font-weight: 600;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #eee;
+    color: #aaa;
+    pointer-events: none;
+}
+
+
     @media (max-width: 992px) {
         .sidebar {
             width: 70px;
@@ -467,27 +521,47 @@
                 </div>
             </div>
 
-            <div class="pagination-area">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        <li class="page-item <%= currentpage === 1 ? 'disabled' : '' %>">
-                            <a class="page-link" href="?page=<%= currentpage - 1 %>">1</a>
-                        </li>
-                        
-                        <li class="page-item active">
-                            <a class="page-link" href="?page=2">2</a>
-                        </li>
-                        
-                        <li class="page-item">
-                            <a class="page-link" href="?page=3">3</a>
-                        </li>
-                        
-                        <li class="page-item <%= currentpage === totalPages ? 'disabled' : '' %>">
-                            <a class="page-link" href="?page=<%= currentpage + 1 %>">&raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+
+
+            <!-- Pagination -->
+<div class="pagination-container">
+    <div class="pagination-info">
+        Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories) %> from <%= totalCategories %>
+    </div>
+    <nav>
+        <ul class="pagination">
+            <!-- Previous Button -->
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage > 1 ? `/admin/product?page=${currentPage - 1}&search=${search || ''}` : '#' %>" tabindex="-1">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/product?page=<%= i %>&search=<%= search || '' %>">
+                            <%= i < 10 ? '0' + i : i %>
+                        </a>
+                    </li>
+                <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                <% } %>
+            <% } %>
+
+            <!-- Next Button -->
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage < totalPages ? `/admin/product?page=${currentPage + 1}&search=${search || ''}` : '#' %>">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+            
         </div>
     </div>
 </div>
