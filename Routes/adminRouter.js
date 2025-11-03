@@ -6,7 +6,7 @@ const customerController = require("../controllers/admin/customerController.js")
 const categoryController= require("../controllers/admin/categoryController.js")
 const productController= require("../controllers/admin/productController.js")
 const multer= require('multer');
-const storage= require('../helpers/multer');
+const storage= require('../Helpers/multer');
 const uploads= multer({storage:storage});
 const passport = require("passport");
 

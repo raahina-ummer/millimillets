@@ -19,6 +19,14 @@ const userSchema = new Schema({
         sparse: true,
         default: null
     },
+    dateOfBirth: {
+        type:String
+    // optional field
+    },
+    profileImage: {
+        type: String, 
+        
+  },
     googleId: {
         type: String,
         sparse: true,

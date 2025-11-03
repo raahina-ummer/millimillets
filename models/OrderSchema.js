@@ -2,12 +2,18 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 const {v4:uuidv4} = require("uuid")
 
-const oderSchema = new Schema({
+const orderSchema = new Schema({
     orderId :{
         type:String,
         default: ()=>uuidv4(),
         unique:true,
     },
+        userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+
     orderedProducts:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -35,10 +41,16 @@ const oderSchema = new Schema({
         type:Number,
         required:true
     },
-    address:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+   address:{
+        addressType: String,
+        name: String,
+        country: String,
+        state: String,
+        city: String,
+        pincode: Number,
+        mobile: Number,
+        addressLine1: String,
+        addressLine2: String
     },
     InvoiceDate:{
         type:Date
@@ -60,4 +72,4 @@ const oderSchema = new Schema({
 })
 
 const Order = mongoose.model("Order",orderSchema);
-module.exports = oderSchema;
+module.exports = Order;

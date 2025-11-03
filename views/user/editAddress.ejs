@@ -1,0 +1,114 @@
+<style>
+    :root {
+        --primary-brown: #8B7355;
+        --hover-brown: #755e45;
+        --light-bg: #f9f6f1;
+        --border-color: #d4c5b0;
+        --text-dark: #2d2d2d;
+        --text-muted: #5a4935;
+        --background-beige: #E8DCC4;
+    }
+
+    body {
+        background-color: var(--background-beige);
+        font-family: "Nunito Sans", sans-serif;
+        color: var(--text-dark);
+    }
+
+    .main-content {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 40px !important;
+        border: 1px solid var(--border-color);
+    }
+
+    h2, h5 {
+        color: var(--primary-brown);
+        font-weight: 700;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .form-control, .form-select {
+        background-color: var(--light-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px 12px;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #fff;
+        border-color: var(--primary-brown);
+        box-shadow: 0 0 0 2px rgba(139,115,85,0.25);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-brown);
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 18px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--hover-brown);
+    }
+
+    .btn-outline-secondary {
+        background-color: var(--light-bg);
+        color: var(--primary-brown);
+        border: 1px solid var(--border-color);
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #e8dfd0;
+    }
+
+    .form-check-label {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-brown);
+        border-color: var(--primary-brown);
+    }
+
+    .error-border {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    /* Page header & back button */
+    .main-content > div:first-child h2 {
+        color: var(--primary-brown);
+        font-weight: 800;
+    }
+
+    .btn i {
+        margin-right: 6px;
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 25px !important;
+        }
+    }
+</style>
