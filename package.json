@@ -1,6 +1,7 @@
 {
   "name": "millimillets",
   "version": "1.0.0",
+  "type":"module",
   "main": "app.js",
   "scripts": {
     "start": "npx nodemon app.js"

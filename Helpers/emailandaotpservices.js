@@ -1,14 +1,13 @@
-const nodemailer = require("nodemailer");
-const env = require("dotenv").config();
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-
-
+dotenv.config();
 
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-async function sendVerificationEmail(email, otp) {
+export async function sendVerificationEmail(email, otp) {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -35,9 +34,4 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
-
-
-module.exports ={
-    sendVerificationEmail,
-    generateOtp
-}
+export { generateOtp };

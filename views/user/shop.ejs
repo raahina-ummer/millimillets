@@ -1016,6 +1016,7 @@
                                                     id="addToCartButton">
                                                 <i class="fas fa-shopping-cart"></i>
                                                 Add to Cart
+                                                
                                             </button>
                                         <% } else { %>
                                             <button class="add-to-cart-btn" disabled>
@@ -1104,8 +1105,8 @@ document.addEventListener('DOMContentLoaded', () => {
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
             try {
-                const response = await fetch('/add-to-cart', {
-                    method: 'PATCH',
+                const response = await fetch(`/cart/${productId}`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -1191,10 +1192,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: '#fff'
                 });
             } finally {
-                if (!button.disabled) {
-                    button.innerHTML = originalHTML;
-                }
                 button.disabled = false;
+                button.innerHTML = originalHTML;
+
             }
         }
     });

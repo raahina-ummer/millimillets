@@ -645,16 +645,15 @@
                 const maxQty = parseInt(qtyInput.max) || 10;
                 newQty = Math.max(1, Math.min(newQty, maxQty));
                 
-                const response = await fetch('/cart/update', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        productId: productId,
-                        quantity: newQty
-                    })
-                });
+                const response = await fetch(`/cart/${productId}`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    productId: productId,
+    quantity: newQty
+  }),
+});
+
                 
                 const data = await response.json();
                 

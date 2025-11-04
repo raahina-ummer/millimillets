@@ -1,20 +1,20 @@
-const Product = require("../../models/ProductSchema.js");
-const Category = require("../../models/CategorySchema.js");
-const User = require("../../models/userSchema.js");
+import Product from "../../models/ProductSchema.js";
+import Category from "../../models/CategorySchema.js";
+import User from "../../models/userSchema.js";
 
-const fs = require("fs");
-const path = require("path");
-const sharp = require("sharp");
-const { Error } = require("mongoose");
-const { MongoExpiredSessionError } = require("mongodb");
-const { adminAuth } = require("../../middleware/auth.js");
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+import mongoose from "mongoose";
+import { MongoExpiredSessionError } from "mongodb";
+import { adminAuth } from "../../middleware/auth.js";
 
 const getProductAddPage = async (req, res) => {
   try {
     const category = await Category.find({ isListed: true });
     res.render("add-product", { cat: category });
   } catch (error) {
-    console.log("errror"+ error)
+    console.log("Error: " + error);
     res.redirect("/pageerror");
   }
 };
@@ -59,23 +59,28 @@ const addProducts = async (req, res) => {
       return res.status(400).json("Product already Exists");
     }
 
-    // Create variant array with new fields
+    // Create variant array
     const variantData = [
       {
-        unitType: `${products.weight || '500'} ${products.unit || 'grm'}`,
-        stock: parseInt(products.stock) || parseInt(products.quantity) || 0,
+        unitType: `${products.weight || "500"} ${products.unit || "grm"}`,
+        stock:
+          parseInt(products.stock) ||
+          parseInt(products.quantity) ||
+          0,
         regularPrice: parseFloat(products.regularPrice) || 0,
-        salePrice: parseFloat(products.salePrice) || parseFloat(products.regularPrice) || 0,
+        salePrice:
+          parseFloat(products.salePrice) ||
+          parseFloat(products.regularPrice) ||
+          0,
       },
     ];
 
-    // Creating a new product
     const newProduct = new Product({
       productName: products.productName.trim(),
       description: products.description.trim(),
       category: categoryData._id,
       date: products.date ? new Date(products.date) : new Date(),
-      gst: products.gst || "18%", 
+      gst: products.gst || "18%",
       productImage: images,
       variant: variantData,
       status: "Available",
@@ -83,58 +88,58 @@ const addProducts = async (req, res) => {
 
     await newProduct.save();
     return res.redirect("/admin/products");
-
   } catch (error) {
     console.log("Error", error);
     res.redirect("/admin/pageerror");
   }
 };
 
-
 const getAllProducts = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    let limit = 4;
+    const limit = 4;
+
     const productData = await Product.find({
-      $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
+      $or: [
+        { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
+      ],
     })
-      .limit(limit * 1)
+      .limit(limit)
       .skip((page - 1) * limit)
       .populate("category")
       .sort({ createdAt: -1 });
 
-    const count = await Product.find({
-      $or: [{ productName: { $regex: new RegExp(".*" + search + ".*", "i") } }],
-    }).countDocuments();
+    const count = await Product.countDocuments({
+      $or: [
+        { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
+      ],
+    });
 
     const category = await Category.find({ isListed: true });
+
     if (category) {
       res.render("product", {
         data: productData,
         currentPage: page,
-         totalCategories: count,
+        totalCategories: count,
         totalPages: Math.ceil(count / limit),
         cat: category,
         search,
-        adminProfile:""
+        adminProfile: "",
       });
     } else {
       res.render("pageerror");
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.redirect("/admin/pageerror");
   }
 };
 
-
-
-
-
 const blockProduct = async (req, res) => {
   try {
-    let id = req.query.id;
+    const id = req.query.id;
     await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/products");
   } catch (error) {
@@ -144,7 +149,7 @@ const blockProduct = async (req, res) => {
 
 const unblockProduct = async (req, res) => {
   try {
-    let id = req.query.id;
+    const id = req.query.id;
     await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
     res.redirect("/admin/products");
   } catch (error) {
@@ -158,7 +163,7 @@ const getEditProduct = async (req, res) => {
     const product = await Product.findById(id);
     const category = await Category.find();
     res.render("edit-product", {
-      product: product,
+      product,
       cat: category,
     });
   } catch (error) {
@@ -216,7 +221,7 @@ const editProduct = async (req, res) => {
 const deleteSingleImage = async (req, res) => {
   try {
     const { imageNameToServer, productIdToServer } = req.body;
-    const product = await Product.findByIdAndUpdate(productIdToServer, {
+    await Product.findByIdAndUpdate(productIdToServer, {
       $pull: { productImage: imageNameToServer },
     });
     const imagePath = path.join(
@@ -227,7 +232,6 @@ const deleteSingleImage = async (req, res) => {
     );
     if (fs.existsSync(imagePath)) {
       await fs.unlinkSync(imagePath);
-    } else {
     }
     res.send({ status: true });
   } catch (error) {
@@ -235,7 +239,7 @@ const deleteSingleImage = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getProductAddPage,
   addProducts,
   getAllProducts,
