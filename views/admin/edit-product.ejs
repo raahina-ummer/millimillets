@@ -498,7 +498,7 @@
                                         <% product.productImage.forEach((image, index) => { %>
                                             <div class="existing-image-item" id="existing-image-<%= index %>">
                                                 <input type="hidden" value="<%= image %>" id="imageDatas-<%= index %>">
-                                                <img src="/uploads/product-images/<%= image %>" alt="Product Image <%= index + 1 %>">
+                                                <img src="/uploads/images/<%= image %>" alt="Product Image <%= index + 1 %>">
                                                 <!-- <button type="button" class="delete-image-btn" onclick="deleteSingleImage('<%= image %>', '<%= product._id %>', <%= index %>)"> -->
                                                     <i class="fas fa-times"></i>
                                                 </button>

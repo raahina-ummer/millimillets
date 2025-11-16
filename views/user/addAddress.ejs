@@ -141,9 +141,13 @@
 <body>
 
   <div class="container">
-    <h2><i class="fas fa-map-marker-alt"></i> Add New Address</h2>
+     <h2>Add New Address</h2>
+      <form id="addAddressForm" method="POST" action="/addAddress">
+  <input type="hidden" name="redirect" value="<%= redirectPage %>">
+  <!-- rest of your input fields -->
+ 
 
-    <form id="addAddressForm" novalidate>
+
       <div class="grid-2">
         <div>
           <label for="firstName">First Name</label>
@@ -163,7 +167,7 @@
         <div class="error-message" id="phone-error"></div>
       </div>
 
-      <div>
+     <div>
         <label for="addressLine1">Address</label>
         <input type="text" id="addressLine1" name="address" placeholder="House number, street name" required />
         <div class="error-message" id="addressLine1-error"></div>
@@ -186,7 +190,7 @@
           <div class="error-message" id="state-error"></div>
         </div>
       </div>
-
+ 
       <div class="grid-2">
         <div>
           <label for="zipCode">ZIP/Postal Code</label>
@@ -308,16 +312,18 @@
     });
 
     const data = await response.json();
+    console.log("Response status:", response.status);
+    console.log(data)
 
     if (data.success) {
       swal("Success", data.message, "success").then(() => {
-        window.location.href = "/address";
+        window.location.href = data.redirect;
       });
     } else {
       swal("Error", data.message, "error");
     }
   } catch (err) {
-    console.error(err);
+ console.error("Full error:", err);
     swal("Error", "Something went wrong. Please try again.", "error");
   }
 });

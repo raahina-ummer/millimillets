@@ -7,6 +7,7 @@ import Order from "../../models/OrderSchema.js";
 import Address from "../../models/AddressSchema.js";
 import { sendVerificationEmail, generateOtp } from "../../Helpers/emailandaotpservices.js";
 import uploads from "../../Helpers/multer.js";
+import { debugPort } from "process";
 
 dotenv.config();
 
@@ -22,9 +23,9 @@ const securePassword = async (password) => {
 //  Forgot Password (Render Page)
  const getForgotPassword = async (req, res) => {
   try {
-    res.render("forgotpassword");
+    return res.render("forgotpassword");
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -44,23 +45,25 @@ const securePassword = async (password) => {
         res.redirect("/verifyForgotOtp");
         console.log("OTP:", otp);
       } else {
-        res.json({ success: false, message: "Failed to send OTP. Please try again!" });
+       return res.json({ success: false, message: "Failed to send OTP. Please try again!" });
       }
     } else {
-      res.render("forgotpassword", { message: "User with this email does not exist" });
+     return  res.render("forgotpassword", { message: "User with this email does not exist" });
     }
   } catch (error) {
     console.error(error.message);
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
 //  Verify OTP Page
  const getVerifyOtp = (req, res) => {
   try {
-    res.render("verifyotp");
+   return  res.render("verifyotp",{
+    otpType: "FORGET_PASSWORD"
+   });
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -80,46 +83,93 @@ const securePassword = async (password) => {
       delete req.session.userOtp;
       res.json({ success: true, redirectUrl: "/login" });
     } else {
-      res.status(400).json({ success: false, message: "Invalid OTP. Try again." });
+     return res.status(400).json({ success: false, message: "Invalid OTP. Try again." });
     }
   } catch (error) {
     console.error("OTP Verification Error:", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
+   return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
-//  Resend OTP
- const resendOtp = async (req, res) => {
-  try {
-    const email = req.session?.userData?.email || req.session?.email;
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: "Email not found in session" });
+//  Resend OTP
+const resendOtp = async (req, res) => {
+  try {
+    console.log("resendOtop invocked");
+  const email = 
+  req.session?.pendingEmail ||         // Email change 
+  req.session?.userData?.email ||      // During signup
+  req.session?.email ||                // Forgot password
+  req.session?.newEmail;               // Alternative
+
+
+
+    // Check if email exists
+    if (!email || email === undefined || email === null) {
+      console.log("No email found in session");
+      console.log("Session data:", JSON.stringify(req.session, null, 2));
+      return res.status(400).json({ 
+        success: false, 
+        message: "Session expired. Please start the process again." 
+      });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log("Invalid email format:", email);
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid email format in session" 
+      });
+    }
+
+    // Generate new OTP
     const otp = generateOtp();
+    console.log("Generated OTP:", otp);
+
+    // Store OTP in session
     req.session.userOtp = otp;
     req.session.timer = new Date();
 
-    const emailSent = await sendVerificationEmail(email, otp);
+    console.log("About to send email to:", email);
+    console.log("Email type:", typeof email);
+    console.log("Email trimmed:", email.trim());
+
+    // Send verification email - use trimmed email
+    const emailSent = await sendVerificationEmail(email.trim(), otp);
+    
+    console.log("Email sent result:", emailSent);
+    
     if (emailSent) {
-      res.status(200).json({ success: true, message: "OTP resent successfully" });
+      console.log(" OTP email sent successfully");
+      return res.status(200).json({ 
+        success: true, 
+        message: "OTP resent successfully" 
+      });
     } else {
-      res.status(500).json({ success: false, message: "Failed to resend OTP" });
+      console.log("Failed to send OTP email");
+      return res.status(500).json({ 
+        success: false, 
+        message: "Failed to resend OTP. Please try again." 
+      });
     }
   } catch (error) {
-    console.error("Resend OTP Error:", error.message);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error(" Resend OTP Error:", error);
+    console.error("Error stack:", error.stack);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error: " + error.message 
+    });
   }
 };
-
 //  Reset Password (Render)
  const getPostNewPassword = async (req, res) => {
   try {
     if (!req.session.email) return res.redirect("/forgotPassword");
-    res.render("resetpassword");
+    return res.render("resetpassword");
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -132,28 +182,28 @@ const securePassword = async (password) => {
     if (password === confirmPassword) {
       const passwordHash = await securePassword(password);
       await User.updateOne({ email }, { $set: { password: passwordHash } });
-      res.json({ success: true, message: "Password updated successfully" });
+      returnres.json({ success: true, message: "Password updated successfully" });
     } else {
-      res.json({ success: false, message: "Passwords do not match" });
+      return res.json({ success: false, message: "Passwords do not match" });
     }
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
 //  Load User Profile
  const loadProfile = async (req, res) => {
   try {
-    const userId =
-      req.session?.userData?._id ||
-      req.session?.userData?.id ||
-      req.session?.user?._id ||
-      req.session?.user?.id;
-
-    if (!userId) return res.redirect("/login");
+    const userId = req.session.user.id
+    
+    if (!userId)
+       return res.redirect("/login");
 
     const userData = await User.findById(userId).select("-password -confirmPassword");
-    if (!userData) return res.redirect("/login");
+    if (!userData)
+       return res.redirect("/login");
+
+    console.log(userData)
 
     const userAddresses = await Address.findOne({ userId });
     const addresses = userAddresses?.address || [];
@@ -162,7 +212,7 @@ const securePassword = async (password) => {
       .sort({ createdOn: -1 })
       .limit(10);
 
-    res.render("userprofile", {
+    return res.render("userprofile", {
       user: userData,
       orders,
       addresses,
@@ -172,7 +222,7 @@ const securePassword = async (password) => {
       walletTransactions: [],
     });
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -180,12 +230,13 @@ const securePassword = async (password) => {
  const loadEditProfile = async (req, res) => {
   try {
     const userId = req.session?.user?.id;
-    if (!userId) return res.redirect("/login");
+    if (!userId) 
+      return res.redirect("/login");
 
     const user = await User.findById(userId);
-    res.render("editProfile", { user });
+    return res.render("editProfile", { user });
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -195,12 +246,12 @@ const loadChangePassword = async (req, res) => {
     const userId = req.session?.user?.id;
     const user = await User.findById(userId);
     if (user.password) {
-      res.render("changepassword", { user });
+      return res.render("changepassword", { user });
     } else {
-      res.render("googlechangepassword", { user });
+      return res.render("googlechangepassword", { user });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -209,7 +260,8 @@ const loadChangePassword = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
     const userId = req.session?.user?.id;
-    if (!userId) return res.render("login");
+    if (!userId) 
+      return res.render("login");
 
     if (password !== confirmPassword) {
       return res.status(400).json({ success: false, message: "Passwords don't match" });
@@ -217,9 +269,9 @@ const loadChangePassword = async (req, res) => {
 
     const hashedPassword = await securePassword(password);
     await User.findByIdAndUpdate(userId, { $set: { password: hashedPassword } });
-    res.status(200).json({ success: true, message: "Password added successfully" });
+    return res.redirect("/userProfile");
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -239,9 +291,10 @@ const loadChangePassword = async (req, res) => {
     }
 
     await user.save();
-    res.status(200).json({ success: true, message: "Updated Successfully", imagePath: user.profileImage });
+    console.log(user,userId,user.dateOfBirth,dob)
+    return res.redirect("/userProfile")
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    return res.json({ success: false, message: error.message });
   }
 };
 
@@ -257,45 +310,42 @@ const updateChangePassword = async (req, res) => {
       return res.status(400).json({ success: false, message: "Passwords do not match" });
 
     const user = await User.findById(req.session.user.id);
-    if (!user) return res.status(400).redirect("login");
+    if (!user)
+       return res.status(400).redirect("login");
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) return res.status(400).json({ success: false, message: "Current password is incorrect" });
+    if (!isMatch)
+       return res.status(400).json({ success: false, message: "Current password is incorrect" });
 
     const hashedPassword = await securePassword(newPassword);
     await User.findByIdAndUpdate(req.session.user.id, { $set: { password: hashedPassword } });
 
-    res.status(200).json({ success: true, message: "Password updated successfully" });
+    return res.status(200).json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-    res.redirect("/pageNotFound");
+   return  res.redirect("/pageNotFound");
   }
 };
 
-//  Load Update Email
+// Load Update Email Page
 const loadUpdateEmail = async (req, res) => {
   try {
-    if (!req.session?.userData?.email && !req.session?.userOtp)
-      return res.status(400).json({ success: false, message: "Email not found in session" });
-
-    if (!req.session?.otpVerified) return res.redirect("/");
-
-    res.render("changeemail", { email: req.session.userData.email });
-    req.session.otpVerified = false;
+    console.log("loadUpdateEmail invoked", req.session);
+    const email = req.session.user.email;
+   return  res.render("changeemail", { user: req.session.user });
   } catch (error) {
-    res.redirect("/pageNotFound");
+    console.log(error);
+   return  res.redirect("/pageNotFound");
   }
 };
 
-//  Update Email
+// Send OTP to new email
 const updateEmail = async (req, res) => {
   try {
+    console.log("Update Email invocked")
     const { email } = req.body;
 
-    if (!req.session.user.id) {
-      return res.status(400).json({ success: false, message: "Unauthorized. Please log in." });
-    }
-
-    if (!email) return res.status(400).json({ success: false, message: "Please enter a valid email" });
+    if (!email)
+      return res.status(400).json({ success: false, message: "Please enter a valid email" });
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email))
@@ -305,31 +355,109 @@ const updateEmail = async (req, res) => {
     if (existEmail)
       return res.status(400).json({ success: false, message: "Email already exists" });
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.session.user.id,
-      { $set: { email } },
-      { new: true }
-    );
+    // Generate and send OTP
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (!emailSent) {
+      return res.json({ success: false, message: "Failed to send OTP" });
+    }
 
-    req.session.user.email = updatedUser.email;
-    delete req.session.userOtp;
-    delete req.session.userData;
+    // Save OTP and new email in session
+    req.session.userOtp = otp;
+    req.session.pendingEmail = email;
+    req.session.timer = new Date();
 
-    res.status(200).json({ success: true, message: "Email updated successfully" });
+
+    console.log("OTP sent:", otp);
+    return res.status(200).json({sucess:true,message: "OTP send Sucessfully!!"})
   } catch (error) {
-    res.redirect("/pageNotFound");
+    console.log(error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+// Load Verify OTP Page (after sending OTP)
+const loadChangeEmail = async (req, res) => {
+  console.log("AAAAAAA")
+  try {
+    // Check if OTP and email are present in session
+    if (!req.session.userOtp || !req.session.pendingEmail) {
+      return res.redirect("/changeEmail");
+    }
+
+    // Render OTP page
+   return res.render("verifyotp", {
+      email: req.session.pendingEmail,
+      otpType: "CHANGE_EMAIL"
+    });
+  } catch (error) {
+    console.error("Error loading verify OTP page:", error);
+    return res.redirect("/pageNotFound");
+  }
+};
+
+
+
+
+// Verify OTP and update email
+const changeEmailVerifyOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    console.log("Session OTP:", req.session.userOtp, "User entered:", otp);
+  
+
+
+    if (!otp)
+      return res.status(400).json({ success: false, message: "Please enter the OTP" });
+
+
+    if (String(otp) !== String(req.session.userOtp))
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+
+    const now = new Date();
+    const diff = (now - new Date(req.session.timer)) / 1000 / 60;
+    if (diff > 5)
+      return res.status(400).json({ success: false, message: "OTP expired" });
+
+    //  Update email in DB
+    const updatedUser = await User.findByIdAndUpdate(
+      req.session.user.id,
+      { $set: { email: req.session.pendingEmail } },
+      { new: true }
+
+    );
+
+    // Update session
+    req.session.user.email = updatedUser.email;
+
+    // Clear temporary data
+    delete req.session.userOtp;
+    delete req.session.pendingEmail;
+    delete req.session.timer;
+
+    return res.status(200).json({message: 'otp verified successfully',success: true});
+  } catch (error) {
+    console.log("Error verifying OTP:", error);
+    return res.status(500).json({ message: 'otp invalid' })
+  }
+};
+
+
+
+
 
 //  Load Address Page
  const loadAddress = async (req, res) => {
   try {
     if (!req.session.user.id) return res.redirect("/login");
     const user = await User.findById(req.session.user.id);
-    const addresses = user.addresses || [];
-    res.render("address", { user, addresses, redirectpage: req.query.page });
+    const userAddress = await Address.findOne({ userId: req.session.user.id });
+
+    const addresses = userAddress?.addresses || [];
+    return res.render("address", { user, addresses, redirectpage: req.query.page });
   } catch (error) {
-    res.redirect("pageNotFound");
+    return res.redirect("pageNotFound");
   }
 };
 
@@ -338,14 +466,13 @@ const updateEmail = async (req, res) => {
   try {
     if (!req.session.user.id) return res.redirect("/login");
     const user = await User.findById(req.session.user.id);
-    res.render("addAddress", { user, redirectpage: req.query.page });
+    return res.render("addAddress", { user, redirectPage: req.query.page });
   } catch (error) {
-    res.redirect("pageNotFound");
+    return res.redirect("pageNotFound");
   }
 };
 
-//  Add Address (Submit)
- const addAddress = async (req, res) => {
+const addAddress = async (req, res) => {
   try {
     const userId = req.session?.user?.id;
     if (!userId)
@@ -361,13 +488,23 @@ const updateEmail = async (req, res) => {
       pinCode,
       country,
       addressType,
-      isDefault,
+      redirect,
     } = req.body;
+
+    const isDefaultFlag = req.body.isDefault === "on"; 
 
     if (!firstName || !lastName || !phone || !address || !state || !pinCode || !country || !addressType)
       return res.status(400).json({ success: false, message: "All fields are required." });
 
     let userAddress = await Address.findOne({ userId });
+
+    // Fix old addresses missing city
+    if (userAddress && userAddress.addresses) {
+      userAddress.addresses.forEach(addr => {
+        if (!addr.city) addr.city = "Unknown";
+      });
+    }
+
     const newAddress = {
       firstName,
       lastName,
@@ -378,25 +515,248 @@ const updateEmail = async (req, res) => {
       pinCode,
       country,
       addressType,
-      isDefault: !!isDefault,
+      isDefault: isDefaultFlag,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     if (userAddress) {
-      if (isDefault) userAddress.addresses.forEach((addr) => (addr.isDefault = false));
+      if (isDefaultFlag) {
+        userAddress.addresses.forEach(addr => (addr.isDefault = false));
+      }
       userAddress.addresses.push(newAddress);
       await userAddress.save();
     } else {
-      userAddress = new Address({ userId, addresses: [newAddress] });
+      userAddress = new Address({
+        userId,
+        addresses: [newAddress],
+      });
+
+      console.log("New Address:", newAddress);
+console.log("All addresses before save:", userAddress.addresses);
       await userAddress.save();
     }
 
-    res.status(200).json({ success: true, message: "Address added successfully!", redirect: "/userProfile" });
+    const redirectUrl = redirect === "checkout" ? "/checkout" : "/userProfile";
+    return res.status(200).json({ success: true, message: "Address added successfully!", redirect: redirectUrl });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
+    console.log("=== ADD ADDRESS ERROR ===");
+    console.log("Error:", error);
+    console.log("Error message:", error.message);
+    console.log("Request body:", req.body);
+    console.log("User ID:", req.session?.user?.id);
   }
 };
+
+
+
+const loadEditAddress = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    if (!userId) return res.redirect("/login");
+
+    const addressId = req.params.id;
+    if (!addressId) return res.redirect("/address");
+
+    const userAddress = await Address.findOne(
+      { userId, "addresses._id": addressId },
+      { addresses: { $elemMatch: { _id: addressId } } }
+    );
+
+    if (!userAddress || !userAddress.addresses?.length) {
+      console.log(" Address not found");
+      return res.redirect("/address"); 
+    }
+
+    const user = await User.findById(userId);
+    const address = userAddress.addresses[0];
+    
+     const redirectPage = req.query.redirect || "/address";
+    return res.render("editAddress", { user, address,redirectPage });
+
+  } catch (error) {
+    console.error("Error loading edit address:", error.message);
+    return res.redirect("/address");
+  }
+};
+
+
+
+const editAddress = async (req, res) => {
+  try {
+    console.log("editAddress Invoked")
+    console.log(req.body,"RequestBody")
+    if (!req.session.user.id) {
+     return  res.status(400).send("Please login First");
+    }
+
+    const {
+      firstName,
+      lastName,
+      phone,
+      address,
+      city,
+      state,
+      pinCode,
+      country,
+      addressType,
+      isDefault,
+    } = req.body;
+
+    if (
+      !firstName ||
+      !lastName ||
+      !phone ||
+      !address ||
+      !city ||
+      !state ||
+      !pinCode ||
+      !country ||
+      !addressType
+    ) { return res.status(400).json({
+    success: false,
+    message: "All fields are required",
+  });
+    }
+
+    const user = await User.findById(req.session.user.id);
+
+    const userId = req.session.user.id;
+    const addressId = req.params.id;
+
+    if (isDefault) {
+      await Address.updateOne(
+        { userId },
+        { $set: { "addresses.$[].isDefault": false } }
+      );
+    }
+
+    const updatedAddress = await Address.updateOne(
+      { userId, "addresses._id": addressId },
+      {
+        $set: {
+          "addresses.$.firstName": firstName,
+          "addresses.$.lastName": lastName,
+          "addresses.$.phone": phone,
+          "addresses.$.address": address,
+          "addresses.$.state": state,
+          "addresses.$.pinCode": pinCode,
+          "addresses.$.city": city,
+          "addresses.$.country": country,
+          "addresses.$.addressType": addressType,
+          "addresses.$.isDefault": !!isDefault,
+          "addresses.$.updatedAt": new Date(),
+        },
+      }
+    );
+
+    return res.status(200).json({ success: true, message: "Address Updated successfully" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const setDefaultAddress = async (req, res) => {
+  try {
+    const userId = req.session?.user?.id;
+    const addressId = req.params.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Please login first." });
+    }
+
+    const userAddress = await Address.findOne({ userId });
+
+    if (!userAddress || !userAddress.addresses || userAddress.addresses.length === 0) {
+      return res.status(404).json({ success: false, message: "No addresses found." });
+    }
+
+    // Mark only the selected one as default
+    userAddress.addresses.forEach((addr) => {
+      addr.isDefault = addr._id.toString() === addressId;
+    });
+
+    await userAddress.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Default address updated successfully.",
+    });
+
+  } catch (error) {
+    console.error("Error setting default address:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+};
+
+
+
+const deleteAddress = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    if (!userId) {
+     return  res.status(400).send("Please login to delete an address");
+    }
+
+    const addressId = req.params.id;
+    if (!addressId) {
+      return res.status(400).send("Invalid address ID");
+    }
+
+    // Find the address to check if it exists and is default
+    const addressDoc = await Address.findOne(
+      { userId, "addresses._id": addressId },
+      { addresses: { $elemMatch: { _id: addressId } } }
+    );
+
+    if (!addressDoc || !addressDoc.addresses || addressDoc.addresses.length === 0) {
+      res.status(400).send("Address not found");
+    }
+
+    const isDefault = addressDoc.addresses[0].isDefault;
+
+    // Delete the address
+    const deleteResult = await Address.updateOne(
+      { userId },
+      { $pull: { addresses: { _id: addressId } } }
+    );
+
+    if (deleteResult.modifiedCount === 0) {
+     return  res.status(400).send("Failed to delete address");
+    }
+
+    // If it was default, set the first remaining address as default
+    if (isDefault) {
+      const updatedDoc = await Address.findOne({ userId });
+      if (updatedDoc && updatedDoc.addresses && updatedDoc.addresses.length > 0) {
+        await Address.updateOne(
+          { userId, "addresses._id": updatedDoc.addresses[0]._id },
+          { $set: { "addresses.$.isDefault": true } }
+        );
+      }
+    }
+
+    return res.status(200).json({ success: true, message: "Deleted Successfully" });
+
+  } catch (error) {
+    console.error("Error deleting address:", error.message);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+
+
+
+
+
 
 
 
@@ -420,5 +780,12 @@ export  {
     loadAddress,
     loadAddAddress,
     addAddress,
-
+    changeEmailVerifyOtp,
+    loadChangeEmail,
+    loadEditAddress,
+    editAddress,
+    setDefaultAddress,
+    deleteAddress,
+    
+    
 }

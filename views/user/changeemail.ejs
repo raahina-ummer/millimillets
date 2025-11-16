@@ -277,7 +277,7 @@
       updateBtn.textContent = 'Updating...';
 
       try {
-        const response = await fetch('/changeemail', {
+        const response = await fetch('/changeEmail', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -286,6 +286,7 @@
         });
 
         const result = await response.json();
+        console.log(result)
 
         if (!response.ok) {
           throw new Error(result.message || 'Failed to update email.');
@@ -299,10 +300,12 @@
           timer: 2000,
           timerProgressBar: true,
           willClose: () => {
-            window.location.href = '/userProfile';
+            window.location.href = '/verifyEmailOtp';
           }
         });
+
       } catch (err) {
+        console.log(err)
         Swal.fire({
           title: 'Error!',
           text: err.message || 'Something went wrong. Please try again.',

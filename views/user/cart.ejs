@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart | Your App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -481,6 +483,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="main-container">
         <!-- Breadcrumb -->
@@ -495,136 +498,148 @@
             <h1 class="page-title">Your cart</h1>
         </div>
 
-        <% if (cart && cart.products && cart.products.length > 0) { %>
-        <div class="cart-layout">
-            <!-- Cart Items -->
-            <div class="cart-items-section">
-                <div class="cart-header">
-                    <h2>Shopping Cart (<%= cart.products.length %> items)</h2>
-                    <button class="btn btn-outline-danger" onclick="clearCart()">
-                        <i class="fas fa-trash"></i> Clear Cart
-                    </button>
-                </div>
-
-                <% cart.products.forEach((item) => { 
-                    const product = item.productId;
-                    const hasDiscount = product.regularPrice > item.price;
-                %>
-                <div class="cart-item" data-id="<%= product._id %>">
-                    <!-- Product Image -->
-                    <div class="item-image">
-                        <a href="/product/<%= product._id %>">
-                            <img src="<%= product.productImage && product.productImage.length > 0 ? product.productImage[0] : '/placeholder.jpg' %>" 
-                                 alt="<%= product.productName %>">
-                        </a>
-                    </div>
-
-                    <!-- Product Details -->
-                    <div class="item-details">
-                        <h3 class="item-name">
-                            <a href="/product/<%= product._id %>"><%= product.productName %></a>
-                        </h3>
-
-                        <div class="item-price">
-                            <span class="current-price">Rs <%= item.totalPrice.toFixed(2) %></span>
-                            <% if (hasDiscount) { %>
-                                <span class="original-price">Rs <%= product.regularPrice.toFixed(2) %></span>
-                            <% } %>
-                        </div>
-
-                        <!-- Stock Status -->
-                        <% if (product.quantity === 0) { %>
-                            <span class="item-stock out-of-stock">
-                                <i class="fas fa-times-circle"></i> Out of Stock
-                            </span>
-                        <% } else if (product.quantity <= 5) { %>
-                            <span class="item-stock low-stock">
-                                <i class="fas fa-exclamation-triangle"></i> Only <%= product.quantity %> left
-                            </span>
-                        <% } else { %>
-                            <span class="item-stock in-stock">
-                                <i class="fas fa-check-circle"></i> In Stock
-                            </span>
-                        <% } %>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="item-actions">
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="updateQuantity('<%= product._id %>', -1)" 
-                                    <%= item.quantity <= 1 ? 'disabled' : '' %>>-</button>
-                            <input type="number" class="qty-input" value="<%= item.quantity %>" 
-                                   min="1" max="<%= Math.min(10, product.quantity) %>" 
-                                   onchange="updateQuantity('<%= product._id %>', 0, this.value)" readonly>
-                            <button class="qty-btn" onclick="updateQuantity('<%= product._id %>', 1)" 
-                                    <%= item.quantity >= Math.min(10, product.quantity) ? 'disabled' : '' %>>+</button>
-                        </div>
-
-                        <div class="item-total-price">Rs <%= item.totalPrice.toFixed(2) %></div>
-
-                        <button class="item-remove" onclick="removeItem('<%= product._id %>')">
-                            <i class="fas fa-trash-alt"></i>
+        <% if (cart && cart.products && cart.products.length> 0) { %>
+            <div class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-items-section">
+                    <div class="cart-header">
+                        <h2>Shopping Cart (<%= cart.products.length %> items)</h2>
+                        <button class="btn btn-outline-danger" onclick="clearCart()">
+                            <i class="fas fa-trash"></i> Clear Cart
                         </button>
                     </div>
+
+                    <% cart.products.forEach((item)=> {
+                        const product = item.productId;
+                        const hasDiscount = product.regularPrice > item.price;
+                        %>
+                        <div class="cart-item" data-id="<%= product._id %>">
+                            <!-- Product Image -->
+                            <div class="item-image">
+                                <a href="/product/<%= product._id %>">
+                                    <img src="<%= product.productImage && product.productImage.length > 0 
+    ? '/uploads/images/' + product.productImage[0] 
+    : '/placeholder.jpg' %>" alt="<%= product.name %>" />
+
+                                    <!-- <img src="<%= product.productImage && product.productImage.length > 0 ? product.productImage[0] : '/placeholder.jpg' %>" -->
+                                    alt="<%= product.productName %>">
+                                </a>
+                            </div>
+
+                            <!-- Product Details -->
+                            <div class="item-details">
+                                <h3 class="item-name">
+                                    <a href="/product/<%= product._id %>">
+                                        <%= product.productName %>
+                                    </a>
+                                </h3>
+
+                                <div class="item-price">
+                                    <span class="current-price">Rs <%= item.totalPrice.toFixed(2) %></span>
+                                    <% if (hasDiscount) { %>
+                                        <span class="original-price">Rs <%= product.regularPrice.toFixed(2) %></span>
+                                        <% } %>
+                                </div>
+
+                                <!-- Stock Status -->
+                                <% if (product.quantity===0) { %>
+                                    <span class="item-stock out-of-stock">
+                                        <i class="fas fa-times-circle"></i> Out of Stock
+                                    </span>
+                                    <% } else if (product.quantity <=5) { %>
+                                        <span class="item-stock low-stock">
+                                            <i class="fas fa-exclamation-triangle"></i> Only <%= product.quantity %>
+                                                left
+                                        </span>
+                                        <% } else { %>
+                                            <span class="item-stock in-stock">
+                                                <i class="fas fa-check-circle"></i> In Stock
+                                            </span>
+                                            <% } %>
+
+                                                <button class="qty-btn"
+                                                    onclick="updateQuantity('<%= product._id %>', -1)">-</button>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="item-actions">
+                                <div class="quantity-controls">
+                                    <button class="qty-btn" onclick="updateQuantity('<%= product._id %>', -1)"
+                                        <%=item.quantity <=1 ? 'disabled' : '' %>>-</button>
+                                    <input type="number" class="qty-input" value="<%= item.quantity %>" min="1"
+                                        max="<%= Math.min(10, product.quantity) %>"
+                                        onchange="updateQuantity('<%= product._id %>', 0, this.value)" readonly>
+                                    <button class="qty-btn" onclick="updateQuantity('<%= product._id %>', 1)"
+                                        <%=item.quantity>= Math.min(10, product.quantity) ? 'disabled' : ''
+                                        %>>+</button>
+                                </div>
+
+                                <div class="item-total-price">Rs <%= item.totalPrice.toFixed(2) %>
+                                </div>
+
+                                <button class="item-remove" onclick="removeItem('<%= product._id %>')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <% }) %>
                 </div>
-                <% }) %>
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h3 class="summary-title">Order Summary</h3>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal (<%= cart.products.length %> items)</span>
+                        <span class="summary-value">Rs <%= subtotal.toFixed(2) %></span>
+                    </div>
+
+                    <% if (discount> 0) { %>
+                        <div class="summary-row discount">
+                            <span class="summary-label">Discount (-20%)</span>
+                            <span class="summary-value">-Rs <%= discount.toFixed(2) %></span>
+                        </div>
+                        <% } %>
+
+                            <div class="summary-row shipping">
+                                <span class="summary-label">Delivery Fee</span>
+                                <% if (shipping===0) { %>
+                                    <span class="summary-value free">Free</span>
+                                    <% } else { %>
+                                        <span class="summary-value">Rs <%= shipping.toFixed(2) %></span>
+                                        <% } %>
+                            </div>
+
+                            <div class="summary-row total">
+                                <span>Total</span>
+                                <span>Rs <%= total.toFixed(2) %></span>
+                            </div>
+
+                            <% const hasOutOfStock=cart.products.some(item=> item.productId.quantity === 0);
+                                %>
+
+                                <button class="checkout-btn" onclick="proceedToCheckout()" <%=hasOutOfStock ? 'disabled'
+                                    : '' %>>
+                                    <i class="fas fa-arrow-right"></i>
+                                    <%= hasOutOfStock ? 'Remove Out of Stock Items' : 'Go to Checkout' %>
+                                </button>
+
+                                <a href="/shop" class="continue-shopping">
+                                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                                </a>
+                </div>
             </div>
-
-            <!-- Order Summary -->
-            <div class="order-summary">
-                <h3 class="summary-title">Order Summary</h3>
-
-                <div class="summary-row">
-                    <span class="summary-label">Subtotal (<%= cart.products.length %> items)</span>
-                    <span class="summary-value">Rs <%= subtotal.toFixed(2) %></span>
-                </div>
-
-                <% if (discount > 0) { %>
-                <div class="summary-row discount">
-                    <span class="summary-label">Discount (-20%)</span>
-                    <span class="summary-value">-Rs <%= discount.toFixed(2) %></span>
+            <% } else { %>
+                <!-- Empty Cart -->
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>Your cart is empty</h3>
+                    <p>Looks like you haven't added anything to your cart yet</p>
+                    <a href="/shop" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag"></i> Start Shopping
+                    </a>
                 </div>
                 <% } %>
-
-                <div class="summary-row shipping">
-                    <span class="summary-label">Delivery Fee</span>
-                    <% if (shipping === 0) { %>
-                        <span class="summary-value free">Free</span>
-                    <% } else { %>
-                        <span class="summary-value">Rs <%= shipping.toFixed(2) %></span>
-                    <% } %>
-                </div>
-
-                <div class="summary-row total">
-                    <span>Total</span>
-                    <span>Rs <%= total.toFixed(2) %></span>
-                </div>
-
-                <% 
-                const hasOutOfStock = cart.products.some(item => item.productId.quantity === 0);
-                %>
-
-                <button class="checkout-btn" onclick="proceedToCheckout()" <%= hasOutOfStock ? 'disabled' : '' %>>
-                    <i class="fas fa-arrow-right"></i> 
-                    <%= hasOutOfStock ? 'Remove Out of Stock Items' : 'Go to Checkout' %>
-                </button>
-
-                <a href="/shop" class="continue-shopping">
-                    <i class="fas fa-arrow-left"></i> Continue Shopping
-                </a>
-            </div>
-        </div>
-        <% } else { %>
-        <!-- Empty Cart -->
-        <div class="empty-cart">
-            <i class="fas fa-shopping-cart"></i>
-            <h3>Your cart is empty</h3>
-            <p>Looks like you haven't added anything to your cart yet</p>
-            <a href="/shop" class="btn btn-primary">
-                <i class="fas fa-shopping-bag"></i> Start Shopping
-            </a>
-        </div>
-        <% } %>
     </div>
 
     <script>
@@ -632,31 +647,42 @@
             try {
                 const item = document.querySelector(`[data-id="${productId}"]`);
                 const qtyInput = item.querySelector('.qty-input');
-                
+
                 let currentQty = parseInt(qtyInput.value);
                 let newQty;
-                
+
                 if (newValue !== null) {
                     newQty = parseInt(newValue);
                 } else {
                     newQty = currentQty + change;
                 }
-                
+
                 const maxQty = parseInt(qtyInput.max) || 10;
                 newQty = Math.max(1, Math.min(newQty, maxQty));
-                
-                const response = await fetch(`/cart/${productId}`, {
-  method: "POST",
+
+                console.log('Updating quantity:', { productId, currentQty, change, newQty, maxQty }); // DEBUG
+
+                // const response = await fetch(`/cart/${productId}`, {
+                //     method: "POST",
+                //     headers: { "Content-Type": "application/json" },
+                //     body: JSON.stringify({
+                //         productId: productId,
+                //         quantity: newQty
+                //     }),
+                const response = await fetch(`/updateCart`, {
+  method: "PUT",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     productId: productId,
     quantity: newQty
   }),
-});
 
-                
+
+                });
+
                 const data = await response.json();
-                
+                console.log('Server response:', data); // DEBUG
+
                 if (data.success) {
                     location.reload();
                 } else {
@@ -680,22 +706,22 @@
                 },
                 dangerMode: true,
             });
-            
+
             if (result) {
                 try {
-                    const response = await fetch('/cart/remove', {
+                    const response = await fetch('/removeCart', {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({ productId })
                     });
-                    
+
                     const data = await response.json();
-                    
+
                     if (data.success) {
                         swal("Removed!", "Item removed from cart.", "success")
-                        .then(() => location.reload());
+                            .then(() => location.reload());
                     } else {
                         swal("Error", data.message, "error");
                     }
@@ -716,21 +742,21 @@
                 },
                 dangerMode: true,
             });
-            
+
             if (result) {
                 try {
-                    const response = await fetch('/cart/clear', {
+                    const response = await fetch('/clearCart', {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         }
                     });
-                    
+
                     const data = await response.json();
-                    
+
                     if (data.success) {
                         swal("Cart Cleared!", "All items removed.", "success")
-                        .then(() => location.reload());
+                            .then(() => location.reload());
                     } else {
                         swal("Error", data.message, "error");
                     }
@@ -750,4 +776,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -136,12 +136,33 @@
             document.getElementById("otp").value = otpInput;
 
             try {
-                const response = await fetch("/verifyOtp", {
+                
+                let PATH 
+
+                 const OTPTYPE = "<%= otpType %>";  // EJS injects value into JS variable
+
+  switch (OTPTYPE) {
+    case "CHANGE_EMAIL":
+        PATH = "/verifyEmailOtp"
+      break;
+    case "SIGNUP_OTP":
+      PATH = "/verifyOtp"
+      break;
+    case "FORGET_PASSWORD":
+     PATH = "/verifyForgotOtp"
+      break;
+    default:
+      
+  }
+
+    
+                const response = await fetch(PATH, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ otp: otpInput })
                 });
                 const data = await response.json();
+                console.log(data)
 
                 if (data.success) {
                     Swal.fire({
@@ -152,7 +173,7 @@
                         position: "center",
                         toast: true,
                     }).then(() => {
-                        window.location.href = data.redirectUrl || "/resetPassword";
+                        window.location.href = data.redirectUrl || "/userprofile";
                     });
                 } else {
                     Swal.fire({
@@ -164,6 +185,7 @@
                     });
                 }
             } catch (error) {
+                console.log(error)
                 Swal.fire({
                     icon: "error",
                     title: "Invalid OTP",

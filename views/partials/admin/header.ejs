@@ -223,10 +223,17 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/admin/orders" class="nav-link <%= typeof currentRoute !== 'undefined' && currentRoute === 'orders' ? 'active' : '' %>">
+                <a href="/admin/adminorder" class="nav-link <%= typeof currentRoute !== 'undefined' && currentRoute === 'orders' ? 'active' : '' %>">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Orders</span>
                 </a>
+            <li class="nav-item">
+               <a href="/admin/stock" 
+   class="nav-link <%= typeof currentRoute !== 'undefined' && currentRoute === 'stock' ? 'active' : '' %>">
+  <i class="fas fa-boxes"></i>
+  <span>Stocks</span>
+</a>
+  
        
             <li class="nav-item">
                 <a href="/admin/coupon" class="nav-link <%= typeof currentRoute !== 'undefined' && currentRoute === 'coupon' ? 'active' : '' %>">

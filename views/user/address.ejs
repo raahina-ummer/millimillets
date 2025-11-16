@@ -267,69 +267,66 @@
                 <i class="fas fa-map-marker-alt"></i>
                 Address Book
             </h1>
-            <a href="/addAddres" class="btn btn-primary">
+            <a href="/addAddress" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add New Address
             </a>
         </div>
 
-        <!-- Address Cards -->
-        <div class="address-grid">
-            <% if (addresses && addresses.length > 0) { %>
-                <% addresses.forEach(address => { %>
-                    <div class="address-card <%= address.isDefault ? 'default' : '' %>">
-                        <% if (address.isDefault) { %>
-                            <div class="default-badge">Default</div>
-                        <% } %>
-                        
-                        <h5>
-                            <%= address.name %>
-                            <% if (address.label) { %>
-                                <span style="color: #8b7355; font-size: 0.9rem;">(<%= address.label %>)</span>
-                            <% } %>
-                        </h5>
-                        
-                        <p><strong>Type:</strong> <%= address.addressType %></p>
-                        <p><strong>Phone:</strong> <%= address.mobile %></p>
-                        
-                        <div class="address-info">
-                            <% if (address.addressLine1) { %><%= address.addressLine1 %><br><% } %>
-                            <% if (address.addressLine2) { %><%= address.addressLine2 %><br><% } %>
-                            <%= address.city %>, <%= address.state %> - <%= address.pincode %><br>
-                            <%= address.country %>
-                        </div>
-
-                        <div class="address-actions">
-                            <a href="/editAddress/<%= address._id %>" class="btn btn-outline-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            
-                            <% if (!address.isDefault) { %>
-                                <button class="btn btn-outline-primary" onclick="setDefault('<%= address._id %>')">
-                                    <i class="fas fa-star"></i> Set Default
-                                </button>
-                            <% } %>
-                            
-                            <button class="btn btn-outline-danger" onclick="deleteAddress('<%= address._id %>')">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <!-- Empty State -->
-                <div class="empty-state">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <h4>No addresses found</h4>
-                    <p>Add your first address to get started with shipping</p>
-                    <a href="/addAddress" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Address
-                    </a>
+  <!-- Address Cards -->
+<div class="address-grid">
+    <% if (addresses && addresses.length > 0) { %>
+        <% addresses.forEach(address => { %>
+            <div class="address-card <%= address.isDefault ? 'default' : '' %>">
+                <% if (address.isDefault) { %>
+                    <div class="default-badge">Default</div>
+                <% } %>
+                
+                <h5>
+                    <%= address.firstName %> <%= address.lastName %>
+                    <span style="color: #8b7355; font-size: 0.9rem;">(<%= address.addressType %>)</span>
+                </h5>
+                
+                <p><strong>Phone:</strong> <%= address.phone %></p>
+                
+                <div class="address-info">
+                    <%= address.address %><br>
+                    <%= address.city %>, <%= address.state %> - <%= address.pinCode %><br>
+                    <%= address.country %>
                 </div>
-            <% } %>
+
+                <div class="address-actions">
+                    <a href="/editAddress/<%= address._id %>" class="btn btn-outline-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    
+                    <% if (!address.isDefault) { %>
+                        <button class="btn btn-outline-primary" onclick="setDefault('<%= address._id %>')">
+                            <i class="fas fa-star"></i> Set Default
+                        </button>
+                    <% } %>
+                    
+                    <button class="btn btn-outline-danger" onclick="deleteAddress('<%= address._id %>')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <!-- Empty State -->
+        <div class="empty-state">
+            <i class="fas fa-map-marker-alt"></i>
+            <h4>No addresses found</h4>
+            <p>Add your first address to get started with shipping</p>
+            <a href="/addAddress" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Address
+            </a>
         </div>
-    </div>
+    <% } %>
+</div>
 
     <script>
+
+        
         function deleteAddress(id) {
             swal({
                 title: "Are you sure?",

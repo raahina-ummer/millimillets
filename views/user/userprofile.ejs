@@ -614,7 +614,7 @@
               <div class="info-content">
                 <div class="info-label">Date of Birth</div>
                 <div class="info-value">
-                  <%= user.dob ? new Date(user.dob).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
+                  <%= user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
                     day: 'numeric' }) : 'Not provided' %>
                 </div>
               </div>
@@ -693,8 +693,8 @@
       </div>
     </div>
 
-    <!-- Referral Note -->
-    <% if (user.referralCode) { %>
+    <!-- Referral Note
+    <!-- <% if (user.referralCode) { %> -->
       <div class="note-box">
         <span class="note-icon">💡</span>
         <p>
@@ -704,7 +704,7 @@
         </p>
       </div>
       <% } %>
-  </div>
+  </div> -->
 
   <script>
     function copyReferralCode(code) {

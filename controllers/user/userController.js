@@ -89,7 +89,9 @@ const signup = async (req, res) => {
     req.session.userData = { name, phone, email, passwordHash };
     req.session.email = email;
     req.session.timer = new Date();
-    res.render("verifyOtp");
+    res.render("verifyOtp",{
+      otpType: "SIGNUP_OTP"
+    });
     console.log("OTP sent", otp);
   } catch (error) {
     console.error("signup error", error);
@@ -154,7 +156,7 @@ const verifyOtp = async (req, res) => {
 
 const resendOtp = async (req, res) => {
   try {
-    const { email } = req.session.userData || req.session.email;
+    const  email  = req.session.userData || req.session.email;
     if (!email) {
       return res.status(400).json({ success: false, message: "Email not found in session" });
     }
@@ -227,94 +229,156 @@ const logout = async (req, res) => {
   }
 };
 
-const loadShoppingPage = async (req, res) => {
-  try {
-    const search = req.query.search || "";
-    const currentCategory = req.query.category || null;
-    const currentSort = req.query.sort || "newest";
-    const currentPage = parseInt(req.query.page) || 1;
+const loadShop = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
 
-    const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice) : undefined;
-    const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice) : undefined;
+        // Get filters from query
+        const categoryId = req.query.category;
+        const sortOption = req.query.sort || 'newest';
+        const searchQuery = req.query.search || '';
+        
+        // Price range
+        let minPrice = req.query.minPrice ? parseFloat(req.query.minPrice) : undefined;
+        let maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice) : undefined;
 
-    const currentPriceRange = { min: minPrice, max: maxPrice };
+        // Build query
+        let query = { 
+            isBlocked: false,
+            status: { $ne: 'out of stock' }
+        };
 
-    const priceRanges = [
-      { min: 0, max: 500 },
-      { min: 500, max: 1000 },
-      { min: 1000, max: 2000 },
-      { min: 2000, max: 5000 },
-      { min: 5000, max: Infinity },
-    ];
+        // Category filter
+        if (categoryId) {
+            query.category = categoryId;
+        }
 
-    const categoryGroups = await Category.aggregate([
-      { $match: { isListed: true } },
-      {
-        $lookup: {
-          from: "products",
-          localField: "_id",
-          foreignField: "category",
-          as: "products",
-        },
-      },
-      {
-        $project: {
-          name: 1,
-          count: { $size: "$products" },
-        },
-      },
-    ]);
+        // Search filter
+        if (searchQuery.trim()) {
+            query.$or = [
+                { productName: { $regex: searchQuery, $options: 'i' } },
+                { description: { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
 
-    let productQuery = { isBlocked: false };
+        // Fetch products with category population
+        let products = await Product.find(query)
+            .populate({
+                path: 'category',
+                match: { isListed: true }
+            });
 
-    if (search) {
-      productQuery.productName = { $regex: search, $options: "i" };
+        // Filter out products with unlisted categories
+        products = products.filter(product => product.category !== null);
+
+        // Price filter
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            products = products.filter(product => {
+                const variant = product.variant && product.variant[0];
+                const price = variant ? variant.salePrice : 0;
+                
+                if (minPrice !== undefined && maxPrice !== undefined) {
+                    return price >= minPrice && price <= maxPrice;
+                } else if (minPrice !== undefined) {
+                    return price >= minPrice;
+                } else {
+                    return price <= maxPrice;
+                }
+            });
+        }
+
+        // Sorting
+        switch (sortOption) {
+            case 'price-asc':
+                products.sort((a, b) => {
+                    const priceA = a.variant?.[0]?.salePrice || 0;
+                    const priceB = b.variant?.[0]?.salePrice || 0;
+                    return priceA - priceB;
+                });
+                break;
+            case 'price-desc':
+                products.sort((a, b) => {
+                    const priceA = a.variant?.[0]?.salePrice || 0;
+                    const priceB = b.variant?.[0]?.salePrice || 0;
+                    return priceB - priceA;
+                });
+                break;
+            case 'name-asc':
+                products.sort((a, b) => a.productName.localeCompare(b.productName));
+                break;
+            case 'name-desc':
+                products.sort((a, b) => b.productName.localeCompare(a.productName));
+                break;
+            case 'newest':
+            default:
+                products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+        }
+
+        // Get categories with counts
+        const categoryGroups = await Product.aggregate([
+            {
+                $match: {
+                    isBlocked: false,
+                    status: { $ne: 'out of stock' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryInfo'
+                }
+            },
+            {
+                $unwind: '$categoryInfo'
+            },
+            {
+                $match: {
+                    'categoryInfo.isListed': true
+                }
+            },
+            {
+                $group: {
+                    _id: '$category',
+                    name: { $first: '$categoryInfo.name' },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { name: 1 }
+            }
+        ]);
+
+        // Price ranges
+        const priceRanges = [
+            { min: 0, max: 500 },
+            { min: 500, max: 1000 },
+            { min: 1000, max: 2000 },
+            { min: 2000, max: 5000 },
+            { min: 5000, max: Infinity }
+        ];
+
+        res.render('shop', {
+            products: products.slice(skip, skip + limit),
+            categoryGroups,
+            priceRanges,
+            currentCategory: categoryId || null,
+            currentSort: sortOption,
+            currentPriceRange: { min: minPrice, max: maxPrice },
+            currentPage: page,
+            search: searchQuery,
+            user: req.session.user || null
+        });
+
+    } catch (error) {
+        console.error('Error loading shop:', error);
+        res.status(500).send('Server Error');
     }
-
-    if (currentCategory) {
-      productQuery.category = currentCategory;
-    }
-
-    const userData = await User.findById(req.session.user.id);
-
-    if (minPrice !== undefined) {
-      productQuery["variant.salePrice"] = {
-        $gte: minPrice,
-        ...(maxPrice !== Infinity ? { $lte: maxPrice } : {}),
-      };
-    }
-
-    let products = await Product.find(productQuery).populate("category").lean();
-
-    if (currentSort === "price-asc") {
-      products.sort((a, b) => (a.variant[0]?.salePrice || 0) - (b.variant[0]?.salePrice || 0));
-    } else if (currentSort === "price-desc") {
-      products.sort((a, b) => (b.variant[0]?.salePrice || 0) - (a.variant[0]?.salePrice || 0));
-    } else if (currentSort === "name-asc") {
-      products.sort((a, b) => a.productName.localeCompare(b.productName));
-    } else if (currentSort === "name-desc") {
-      products.sort((a, b) => b.productName.localeCompare(a.productName));
-    } else {
-      products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    return res.render("shop", {
-      products,
-      categoryGroups,
-      priceRanges,
-      currentCategory,
-      currentSort,
-      currentPriceRange,
-      search,
-      currentPage,
-      user: userData,
-    });
-  } catch (error) {
-    console.error("Shop page error:", error);
-    return res.redirect("/pageError");
-  }
 };
-
 
 
 export {
@@ -327,6 +391,6 @@ export {
   loadLogin,
   login,
   logout,
-  loadShoppingPage,
+  loadShop,
  
 };

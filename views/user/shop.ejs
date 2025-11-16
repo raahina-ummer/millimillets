@@ -51,6 +51,131 @@
     font-weight: 600;
 }
 
+
+/* Search Bar Styling */
+.search-bar-section {
+    background: #fff;
+    padding: 25px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.search-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f8f5f0;
+    border-radius: 50px;
+    padding: 5px 5px 5px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.search-input-wrapper:focus-within {
+    box-shadow: 0 4px 16px rgba(139, 115, 85, 0.2);
+    background: #fff;
+}
+
+.search-icon {
+    color: #8b7355;
+    font-size: 18px;
+    margin-right: 15px;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 15px;
+    font-size: 15px;
+    color: #2c2c2c;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.clear-search-btn {
+    background: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 8px 12px;
+    font-size: 16px;
+    transition: all 0.3s;
+    margin-right: 5px;
+}
+
+.clear-search-btn:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+.search-submit-btn {
+    background: linear-gradient(135deg, #8b7355 0%, #6d5940 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.search-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+.search-submit-btn i {
+    font-size: 14px;
+}
+
+/* Responsive Search Bar */
+@media (max-width: 768px) {
+    .search-bar-section {
+        padding: 15px 0;
+    }
+    
+    .search-input-wrapper {
+        padding: 3px 3px 3px 15px;
+    }
+    
+    .search-input {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .search-submit-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .search-submit-btn span {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-icon {
+        display: none;
+    }
+    
+    .search-input-wrapper {
+        padding-left: 10px;
+    }
+}
+
 /* Page Header */
 .page-header {
     text-align: center;
@@ -678,6 +803,45 @@
         </div>
     </div>
 
+    <!-- Add this after the breadcrumb section -->
+<div class="search-bar-section">
+    <div class="container">
+        <form action="/shop" method="GET" class="search-form">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="search-input" 
+                    placeholder="Search for products..."
+                    value="<%= search || '' %>"
+                    autocomplete="off"
+                >
+                <!-- Preserve other filters -->
+                <% if (currentCategory) { %>
+                    <input type="hidden" name="category" value="<%= currentCategory %>">
+                <% } %>
+                <% if (currentSort && currentSort !== 'newest') { %>
+                    <input type="hidden" name="sort" value="<%= currentSort %>">
+                <% } %>
+                <% if (currentPriceRange.min) { %>
+                    <input type="hidden" name="minPrice" value="<%= currentPriceRange.min %>">
+                    <input type="hidden" name="maxPrice" value="<%= currentPriceRange.max %>">
+                <% } %>
+                
+                <% if (search) { %>
+                    <button type="button" class="clear-search-btn" onclick="clearSearch()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                <% } %>
+                <button type="submit" class="search-submit-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <div class="container">
         <!-- Page Header -->
         <div class="page-header">
@@ -1201,6 +1365,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add to Wishlist Functionality
+// Fixed frontend code - matches your backend route
 document.querySelectorAll('.add-to-wishlist').forEach((button) => {
     button.addEventListener('click', async (event) => {
         event.preventDefault();
@@ -1209,12 +1374,13 @@ document.querySelectorAll('.add-to-wishlist').forEach((button) => {
         button.disabled = true;
 
         try {
-            const response = await fetch('/addToWishlist', {
-                method: 'PATCH',
+            // FIXED: Changed to POST and moved productId to URL
+            const response = await fetch(`/addWishlist/${productId}`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId }),
+                }
+                // No body needed - productId is in URL
             });
 
             const result = await response.json();
@@ -1240,7 +1406,7 @@ document.querySelectorAll('.add-to-wishlist').forEach((button) => {
 
                     // Update wishlist count
                     const wishlistCountElement = document.querySelector('#wishlistCountDisplay, .wishlist-count');
-                    if (wishlistCountElement) {
+                    if (wishlistCountElement && result.wishlistCount) {
                         wishlistCountElement.textContent = result.wishlistCount;
                     }
                 }
@@ -1344,6 +1510,33 @@ if (activeFiltersContainer) {
         activeFiltersContainer.style.display = 'block';
     }
 }
+
+
+// Clear Search Function
+function clearSearch() {
+    const form = document.querySelector('.search-form');
+    const searchInput = form.querySelector('.search-input');
+    searchInput.value = '';
+    
+    // Remove search parameter and submit
+    const url = new URL(window.location.href);
+    url.searchParams.delete('search');
+    window.location.href = url.toString();
+}
+
+// Auto-submit search on Enter key
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closest('form').submit();
+            }
+        });
+    }
+});
+
 </script>
 
 <%- include('../partials/user/footer') %>

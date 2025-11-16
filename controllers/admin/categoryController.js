@@ -46,10 +46,14 @@ const loadAddCategory = (req, res) => {
 const addCategory = async (req, res) => {
   console.log("Add Category Invoked");
   console.log("REQ BODY:", req.body);
-  const { name, description } = req.body;
+  let { name, description } = req.body;
 
   try {
-    const existingCategory = await Category.findOne({ name });
+    // Convert name to lowercase for comparison
+    const existingCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') } // case-insensitive
+    });
+
     if (existingCategory) {
       return res.status(400).json({ error: "Category already exists" });
     }
@@ -66,6 +70,7 @@ const addCategory = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 const getListCategory = async (req, res) => {
   try {
