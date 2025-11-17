@@ -1,13 +1,18 @@
-const User = require("../../models/userSchema.js");
-const env = require("dotenv").config();
-const nodemailer = require("nodemailer");
-const bcrypt = require('bcrypt')
+
+import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import User from "../../models/userSchema.js";
+import Product from "../../models/ProductSchema.js";
+import Category from "../../models/CategorySchema.js";
+import { sendVerificationEmail, generateOtp } from "../../Helpers/emailandaotpservices.js";
+
+dotenv.config();
 
 const pageNotFound = async (req, res) => {
   try {
     return res.render("p-404");
   } catch (error) {
-    console.log("Homepge Not Found");
+    console.log("Homepage Not Found");
     res.redirect("/pageNotFound");
     res.status(500).send("Server Error");
   }
@@ -15,64 +20,51 @@ const pageNotFound = async (req, res) => {
 
 const loadHomepage = async (req, res) => {
   try {
-    const user = req.session.user
-    if(user){
-      const userData = await User.findOne({_d:user.id});
-        res.render("home",{user:userData});
-    }else{
-    return res.render("home"); //rendering homepage
+    const userId = req.session?.user?.id;
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.length > 0 ? categories.map(cat => cat._id) : [];
+    const productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    })
+      .sort({ createdAt: -1 })
+      .limit(4);
+
+    if (userId) {
+      const userData = await User.findById(userId);
+      return res.render("home", { user: userData, products: productData, categories });
+    } else {
+      return res.render("home", { user: null, products: productData, categories });
     }
   } catch (error) {
-    console.log("Home Page not Found");
+    console.log("Home Page not Found", error);
     res.status(500).send("Server error");
   }
 };
-
-
 
 const loadSignup = async (req, res) => {
   try {
     return res.render("signup");
   } catch (error) {
-    console.log("Something went wrong!", error);
+    console.log("Something went wrong while signup!", error);
     res.status(500).send("Server Error");
   }
 };
 
-function generateOtp() {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-}
-
-async function sendVerificationEmail(email, otp) {
+const securePassword = async (password) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD,
-      },
-    });
-
-    const info = await transporter.sendMail({
-      from: process.env.NODEMAILER_EMAIL,
-      to: email,
-      subject: "Verify your account",
-      text: `Your OTP is ${otp}`,
-      html: `<b>Your OTP :${otp}</b>`,
-    });
-    return info.accepted.length > 0;
+    const passwordHash = await bcrypt.hash(password, 10);
+    return passwordHash;
   } catch (error) {
-    console.log("Error sending email", error);
-    return false;
+    console.log(error);
   }
-}
+};
 
 const signup = async (req, res) => {
   try {
     const { name, phone, email, password, cPassword } = req.body;
+    console.log(req.body);
 
     if (password !== cPassword) {
       return res.render("signup", { message: "Passwords do not match" });
@@ -90,10 +82,16 @@ const signup = async (req, res) => {
     if (!emailSent) {
       return res.json("email-error");
     }
+
     req.session.userOtp = otp;
     console.log("otp is:", req.session.userOtp);
-    req.session.userData = { name, phone, email, password };
-    res.render("verifyOtp");
+    const passwordHash = await securePassword(password);
+    req.session.userData = { name, phone, email, passwordHash };
+    req.session.email = email;
+    req.session.timer = new Date();
+    res.render("verifyOtp",{
+      otpType: "SIGNUP_OTP"
+    });
     console.log("OTP sent", otp);
   } catch (error) {
     console.error("signup error", error);
@@ -101,130 +99,289 @@ const signup = async (req, res) => {
   }
 };
 
-
-const securePassword = async (password) => {
-  try {
-    const passwordHash = await bcrypt.hash(password, 10)
-    return passwordHash;
-
-  } catch (error) {
-
-  }
-}
 const verifyOtp = async (req, res) => {
   try {
-
     const { otp } = req.body;
-    console.log(otp);
-    if (otp === req.session.userOtp) {
-      const user = req.session.userData
-      const passwordHash = await securePassword(user.password);
-      const saveUserData = new User({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: passwordHash
-      })
-      await saveUserData.save();
-      req.session.user = saveUserData._id;
-      res.json({ success: true, redirectUrl: "/login" })
+    console.log("Entered OTP:", otp);
+    console.log("Session OTP:", req.session.userOtp);
+    let redirectUrl = "";
+
+    if (req.session.userData) {
+      redirectUrl = "/";
+    }
+
+    const timeDiff = req.session.timer - new Date();
+    if (timeDiff > 60000) {
+      return res.status(400).json({ success: false, message: "OTP timer expired" });
+    }
+
+    if (String(otp) === String(req.session.userOtp)) {
+      const email = req.session.email;
+
+      if (!email) {
+        return res.status(400).json({ success: false, message: "Session expired. Please try again." });
+      }
+
+      if (req.session.userData) {
+        const saveUserData = new User({
+          name: req.session.userData.name,
+          email: req.session.userData.email,
+          phone: req.session.userData.phone,
+          password: req.session.userData.passwordHash,
+        });
+
+        req.session.user = {
+          id: saveUserData._id,
+          name: req.session.userData.name,
+          email: req.session.userData.email,
+        };
+
+        await saveUserData.save();
+      }
+
+      delete req.session.userOtp;
+
+      return res.status(200).json({
+        success: true,
+        redirectUrl,
+      });
     } else {
-      res.status(400).json({ success: false, message: "Invalid OTP,Please try again" })
+      return res.status(400).json({ success: false, message: "Invalid OTP, please try again backend" });
     }
   } catch (error) {
-    console.error("Error Verifying Otp", error)
-    res.status(500).json({ success: false, message: "An error Occured" })
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({ success: false, message: "An error occurred while verifying OTP" });
   }
-}
-
+};
 
 const resendOtp = async (req, res) => {
   try {
-    const { email } = req.session.userData;
+    const  email  = req.session.userData || req.session.email;
     if (!email) {
-      return res.status(400).json({ success: false, message: "Email not found in session" })
+      return res.status(400).json({ success: false, message: "Email not found in session" });
     }
 
     const otp = generateOtp();
     req.session.userOtp = otp;
+    req.session.timer = new Date();
 
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {
       console.log("Resend OTP", otp);
-      res.status(200).json({ success: true, message: "OTP Resend Sucessfuly" })
+      res.status(200).json({ success: true, message: "OTP Resent Successfully" });
     } else {
-      res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" })
+      res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" });
     }
-
   } catch (error) {
     console.error("Error resending OTP", error);
-    res.status(500).json({ success: false, message: "Internal Server Error. Please try again" })
-
+    res.status(500).json({ success: false, message: "Internal Server Error. Please try again" });
   }
-}
-
+};
 
 const loadLogin = async (req, res) => {
   try {
     if (!req.session.user) {
-      return res.render("login")
+      return res.render("login");
     } else {
-      res.redirect("/")
+      res.redirect("/");
     }
-
-
   } catch (error) {
-
-    res.redirect("/pageNotFound")
-
+    res.redirect("/pageNotFound");
   }
-}
+};
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body
-    const findUser = await User.findOne({ isAdmin: 0, email: email })
+    const { email, password } = req.body;
+    const findUser = await User.findOne({ isAdmin: 0, email });
     if (!findUser) {
-      return res.render("login", { message: "User not found" })
+      return res.render("login", { message: "User not found" });
     }
     if (findUser.isBlocked) {
-      return res.render("login", { message: "User is blocked by Admin" })
+      return res.render("login", { message: "User is blocked by Admin" });
     }
 
     const passwordMatch = await bcrypt.compare(password, findUser.password);
-
     if (!passwordMatch) {
-      return res.render("login", { message: "Incorrect Password" })
+      return res.render("login", { message: "Incorrect Password" });
     }
 
-    req.session.user = findUser._id;
-    res.redirect("/")
-
+    req.session.user = { id: findUser._id };
+    res.redirect("/");
   } catch (error) {
-    console.error("Login error", error)
-    res.render("login", { message: "login failed. Please try again later" })
-
+    console.error("Login error", error);
+    res.render("login", { message: "Login failed. Please try again later" });
   }
-}
+};
 
-
-const logout = async (req,res)=>{
+const logout = async (req, res) => {
   try {
-    req.session.destroy((error)=>{
-      if(error){
-        console.log("Session destruction error",error.message);
-        return res.redirect("/pageNotFound")
+    req.session.destroy((error) => {
+      if (error) {
+        console.log("Session destruction error", error.message);
+        return res.redirect("/pageNotFound");
       }
-      return res.redirect("/login")
-    })
-    
+      return res.redirect("/login");
+    });
   } catch (error) {
-    console.log("Logout error",error);
-    res.redirect("/pageNotFound")
+    console.log("Logout error", error);
+    res.redirect("/pageNotFound");
   }
-}
+};
 
-module.exports = {
+const loadShop = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+
+        // Get filters from query
+        const categoryId = req.query.category;
+        const sortOption = req.query.sort || 'newest';
+        const searchQuery = req.query.search || '';
+        
+        // Price range
+        let minPrice = req.query.minPrice ? parseFloat(req.query.minPrice) : undefined;
+        let maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice) : undefined;
+
+        // Build query
+        let query = { 
+            isBlocked: false,
+            status: { $ne: 'out of stock' }
+        };
+
+        // Category filter
+        if (categoryId) {
+            query.category = categoryId;
+        }
+
+        // Search filter
+        if (searchQuery.trim()) {
+            query.$or = [
+                { productName: { $regex: searchQuery, $options: 'i' } },
+                { description: { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
+
+        // Fetch products with category population
+        let products = await Product.find(query)
+            .populate({
+                path: 'category',
+                match: { isListed: true }
+            });
+
+        // Filter out products with unlisted categories
+        products = products.filter(product => product.category !== null);
+
+        // Price filter
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            products = products.filter(product => {
+                const variant = product.variant && product.variant[0];
+                const price = variant ? variant.salePrice : 0;
+                
+                if (minPrice !== undefined && maxPrice !== undefined) {
+                    return price >= minPrice && price <= maxPrice;
+                } else if (minPrice !== undefined) {
+                    return price >= minPrice;
+                } else {
+                    return price <= maxPrice;
+                }
+            });
+        }
+
+        // Sorting
+        switch (sortOption) {
+            case 'price-asc':
+                products.sort((a, b) => {
+                    const priceA = a.variant?.[0]?.salePrice || 0;
+                    const priceB = b.variant?.[0]?.salePrice || 0;
+                    return priceA - priceB;
+                });
+                break;
+            case 'price-desc':
+                products.sort((a, b) => {
+                    const priceA = a.variant?.[0]?.salePrice || 0;
+                    const priceB = b.variant?.[0]?.salePrice || 0;
+                    return priceB - priceA;
+                });
+                break;
+            case 'name-asc':
+                products.sort((a, b) => a.productName.localeCompare(b.productName));
+                break;
+            case 'name-desc':
+                products.sort((a, b) => b.productName.localeCompare(a.productName));
+                break;
+            case 'newest':
+            default:
+                products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+        }
+
+        // Get categories with counts
+        const categoryGroups = await Product.aggregate([
+            {
+                $match: {
+                    isBlocked: false,
+                    status: { $ne: 'out of stock' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryInfo'
+                }
+            },
+            {
+                $unwind: '$categoryInfo'
+            },
+            {
+                $match: {
+                    'categoryInfo.isListed': true
+                }
+            },
+            {
+                $group: {
+                    _id: '$category',
+                    name: { $first: '$categoryInfo.name' },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { name: 1 }
+            }
+        ]);
+
+        // Price ranges
+        const priceRanges = [
+            { min: 0, max: 500 },
+            { min: 500, max: 1000 },
+            { min: 1000, max: 2000 },
+            { min: 2000, max: 5000 },
+            { min: 5000, max: Infinity }
+        ];
+
+        res.render('shop', {
+            products: products.slice(skip, skip + limit),
+            categoryGroups,
+            priceRanges,
+            currentCategory: categoryId || null,
+            currentSort: sortOption,
+            currentPriceRange: { min: minPrice, max: maxPrice },
+            currentPage: page,
+            search: searchQuery,
+            user: req.session.user || null
+        });
+
+    } catch (error) {
+        console.error('Error loading shop:', error);
+        res.status(500).send('Server Error');
+    }
+};
+
+
+export {
   loadHomepage,
   pageNotFound,
   loadSignup,
@@ -233,5 +390,7 @@ module.exports = {
   resendOtp,
   loadLogin,
   login,
-  logout
+  logout,
+  loadShop,
+ 
 };

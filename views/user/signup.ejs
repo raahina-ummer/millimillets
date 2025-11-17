@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,108 +13,124 @@
 
     <style>
       :root {
-        --primary-color: #8b6f47; /* Millet/Brand Brown */
-        --secondary-color: #4a4a4a; /* Dark Gray for buttons/socials */
-        --background-color: #d4c4a8; /* Main form section background */
-        --dark-background: #2a2a2a; /* Body background */
+        --primary-color: #8b6f47;
+        --secondary-color: #4a4a4a;
+        --background-color: #D0C19A; /* Updated to match Figma */
+        --body-background: #D0C19A; /* Background color throughout */
         --text-color-dark: #333;
         --text-color-light: #666;
+        --button-color: #8b6f47; /* Brown button */
       }
 
       body {
-        font-family: Arial, sans-serif; /* Using a common font that is close to Segoe UI/Verdana */
-        background-color: var(--dark-background);
+        font-family: Arial, sans-serif;
+        background-color: var(--body-background);
         color: var(--text-color-dark);
+        margin: 0;
+        padding: 0;
       }
       
       /* --- Header and Branding --- */
       .header-section {
-        padding-top: 50px;
-        padding-bottom: 20px;
+        padding-top: 30px;
+        padding-bottom: 15px;
+        background-color: var(--background-color);
       }
 
       .brand-name {
         color: var(--primary-color);
         font-size: 32px;
-        font-weight: 600;
-        letter-spacing: 3px; /* Increased letter-spacing for visual match */
+        font-weight: 700;
+        letter-spacing: 4px;
         text-transform: uppercase;
       }
 
       /* --- Form Section Styling --- */
       .form-section {
-        /* Matches the background color in the screenshot */
-        background: var(--background-color); 
-        padding: 40px;
-        border-radius: 5px; /* Less rounded corners to match design */
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        background: var(--background-color);
+        padding: 50px 40px;
+        border-radius: 0;
+        box-shadow: none;
       }
       
       .form-section h2 {
-        font-size: 28px;
-        font-weight: 500;
+        font-size: 24px;
+        font-weight: 600;
         color: var(--secondary-color);
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         margin-bottom: 30px;
         text-transform: uppercase;
       }
 
       .form-label {
         color: var(--text-color-dark);
-        font-weight: 500;
-        font-size: 14px;
+        font-weight: 600;
+        font-size: 12px;
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
       }
 
       .form-control {
-        border-radius: 0; /* Removing the rounded corners for exact match */
+        border-radius: 5px;
         border: 1px solid #ccc;
-        padding: 10px 15px;
+        padding: 12px 15px;
         height: 45px;
-        font-size: 16px;
+        font-size: 14px;
+        background-color: white;
       }
       
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(139, 111, 71, 0.15);
+      }
+
       /* --- Form Buttons and Links --- */
       .submit-btn {
-        border-radius: 0; /* Removing the rounded corners for exact match */
-        background: var(--secondary-color);
+        border-radius: 5px;
+        background: var(--button-color);
         color: #fff;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
-        padding: 10px 15px;
+        padding: 12px 15px;
         transition: background 0.3s;
         border: none;
+        font-size: 14px;
       }
 
       .submit-btn:hover {
-        background: var(--primary-color);
+        background: #6d563a;
         color: #fff;
       }
 
       .form-section a {
-        color: var(--primary-color); /* Link color for Log in */
+        color: var(--primary-color);
         font-weight: 600;
         text-decoration: none;
       }
 
+      .form-section a:hover {
+        text-decoration: underline;
+      }
+
       .google-btn {
-        border-radius: 0; /* Removing the rounded corners for exact match */
+        border-radius: 5px;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 10px;
-        font-weight: 500;
+        font-weight: 600;
         background: #fff;
         border: 1px solid #ddd;
-        padding: 10px 15px;
+        padding: 12px 15px;
         transition: box-shadow 0.3s;
         color: var(--text-color-dark);
+        text-decoration: none;
       }
 
       .google-btn:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
       
       /* Eye icon for password visibility */
@@ -122,100 +140,98 @@
       .password-toggle {
           position: absolute;
           right: 15px;
-          top: 70%; /* Adjust as needed */
+          top: 50%;
           transform: translateY(-50%);
           cursor: pointer;
           color: #666;
           font-size: 18px;
-          z-index: 10; /* Ensure it's above the input */
+          z-index: 10;
+          margin-top: 12px;
       }
       
-      /* Adjust form-control padding to make space for the eye icon */
       .password-container .form-control {
-          padding-right: 40px; 
+          padding-right: 45px; 
       }
 
       /* --- Promo Section Styling --- */
       .promo-section {
         height: 100%;
         display: flex;
-        align-items: center; /* Vertically center the image */
+        align-items: center;
         justify-content: center;
-        padding: 20px 0;
+        padding: 0;
+        position: relative;
       }
 
       .promo-section img {
         width: 100%;
-        max-height: 500px;
+        height: 65%;
+        min-height: 400px;
         object-fit: cover;
-        border-radius: 0; /* Remove image border radius */
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 0;
+        box-shadow: none;
       }
       
       .referral-badge-container {
         position: absolute;
-        bottom: 20px;
+        bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
-        width: 80%; /* Control the width */
-        max-width: 350px;
-        margin-top: -80px; /* Pull it up over the image/form bottom line */
+        width: 85%;
+        max-width: 400px;
         z-index: 10;
       }
 
       .referral-badge {
         background: white;
-        padding: 12px 20px;
-        border-radius: 50px; /* More rounded to match the screenshot */
+        padding: 20px 25px;
+        border-radius: 30px;
         text-align: center;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-        border: 1px solid #ddd;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: none;
       }
       
       .referral-badge p {
-        margin-bottom: 5px;
-        font-size: 14px;
-        color: var(--text-color-dark); 
-        position: absolute;
-        bottom: 20px;
-        background: white;
-        padding: 15px 25px;
-        border-radius: 25px;
-        text-align: center;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-    
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: var(--text-color-light);
+        position: relative;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
       }
 
       .referral-code {
         color: var(--primary-color);
-        font-weight: 600;
-        letter-spacing: 1px;
-        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        font-size: 15px;
+        text-transform: uppercase;
       }
-
 
       /* --- Footer Section Styling --- */
       .footer-section {
-        background-color: #f8f8f8; /* Light gray background for footer */
+        background-color: #f8f8f8;
         color: var(--text-color-light);
-        padding: 40px 0 20px 0;
-        margin-top: 50px;
+        padding: 50px 0 30px 0;
+        margin-top: 0;
       }
 
       .footer-section h4 {
         text-transform: uppercase;
         letter-spacing: 1px;
-        font-weight: 600;
-        font-size: 16px;
-        color: var(--secondary-color);
-        margin-bottom: 15px;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text-color-dark);
+        margin-bottom: 20px;
       }
 
       .footer-section a {
         text-decoration: none;
         color: var(--text-color-light);
         font-size: 14px;
-        line-height: 2.2; /* Better spacing for links */
+        line-height: 2;
         display: block;
       }
 
@@ -225,14 +241,14 @@
       
       .footer-about p {
           font-size: 13px;
-          line-height: 1.6;
+          line-height: 1.7;
           color: var(--text-color-light);
       }
 
       .social-links a {
-        width: 30px;
-        height: 30px;
-        background: var(--secondary-color);
+        width: 35px;
+        height: 35px;
+        background: var(--text-color-dark);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -246,26 +262,42 @@
       }
       
       .copyright {
-          font-size: 12px;
+          font-size: 13px;
           margin-top: 20px;
+          color: var(--text-color-light);
       }
 
-      /* Payment icons at the bottom */
       .payment-icons img {
-          height: 20px;
-          margin-left: 5px;
+          height: 25px;
+          margin-left: 8px;
       }
 
       .error-message {
-        color: red;
-        font-size: 0.75rem;
+        color: #dc3545;
+        font-size: 0.8rem;
         display: none;
         margin-top: 5px;
       }
       
-      /* Utility class to force error display for validation */
       .error-message.show {
         display: block;
+      }
+
+      /* Text styling adjustments */
+      .text-muted {
+        color: var(--text-color-light) !important;
+        font-size: 14px;
+      }
+
+      /* Main container adjustments */
+      .main-wrapper {
+        background-color: var(--background-color);
+        box-shadow: none;
+      }
+
+      /* Row adjustments */
+      .row.g-0 {
+        min-height: 650px;
       }
     </style>
   </head>
@@ -642,3 +674,671 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - Millimillet</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary-color: #8b6f47;
+        --secondary-color: #4a4a4a;
+        --background-color: #D0C19A; /* Updated to match Figma */
+        --body-background: #D0C19A; /* Background color throughout */
+        --text-color-dark: #333;
+        --text-color-light: #666;
+        --button-color: #8b6f47; /* Brown button */
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--body-background);
+        color: var(--text-color-dark);
+        margin: 0;
+        padding: 0;
+      }
+      
+      /* --- Header and Branding --- */
+      .header-section {
+        padding-top: 30px;
+        padding-bottom: 15px;
+        background-color: var(--background-color);
+      }
+
+      .brand-name {
+        color: var(--primary-color);
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+
+      /* --- Form Section Styling --- */
+      .form-section {
+        background: var(--background-color);
+        padding: 50px 40px;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      
+      .form-section h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--secondary-color);
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+      }
+
+      .form-label {
+        color: var(--text-color-dark);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .form-control {
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        padding: 12px 15px;
+        height: 45px;
+        font-size: 14px;
+        background-color: white;
+      }
+      
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(139, 111, 71, 0.15);
+      }
+
+      /* --- Form Buttons and Links --- */
+      .submit-btn {
+        border-radius: 5px;
+        background: var(--button-color);
+        color: #fff;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 12px 15px;
+        transition: background 0.3s;
+        border: none;
+        font-size: 14px;
+      }
+
+      .submit-btn:hover {
+        background: #6d563a;
+        color: #fff;
+      }
+
+      .form-section a {
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .form-section a:hover {
+        text-decoration: underline;
+      }
+
+      .google-btn {
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 600;
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 12px 15px;
+        transition: box-shadow 0.3s;
+        color: var(--text-color-dark);
+        text-decoration: none;
+      }
+
+      .google-btn:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+      
+      /* Eye icon for password visibility */
+      .password-container {
+          position: relative;
+      }
+      .password-toggle {
+          position: absolute;
+          right: 15px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: #666;
+          font-size: 18px;
+          z-index: 10;
+          margin-top: 12px;
+      }
+      
+      .password-container .form-control {
+          padding-right: 45px; 
+      }
+
+      /* --- Promo Section Styling --- */
+      .promo-section {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        position: relative;
+      }
+
+      .promo-section img {
+        width: 100%;
+        height: 65%;
+        min-height: 400px;
+        object-fit: cover;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      
+      .referral-badge-container {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85%;
+        max-width: 400px;
+        z-index: 10;
+      }
+
+      .referral-badge {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 30px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: none;
+      }
+      
+      .referral-badge p {
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: var(--text-color-light);
+        position: relative;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .referral-code {
+        color: var(--primary-color);
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        font-size: 15px;
+        text-transform: uppercase;
+      }
+
+      /* --- Footer Section Styling --- */
+      .footer-section {
+        background-color: #f8f8f8;
+        color: var(--text-color-light);
+        padding: 50px 0 30px 0;
+        margin-top: 0;
+      }
+
+      .footer-section h4 {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text-color-dark);
+        margin-bottom: 20px;
+      }
+
+      .footer-section a {
+        text-decoration: none;
+        color: var(--text-color-light);
+        font-size: 14px;
+        line-height: 2;
+        display: block;
+      }
+
+      .footer-section a:hover {
+        color: var(--primary-color);
+      }
+      
+      .footer-about p {
+          font-size: 13px;
+          line-height: 1.7;
+          color: var(--text-color-light);
+      }
+
+      .social-links a {
+        width: 35px;
+        height: 35px;
+        background: var(--text-color-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        transition: background 0.3s;
+      }
+      .social-links a:hover {
+          background: var(--primary-color);
+      }
+      
+      .copyright {
+          font-size: 13px;
+          margin-top: 20px;
+          color: var(--text-color-light);
+      }
+
+      .payment-icons img {
+          height: 25px;
+          margin-left: 8px;
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 0.8rem;
+        display: none;
+        margin-top: 5px;
+      }
+      
+      .error-message.show {
+        display: block;
+      }
+
+      /* Text styling adjustments */
+      .text-muted {
+        color: var(--text-color-light) !important;
+        font-size: 14px;
+      }
+
+      /* Main container adjustments */
+      .main-wrapper {
+        background-color: var(--background-color);
+        box-shadow: none;
+      }
+
+      /* Row adjustments */
+      .row.g-0 {
+        min-height: 650px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid px-0">
+      <div class="main-wrapper">
+        <div class="text-center header-section">
+          <img
+            src="/milli millets img/logo 3.jpg"
+            alt="Millimillet Logo"
+            width="60"
+            class="mb-2"
+          />
+          <div class="brand-name">MILLIMILLET</div>
+        </div>
+
+        <div class="row g-0">
+          <div class="col-lg-6 col-md-6">
+            <div class="form-section">
+              <h2 class="text-center">CREATE ACCOUNT</h2>
+
+              <form id="signForm" action="/signup" method="POST" onsubmit="return submitForm()">
+              
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name :</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    placeholder=""
+                    onblur="validateName()"
+                    required
+                  />
+                  <span id="nameError" class="error-message"></span>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="email" class="form-label">E-mail :</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder=""
+                    onblur="validateEmail()"
+                    required/>
+                    <span id="emailError" class="error-message"></span>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Mobile Number</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="phone"
+                    name="phone"
+                    placeholder=""
+                    onblur="validatePhone()" 
+                    required>
+                    <span id="phoneError" class="error-message"></span>
+                  </input>
+                </div>
+
+                <div class="mb-3 password-container">
+                  <label for="password" class="form-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    placeholder=""
+                    onblur="validatePassword()"
+                    required
+                  />
+                  <span class="password-toggle" onclick ="togglePasswordVisibility('password')">👁️</span>
+                  <span id="passwordError" class="error-message"></span>
+                </div>
+
+                <div class="mb-4 password-container">
+                  <label for="cPassword" class="form-label">Confirm Password :</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="cPassword"
+                    name="cPassword"
+                    placeholder=""
+                    onblur="validateConfirmPassword()"
+                    required
+                  />
+                  <span class="password-toggle" onclick="togglePasswordVisibility('cPassword')">👁️</span>
+                  <span id="cPasswordError" class="error-message"></span>
+                </div>
+
+                <div class="d-grid mb-3">
+                  <button type="submit" class="btn submit-btn">
+                    Sign Up
+                  </button>
+                </div>
+              </form>
+
+              <div class="text-center my-3">
+                Already have an account? <a href="/login">Log in</a>
+              </div>
+
+              <div class="text-center my-3 text-muted">Or Register with</div>
+
+              <div class="d-grid">
+                <a href="/auth/google" class="btn google-btn">
+                  <svg width="18" height="18" viewBox="0 0 18 18">
+                    <path
+                      fill="#4285F4"
+                      d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
+                    />
+                  </svg>
+                  Google
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6 col-md-6 position-relative">
+            <div class="promo-section">
+              <img
+                src="/milli millets img/2.png"
+                alt="Millimillet Products"
+                class="img-fluid"
+              />
+              <div class="referral-badge-container">
+                <div class="referral-badge">
+                  <p>Anyone has referred You? Claim the reward</p>
+                  <div class="referral-code">Referral Code</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 footer-about mb-4 mb-md-0">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="brand-name" style="font-size: 16px; letter-spacing: 2px;">MILLIMILLET</div>
+                    </div>
+                    <p>Millimillet are a nutrient-dense, low-carb alternative to traditional grains that can boost your daily nutrition. Millets are a great source of protein, minerals, and dietary fiber.</p>
+                    <div class="social-links d-flex gap-2 mt-3">
+                        <a href="#">F</a>
+                        <a href="#">I</a>
+                        <a href="#">T</a>
+                        <a href="#">Y</a>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Features</a>
+                    <a href="#">Works</a>
+                    <a href="#">Career</a>
+                </div>
+
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h4>Help</h4>
+                    <a href="#">Customer Support</a>
+                    <a href="#">Delivery Details</a>
+                    <a href="#">Terms & Conditions</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h4>FAQ</h4>
+                    <a href="#">Account</a>
+                    <a href="#">Manage Deliveries</a>
+                    <a href="#">Orders</a>
+                    <a href="#">Payments</a>
+                </div>
+
+                <div class="col-md-3">
+                    <h4>Resources</h4>
+                    <a href="#">Free eBooks</a>
+                    <a href="#">Development Tutorial</a>
+                    <a href="#">How to - Blog</a>
+                    <a href="#">Youtube Playlist</a>
+                </div>
+            </div>
+
+            <hr class="mt-4 mb-3"/>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="copyright mb-0">Millimillet © 2000-2025, All Rights Reserved</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="text-muted">Payment methods accepted</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+      function togglePasswordVisibility(inputId) {
+          const passwordInput = document.getElementById(inputId);
+          if (passwordInput.type === 'password') {
+              passwordInput.type = 'text';
+          } else {
+              passwordInput.type = 'password';
+          }
+      }
+
+      function displayError(elementId, message) {
+          const errorElement = document.getElementById(elementId);
+          errorElement.textContent = message;
+          errorElement.classList.toggle('show', message.length > 0); 
+      }
+
+      function validateName() {
+          const nameInput = document.getElementById('name');
+          const name = nameInput.value.trim();
+          const namePattern = /^[A-Za-z\s]+$/; 
+          
+          if (name === "") {
+              displayError('nameError', "Name is required");
+              return false;
+          } else if (!namePattern.test(name)) {
+              displayError('nameError', "Name can only contain letters and spaces");
+              return false;
+          } else {
+              displayError('nameError', "");
+              return true;
+          }
+      }
+
+      function validateEmail() {
+          const email = document.getElementById("email").value.trim();
+          const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; 
+          const isValid = emailPattern.test(email);
+
+          if (email === "") {
+              displayError("emailError", "Email is required");
+              return false;
+          } else if (!isValid) {
+              displayError("emailError", "Please enter a valid email address");
+              return false;
+          } else {
+              displayError("emailError", "");
+              return true;
+          }
+      }
+
+      function validatePhone() {
+          const phone = document.getElementById("phone").value.trim();
+          const phonePattern = /^\d{10}$/; 
+          const isValid = phonePattern.test(phone);
+          
+          if (phone === "") {
+               displayError("phoneError", "Phone number is required");
+               return false;
+          } else if (!isValid) {
+               displayError("phoneError", "Enter a valid 10-digit phone number");
+               return false;
+          } else {
+               displayError("phoneError", "");
+               return true;
+          }
+      }
+
+      function validatePassword() {
+          const password = document.getElementById("password").value;
+          let isValid = true;
+          let errorMessage = "";
+
+          const hasNumber = /\d/.test(password);
+          const hasLetter = /[a-zA-Z]/.test(password);
+
+          if (password.length === 0) {
+               errorMessage = "Password is required";
+               isValid = false;
+          } else if (password.length < 8) {
+              errorMessage = "Should contain at least 8 characters";
+              isValid = false;
+          } else if (!hasLetter || !hasNumber) {
+              errorMessage = "Should contain both letters and numbers";
+              isValid = false;
+          } 
+
+          displayError("passwordError", errorMessage);
+          
+          if (document.getElementById("cPassword").value.length > 0) {
+               validateConfirmPassword();
+          }
+
+          return isValid;
+      }
+      
+      function validateConfirmPassword() {
+          const password = document.getElementById("password").value;
+          const cPassword = document.getElementById("cPassword").value;
+          const isValid = password === cPassword && cPassword.length > 0;
+          
+          if (cPassword.length === 0) {
+               displayError("cPasswordError", "Confirm password is required");
+               return false;
+          } else if (!isValid) {
+               displayError("cPasswordError", "Passwords do not match");
+               return false;
+          } else {
+               displayError("cPasswordError", "");
+               return true;
+          }
+      }
+
+      function submitForm() {
+          const isValidName = validateName();
+          const isValidEmail = validateEmail();
+          const isValidPhone = validatePhone();
+          const isValidPassword = validatePassword();
+          const isValidConfirmPassword = validateConfirmPassword();
+          
+          if (isValidName && isValidEmail && isValidPhone && isValidPassword && isValidConfirmPassword) {
+              return true; 
+          } else {
+              const firstError = document.querySelector('.error-message.show');
+              if (firstError) {
+                  firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+              alert("Please fix the errors in the form before submitting.");
+              return false;
+          }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html> -->

@@ -1,554 +1,628 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - MilliMillet</title>
     <!-- Bootstrap CSS -->
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
     />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2a2a2a;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #2a2a2a;
+      }
 
-        /* Promo Banner */
-        .promo-banner {
-            background-color: #e8dcc4;
-            text-align: center;
-            padding: 12px;
-            font-size: 13px;
-            color: #333;
-            position: relative;
-        }
+      /* Promo Banner */
+      .promo-banner {
+        background-color: #e8dcc4;
+        text-align: center;
+        padding: 12px;
+        font-size: 13px;
+        color: #333;
+        position: relative;
+      }
 
-        .promo-banner a {
-            color: #333;
-            text-decoration: underline;
-            font-weight: 600;
-        }
+      .promo-banner a {
+        color: #333;
+        text-decoration: underline;
+        font-weight: 600;
+      }
 
-        .close-banner {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            color: #666;
-            line-height: 1;
-        }
+      .close-banner {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #666;
+        line-height: 1;
+      }
 
-        /* Main Container */
-        .main-container {
-            max-width: 850px;
-            margin: 0 auto;
-            background: white;
-        }
+      /* Main Container */
+      .main-container {
+        max-width: 100%;
+        margin: 0 auto;
+        background: white;
+      }
 
-        /* Header Section */
-        .header-section {
-            background: white;
-            padding: 40px 20px 30px;
-            text-align: center;
-        }
+      /* Header Section */
+      .header-section {
+        background: white;
+        padding: 40px 20px 30px;
+        text-align: center;
+      }
 
-        .brand-logo {
-            width: 60px;
-            height: auto;
-            margin-bottom: 15px;
-        }
+      .brand-logo {
+        width: 60px;
+        height: auto;
+        margin-bottom: 15px;
+      }
 
-        .brand-name {
-            color: #8b6f47;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 4px;
-        }
+      .brand-name {
+        color: #8b6f47;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 4px;
+      }
 
-        /* Login Section */
+      /* Login Section */
+      .login-section {
+        background: linear-gradient(180deg, #e8dcc4 0%, #d4c4a8 100%);
+        padding: 60px 20px;
+        text-align: center;
+      }
+      .login-form-wrapper {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .login-title {
+        font-size: 28px;
+        color: #333;
+        letter-spacing: 4px;
+        margin-bottom: 40px;
+        font-weight: 700;
+      }
+
+      .form-label {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: left;
+        display: block;
+      }
+
+      .form-control {
+        border-radius: 25px;
+        border: 1px solid #aaa;
+        padding: 14px 20px;
+        font-size: 14px;
+        background: #fff;
+        width: 100%;
+        margin-bottom: 25px;
+      }
+
+      .form-control:focus {
+        border-color: #8b6f47;
+        box-shadow: none;
+        outline: none;
+      }
+
+      /* Buttons */
+      .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .btn-custom {
+        padding: 12px 45px;
+        border: none;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        transition: all 0.3s;
+      }
+
+      .btn-login {
+        background-color: #6d5438;
+        color: white;
+      }
+
+      .btn-login:hover {
+        background-color: #5a4530;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-signup {
+        background-color: #8b7355;
+        color: white;
+      }
+
+      .btn-signup:hover {
+        background-color: #75614a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Divider */
+      .divider-container {
+        display: flex;
+        align-items: center;
+        margin: 30px auto;
+        max-width: 500px;
+      }
+
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background-color: #999;
+      }
+
+      .divider-text {
+        padding: 0 20px;
+        color: #666;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      /* Google Button */
+      .google-btn {
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 500;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 12px;
+        transition: all 0.3s;
+        cursor: pointer;
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+        font-size: 14px;
+      }
+
+      .google-btn:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
+
+      /* Footer */
+      .footer-section {
+        background: white;
+        padding: 50px 40px 30px;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto 40px;
+      }
+
+      .footer-brand-logo {
+        width: 40px;
+        margin-bottom: 15px;
+      }
+
+      .brand-tagline {
+        font-size: 13px;
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 25px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 12px;
+      }
+
+      .social-links a {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s;
+      }
+
+      .social-links a:hover {
+        background-color: #8b6f47;
+        transform: translateY(-3px);
+      }
+
+      .footer-column h4 {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #333;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .footer-column ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footer-column ul li {
+        margin-bottom: 12px;
+      }
+
+      .footer-column ul li a {
+        color: #666;
+        text-decoration: none;
+        font-size: 13px;
+        transition: color 0.3s;
+      }
+
+      .footer-column ul li a:hover {
+        color: #8b6f47;
+      }
+
+      .footer-bottom {
+        padding-top: 30px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .copyright {
+        font-size: 12px;
+        color: #999;
+      }
+
+      .payment-methods {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .payment-methods span {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 35px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #666;
+        font-size: 16px;
+      }
+
+      .password-wrapper {
+        position: relative;
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 11px;
+        display: block;
+        margin-top: -20px;
+        margin-bottom: 15px;
+        text-align: left;
+      }
+      .forgot-password-link{
+        font-size: 0.875rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      .forgot-password-link:hover{
+        color: #0056b3;
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
         .login-section {
-            background: linear-gradient(180deg, #e8dcc4 0%, #d4c4a8 100%);
-            padding: 60px 100px;
-            text-align: center;
-        }
-
-        .login-title {
-            font-size: 28px;
-            color: #333;
-            letter-spacing: 4px;
-            margin-bottom: 40px;
-            font-weight: 700;
-        }
-
-        .form-label {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            text-align: left;
-            display: block;
-        }
-
-        .form-control {
-            border-radius: 25px;
-            border: 1px solid #aaa;
-            padding: 14px 20px;
-            font-size: 14px;
-            background: #fff;
-            width: 100%;
-            margin-bottom: 25px;
-        }
-
-        .form-control:focus {
-            border-color: #8b6f47;
-            box-shadow: none;
-            outline: none;
-        }
-
-        /* Buttons */
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .btn-custom {
-            padding: 12px 45px;
-            border: none;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.3s;
-        }
-
-        .btn-login {
-            background-color: #6d5438;
-            color: white;
-        }
-
-        .btn-login:hover {
-            background-color: #5a4530;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-signup {
-            background-color: #8b7355;
-            color: white;
-        }
-
-        .btn-signup:hover {
-            background-color: #75614a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Divider */
-        .divider-container {
-            display: flex;
-            align-items: center;
-            margin: 30px 0;
-        }
-
-        .divider-line {
-            flex: 1;
-            height: 1px;
-            background-color: #999;
-        }
-
-        .divider-text {
-            padding: 0 20px;
-            color: #666;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        /* Google Button */
-        .google-btn {
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 500;
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 12px;
-            transition: all 0.3s;
-            cursor: pointer;
-            width: 100%;
-            max-width: 250px;
-            margin: 0 auto;
-            font-size: 14px;
-        }
-
-        .google-btn:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-        }
-
-        /* Footer */
-        .footer-section {
-            background: white;
-            padding: 50px 40px 30px;
+          padding: 40px 30px;
         }
 
         .footer-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto 40px;
+          grid-template-columns: 1fr;
         }
 
-        .footer-brand-logo {
-            width: 40px;
-            margin-bottom: 15px;
+        .button-group {
+          flex-direction: column;
         }
 
-        .brand-tagline {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.8;
-            margin-bottom: 25px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-links a {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background-color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .social-links a:hover {
-            background-color: #8b6f47;
-            transform: translateY(-3px);
-        }
-
-        .footer-column h4 {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #333;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .footer-column ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-column ul li {
-            margin-bottom: 12px;
-        }
-
-        .footer-column ul li a {
-            color: #666;
-            text-decoration: none;
-            font-size: 13px;
-            transition: color 0.3s;
-        }
-
-        .footer-column ul li a:hover {
-            color: #8b6f47;
+        .btn-custom {
+          width: 100%;
         }
 
         .footer-bottom {
-            padding-top: 30px;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
+          flex-direction: column;
+          gap: 20px;
+          text-align: center;
         }
-
-        .copyright {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .payment-methods {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .payment-methods span {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 11px;
-            display: block;
-            margin-top: -20px;
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        @media (max-width: 768px) {
-            .login-section {
-                padding: 40px 30px;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn-custom {
-                width: 100%;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Promo Banner -->
     <div class="promo-banner">
-        Sign up and get 20% off to your first order. <a href="/signup">Sign Up Now</a>
-        <button class="close-banner" onclick="this.parentElement.style.display='none'">&times;</button>
+      Sign up and get 20% off to your first order.
+      <a href="/signup">Sign Up Now</a>
+      <button
+        class="close-banner"
+        onclick="this.parentElement.style.display='none'"
+      >
+        &times;
+      </button>
     </div>
 
     <div class="main-container">
-        <!-- Header -->
-        <div class="header-section">
-            <img src="/milli millets img/logo.jpg" alt="Logo" class="brand-logo" />
-            <h1 class="brand-name">MILLIMILLET</h1>
-        </div>
+      <!-- Header -->
+      <div class="header-section">
+        <img src="/milli millets img/logo.jpg" alt="Logo" class="brand-logo" />
+        <h1 class="brand-name">MILLIMILLET</h1>
+      </div>
 
-        <!-- Login Section -->
-        <div class="login-section">
-            <h2 class="login-title">LOGIN</h2>
-            
-            <form id="loginForm" action="/login" method="POST" onsubmit="return validateLoginForm()">
-                <div class="mb-3">
-                    <label for="email" class="form-label">E-mail :</label>
-                    <input
-                        type="email"
-                        class="form-control"
-                        id="email"
-                        name="email"
-                        placeholder=""
-                        onblur="validateEmail()"
-                        required
-                    />
-                    <span id="emailError" class="error-message"></span>
-                </div>
+      <!-- Login Section -->
 
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password :</label>
-                    <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        name="password"
-                        placeholder="Password"
-                        onblur="validatePassword()"
-                        required
-                    />
-                    <span id="passwordError" class="error-message"></span>
-                </div>
-                <%if(locals.message && message.length>0){%>
-                  <div class = "alert alert-danger text-center">
-                    <%=message%>
-                  </div>
-                <%}%>
-                <div class="button-group">
-                    <button type="submit" class="btn-custom btn-login">Login</button>
-                    <button type="button" class="btn-custom btn-signup" onclick="window.location.href='/signup'">Signup</button>
-                </div>
-            </form>
+      <div class="login-section">
+        <div class="login-form-wrapper">
+          <h2 class="login-title">LOGIN</h2>
 
-            <div class="divider-container">
-                <div class="divider-line"></div>
-                <span class="divider-text">or</span>
-                <div class="divider-line"></div>
+          <form
+            id="loginForm"
+            action="/login"
+            method="POST"
+            onsubmit="return validateLoginForm()"
+          >
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail :</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder=""
+                onblur="validateEmail()"
+                required
+              />
+              <span id="emailError" class="error-message"></span>
             </div>
 
-            <button
-                class="google-btn"
-                onclick="window.location.href='/auth/google'"
-            >
-                <svg width="18" height="18" viewBox="0 0 18 18">
-                    <path
-                        fill="#4285F4"
-                        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
-                    />
-                    <path
-                        fill="#34A853"
-                        d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
-                    />
-                    <path
-                        fill="#FBBC05"
-                        d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
-                    />
-                    <path
-                        fill="#EA4335"
-                        d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
-                    />
-                </svg>
-                Login with Google
-            </button>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer-section">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="/milli millets img/logo.jpg" alt="Logo" class="footer-brand-logo" />
-                    <p class="brand-tagline">We have clothes that suits your style and which you're proud to wear. From women to men.</p>
-                    <div class="social-links">
-                        <a href="#" aria-label="Twitter">T</a>
-                        <a href="#" aria-label="Facebook">F</a>
-                        <a href="#" aria-label="Instagram">I</a>
-                        <a href="#" aria-label="GitHub">G</a>
-                    </div>
-                </div>
-
-                <div class="footer-column">
-                    <h4>Company</h4>
-                    <ul>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Features</a></li>
-                        <li><a href="#">Works</a></li>
-                        <li><a href="#">Career</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h4>Help</h4>
-                    <ul>
-                        <li><a href="#">Customer Support</a></li>
-                        <li><a href="#">Delivery Details</a></li>
-                        <li><a href="#">Terms & Conditions</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h4>FAQ</h4>
-                    <ul>
-                        <li><a href="#">Account</a></li>
-                        <li><a href="#">Manage Deliveries</a></li>
-                        <li><a href="#">Orders</a></li>
-                        <li><a href="#">Payments</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="#">Free eBooks</a></li>
-                        <li><a href="#">Development Tutorial</a></li>
-                        <li><a href="#">How to - Blog</a></li>
-                        <li><a href="#">Youtube Playlist</a></li>
-                    </ul>
-                </div>
+           <div class="mb-3 password-wrapper">
+              <label for="password" class="form-label">Password :</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                placeholder="Password"
+                onblur="validatePassword()"
+                required
+              />
+              <span
+                class="password-toggle"
+                onclick="togglePasswordVisibility('password')"
+                >👁️</span
+              >
+              <span id="passwordError" class="error-message"></span>
             </div>
 
-            <div class="footer-bottom">
-                <p class="copyright">Millets © 2000-2023, All Rights Reserved</p>
-                <div class="payment-methods">
-                    <span style="color: #1434CB;">VISA</span>
-                    <span style="color: #EB001B;">●●</span>
-                    <span style="color: #003087;">PayPal</span>
-                    <span style="color: #000;">Apple Pay</span>
-                    <span style="color: #5f6368;">G Pay</span>
-                </div>
+            <div class = "form-label d-flex justify-content-end">
+              <a href="/forgotPassword" class = "forgot-password-link-ms-auto">Forgot Password</a>
             </div>
+
+            <%if(locals.message && message.length>0){%>
+            <div class="alert alert-danger text-center"><%=message%></div>
+            <%}%>
+            <div class="button-group">
+              <button type="submit" class="btn-custom btn-login">Login</button>
+              <button
+                type="button"
+                class="btn-custom btn-signup"
+                onclick="window.location.href='/signup'"
+              >
+                Signup
+              </button>
+            </div>
+          </form>
+
+          <div class="divider-container">
+            <div class="divider-line"></div>
+            <span class="divider-text">or</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <button
+            class="google-btn"
+            onclick="window.location.href='/auth/google'"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18">
+              <path
+                fill="#4285F4"
+                d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+              />
+              <path
+                fill="#34A853"
+                d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
+              />
+              <path
+                fill="#EA4335"
+                d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
+              />
+            </svg>
+            Login with Google
+          </button>
         </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer-section">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <img
+              src="/milli millets img/logo.jpg"
+              alt="Logo"
+              class="footer-brand-logo"
+            />
+            <p class="brand-tagline">
+              We have clothes that suits your style and which you're proud to
+              wear. From women to men.
+            </p>
+            <div class="social-links">
+              <a href="#" aria-label="Twitter">T</a>
+              <a href="#" aria-label="Facebook">F</a>
+              <a href="#" aria-label="Instagram">I</a>
+              <a href="#" aria-label="GitHub">G</a>
+            </div>
+          </div>
+
+          <div class="footer-column">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#">About</a></li>
+              <li><a href="#">Features</a></li>
+              <li><a href="#">Works</a></li>
+              <li><a href="#">Career</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>Help</h4>
+            <ul>
+              <li><a href="#">Customer Support</a></li>
+              <li><a href="#">Delivery Details</a></li>
+              <li><a href="#">Terms & Conditions</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>FAQ</h4>
+            <ul>
+              <li><a href="#">Account</a></li>
+              <li><a href="#">Manage Deliveries</a></li>
+              <li><a href="#">Orders</a></li>
+              <li><a href="#">Payments</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>Resources</h4>
+            <ul>
+              <li><a href="#">Free eBooks</a></li>
+              <li><a href="#">Development Tutorial</a></li>
+              <li><a href="#">How to - Blog</a></li>
+              <li><a href="#">Youtube Playlist</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p class="copyright">Millets © 2000-2023, All Rights Reserved</p>
+          <div class="payment-methods">
+            <span style="color: #1434cb">VISA</span>
+            <span style="color: #eb001b">●●</span>
+            <span style="color: #003087">PayPal</span>
+            <span style="color: #000">Apple Pay</span>
+            <span style="color: #5f6368">G Pay</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        function validateEmail() {
-            const email = document.getElementById("email").value;
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-            const emailError = document.getElementById("emailError");
-            
-            if (email.trim() === '') {
-                emailError.textContent = "Email is required";
-                return false;
-            } else if (!emailPattern.test(email)) {
-                emailError.textContent = "Please enter a valid email address";
-                return false;
-            } else {
-                emailError.textContent = '';
-                return true;
-            }
+      // Function to toggle password visibility
+      function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+        } else {
+          passwordInput.type = "password";
         }
+      }
+      function validateEmail() {
+        const email = document.getElementById("email").value;
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        const emailError = document.getElementById("emailError");
 
-        function validatePassword() {
-            const password = document.getElementById("password").value;
-            const passwordError = document.getElementById("passwordError");
-            
-            if (password.length === 0) {
-                passwordError.textContent = "Password is required";
-                return false;
-            } else if (password.length < 8) {
-                passwordError.textContent = "Password must be at least 8 characters long";
-                return false;
-            } else {
-                passwordError.textContent = '';
-                return true;
-            }
+        if (email.trim() === "") {
+          emailError.textContent = "Email is required";
+          return false;
+        } else if (!emailPattern.test(email)) {
+          emailError.textContent = "Please enter a valid email address";
+          return false;
+        } else {
+          emailError.textContent = "";
+          return true;
         }
+      }
 
-        function validateLoginForm() {
-            const isValidEmail = validateEmail();
-            const isValidPassword = validatePassword();
+      function validatePassword() {
+        const password = document.getElementById("password").value;
+        const passwordError = document.getElementById("passwordError");
 
-            if (isValidEmail && isValidPassword) {
-                return true;
-            } else {
-                alert("Please fix the errors in the form before submitting.");
-                return false;
-            }
+        if (password.length === 0) {
+          passwordError.textContent = "Password is required";
+          return false;
+        } else if (password.length < 8) {
+          passwordError.textContent =
+            "Password must be at least 8 characters long";
+          return false;
+        } else {
+          passwordError.textContent = "";
+          return true;
         }
+      }
+
+      function validateLoginForm() {
+        const isValidEmail = validateEmail();
+        const isValidPassword = validatePassword();
+
+        if (isValidEmail && isValidPassword) {
+          return true;
+        } else {
+          alert("Please fix the errors in the form before submitting.");
+          return false;
+        }
+      }
     </script>
-</body>
+  </body>
 </html>

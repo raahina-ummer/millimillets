@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Alert Management</title>
+  <link rel="stylesheet" href="/css/admin/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9f6f1;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .dashboard-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .page-header {
+      background: white;
+      padding: 25px 35px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 12px rgba(117, 94, 69, 0.08);
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #755e45;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: #8B7355;
+      font-size: 14px;
+    }
+
+    /* Stock Overview Cards */
+    .stock-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stock-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 2px 12px rgba(117, 94, 69, 0.08);
+      border-left: 5px solid;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stock-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      opacity: 0.05;
+      font-size: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stock-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(117, 94, 69, 0.15);
+    }
+
+    .stock-card.critical {
+      border-left-color: #dc2626;
+    }
+
+    .stock-card.critical::before {
+      content: '⚠️';
+    }
+
+    .stock-card.low {
+      border-left-color: #f59e0b;
+    }
+
+    .stock-card.low::before {
+      content: '📉';
+    }
+
+    .stock-card.good {
+      border-left-color: #059669;
+    }
+
+    .stock-card.good::before {
+      content: '✓';
+    }
+
+    .stock-card.out {
+      border-left-color: #6b7280;
+    }
+
+    .stock-card.out::before {
+      content: '❌';
+    }
+
+    .stock-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .stock-card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .stock-card.critical .stock-card-icon {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+    }
+
+    .stock-card.low .stock-card-icon {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+    }
+
+    .stock-card.good .stock-card-icon {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    }
+
+    .stock-card.out .stock-card-icon {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    }
+
+    .stock-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #4a403a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stock-number {
+      font-size: 36px;
+      font-weight: 800;
+      margin: 10px 0;
+      line-height: 1;
+    }
+
+    .stock-card.critical .stock-number {
+      color: #dc2626;
+    }
+
+    .stock-card.low .stock-number {
+      color: #f59e0b;
+    }
+
+    .stock-card.good .stock-number {
+      color: #059669;
+    }
+
+    .stock-card.out .stock-number {
+      color: #6b7280;
+    }
+
+    .stock-description {
+      color: #8B7355;
+      font-size: 13px;
+      margin-bottom: 15px;
+    }
+
+    .stock-level-bar {
+      width: 100%;
+      height: 8px;
+      background: #f9f6f1;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+
+    .stock-level-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .stock-card.critical .stock-level-fill {
+      background: linear-gradient(90deg, #dc2626, #ef4444);
+    }
+
+    .stock-card.low .stock-level-fill {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .stock-card.good .stock-level-fill {
+      background: linear-gradient(90deg, #059669, #10b981);
+    }
+
+    .view-btn {
+      background: linear-gradient(135deg, #8B7355, #755e45);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .view-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(117, 94, 69, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(117, 94, 69, 0.08);
+    }
+
+    .filter-tab {
+      padding: 12px 24px;
+      border: 2px solid #E8DCC4;
+      background: white;
+      color: #755e45;
+      border-radius: 25px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-tab:hover {
+      background: #f9f6f1;
+      border-color: #8B7355;
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #755e45;
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, #8B7355, #755e45);
+      color: white;
+      border-color: transparent;
+    }
+
+    .filter-tab.active:hover {
+      color: white;
+    }
+
+    .filter-count {
+      background: rgba(255, 255, 255, 0.3);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .filter-tab.active .filter-count {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(117, 94, 69, 0.08);
+    }
+
+    .search-container {
+      display: flex;
+      gap: 12px;
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #E8DCC4;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .search-input:focus {
+      border-color: #8B7355;
+      box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #8B7355, #755e45);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(117, 94, 69, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #755e45;
+      border: 2px solid #E8DCC4;
+    }
+
+    .btn-secondary:hover {
+      background: #f9f6f1;
+      border-color: #8B7355;
+    }
+
+    /* Table */
+    .table-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(117, 94, 69, 0.08);
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #f9f6f1, #E8DCC4);
+      border-bottom: 2px solid #d4c5b0;
+    }
+
+    thead th {
+      padding: 18px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: #755e45;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f9f6f1;
+      transition: all 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: #fdfcfa;
+    }
+
+    tbody tr.critical-stock {
+      background: linear-gradient(90deg, #fef2f2 0%, transparent 100%);
+    }
+
+    tbody tr.warning-stock {
+      background: linear-gradient(90deg, #fefce8 0%, transparent 100%);
+    }
+
+    tbody tr.out-of-stock {
+      background: linear-gradient(90deg, #f9fafb 0%, transparent 100%);
+      opacity: 0.7;
+    }
+
+    tbody td {
+      padding: 18px 16px;
+      color: #4a403a;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .product-image {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #E8DCC4;
+    }
+
+    .no-image {
+      width: 55px;
+      height: 55px;
+      background: #f9f6f1;
+      border: 2px dashed #d4c5b0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #8B7355;
+      text-align: center;
+    }
+
+    .stock-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stock-badge.critical {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #dc2626;
+    }
+
+    .stock-badge.warning {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #f59e0b;
+    }
+
+    .stock-badge.good {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #059669;
+    }
+
+    .stock-badge.out {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      color: #6b7280;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+    }
+
+    .btn-warning:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* No Data */
+    .no-data {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .no-data-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .no-data h3 {
+      font-size: 22px;
+      color: #755e45;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .no-data p {
+      color: #8B7355;
+      font-size: 14px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 30px;
+      flex-wrap: wrap;
+    }
+
+    .pagination a {
+      text-decoration: none;
+    }
+
+    .pagination button {
+      padding: 10px 16px;
+      border: 2px solid #E8DCC4;
+      border-radius: 10px;
+      background: white;
+      color: #755e45;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 44px;
+    }
+
+    .pagination button:hover {
+      border-color: #8B7355;
+      background: #f9f6f1;
+      transform: translateY(-2px);
+    }
+
+    .pagination button.active {
+      background: linear-gradient(135deg, #8B7355, #755e45);
+      color: white;
+      border-color: transparent;
+    }
+
+    /* Stock Summary */
+    .stock-summary {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(117, 94, 69, 0.08);
+    }
+
+    .stock-summary h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #755e45;
+      margin-bottom: 20px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .summary-item {
+      padding: 15px;
+      background: #f9f6f1;
+      border-radius: 12px;
+      border-left: 4px solid;
+    }
+
+    .summary-item.critical {
+      border-left-color: #dc2626;
+    }
+
+    .summary-item.warning {
+      border-left-color: #f59e0b;
+    }
+
+    .summary-item.out {
+      border-left-color: #6b7280;
+    }
+
+    .summary-item strong {
+      color: #4a403a;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .summary-item.critical .summary-value {
+      color: #dc2626;
+    }
+
+    .summary-item.warning .summary-value {
+      color: #f59e0b;
+    }
+
+    .summary-item.out .summary-value {
+      color: #6b7280;
+    }
+
+    .summary-percentage {
+      font-size: 12px;
+      color: #8B7355;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 20px;
+      }
+
+      .stock-overview {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .search-container {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 1000px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/admin/header.ejs') %>
+
+  <div class="dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>📊 Stock Alert Management</h1>
+      <p>Monitor and manage product inventory levels efficiently</p>
+    </div>
+
+    <!-- Stock Overview Cards -->
+    <div class="stock-overview">
+      <% 
+        let criticalCount = 0;
+        let lowCount = 0;
+        let goodCount = 0;
+        let outOfStockCount = 0;
+        
+        if (products && products.length > 0) {
+          products.forEach(product => {
+            if (product.stock === 0) {
+              outOfStockCount++;
+            } else if (product.stock < 10) {
+              criticalCount++;
+            } else if (product.stock < 50) {
+              lowCount++;
+            } else {
+              goodCount++;
+            }
+          });
+        }
+        
+        const totalItems = totalProducts || (products ? products.length : 0);
+        const criticalPercentage = totalItems > 0 ? (criticalCount / totalItems) * 100 : 0;
+        const lowPercentage = totalItems > 0 ? (lowCount / totalItems) * 100 : 0;
+        const goodPercentage = totalItems > 0 ? (goodCount / totalItems) * 100 : 0;
+      %>
+
+      <div class="stock-card critical">
+        <div class="stock-card-header">
+          <div class="stock-card-icon">⚠️</div>
+          <h3>Critical Stock</h3>
+        </div>
+        <div class="stock-number"><%= criticalCount %></div>
+        <div class="stock-description">Products with less than 10 units</div>
+        <div class="stock-level-bar">
+          <div class="stock-level-fill" style="width: <%= Math.min(criticalPercentage, 100) %>%"></div>
+        </div>
+        <a href="/admin/stockalert?filter=critical" class="view-btn">
+          View Details →
+        </a>
+      </div>
+
+      <div class="stock-card low">
+        <div class="stock-card-header">
+          <div class="stock-card-icon">📉</div>
+          <h3>Low Stock</h3>
+        </div>
+        <div class="stock-number"><%= lowCount %></div>
+        <div class="stock-description">Products with 10-49 units</div>
+        <div class="stock-level-bar">
+          <div class="stock-level-fill" style="width: <%= Math.min(lowPercentage, 100) %>%"></div>
+        </div>
+        <a href="/admin/stockalert?filter=low" class="view-btn">
+          View Details →
+        </a>
+      </div>
+
+      <div class="stock-card good">
+        <div class="stock-card-header">
+          <div class="stock-card-icon">✓</div>
+          <h3>Good Stock</h3>
+        </div>
+        <div class="stock-number"><%= goodCount %></div>
+        <div class="stock-description">Products with 50+ units</div>
+        <div class="stock-level-bar">
+          <div class="stock-level-fill" style="width: <%= Math.min(goodPercentage, 100) %>%"></div>
+        </div>
+        <a href="/admin/stockalert?filter=good" class="view-btn">
+          View Details →
+        </a>
+      </div>
+
+      <div class="stock-card out">
+        <div class="stock-card-header">
+          <div class="stock-card-icon">❌</div>
+          <h3>Out of Stock</h3>
+        </div>
+        <div class="stock-number"><%= outOfStockCount %></div>
+        <div class="stock-description">Products with 0 units</div>
+        <div class="stock-level-bar">
+          <div class="stock-level-fill" style="width: 0%; background: #6b7280;"></div>
+        </div>
+        <a href="/admin/stock-alert?filter=out" class="view-btn">
+          View Details →
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <a href="/admin/stockalert" class="filter-tab <%= (!filter || filter === 'all') ? 'active' : '' %>">
+        All Products
+      </a>
+      <a href="/admin/stockalert?filter=critical" class="filter-tab <%= filter === 'critical' ? 'active' : '' %>">
+        ⚠️ Critical
+        <% if (criticalCount > 0) { %><span class="filter-count"><%= criticalCount %></span><% } %>
+      </a>
+      <a href="/admin/stockalert?filter=low" class="filter-tab <%= filter === 'low' ? 'active' : '' %>">
+        📉 Low Stock
+        <% if (lowCount > 0) { %><span class="filter-count"><%= lowCount %></span><% } %>
+      </a>
+      <a href="/admin/stockalert?filter=good" class="filter-tab <%= filter === 'good' ? 'active' : '' %>">
+        ✓ Good Stock
+        <% if (goodCount > 0) { %><span class="filter-count"><%= goodCount %></span><% } %>
+      </a>
+      <a href="/admin/stockalert?filter=out" class="filter-tab <%= filter === 'out' ? 'active' : '' %>">
+        ❌ Out of Stock
+        <% if (outOfStockCount > 0) { %><span class="filter-count"><%= outOfStockCount %></span><% } %>
+      </a>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <form method="GET" action="/admin/stockalert" class="search-container">
+        <input
+          type="text"
+          class="search-input"
+          name="search"
+          value="<%= search || '' %>"
+          placeholder="🔍 Search products by name..."
+        />
+        <% if (filter) { %>
+          <input type="hidden" name="filter" value="<%= filter %>" />
+        <% } %>
+        <button type="submit" class="btn btn-secondary">Search</button>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='/admin/stock-alert'">
+          Clear
+        </button>
+      </form>
+      <a href="/admin/addProduct">
+        <button class="btn btn-primary">+ Add Product</button>
+      </a>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Regular Price</th>
+            <th>Sale Price</th>
+            <th>Image</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!products || products.length === 0) { %>
+            <tr>
+              <td colspan="10">
+                <div class="no-data">
+                  <div class="no-data-icon">📦</div>
+                  <h3>No Products Found</h3>
+                  <p>
+                    <% if (filter) { %>
+                      No products found in <%= filter %> stock category
+                    <% } else if (search) { %>
+                      Try a different search term or clear filters
+                    <% } else { %>
+                      Add some products to start monitoring stock levels
+                    <% } %>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          <% } else { %>
+            <% products.forEach((product, index) => { %>
+              <% 
+                let stockClass = '';
+                let stockStatus = '';
+                let stockBadgeClass = '';
+                
+                if (product.stock === 0) {
+                  stockClass = 'out-of-stock';
+                  stockStatus = 'Out';
+                  stockBadgeClass = 'out';
+                } else if (product.stock < 10) {
+                  stockClass = 'critical-stock';
+                  stockStatus = 'Critical';
+                  stockBadgeClass = 'critical';
+                } else if (product.stock < 50) {
+                  stockClass = 'warning-stock';
+                  stockStatus = 'Low';
+                  stockBadgeClass = 'warning';
+                } else {
+                  stockStatus = 'Good';
+                  stockBadgeClass = 'good';
+                }
+              %>
+              <tr class="<%= stockClass %>">
+                <td><%= ((currentPage || 1) - 1) * (limit || 10) + index + 1 %></td>
+                <td><strong><%= product.productName || 'N/A' %></strong></td>
+                <td><%= product.category ? product.category.name : 'N/A' %></td>
+                <td><%= product.brand ? product.brand.brandName : 'N/A' %></td>
+                <td>
+                  <strong style="font-size: 16px; color: 
+                    <%= product.stock === 0 ? '#6b7280' : 
+                        product.stock < 10 ? '#dc2626' : 
+                        product.stock < 50 ? '#f59e0b' : '#059669' %>">
+                    <%= product.stock != null ? product.stock : 'N/A' %>
+                  </strong>
+                  <% if (product.stock > 0 && product.stock < 10) { %>
+                    <span style="margin-left: 5px;">⚠️</span>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="stock-badge <%= stockBadgeClass %>"><%= stockStatus %></span>
+                </td>
+                <td>₹<%= product.regularPrice != null ? product.regularPrice.toFixed(2) : 'N/A' %></td>
+                <td>₹<%= product.salePrice != null ? product.salePrice.toFixed(2) : 'N/A' %></td>
+                <td>
+                  <% if (product.productImage && product.productImage.length > 0) { %>
+                    <img src="/<%= product.productImage[0] %>" alt="<%= product.productName %>" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="no-image" style="display: none;">No Image</div>
+                  <% } else { %>
+                    <div class="no-image">No Image</div>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="/admin/editProduct?id=<%= product._id %>">
+                      <button class="btn-sm btn-warning">Edit</button>
+                    </a>
+                    <button class="btn-sm btn-success" onclick="quickRestock('<%= product._id %>', '<%= product.productName %>', <%= product.stock %>)">
+                      Restock
+                    </button>
+                    <% if (product.stock === 0) { %>
+                      <button class="btn-sm btn-danger" onclick="markUnavailable('<%= product._id %>')">
+                        Unavailable
+                      </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages && totalPages > 1) { %>
+      <div class="pagination">
+        <% const currentPg = currentPage || 1; %>
+        
+        <% if (currentPg > 1) { %>
+          <a href="/admin/stockalert?page=<%= currentPg - 1 %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= filter ? '&filter=' + filter : '' %>">
+            <button>Previous</button>
+          </a>
+        <% } %>
+        
+        <% for (let i = Math.max(1, currentPg - 2); i <= Math.min(totalPages, currentPg + 2); i++) { %>
+          <a href="/admin/stockalert?page=<%= i %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= filter ? '&filter=' + filter : '' %>">
+            <button class="<%= i === currentPg ? 'active' : '' %>">
+              <%= i %>
+            </button>
+          </a>
+        <% } %>
+        
+        <% if (currentPg < totalPages) { %>
+          <a href="/admin/stockalert?page=<%= currentPg + 1 %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= filter ? '&filter=' + filter : '' %>">
+            <button>Next</button>
+          </a>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- Stock Summary -->
+    <% if (products && products.length > 0) { %>
+      <div class="stock-summary">
+        <h3>📈 Stock Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <strong>Total Products</strong>
+            <div class="summary-value" style="color: #755e45;"><%= totalProducts || products.length %></div>
+          </div>
+          <div class="summary-item critical">
+            <strong>Critical Stock</strong>
+            <div class="summary-value"><%= criticalCount %></div>
+            <% if (criticalCount > 0 && totalProducts > 0) { %>
+              <div class="summary-percentage">
+                <%= ((criticalCount / totalProducts) * 100).toFixed(1) %>% of total
+              </div>
+            <% } %>
+          </div>
+          <div class="summary-item warning">
+            <strong>Low Stock</strong>
+            <div class="summary-value"><%= lowCount %></div>
+            <% if (lowCount > 0 && totalProducts > 0) { %>
+              <div class="summary-percentage">
+                <%= ((lowCount / totalProducts) * 100).toFixed(1) %>% of total
+              </div>
+            <% } %>
+          </div>
+          <div class="summary-item out">
+            <strong>Out of Stock</strong>
+            <div class="summary-value"><%= outOfStockCount %></div>
+            <% if (outOfStockCount > 0 && totalProducts > 0) { %>
+              <div class="summary-percentage">
+                <%= ((outOfStockCount / totalProducts) * 100).toFixed(1) %>% of total
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <script src="/js/admin/adminNav.js"></script>
+
+  <script>
+    // Quick restock function
+    function quickRestock(productId, productName, currentStock) {
+      Swal.fire({
+        title: `Restock: ${productName}`,
+        html: `
+          <div style="text-align: left; margin: 20px 0;">
+            <p style="color: #8B7355; margin-bottom: 15px;">Current stock: <strong style="color: #755e45;">${currentStock} units</strong></p>
+            <p style="color: #755e45; font-weight: 600; margin-bottom: 10px;">Enter quantity to add:</p>
+          </div>
+        `,
+        input: 'number',
+        inputAttributes: {
+          min: 1,
+          step: 1,
+          placeholder: 'Enter quantity'
+        },
+        showCancelButton: true,
+        confirmButtonText: '✓ Add Stock',
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#8B7355',
+        inputValidator: (value) => {
+          if (!value || value <= 0) {
+            return 'Please enter a valid quantity!'
+          }
+          if (value > 10000) {
+            return 'Quantity seems too high. Please verify.'
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch('/admin/product/update/stock', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              productId: productId,
+              quantity: parseInt(result.value)
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              const newStock = parseInt(currentStock) + parseInt(result.value);
+              Swal.fire({
+                title: '✓ Stock Updated!',
+                html: `
+                  <div style="text-align: center; padding: 20px 0;">
+                    <p style="color: #8B7355; margin-bottom: 10px;">Added <strong style="color: #059669;">${result.value} units</strong></p>
+                    <p style="color: #755e45; font-size: 18px; font-weight: 700;">New stock: ${newStock} units</p>
+                  </div>
+                `,
+                icon: 'success',
+                confirmButtonColor: '#755e45',
+                timer: 2500
+              }).then(() => {
+                window.location.reload();
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Failed to update stock',
+                confirmButtonColor: '#755e45'
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to update stock. Please try again.',
+              confirmButtonColor: '#755e45'
+            });
+          });
+        }
+      });
+    }
+
+    // Mark product as unavailable
+    function markUnavailable(productId) {
+      Swal.fire({
+        title: 'Mark as Unavailable?',
+        text: 'This will block the product from being displayed to customers.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, mark unavailable',
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#8B7355'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/blockProduct?id=${productId}`;
+        }
+      });
+    }
+
+    // Auto-refresh notification for critical stock
+    let refreshInterval = setInterval(() => {
+      const criticalRows = document.querySelectorAll('.critical-stock');
+      const outOfStockRows = document.querySelectorAll('.out-of-stock');
+      
+      if (criticalRows.length > 0 || outOfStockRows.length > 0) {
+        if (criticalRows.length > 0) {
+          document.title = `(${criticalRows.length}) Stock Alerts - Admin`;
+        }
+      }
+    }, 30000);
+
+    // Reset title when page is focused
+    window.addEventListener('focus', () => {
+      document.title = 'Stock Alert Management';
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + F to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        document.querySelector('.search-input').focus();
+      }
+      
+      // Escape to clear search
+      if (e.key === 'Escape') {
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput.value) {
+          searchInput.value = '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

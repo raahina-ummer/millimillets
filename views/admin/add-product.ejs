@@ -1,0 +1,1144 @@
+<%- include('../partials/admin/header') %>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+</head>
+
+<style>
+/* Product Management Container */
+.product-management-container {
+    min-height: 100vh;
+    background: #E8DCC4;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content-wrapper {
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Page Header */
+.page-header {
+    background-color: #E8DCC4;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+}
+
+.page-title {
+    font-size: 24px;
+    color: #2c2c2c;
+    font-weight: 600;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-input {
+    padding: 10px 20px 10px 40px;
+    border: 1px solid #d4c5a9;
+    border-radius: 20px;
+    width: 300px;
+    background: #fff;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-box-wrapper {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #8B6F47;
+}
+
+.user-info {
+    text-align: right;
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin: 0;
+}
+
+.user-role {
+    font-size: 11px;
+    color: #666;
+    margin: 0;
+}
+
+.btn-add-product {
+    padding: 10px 25px;
+    background: #8b7355;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-add-product:hover {
+    background: #6d5940;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Refresh Button */
+.btn-refresh {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+
+.btn-refresh:hover {
+    color: #2c2c2c;
+}
+
+/* Add Product Modal */
+.add-product-modal {
+    background: #c4a574;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin: 0 30px 30px 30px;
+}
+
+.modal-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.modal-header-custom h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #2c2c2c;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.btn-close-modal:hover {
+    color: #000;
+}
+
+/* Modal Body Layout */
+.modal-body {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 30px;
+}
+
+/* Image Upload Section */
+.image-upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.main-image-upload {
+    width: 100%;
+    height: 320px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 2px dashed rgba(139, 115, 85, 0.3);
+}
+
+.image-upload-label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+}
+
+.image-upload-label img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #5a4a3a;
+}
+
+.upload-text {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    color: #666;
+}
+
+.upload-subtext {
+    font-size: 11px;
+    margin: 5px 0 0;
+    color: #999;
+}
+
+/* Additional Images Grid */
+.additional-images-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.additional-image-upload {
+    height: 110px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 2px dashed rgba(139, 115, 85, 0.3);
+}
+
+.image-upload-label-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+}
+
+.image-upload-label-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.browse-text {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Image Cropper Container */
+.image-cropper {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.image-cropper.active {
+    display: flex;
+}
+
+.image-cropper img {
+    max-width: 90%;
+    max-height: 70vh;
+}
+
+/* Description */
+.form-group-description {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-description label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin-bottom: 8px;
+}
+
+.form-group-description textarea {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(139, 115, 85, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 13px;
+    color: #2c2c2c;
+    resize: vertical;
+    line-height: 1.6;
+    min-height: 120px;
+}
+
+.form-group-description textarea:focus {
+    outline: none;
+    border-color: #8b7355;
+    background: #fff;
+}
+
+/* Form Fields Section */
+.form-fields-section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Variant Section */
+.variant-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.variant-section label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin-bottom: 5px;
+}
+
+.variant-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-variant {
+    padding: 8px 18px;
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #2c2c2c;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-variant:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: #8b7355;
+}
+
+.btn-variant.active {
+    background: #fff;
+    border-color: #8b7355;
+    font-weight: 600;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    padding: 12px 15px;
+    border: 1px solid rgba(139, 115, 85, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    color: #2c2c2c;
+    outline: none;
+}
+
+.form-control:focus {
+    background: #fff;
+    border-color: #8b7355;
+}
+
+.form-select {
+    padding: 12px 15px;
+    border: 1px solid rgba(139, 115, 85, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    color: #2c2c2c;
+    outline: none;
+    cursor: pointer;
+}
+
+.form-select:focus {
+    background: #fff;
+    border-color: #8b7355;
+}
+
+/* Form Row for multiple fields */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+/* Action Buttons */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-add,
+.btn-cancel {
+    flex: 1;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-add {
+    background: #5a4a3a;
+    color: white;
+}
+
+.btn-add:hover {
+    background: #3a2f25;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-cancel {
+    background: #8b7355;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #6d5940;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Error Messages */
+.error-message {
+    color: #dc3545;
+    font-size: 11px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Page Container */
+.page-container {
+    padding: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .modal-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .additional-images-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .modal-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row,
+    .form-row-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .additional-images-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<div class="product-management-container">
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Product Management</h2>
+            
+          
+        </div>
+
+        <!-- Page Container -->
+        <div class="page-container">
+            <!-- Refresh Button -->
+            <button class="btn-refresh" style="margin-left: 30px;">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+
+            <!-- Add Product Modal/Form -->
+            <div class="add-product-modal">
+                <div class="modal-header-custom">
+                    <h3>Add Product</h3>
+                    <button class="btn-close-modal" type="button">&times;</button>
+                </div>
+
+                <form id="addProductForm" action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <!-- Left Section: Image Uploads & Description -->
+                        <div class="image-upload-section">
+                            <!-- Main Image -->
+                            <div class="main-image-upload">
+                                <input type="file" id="input1" name="images" accept="image/*" hidden>
+                                <label for="input1" class="image-upload-label">
+                                    <img id="imgView1" src="" alt="" style="display: none;">
+                                    <div class="upload-placeholder">
+                                        <p class="upload-text">Browse Image</p>
+                                        <p class="upload-subtext">Click to upload main product image</p>
+                                    </div>
+                                </label>
+                            </div>
+                            <div id="images-error-1" class="error-message"></div>
+
+                            <!-- Cropper for Image 1 -->
+                            <div class="image-cropper" id="cropperContainer1">
+                                <img src="" id="croppedImg1" alt="Cropped Image 1">
+                                <button type="button" id="saveButton1" class="btn btn-primary mt-3">Save Crop</button>
+                            </div>
+
+                            <!-- Additional Images Grid -->
+                            <div class="additional-images-grid">
+                                <div class="additional-image-upload">
+                                    <input type="file" id="input2" name="images" accept="image/*" hidden>
+                                    <label for="input2" class="image-upload-label-small">
+                                        <img id="imgView2" src="" alt="" style="display: none;">
+                                        <span class="browse-text">Browse Image</span>
+                                    </label>
+                                </div>
+                                <div class="additional-image-upload">
+                                    <input type="file" id="input3" name="images" accept="image/*" hidden>
+                                    <label for="input3" class="image-upload-label-small">
+                                        <img id="imgView3" src="" alt="" style="display: none;">
+                                        <span class="browse-text">Browse Image</span>
+                                    </label>
+                                </div>
+                                <div class="additional-image-upload">
+                                    <input type="file" id="input4" name="images" accept="image/*" hidden>
+                                    <label for="input4" class="image-upload-label-small">
+                                        <img id="imgView4" src="" alt="" style="display: none;">
+                                        <span class="browse-text">Browse Image</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="images-error-2" class="error-message"></div>
+                            <div id="images-error-3" class="error-message"></div>
+                            <div id="images-error-4" class="error-message"></div>
+
+                            <!-- Cropper for Image 2 -->
+                            <div class="image-cropper" id="cropperContainer2">
+                                <img src="" id="croppedImg2" alt="Cropped Image 2">
+                                <button type="button" id="saveButton2" class="btn btn-primary mt-3">Save Crop</button>
+                            </div>
+
+                            <!-- Cropper for Image 3 -->
+                            <div class="image-cropper" id="cropperContainer3">
+                                <img src="" id="croppedImg3" alt="Cropped Image 3">
+                                <button type="button" id="saveButton3" class="btn btn-primary mt-3">Save Crop</button>
+                            </div>
+
+                            <!-- Cropper for Image 4 -->
+                            <div class="image-cropper" id="cropperContainer4">
+                                <img src="" id="croppedImg4" alt="Cropped Image 4">
+                                <button type="button" id="saveButton4" class="btn btn-primary mt-3">Save Crop</button>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-group-description">
+                                <label>Description</label>
+                                <textarea name="description" id="description" class="form-control" placeholder="Enter product description..."></textarea>
+                                <div id="description-error" class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Section: Form Fields -->
+                        <div class="form-fields-section">
+                           
+
+                            <!-- Product Name -->
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" name="productName" id="productName" class="form-control" placeholder="Enter product name">
+                                <div id="productName-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">Select category</option>
+                                    <% if(typeof cat !== 'undefined' && cat.length > 0) { %>
+                                        <% for(let i=0; i<cat.length; i++) { %>
+                                            <option value="<%= cat[i].name %>"><%= cat[i].name %></option>
+                                        <% } %>
+                                    <% } %>
+                                </select>
+                                <div id="category-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Date and GST Row -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" name="date" id="date" class="form-control">
+                                    <div id="date-error" class="error-message"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>GST</label>
+                                    <input type="text" name="gst" id="gst" class="form-control" placeholder="18%">
+                                    <div id="gst-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                           
+
+                            <!-- Weight, Unit, Regular Price Row -->
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label>Weight</label>
+                                    <input type="text" name="weight" id="weight" class="form-control" placeholder="500">
+                                    <div id="weight-error" class="error-message"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Unit</label>
+                                    <select class="form-select" id="unit" name="unit">
+                                        <option value="grm">grm</option>
+                                        <option value="kg">kg</option>
+                                        <option value="ml">ml</option>
+                                        <option value="ltr">ltr</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Regular Price</label>
+                                    <input type="text" name="regularPrice" id="regularPrice" class="form-control" placeholder="₹">
+                                    <div id="regularPrice-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <!-- Sale Price, Quantity and Stock Row -->
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label>Sale Price</label>
+                                    <input type="text" name="salePrice" id="salePrice" class="form-control" placeholder="₹">
+                                    <div id="salePrice-error" class="error-message"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="text" name="quantity" id="quantity" class="form-control" placeholder="packets">
+                                    <div id="quantity-error" class="error-message"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Stock</label>
+                                    <input type="text" name="stock" id="stock" class="form-control" placeholder="Available">
+                                    <div id="stock-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Error -->
+                            <div id="submit-error" class="error-message"></div>
+
+                            <!-- Action Buttons -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn-add">Add</button>
+                                <button type="button" class="btn-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+let croppers = {};
+
+
+
+// Image preview and cropper initialization
+function viewImage(event, index) {
+    let input = event.target;
+    let reader = new FileReader();
+    reader.onload = function () {
+        let dataURL = reader.result;
+        let image = document.getElementById('imgView' + index);
+        image.src = dataURL;
+        image.style.display = 'block';
+
+        // Hide placeholder
+        let placeholder = image.parentElement.querySelector('.upload-placeholder, .browse-text');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+        }
+
+        // Show cropper container
+        let cropperContainer = document.getElementById('cropperContainer' + index);
+        let croppedImage = document.getElementById('croppedImg' + index);
+        croppedImage.src = dataURL;
+        cropperContainer.classList.add('active');
+
+        // Destroy existing cropper if any
+        if (croppers[index]) {
+            croppers[index].destroy();
+        }
+
+        // Initialize new Cropper instance
+        croppers[index] = new Cropper(croppedImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            guides: true,
+            background: false,
+            autoCropArea: 1,
+            zoomable: true
+        });
+
+        // Save button click event
+        let saveButton = document.querySelector('#saveButton' + index);
+        saveButton.onclick = async function () {
+            let croppedCanvas = croppers[index].getCroppedCanvas();
+            
+            // Update preview image
+            image.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
+
+            // Create and assign the new file
+            await croppedCanvas.toBlob(blob => {
+                let imageFile = new File([blob], `cropped-img-${Date.now()}-${index}.png`, { type: "image/png" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(imageFile);
+                input.files = dataTransfer.files;
+            });
+
+            // Hide cropper container
+            cropperContainer.classList.remove('active');
+            croppers[index].destroy();
+        };
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+// Setup image inputs
+document.getElementById('input1').addEventListener('change', function(e) {
+    viewImage(e, 1);
+});
+document.getElementById('input2').addEventListener('change', function(e) {
+    viewImage(e, 2);
+});
+document.getElementById('input3').addEventListener('change', function(e) {
+    viewImage(e, 3);
+});
+document.getElementById('input4').addEventListener('change', function(e) {
+    viewImage(e, 4);
+});
+
+// Form validation
+function validateForm() {
+    clearErrorMessages();
+
+    const name = document.getElementById('productName').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const price = document.getElementById('regularPrice').value.trim();
+    const quantity = document.getElementById('quantity').value.trim();
+    const category = document.getElementById('category').value;
+    const weight = document.getElementById('weight').value.trim();
+    const gst = document.getElementById('gst').value.trim();
+    const image1 = document.getElementById('input1');
+
+    let isValid = true;
+
+    if (name === "") {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
+    } else if (!/^[a-zA-Z][a-zA-Z0-9\s]*$/.test(name)) {
+        displayErrorMessage('productName-error', 'Product name must start with a letter and can contain letters, numbers, and spaces.');
+        isValid = false;
+    }
+
+    if (description === "") {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
+    }
+
+    if (category === "") {
+        displayErrorMessage('category-error', 'Please select a category.');
+        isValid = false;
+    }
+
+    if (weight === "" || !/^\d+$/.test(weight) || parseInt(weight) < 0) {
+        displayErrorMessage('weight-error', 'Please enter a valid weight.');
+        isValid = false;
+    }
+
+    if (gst === "" || !/^\d+(\.\d{1,2})?%?$/.test(gst)) {
+        displayErrorMessage('gst-error', 'Please enter a valid GST percentage.');
+        isValid = false;
+    }
+
+    if (!/^\d+$/.test(quantity) || parseInt(quantity) < 0) {
+        displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+        isValid = false;
+    }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+
+    if (image1.files.length === 0) {
+        displayErrorMessage("images-error-1", 'Please select at least one image.');
+        isValid = false;
+    }
+
+    const submitError = document.getElementById('submit-error');
+    if (!isValid) {
+        submitError.innerText = "Please fix the errors above before submitting.";
+    } else {
+        submitError.innerText = "";
+    }
+
+    return isValid;
+}
+
+function displayErrorMessage(id, message) {
+    document.getElementById(id).innerText = message;
+}
+
+function clearErrorMessages() {
+    document.querySelectorAll('.error-message').forEach((el) => el.innerText = '');
+}
+
+// Form submission
+document.getElementById('addProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (validateForm()) {
+        Swal.fire({
+            title: 'Success!',
+            text: 'Product added successfully!',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            toast: true,
+            position: "center",
+            background: '#c4a574',
+            color: '#2c2c2c',
+            confirmButtonColor: '#5a4a3a'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById("addProductForm").submit();
+            }
+        });
+    }
+});
+
+// Cancel button
+document.querySelector('.btn-cancel').addEventListener('click', function() {
+    window.location.href = '/admin/products';
+});
+
+// Close modal button (X button)
+document.querySelector('.btn-close-modal').addEventListener('click', function() {
+    window.location.href = '/admin/products';
+});
+
+// Auto-fill today's date
+document.getElementById('date').valueAsDate = new Date();
+
+// Prevent form submission on Enter key (except in textarea)
+document.getElementById('addProductForm').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+    }
+});
+
+// Real-time validation for numeric fields
+document.getElementById('regularPrice').addEventListener('input', function(e) {
+    const value = e.target.value;
+    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+});
+
+document.getElementById('salePrice').addEventListener('input', function(e) {
+    const value = e.target.value;
+    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+});
+
+document.getElementById('quantity').addEventListener('input', function(e) {
+    const value = e.target.value;
+    if (value && !/^\d*$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+});
+
+document.getElementById('weight').addEventListener('input', function(e) {
+    const value = e.target.value;
+    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+});
+
+document.getElementById('stock').addEventListener('input', function(e) {
+    const value = e.target.value;
+    if (value && !/^\d*$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+});
+
+// GST input formatting
+document.getElementById('gst').addEventListener('blur', function(e) {
+    let value = e.target.value.trim();
+    if (value && !value.endsWith('%')) {
+        e.target.value = value + '%';
+    }
+});
+
+// Close cropper on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.image-cropper.active').forEach(container => {
+            container.classList.remove('active');
+            const index = container.id.replace('cropperContainer', '');
+            if (croppers[index]) {
+                croppers[index].destroy();
+            }
+        });
+    }
+});
+
+// Clear input when clicking outside cropper
+document.querySelectorAll('.image-cropper').forEach(container => {
+    container.addEventListener('click', function(e) {
+        if (e.target === container) {
+            const index = container.id.replace('cropperContainer', '');
+            container.classList.remove('active');
+            if (croppers[index]) {
+                croppers[index].destroy();
+            }
+            // Clear the file input
+            const input = document.getElementById('input' + index);
+            input.value = '';
+            // Hide the preview image
+            const img = document.getElementById('imgView' + index);
+            img.style.display = 'none';
+            img.src = '';
+            // Show placeholder again
+            const placeholder = img.parentElement.querySelector('.upload-placeholder, .browse-text');
+            if (placeholder) {
+                placeholder.style.display = '';
+            }
+        }
+    });
+});
+
+// Character counter for description
+const descriptionField = document.getElementById('description');
+if (descriptionField) {
+    descriptionField.addEventListener('input', function() {
+        const maxLength = 1000;
+        const currentLength = this.value.length;
+        const remaining = maxLength - currentLength;
+        
+        if (remaining < 100 && currentLength > 0) {
+            const errorDiv = document.getElementById('description-error');
+            if (!this.value.trim()) {
+                errorDiv.innerText = '';
+                errorDiv.style.color = '#dc3545';
+            } else {
+                errorDiv.innerText = `${remaining} characters remaining`;
+                errorDiv.style.color = remaining < 0 ? '#dc3545' : '#666';
+            }
+        } else {
+            const errorDiv = document.getElementById('description-error');
+            if (!errorDiv.innerText.includes('required') && !errorDiv.innerText.includes('least')) {
+                errorDiv.innerText = '';
+            }
+        }
+    });
+}
+
+// Refresh button functionality
+document.querySelector('.btn-refresh').addEventListener('click', function() {
+    const form = document.getElementById('addProductForm');
+    const hasData = form.querySelector('input[type="text"]').value || 
+                    form.querySelector('textarea').value || 
+                    document.getElementById('input1').files.length > 0;
+    
+    if (hasData) {
+        if (confirm('Are you sure you want to refresh? Any unsaved changes will be lost.')) {
+            location.reload();
+        }
+    } else {
+        location.reload();
+    }
+});
+
+// Enhanced form submission with loading state
+const originalSubmitHandler = document.getElementById('addProductForm').onsubmit;
+document.getElementById('addProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (validateForm()) {
+        // Show loading state
+        const submitBtn = document.querySelector('.btn-add');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        submitBtn.style.cursor = 'not-allowed';
+
+        Swal.fire({
+            title: 'Success!',
+            text: 'Product added successfully!',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false,
+            background: '#c4a574',
+            color: '#2c2c2c',
+            confirmButtonColor: '#5a4a3a'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById("addProductForm").submit();
+            } else {
+                // Reset button if cancelled
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                submitBtn.style.cursor = 'pointer';
+            }
+        });
+    }
+});
+
+// Confirm before leaving page with unsaved changes
+let formModified = false;
+
+document.getElementById('addProductForm').addEventListener('input', function() {
+    formModified = true;
+});
+
+document.getElementById('addProductForm').addEventListener('change', function() {
+    formModified = true;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formModified) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+});
+
+// Reset formModified on successful submit
+document.getElementById('addProductForm').addEventListener('submit', function() {
+    formModified = false;
+});
+
+// Cancel button with confirmation
+document.querySelector('.btn-cancel').addEventListener('click', function() {
+    if (formModified) {
+        if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+            formModified = false;
+            window.location.href = '/admin/products';
+        }
+    } else {
+        window.location.href = '/admin/products';
+    }
+});
+
+// Close modal button with confirmation
+document.querySelector('.btn-close-modal').addEventListener('click', function() {
+    if (formModified) {
+        if (confirm('Are you sure you want to close? Any unsaved changes will be lost.')) {
+            formModified = false;
+            window.location.href = '/admin/products';
+        }
+    } else {
+        window.location.href = '/admin/products';
+    }
+});
+
+// Initialize console message
+console.log('Add Product form initialized successfully');
+console.log('Form validation: Active');
+console.log('Image cropper: Ready');
+</script>

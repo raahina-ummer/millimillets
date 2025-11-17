@@ -1,6 +1,132 @@
-<%-include("../../views/partials/user/header.ejs")%>
 
-<style>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MilliMillet- Nature's Ancient Superfood</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      /* Header Styles
+      header {
+        background-color: #8b7355;
+        padding: 15px 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background-color: #d4af37;
+        border-radius: 50%;
+      }
+
+      .logo h1 {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      nav ul {
+        display: flex;
+        list-style: none;
+        gap: 30px;
+      }
+
+      nav a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        transition: color 0.3s;
+      }
+
+      nav a:hover {
+        color: #d4af37;
+      }
+
+      .header-icons {
+        display: flex;
+        gap: 20px;
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        right: 0;
+      }
+
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+      }
+      .dropdown-content a:hover {
+        background-color: #f1f1f1f1;
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      .dropdown-content {
+        display: block;
+      }
+
+      .signin-link {
+        cursor: pointer;
+      }
+      .header {
+        position: relative;
+        z-index: 50;
+      }
+
+
     * {
         margin: 0;
         padding: 0;
@@ -10,7 +136,254 @@
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f5f5f5;
-    }
+    } */
+
+
+      /* Header Styles */
+      header {
+        background: linear-gradient(135deg, #6D5A43 0%, #8B7355 50%, #A0826D 100%);
+        padding: 20px 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        position: relative;
+        z-index: 100;
+      }
+
+      header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent 0%, #5D4E37 50%, transparent 100%);
+      }
+
+      .header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: transform 0.3s ease;
+      }
+
+      .logo:hover {
+        transform: scale(1.05);
+      }
+
+      .logo-icon {
+        font-size: 36px;
+        line-height: 1;
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+      }
+      
+      .logo-icon::before {
+        content: '🌾';
+      }
+
+      .logo h1 {
+        color: #fff;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      nav ul {
+        display: flex;
+        list-style: none;
+        gap: 35px;
+        align-items: center;
+      }
+
+      nav a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 8px 0;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      nav a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #C4A57B;
+        transition: width 0.3s ease;
+      }
+
+      nav a:hover {
+        color: #E8D4B8;
+      }
+
+      nav a:hover::after {
+        width: 100%;
+      }
+
+      .header-icons {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .icon-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+      }
+
+      .icon-btn:hover {
+        background: rgba(196, 165, 123, 0.9);
+        border-color: #C4A57B;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(196, 165, 123, 0.4);
+      }
+
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background: white;
+        min-width: 180px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        right: 0;
+        top: calc(100% + 15px);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+      }
+
+      .dropdown-content a {
+        color: #5D4E37;
+        padding: 14px 20px;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .dropdown-content a:last-child {
+        border-bottom: none;
+      }
+
+      .dropdown-content a:hover {
+        background: #F5E6D3;
+        color: #6D5A43;
+        padding-left: 25px;
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+        animation: fadeInDown 0.3s ease;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .signin-link {
+        cursor: pointer;
+        background: rgba(196, 165, 123, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(196, 165, 123, 0.4);
+        transition: all 0.3s ease;
+      }
+
+      .signin-link:hover {
+        background: rgba(196, 165, 123, 0.4);
+        border-color: #C4A57B;
+      }
+
+      /* Responsive Header */
+      @media (max-width: 968px) {
+        .header-container {
+          flex-wrap: wrap;
+          gap: 20px;
+        }
+
+        nav ul {
+          gap: 20px;
+        }
+
+        nav a {
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        header {
+          padding: 15px 0;
+        }
+
+        .logo h1 {
+          font-size: 20px;
+        }
+
+        .logo-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 18px;
+        }
+
+        nav ul {
+          gap: 15px;
+        }
+
+        nav a {
+          font-size: 12px;
+        }
+
+        .header-icons {
+          gap: 10px;
+        }
+
+        .icon-btn {
+          width: 35px;
+          height: 35px;
+          font-size: 16px;
+        }
+      }
+
 
     /* Hero Section */
     .hero {
@@ -81,6 +454,7 @@
         overflow: hidden;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
     }
 
     .product-card:hover {
@@ -91,8 +465,34 @@
     .product-image {
         width: 100%;
         height: 280px;
-        background: linear-gradient(135deg, #D4AF37 0%, #C4A747 100%);
         position: relative;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-offer-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: linear-gradient(45deg, #dc3545, #e4606d);
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 2;
     }
 
     .product-info {
@@ -102,10 +502,20 @@
     }
 
     .product-info h3 {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 600;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         color: #5D4E37;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .product-price {
+        font-size: 22px;
+        font-weight: 700;
+        color: #dc3545;
+        margin-bottom: 15px;
     }
 
     .btn-shop {
@@ -120,10 +530,13 @@
         transition: background-color 0.3s;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        text-decoration: none;
+        display: inline-block;
     }
 
     .btn-shop:hover {
         background-color: #6D5A43;
+        color: white;
     }
 
     /* Shop By Categories */
@@ -367,7 +780,43 @@
             font-size: 20px;
         }
     }
-</style>
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="header-container">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <h1>MILLIMILLET</h1>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/shop">Shop</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <%if(user){%>
+            <li class="dropdown">
+              <a href="#" class="signin-link"><%=user.name%></a>
+              <div class="dropdown-content">
+                <a href="/userProfile">Profile</a>
+                <a href="/logout">Logout</a>
+              </div>
+            </li>
+            <%}else{%>
+            <li><a href="/signup">Signup</a></li>
+            <li><a href="/login">Login</a></li>
+            <%}%>
+          </ul>
+        </nav>
+        <div class="header-icons">
+          <button class="icon-btn">🔍</button>
+          <button class="icon-btn">❤️</button>
+          <button class="icon-btn">🛒</button>
+        </div>
+      </div>
+    </header>
 
 <!-- Hero Section -->
 <section class="hero">
@@ -378,44 +827,64 @@
 
 <!-- Best Selling Items -->
 <section class="best-selling">
-    <h2 class="section-title">BEST SELLING ITEMS*</h2>
+    <h2 class="section-title">BEST SELLING ITEMS</h2>
     <div class="products-grid">
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
+        <% if (products && products.length > 0) { %>
+            <% for(let i = 0; i < products.length && i < 4; i++) { %>
+            <div class="product-card">
+                <div class="product-image">
+                    <% if (products[i].productOffer > 0) { %>
+                        <span class="product-offer-badge">
+                            <%= products[i].productOffer %>% Off
+                        </span>
+                    <% } %>
+                    <a href="/product/details/<%= products[i]._id %>">
+                        <img src="<%= products[i].productImage[0].path %>" 
+                             alt="<%= products[i].productName %>">
+                    </a>
+                </div>
+                <div class="product-info">
+                    <h3><%= products[i].productName %></h3>
+                    <div class="product-price">
+                        ₹<%= products[i].variant[0].salePrice.toFixed(2) %>
+                    </div>
+                    <a href="/product/details/<%= products[i]._id %>" class="btn-shop">
+                        SHOP NOW
+                    </a>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>Finger Millet (Ragi)</h3>
-                <button class="btn-shop">SHOP NOW</button>
+            <% } %>
+        <% } else { %>
+            <!-- Placeholder cards if no products -->
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Finger Millet (Ragi)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Pearl Millet (Bajra)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>Pearl Millet (Bajra)</h3>
-                <button class="btn-shop">SHOP NOW</button>
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Sorghum Millet (Jowar)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-info">
+                    <h3>Foxtail Millet (Korra)</h3>
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>Sorghum Millet (Jowar)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
-            </div>
-            <div class="product-info">
-                <h3>Foxtail Millet (Korra/korra)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
+        <% } %>
     </div>
 </section>
 
@@ -423,24 +892,37 @@
 <section class="categories">
     <h2 class="section-title">Shop By Categories</h2>
     <div class="category-grid">
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
+        <% if (categories && categories.length > 0) { %>
+            <% for(let i = 0; i < categories.length && i < 3; i++) { %>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <a href="/shop?category=<%= categories[i]._id %>">
+                        <button class="btn-shop"><%= categories[i].name %></button>
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
+            <% } %>
+        <% } else { %>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
             </div>
-        </div>
+            <div class="category-card">
+                <div class="category-image"></div>
+                <div class="category-info">
+                    <button class="btn-shop">SHOP NOW</button>
+                </div>
+            </div>
+        <% } %>
     </div>
 </section>
 
@@ -498,7 +980,7 @@
                     <span class="verified">✓</span>
                 </div>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">“I started buying MilliMillet products because I wanted to eat healthier, but now I continue because I believe in what they stand for. They source locally, support farmers, and promote sustainable agriculture — something I truly respect. I’ve tried almost every product, and the consistency is always top-notch. It’s heartwarming to see an Indian brand making traditional grains cool again!”</p>
+                <p class="testimonial-text">"I started buying MilliMillet products because I wanted to eat healthier, but now I continue because I believe in what they stand for. They source locally, support farmers, and promote sustainable agriculture — something I truly respect."</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">
@@ -506,7 +988,7 @@
                     <span class="verified">✓</span>
                 </div>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">“My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!”</p>
+                <p class="testimonial-text">"My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!"</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">

@@ -1,0 +1,770 @@
+<%- include('../partials/user/header.ejs') %>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Nunito Sans", sans-serif;
+      background-color: #e8dcc4;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .page-header {
+      background-color: #ffffff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #2d2d2d;
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .page-title i {
+      color: #8b7355;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: #8b7355;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+    }
+
+    .btn-primary:hover {
+      background-color: #755e45;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(139, 115, 85, 0.35);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid #8b7355;
+      color: #8b7355;
+    }
+
+    .btn-outline:hover {
+      background-color: #8b7355;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 35px;
+    }
+
+    .stat-card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 35px 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      border-color: #8b7355;
+    }
+
+    .stat-card i {
+      font-size: 3rem;
+      color: #8b7355;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .stat-card h3 {
+      font-size: 2.5rem;
+      margin: 0 0 10px;
+      color: #2d2d2d;
+      font-weight: 700;
+    }
+
+    .stat-card p {
+      margin: 0;
+      color: #6b6b6b;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    /* Profile Card */
+    .profile-card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 35px;
+    }
+
+    .profile-header {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      margin-bottom: 35px;
+      padding-bottom: 30px;
+      border-bottom: 2px solid #f5f0e8;
+    }
+
+    .profile-image-section {
+      flex-shrink: 0;
+    }
+    .profile-photo-container {
+  position: relative;
+  width: 120px;           /* control size here */
+  height: 120px;
+  border-radius: 10px;    /* makes it slightly rounded */
+  overflow: hidden;
+  border: 2px solid #ddd;
+  margin: 15px auto;
+  cursor: pointer;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* ensures the image fills box nicely */
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.profile-photo-container:hover .profile-photo {
+  transform: scale(1.05);
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 4px 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.profile-photo-container:hover .overlay {
+  opacity: 1;
+}
+
+.upload-label {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+    .profile-image {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 6px solid #f9f6f1;
+      box-shadow: 0 6px 20px rgba(139, 115, 85, 0.2);
+    }
+
+    .profile-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-name {
+      color: #2d2d2d;
+      font-size: 2rem;
+      margin: 0 0 25px;
+      font-weight: 700;
+    }
+
+    .default-avatar {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f9f6f1 0%, #f5f0e8 100%);
+    }
+
+    .default-avatar i {
+      font-size: 4rem;
+      color: #8B7355;
+    }
+    .info-icon i.fa-birthday-cake {
+  /* color: #d48872; */
+}
+
+
+    .info-grid {
+      display: flex;
+      flex-wrap: wrap;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      background-color: #f9f6f1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8b7355;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .info-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .info-label {
+      font-size: 0.8rem;
+      color: #6b6b6b;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .info-value {
+      color: #2d2d2d;
+      font-size: 1rem;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    /* Referral Box */
+    .referral-section {
+      background: linear-gradient(135deg, #f9f6f1 0%, #f5f0e8 100%);
+      padding: 25px 30px;
+      border-radius: 12px;
+      border-left: 5px solid #8b7355;
+      margin-bottom: 30px;
+    }
+
+    .referral-title {
+      font-size: 0.85rem;
+      color: #6b6b6b;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .referral-code-display {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .referral-code {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #8b7355;
+      letter-spacing: 2px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .copy-btn {
+      padding: 8px 16px;
+      background-color: #8b7355;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background-color: #755e45;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    /* Quick Links */
+    .quick-links-section {
+      margin-top: 40px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      color: #2d2d2d;
+      font-weight: 700;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quick-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 25px;
+    }
+
+    .quick-link-card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: #2d2d2d;
+      border: 2px solid transparent;
+    }
+
+    .quick-link-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      border-color: #8b7355;
+      color: #8b7355;
+    }
+
+    .quick-link-card i {
+      font-size: 2.5rem;
+      color: #8b7355;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .quick-link-card h3 {
+      font-size: 1.1rem;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    /* Note Box */
+    .note-box {
+      background: linear-gradient(135deg, #f9f6f1 0%, #f5f0e8 100%);
+      border: 2px solid #d4c5b0;
+      border-radius: 12px;
+      padding: 25px 30px;
+      margin-top: 35px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .note-icon {
+      font-size: 2rem;
+    }
+
+    .note-box p {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .note-box strong {
+      color: #8b7355;
+      font-size: 1.1rem;
+    }
+
+    .note-box span {
+      color: #2d7a3e;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-item {
+        justify-content: center;
+      }
+
+      .action-buttons {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 20px 15px;
+      }
+
+      .page-header {
+        padding: 20px 25px;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .profile-card {
+        padding: 25px 20px;
+      }
+
+      .profile-name {
+        font-size: 1.5rem;
+      }
+
+      .stats-grid,
+      .quick-links-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    
+
+    @media (max-width: 480px) {
+      .main-container {
+        padding: 15px 10px;
+      }
+
+      .page-header {
+        padding: 15px 20px;
+      }
+
+      .page-title {
+        font-size: 1.25rem;
+      }
+
+      .stat-card {
+        padding: 25px 20px;
+      }
+
+      .profile-image {
+        width: 120px;
+        height: 120px;
+      }
+    }
+  </style>
+
+  <div class="main-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="fas fa-tachometer-alt"></i>
+        My Dashboard
+      </h1>
+      <a href="/editProfile" class="btn btn-primary">
+        <i class="fas fa-user-edit"></i> Edit Profile
+      </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <i class="fas fa-shopping-bag"></i>
+        <h3>
+          <%= orderCount || 0 %>
+        </h3>
+        <p>Total Orders</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-heart"></i>
+        <h3>
+          <%= wishlistCount || 0 %>
+        </h3>
+        <p>Wishlist Items</p>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-map-marker-alt"></i>
+        <h3>
+          <%= addressCount || 0 %>
+        </h3>
+        <p>Saved Addresses</p>
+      </div>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <!-- Profile Header -->
+      <div class="profile-header">
+
+          <div class="profile-photo-container">
+  <label for="profileImageInput" class="upload-label">
+    <img id="profileImagePreview" 
+         src="<%= user.profileImage || '/images/default-avatar.png' %>" 
+         alt="Profile Photo" 
+         class="profile-photo">
+    <div class="overlay">Change</div>
+  </label>
+  <input type="file" id="profileImageInput" onchange="previewImage(event)" accept="image/*" hidden>
+</div>
+
+
+
+
+
+
+        <!-- <div class="profile-image-section">
+          <div class="profile-image-preview" id="imageContainer">
+            <% if (user.profileImage) { %>
+              <img src="<%= user.profileImage %>" alt="Profile Picture" id="profileImagePreview">
+              <% } else { %>
+                <div class="default-avatar" id="defaultAvatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <img src="" alt="Profile Picture" id="profileImagePreview" style="display: none;">
+                <% } %>
+          </div>
+        </div> -->
+
+        <div class="profile-info">
+          <h2 class="profile-name">
+            <%= user.name || 'User' %>
+          </h2>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="info-content">
+                <div class="info-label">Email</div>
+                <div class="info-value">
+                  <%= user.email || 'Not provided' %>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="fas fa-phone"></i>
+              </div>
+              <div class="info-content">
+                <div class="info-label">Phone</div>
+                <div class="info-value">
+                  <%= user.phone || 'Not available' %>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="fas fa-birthday-cake"></i>
+              </div>
+              <div class="info-content">
+                <div class="info-label">Date of Birth</div>
+                <div class="info-value">
+                  <%= user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
+                    day: 'numeric' }) : 'Not provided' %>
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="fas fa-calendar"></i>
+              </div>
+              <div class="info-content">
+                <div class="info-label">Member Since</div>
+                <div class="info-value">
+                  <%= user.createdOn ? new Date(user.createdOn).toLocaleDateString('en-US', { year: 'numeric' ,
+                    month: 'long' , day: 'numeric' }) : 'Unknown' %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referral Code -->
+      <% if (user.referralCode) { %>
+        <div class="referral-section">
+          <div class="referral-title">Your Referral Code</div>
+          <div class="referral-code-display">
+            <span class="referral-code">
+              <%= user.referralCode %>
+            </span>
+            <button class="copy-btn" onclick="copyReferralCode('<%= user.referralCode %>')">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+        <% } %>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <a href="/changePassword" class="btn btn-outline">
+              <i class="fas fa-lock"></i> Change Password
+            </a>
+            <a href="/changeEmail" class="btn btn-outline">
+              <i class="fas fa-envelope"></i> Change Email
+            </a>
+          </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links-section">
+      <h2 class="section-title">
+        <i class="fas fa-bolt"></i> Quick Actions
+      </h2>
+      <div class="quick-links-grid">
+        <a href="/orders" class="quick-link-card">
+          <i class="fas fa-shopping-bag"></i>
+          <h3>My Orders</h3>
+        </a>
+        <a href="/wishlist" class="quick-link-card">
+          <i class="fas fa-heart"></i>
+          <h3>Wishlist</h3>
+        </a>
+        <a href="/address" class="quick-link-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Address Book</h3>
+        </a>
+        <a href="/wallet" class="quick-link-card">
+          <i class="fas fa-wallet"></i>
+          <h3>My Wallet</h3>
+        </a>
+        <a href="/" class="quick-link-card">
+          <i class="fas fa-store"></i>
+          <h3>Continue Shopping</h3>
+        </a>
+      </div>
+    </div>
+
+    <!-- Referral Note
+    <!-- <% if (user.referralCode) { %> -->
+      <div class="note-box">
+        <span class="note-icon">💡</span>
+        <p>
+          <strong>Earn Rewards!</strong><br>
+          <span>Share your referral code with friends and earn wallet credits when they make their first
+            purchase.</span>
+        </p>
+      </div>
+      <% } %>
+  </div> -->
+
+  <script>
+    function copyReferralCode(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target.closest('.copy-btn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      }).catch(err => {
+        alert('Failed to copy code');
+      });
+    }
+
+    function confirmLogout(event) {
+      event.preventDefault();
+      swal({
+        title: "Are you sure?",
+        text: "You will be logged out of your account.",
+        icon: "warning",
+        buttons: {
+          cancel: {
+            text: "Cancel",
+            value: null,
+            visible: true,
+            closeModal: true,
+          },
+          confirm: {
+            text: "Logout",
+            value: true,
+            visible: true,
+            closeModal: true,
+          },
+        },
+        dangerMode: true,
+      }).then((willLogout) => {
+        if (willLogout) {
+          window.location.href = "/logout";
+        }
+      });
+    }
+
+
+    // Preview image
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const imgElement = document.getElementById('profileImagePreview');
+      const defaultAvatar = document.getElementById('defaultAvatar');
+
+      imgElement.src = e.target.result;
+      imgElement.style.display = 'block';
+
+      if (defaultAvatar) {
+        defaultAvatar.style.display = 'none';
+      }
+    }
+    reader.readAsDataURL(file);
+
+    
+  </script>
+
+  <%- include('../partials/user/footer.ejs') %>

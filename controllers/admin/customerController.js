@@ -1,68 +1,75 @@
-const User = require("../../models/userSchema.js");
 
-const customerInfo = async (req, res) => {
+import User from "../../models/userSchema.js";
+
+// Fetch customer info with search + pagination
+ const customerInfo = async (req, res) => {
   try {
-    let search = "";
-    if (req.query.search) {
-      search = req.query.search;
-    }
-    let page = 1;
-    if (req.query.page) {
-      page = req.query.page;
-    }
-    const limit = 3;
-    const userData = await User.find({
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+
+    const query = {
       isAdmin: false,
       $or: [
-        { name: { $regex: ".*" + search + ".*" } },
-        { email: { $regex: ".*" + search + ".*" } },
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ],
-    })
+    };
 
-      .limit(limit * 1)
+    const userData = await User.find(query)
+      .limit(limit)
       .skip((page - 1) * limit)
       .exec();
 
-    const count = await User.find({
-      isAdmin: false,
-      $or: [
-        { name: { $regex: ".*" + search + ".*" } },
-        { email: { $regex: ".*" + search + ".*" } },
-      ],
-    }).countDocuments();
+    const count = await User.countDocuments(query);
 
-    res.render("customers");
-  } catch (error) {}
+    res.render("customers", {
+      data: userData,
+      currentPage: page,
+      totalUsers: count,
+      totalPages: Math.ceil(count / limit),
+      search,
+    });
+  } catch (error) {
+    console.error("Error loading customers:", error);
+    res.redirect("/pageerror");
+  }
 };
 
+// Block a customer
+ const customerBlocked = async (req, res) => {
+  try {
+    const id = req.query.id;
+    await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
 
-const customerBlocked = async(req,res)=>{
-    try {
-
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:true}})
-        res.redirect("/admin/users");
-        
-    } catch (error) {
-        res.redirect("/pageerror")
+    if (req.session.user && req.session.user._id === id) {
+      delete req.session.user;
     }
-}
 
+    res.redirect("/admin/users");
+  } catch (error) {
+    console.error("Error blocking user:", error);
+    res.redirect("/pageerror");
+  }
+};
 
-const customerunBlocked = async(req,res)=>{
-    try {
-        
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:false}})
-        res.redirect("/admin/users");
-        
-    } catch (error) {
-         res.redirect("/pageerror")
-    }
-}
+// Unblock a customer
+ const customerunBlocked = async (req, res) => {
+  try {
+    const id = req.query.id;
+    await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
 
-module.exports = {
+    res.redirect("/admin/users");
+  } catch (error) {
+    console.error("Error unblocking user:", error);
+    res.redirect("/pageerror");
+  }
+};
+
+// Export all functions at the end
+export {
   customerInfo,
   customerBlocked,
   customerunBlocked
 };
+
