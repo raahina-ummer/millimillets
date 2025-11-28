@@ -1,5 +1,8 @@
 
 import User from "../../models/userSchema.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 // Fetch customer info with search + pagination
  const customerInfo = async (req, res) => {
@@ -32,7 +35,7 @@ import User from "../../models/userSchema.js";
     });
   } catch (error) {
     console.error("Error loading customers:", error);
-    res.redirect("/pageerror");
+   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -49,7 +52,7 @@ import User from "../../models/userSchema.js";
     res.redirect("/admin/users");
   } catch (error) {
     console.error("Error blocking user:", error);
-    res.redirect("/pageerror");
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -62,7 +65,7 @@ import User from "../../models/userSchema.js";
     res.redirect("/admin/users");
   } catch (error) {
     console.error("Error unblocking user:", error);
-    res.redirect("/pageerror");
+   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 

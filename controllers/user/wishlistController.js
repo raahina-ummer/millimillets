@@ -4,6 +4,9 @@ import Wishlist from "../../models/WishListSchema.js";
 import Product from "../../models/ProductSchema.js";
 import dotenv from "dotenv";
 dotenv.config();
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const loadWishlist = async (req, res) => {
   try {
@@ -42,7 +45,7 @@ const loadWishlist = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -56,7 +59,7 @@ const addToWishList = async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) 
-        return res.status(400).json({success: false, message: "The product doesn't exist"});
+        return res.status(Status.BAD_REQUEST).json({success: false, message: "The product doesn't exist"});
 
     let wishlist = await Wishlist.findOne({ userId });
     if (!wishlist) wishlist = new Wishlist({ userId, products: [] });
@@ -67,15 +70,15 @@ const addToWishList = async (req, res) => {
     });
 
     if (checkProduct) 
-        return res.status(400).json({success: false, message: "The product already exists"});
+        return res.status(Status.BAD_REQUEST).json({success: false, message: "The product already exists"});
 
     wishlist.products.push({ productId });
     await wishlist.save();
 
-    return res.status(200).json({ success: true, message: "Added to wishlist" });
+    return res.status(Status.OK).json({ success: true, message: "Added to wishlist" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -96,10 +99,10 @@ const deleteWishlist = async (req, res) => {
       });
     }
 
-    return res.status(200).json({ success: true, message: "Wishlist cleared successfully" });
+    return res.status(Status.OK).json({ success: true, message: "Wishlist cleared successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -112,25 +115,22 @@ const removeFromWishlist = async (req, res) => {
 
     const wishlist = await Wishlist.findOne({ userId });
     if (!wishlist) 
-        return res.status(400).json({success: false, message: "Wishlist not found"});
+        return res.status(Status.BAD_REQUEST).json({success: false, message: "Wishlist not found"});
 
     const findProductIndex = wishlist.products.findIndex(
       (item) => productId.toString() === item.productId.toString()
     );
 
     if (findProductIndex === -1) 
-        return res.status(400).json({success: false, message: "The product not found"});
+        return res.status(Status.BAD_REQUEST).json({success: false, message: "The product not found"});
 
     wishlist.products.splice(findProductIndex, 1);
     await wishlist.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "The product removed from the wishlist successfully",
-    });
+    return res.status(Status.OK).json({success: true,message: "The product removed from the wishlist successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 

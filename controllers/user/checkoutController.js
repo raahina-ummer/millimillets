@@ -4,6 +4,9 @@ import Product from "../../models/ProductSchema.js";
 import Order from "../../models/OrderSchema.js";
 import User from "../../models/userSchema.js"; // 
 import dotenv from "dotenv";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const loadCheckOut = async (req, res) => {
   try {
@@ -87,31 +90,33 @@ const loadCheckOut = async (req, res) => {
     cart.products = filterCart;
     await cart.save();
 
-    const cartAmount = subtotal - totalDiscount;
-    const tax = 0;
-    const shipping = cartAmount >= 1000 ? 0 : 50;
-    const total = cartAmount + tax + shipping;
+//Apply Coupon if exists
 
-    return res.render("checkout", {
-      user,
-      cart: { products: filterCart },
-      addresses: address.addresses,
-      subtotal,
-      discount: totalDiscount,
-      couponDiscount: 0,
-      tax,
-      shipping,
-      total,
-      itemCount: filterCart.length,
-      availableCoupons: [],
-      appliedCoupon: null,
-    });
+  // const cartAmount = subtotal - totalDiscount - couponDiscount;
+  const tax = 0;
+const shipping = subtotal >= 1000 ? 0 : 50;  // Based on SUBTOTAL
+const couponDiscount = cart.couponApplied ? cart.couponDiscount : 0;
+const total = subtotal - totalDiscount - couponDiscount + tax + shipping;
+
+
+   return res.render("checkout", {
+  user,
+  cart: { products: filterCart },
+  addresses: address.addresses,
+  subtotal,
+  discount: totalDiscount,
+  couponDiscount,
+  tax,
+  shipping,
+  total,
+  itemCount: filterCart.length,
+  availableCoupons: [],
+  appliedCoupon: cart.couponApplied ? cart.couponCode : null,
+});
+
   } catch (error) {
     console.error("Error loading checkout page:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to load checkout page. Please try again.",
-    });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false, message: "Failed to load checkout page. Please try again.",});
   }
 };
 
@@ -124,10 +129,7 @@ const placeOrder = async (req, res) => {
     const userId = req.session.user.id;
 
     if (!addressId || !paymentMethod) {
-      return res.status(400).json({
-        success: false,
-        message: "Address and payment method are required",
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false, message: "Address and payment method are required",});
     }
 
     const userAddress = await Address.findOne({ userId });
@@ -136,10 +138,10 @@ const placeOrder = async (req, res) => {
     const selectedAddress = userAddress.addresses.find(
       (addr) => addr._id.toString() === addressId
     );
-    if (!selectedAddress) return res.status(400).send("Please add a valid address");
+    if (!selectedAddress) return res.status(Status.BAD_REQUEST).send("Please add a valid address");
 
     if (paymentMethod !== "cod") {
-      return res.status(400).send("Only Cash on Delivery is available");
+      return res.status(Status.BAD_REQUEST).send("Only Cash on Delivery is available");
     }
 
     const cart = await Cart.findOne({ userId }).populate({
@@ -148,10 +150,7 @@ const placeOrder = async (req, res) => {
     });
 
     if (!cart || cart.products.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Cart is empty or not found",
-      });
+      return res.status(Status.NOT_FOUND).json({success: false,message: "Cart is empty or not found",});
     }
 
     // Fix: Check stock and prices using product.variant[0]
@@ -168,10 +167,7 @@ const placeOrder = async (req, res) => {
     });
 
     if (validCartItems.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid items in cart",
-      });
+      return res.status(Status.BAD_GATEWAY).json({success: false,message: "No valid items in cart" });
     }
 
     let subtotal = 0;
@@ -180,7 +176,7 @@ const placeOrder = async (req, res) => {
 
     for (const item of validCartItems) {
       const product = item.productId;
-      const variant = product.variant?.[0]; // 🧠 Use first variant
+      const variant = product.variant?.[0]; 
 
       const regularPrice = variant.regularPrice;
       const salePrice = variant.salePrice;
@@ -234,7 +230,7 @@ const placeOrder = async (req, res) => {
 
     await newOrder.save();
 
-    // ✅ Clear cart after successful order
+    //  Clear cart after successful order
     await Cart.findOneAndUpdate(
       { userId },
       {
@@ -247,7 +243,7 @@ const placeOrder = async (req, res) => {
       }
     );
 
-    return res.json({
+    return res.status(Status.OK).json({
       success: true,
       message: "Order placed successfully",
       orderId,
@@ -255,7 +251,7 @@ const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -296,7 +292,7 @@ const loadOrderSuccess = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading order success:", error);
-    res.json({ success: false, message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 

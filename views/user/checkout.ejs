@@ -25,38 +25,56 @@
         .checkout-wrapper {
             background-color: #E8DCC4;
             min-height: 100vh;
-            padding: 40px 0;
+            padding: 50px 0;
         }
 
         .page-title {
             color: #8B7355;
-            font-weight: 700;
-            font-size: 2rem;
-            margin-bottom: 30px;
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #8B7355, transparent);
         }
 
         .checkout-container {
             display: grid;
             grid-template-columns: 1fr 420px;
-            gap: 30px;
-            margin-top: 20px;
+            gap: 35px;
+            margin-top: 25px;
         }
 
         /* Section Cards */
         .checkout-section {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 3px 20px rgba(139, 115, 85, 0.12);
-            margin-bottom: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 25px rgba(139, 115, 85, 0.08);
+            margin-bottom: 30px;
             overflow: hidden;
+            border: 1px solid rgba(139, 115, 85, 0.05);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .checkout-section:hover {
+            box-shadow: 0 6px 35px rgba(139, 115, 85, 0.12);
         }
 
         .section-header {
             background: linear-gradient(135deg, #f9f6f1 0%, #E8DCC4 100%);
-            padding: 20px 25px;
-            border-bottom: 2px solid #d4c5b0;
+            padding: 24px 30px;
+            border-bottom: 1px solid rgba(139, 115, 85, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -65,181 +83,212 @@
         .section-header h3 {
             margin: 0;
             color: #8B7355;
-            font-weight: 700;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.2rem;
+            gap: 14px;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+
+        .section-header i {
+            font-size: 1.4rem;
+            opacity: 0.9;
         }
 
         .section-content {
-            padding: 25px;
+            padding: 30px;
         }
 
         /* Address Cards */
         .address-card {
             border: 2px solid #d4c5b0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            background: #f9f6f1;
+            background: #fafaf8;
         }
 
         .address-card:hover {
             border-color: #8B7355;
-            box-shadow: 0 3px 15px rgba(139, 115, 85, 0.15);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.12);
+            transform: translateY(-3px);
+            background: white;
         }
 
         .address-card.selected {
             border-color: #8B7355;
             background: white;
-            box-shadow: 0 3px 15px rgba(139, 115, 85, 0.2);
+            box-shadow: 0 6px 25px rgba(139, 115, 85, 0.15);
         }
 
         .address-card.selected::before {
             content: '✓';
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #8B7355;
+            top: 18px;
+            right: 18px;
+            background: linear-gradient(135deg, #8B7355, #755e45);
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 2px 8px rgba(139, 115, 85, 0.3);
+            box-shadow: 0 3px 12px rgba(139, 115, 85, 0.3);
         }
 
         .address-info h4 {
-            margin: 0 0 10px;
+            margin: 0 0 12px;
             color: #333;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
+            letter-spacing: 0.3px;
         }
 
         .address-info p {
-            margin: 0 0 6px;
+            margin: 0 0 8px;
             color: #666;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .address-info p:first-of-type {
+            color: #755e45;
+            font-weight: 600;
         }
 
         .address-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            padding-top: 15px;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
             border-top: 1px solid #E8DCC4;
         }
 
         .add-address-card {
             border: 2px dashed #d4c5b0;
-            border-radius: 12px;
-            padding: 40px;
+            border-radius: 14px;
+            padding: 45px 30px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             color: #8B7355;
-            background: #f9f6f1;
+            background: #fafaf8;
         }
 
         .add-address-card:hover {
             border-color: #8B7355;
             background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 15px rgba(139, 115, 85, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.12);
         }
 
         .add-address-card i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 2.8rem;
+            margin-bottom: 16px;
             display: block;
             color: #8B7355;
+            opacity: 0.9;
         }
 
         .add-address-card h4 {
             color: #8B7355;
             font-weight: 700;
             margin-bottom: 8px;
+            font-size: 1.1rem;
+            letter-spacing: 0.3px;
         }
 
         .add-address-card p {
             color: #755e45;
             margin: 0;
+            font-size: 0.95rem;
         }
 
         /* Payment Methods */
         .payment-method {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 20px;
+            gap: 22px;
+            padding: 22px 24px;
             border: 2px solid #d4c5b0;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            border-radius: 14px;
+            margin-bottom: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f9f6f1;
+            background: #fafaf8;
         }
 
         .payment-method:hover {
             border-color: #8B7355;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 15px rgba(139, 115, 85, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(139, 115, 85, 0.12);
+            background: white;
         }
 
         .payment-method.selected {
             border-color: #8B7355;
             background: white;
-            box-shadow: 0 3px 15px rgba(139, 115, 85, 0.2);
+            box-shadow: 0 6px 25px rgba(139, 115, 85, 0.15);
         }
 
         .payment-icon {
-            width: 50px;
-            height: 50px;
-            background: #E8DCC4;
-            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #E8DCC4, #f0eae0);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #8B7355;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
         .payment-method.selected .payment-icon {
-            background: #8B7355;
+            background: linear-gradient(135deg, #8B7355, #755e45);
             color: white;
+            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.2);
         }
 
         .payment-info h4 {
             margin: 0 0 5px;
             color: #333;
             font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
         }
 
         .payment-info p {
             margin: 0;
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
+            line-height: 1.4;
         }
 
         /* Order Items */
         .checkout-item {
             display: flex;
-            gap: 20px;
-            padding: 20px;
-            border-bottom: 1px solid #E8DCC4;
-            background: #f9f6f1;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            gap: 22px;
+            padding: 22px;
+            background: #fafaf8;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #f0eae0;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-item:hover {
+            background: white;
+            border-color: #d4c5b0;
+            box-shadow: 0 2px 12px rgba(139, 115, 85, 0.08);
         }
 
         .checkout-item:last-child {
@@ -247,12 +296,13 @@
         }
 
         .item-image {
-            width: 90px;
-            height: 90px;
+            width: 100px;
+            height: 100px;
             border-radius: 12px;
             overflow: hidden;
             flex-shrink: 0;
             border: 2px solid #d4c5b0;
+            background: #f9f6f1;
         }
 
         .item-image img {
@@ -263,13 +313,17 @@
 
         .item-details {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .item-name {
             font-weight: 700;
             color: #333;
-            margin: 0 0 8px;
+            margin: 0 0 10px;
             font-size: 1.1rem;
+            letter-spacing: 0.3px;
         }
 
         .item-quantity {
@@ -281,36 +335,51 @@
 
         .item-price {
             color: #8B7355;
-            font-weight: 700;
-            font-size: 1.2rem;
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: 0.3px;
         }
 
         /* Order Summary Sidebar */
         .order-summary {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 3px 20px rgba(139, 115, 85, 0.12);
-            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 25px rgba(139, 115, 85, 0.08);
+            padding: 30px;
             height: fit-content;
             position: sticky;
             top: 20px;
+            border: 1px solid rgba(139, 115, 85, 0.05);
         }
 
         .summary-title {
-            margin: 0 0 25px;
+            margin: 0 0 28px;
             color: #8B7355;
-            font-weight: 700;
-            font-size: 1.4rem;
+            font-weight: 800;
+            font-size: 1.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .summary-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #8B7355;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
             border-bottom: 1px solid #f0eae0;
+            align-items: center;
         }
 
         .summary-row:last-of-type {
@@ -318,63 +387,74 @@
         }
 
         .summary-row.total {
-            border-top: 3px solid #8B7355;
-            padding-top: 20px;
-            margin-top: 20px;
-            font-size: 1.3rem;
-            font-weight: 700;
+            border-top: 2px solid #8B7355;
+            padding-top: 22px;
+            margin-top: 22px;
+            font-size: 1.35rem;
+            font-weight: 800;
             color: #8B7355;
+            letter-spacing: 0.5px;
         }
 
         .summary-label {
             color: #755e45;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .summary-value {
             color: #333;
             font-weight: 700;
+            font-size: 0.95rem;
         }
 
         .summary-value.discount {
             color: #28a745;
+            font-weight: 800;
         }
 
         .summary-value.free {
             color: #28a745;
+            font-weight: 700;
         }
 
         /* Place Order Button */
         .place-order-btn {
             width: 100%;
-            background: #8B7355;
+            background: linear-gradient(135deg, #8B7355, #755e45);
             color: white;
             border: none;
             padding: 16px 25px;
             border-radius: 12px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 25px;
+            margin-top: 28px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.2);
         }
 
         .place-order-btn:hover:not(:disabled) {
-            background: #755e45;
+            background: linear-gradient(135deg, #755e45, #6b5139);
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(139, 115, 85, 0.3);
+            box-shadow: 0 6px 25px rgba(139, 115, 85, 0.3);
         }
 
         .place-order-btn:disabled {
-            background: #d4c5b0;
+            background: linear-gradient(135deg, #d4c5b0, #c9baaa);
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        .place-order-btn i {
+            font-size: 1.1rem;
         }
 
         /* Security Info */
@@ -383,39 +463,47 @@
             align-items: center;
             gap: 12px;
             color: #755e45;
-            font-size: 0.9rem;
-            margin-top: 20px;
+            font-size: 0.92rem;
+            margin-top: 24px;
             padding-top: 20px;
             border-top: 1px solid #f0eae0;
+            line-height: 1.6;
         }
 
         .security-info i {
             color: #28a745;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            flex-shrink: 0;
         }
 
         /* Buttons */
         .btn-custom {
-            padding: 8px 16px;
+            padding: 9px 18px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             font-size: 0.85rem;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-primary-custom {
             background: #8B7355;
             color: white;
             border: 2px solid #8B7355;
+            box-shadow: 0 2px 8px rgba(139, 115, 85, 0.15);
         }
 
         .btn-primary-custom:hover {
             background: #755e45;
             border-color: #755e45;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+            transform: translateY(-1px);
         }
 
         .btn-outline-custom {
@@ -427,6 +515,8 @@
         .btn-outline-custom:hover {
             background: #8B7355;
             color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+            transform: translateY(-1px);
         }
 
         .btn-danger-custom {
@@ -438,21 +528,59 @@
         .btn-danger-custom:hover {
             background: #dc3545;
             color: white;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+            transform: translateY(-1px);
         }
 
         .btn-add-new {
             background: white;
             color: #8B7355;
             border: 2px solid #8B7355;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 11px 22px;
+            border-radius: 10px;
+            font-weight: 700;
             font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(139, 115, 85, 0.1);
         }
 
         .btn-add-new:hover {
             background: #8B7355;
             color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .breadcrumb {
+            background: transparent !important;
+            padding: 0 !important;
+            margin-bottom: 35px !important;
+        }
+
+        .breadcrumb-item a {
+            color: #8B7355 !important;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .breadcrumb-item a:hover {
+            color: #755e45 !important;
+        }
+
+        .breadcrumb-item.active {
+            color: #755e45 !important;
+            font-weight: 600;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: #8B7355;
+            opacity: 0.5;
         }
 
         /* Responsive Design */
@@ -468,6 +596,11 @@
         }
 
         @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 30px;
+            }
+
             .checkout-item {
                 flex-direction: column;
                 text-align: center;
@@ -483,6 +616,18 @@
 
             .btn-custom {
                 width: 100%;
+                justify-content: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .btn-add-new {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -491,392 +636,451 @@
 <body>
     <%- include('../partials/user/header.ejs') %>
 
-        <div class="checkout-wrapper">
-            <div class="container">
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb" class="mb-4">
-                    <ol class="breadcrumb" style="background: none; padding: 0;">
-                        <li class="breadcrumb-item"><a href="/" style="color: #8B7355; text-decoration: none;">Home</a>
-                        </li>
-                        <li class="breadcrumb-item"><a href="/cart"
-                                style="color: #8B7355; text-decoration: none;">Cart</a></li>
-                        <li class="breadcrumb-item active" style="color: #755e45;">Checkout</li>
-                    </ol>
-                </nav>
+    <div class="checkout-wrapper">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
+                    <li class="breadcrumb-item active">Checkout</li>
+                </ol>
+            </nav>
 
-                <h1 class="page-title">Checkout</h1>
+            <h1 class="page-title">Checkout</h1>
 
-                <div class="checkout-container">
-                    <!-- Left Column -->
-                    <div>
-                        <!-- Shipping Address Section -->
-                        <div class="checkout-section">
-                            <div class="section-header">
-                                <h3><i class="fas fa-map-marker-alt"></i> Shipping Address</h3>
-                                <a href="/addAddress?redirect=checkout" class="btn-add-new">
-                                    <i class="fas fa-plus"></i> Add New
-                                </a>
-
-
-                            </div>
-                            <div class="section-content">
-                                <% if (addresses && addresses.length> 0) { %>
-                                    <% addresses.forEach((address)=> { %>
-                                        <div class="address-card <%= address.isDefault ? 'selected' : '' %>"
-                                            onclick="selectAddress('<%= address._id %>')"
-                                            data-address-id="<%= address._id %>">
-                                            <div class="address-info">
-                                                <h4>
-                                                    <%= address.firstName %>
-                                                        <%= address.lastName %>
-                                                            <span
-                                                                style="font-size: 0.85rem; color: #8B7355; font-weight: 600;">
-                                                                (<%= address.addressType.charAt(0).toUpperCase() +
-                                                                    address.addressType.slice(1) %>)
-                                                            </span>
-                                                </h4>
-                                                <p><strong>Phone:</strong>
-                                                    <%= address.phone %>
-                                                </p>
-                                                <p>
-                                                    <%= address.address %>
-                                                </p>
-                                                <p>
-                                                    <%= address.state %>, <%= address.pinCode %>
-                                                </p>
-                                                <p>
-                                                    <%= address.country %>
-                                                </p>
-                                            </div>
-                                            <div class="address-actions">
-                                                <button class="btn-custom btn-outline-custom"
-                                                    onclick="editAddress('<%= address._id %>', event)">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <button class="btn-custom btn-danger-custom"
-                                                    onclick="deleteAddress('<%= address._id %>', event)">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <% }); %>
-                                            <% } %>
-
-                                                <!-- Add New Address Card -->
-                                                <div class="add-address-card" onclick="openAddressModal()">
-                                                    <i class="fas fa-plus-circle"></i>
-                                                    <h4>Add New Address</h4>
-                                                    <p>Add a new shipping address for delivery</p>
-                                                </div>
-                            </div>
+            <div class="checkout-container">
+                <!-- Left Column -->
+                <div>
+                    <!-- Shipping Address Section -->
+                    <div class="checkout-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-map-marker-alt"></i> Shipping Address</h3>
+                            <a href="/addAddress?redirect=checkout" class="btn-add-new">
+                                <i class="fas fa-plus"></i> Add New
+                            </a>
                         </div>
-
-                        <!-- Payment Method Section -->
-                        <div class="checkout-section">
-                            <div class="section-header">
-                                <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
-                            </div>
-                            <div class="section-content">
-                                <div class="payment-method selected" onclick="selectPayment('cod')" data-payment="cod">
-                                    <div class="payment-icon">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div class="payment-info">
-                                        <h4>Cash on Delivery</h4>
-                                        <p>Pay with cash when your order is delivered</p>
-                                    </div>
-                                </div>
-
-                                <div class="payment-method" onclick="selectPayment('online')" data-payment="online">
-                                    <div class="payment-icon">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div class="payment-info">
-                                        <h4>Online Payment</h4>
-                                        <p>Pay securely with Razorpay (UPI, Cards, Net Banking)</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Order Items Section -->
-                        <div class="checkout-section">
-                            <div class="section-header">
-                                <h3><i class="fas fa-shopping-bag"></i> Order Items (<%= itemCount %> items)</h3>
-                            </div>
-                            <div class="section-content">
-                                <% cart.products.forEach((product)=> { %>
-                                    <div class="checkout-item">
-                                        <div class="item-image">
-                                            <img 
-  src="<%= product.productId && product.productId.productImage && product.productId.productImage.length > 0 
-          ? '/uploads/images/' + product.productId.productImage[0] 
-          : '/placeholder.jpg' %>" 
-  alt="<%= product.productId ? product.productId.productName : 'No image' %>">
-
-
-
-                                        </div>
-                                        <div class="item-details">
-                                            <h4 class="item-name">
-                                                <%= product.productName %>
+                        <div class="section-content">
+                            <% if (addresses && addresses.length > 0) { %>
+                                <% addresses.forEach((address)=> { %>
+                                    <div class="address-card <%= address.isDefault ? 'selected' : '' %>"
+                                        onclick="selectAddress('<%= address._id %>')"
+                                        data-address-id="<%= address._id %>">
+                                        <div class="address-info">
+                                            <h4>
+                                                <%= address.firstName %> <%= address.lastName %>
+                                                <span style="font-size: 0.85rem; color: #8B7355; font-weight: 600;">
+                                                    (<%= address.addressType.charAt(0).toUpperCase() +
+                                                        address.addressType.slice(1) %>)
+                                                </span>
                                             </h4>
-                                            <div class="item-quantity">Quantity: <%= product.quantity %>
-                                            </div>
-                                            <div class="item-price">₹<%= (product.price * product.quantity).toFixed(2)
-                                                    %>
-                                            </div>
+                                            <p><strong>Phone:</strong> <%= address.phone %></p>
+                                            <p><%= address.address %></p>
+                                            <p><%= address.state %>, <%= address.pinCode %></p>
+                                            <p><%= address.country %></p>
+                                        </div>
+                                        <div class="address-actions">
+                                            <button class="btn-custom btn-outline-custom"
+                                                onclick="editAddress('<%= address._id %>', event)">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn-custom btn-danger-custom"
+                                                onclick="deleteAddress('<%= address._id %>', event)">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
                                         </div>
                                     </div>
-                                    <% }); %>
+                                <% }); %>
+                            <% } %>
+
+                            <!-- Add New Address Card -->
+                            <div class="add-address-card" onclick="openAddressModal()">
+                                <i class="fas fa-plus-circle"></i>
+                                <h4>Add New Address</h4>
+                                <p>Add a new shipping address for delivery</p>
                             </div>
                         </div>
+                    </div>
 
-
-                        <!-- Right Column - Order Summary -->
-                        <div class="order-summary">
-                            <h3 class="summary-title">Order Summary</h3>
-
-                            <div class="summary-row">
-                                <span class="summary-label">Subtotal (<%= itemCount %> items)</span>
-                                <span class="summary-value">₹<%= subtotal %></span>
+                    <!-- Payment Method Section -->
+                    <div class="checkout-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
+                        </div>
+                        <div class="section-content">
+                            <div class="payment-method selected" onclick="selectPayment('cod')" data-payment="cod">
+                                <div class="payment-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <h4>Cash on Delivery</h4>
+                                    <p>Pay with cash when your order is delivered</p>
+                                </div>
                             </div>
 
-                            <% if (parseFloat(discount)> 0) { %>
-                                <div class="summary-row">
-                                    <span class="summary-label">Discount</span>
-                                    <span class="summary-value discount">-₹<%= discount %></span>
+                            <div class="payment-method" onclick="selectPayment('online')" data-payment="online">
+                                <div class="payment-icon">
+                                    <i class="fas fa-credit-card"></i>
                                 </div>
-                                <% } %>
+                                <div class="payment-info">
+                                    <h4>Online Payment</h4>
+                                    <p>Pay securely with Razorpay (UPI, Cards, Net Banking)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                    <div class="summary-row">
-                                        <span class="summary-label">Shipping</span>
-                                        <span class="summary-value <%= parseFloat(shipping) === 0 ? 'free' : '' %>">
-                                            <%= parseFloat(shipping)===0 ? 'Free' : '₹' + shipping %>
-                                        </span>
+                    <!-- Order Items Section -->
+                    <div class="checkout-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-shopping-bag"></i> Order Items (<%= itemCount %> items)</h3>
+                        </div>
+                        <div class="section-content">
+                            <% cart.products.forEach((product) => { %>
+                                <div class="checkout-item">
+                                    <div class="item-image">
+                                        <img 
+                                            src="<%= product.productId && product.productId.productImage && product.productId.productImage.length > 0 
+                                                    ? '/uploads/images/' + product.productId.productImage[0] 
+                                                    : '/placeholder.jpg' %>" 
+                                            alt="<%= product.productId ? product.productId.productName : 'No image' %>">
                                     </div>
+                                    <div class="item-details">
+                                        <h4 class="item-name"><%= product.productId ? product.productId.productName : 'Unknown' %></h4>
+                                        <div class="item-quantity">Quantity: <%= product.quantity %></div>
+                                        <div class="item-price">
+  ₹<%= (
+    ((product.productId.variant && product.productId.variant.length > 0) 
+      ? (product.productId.variant[0].salePrice || product.productId.variant[0].regularPrice) 
+      : 0
+    ) * product.quantity
+  ).toFixed(2) %>
+</div>
 
-                                    <% if (parseFloat(tax)> 0) { %>
-                                        <div class="summary-row">
-                                            <span class="summary-label">Tax (GST)</span>
-                                            <span class="summary-value">₹<%= tax %></span>
-                                        </div>
-                                        <% } %>
-
-                                            <div class="summary-row total">
-                                                <span>Total Amount</span>
-                                                <span>₹<%= total %></span>
-                                            </div>
-
-                                            <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
-                                                <i class="fas fa-lock"></i> Place Order
-                                            </button>
-
-                                            <div class="security-info">
-                                                <i class="fas fa-shield-alt"></i>
-                                                <span>Your payment information is secure and encrypted</span>
-                                            </div>
+                                    </div>
+                                </div>
+                            <% }) %>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <%- include('../partials/user/footer.ejs') %>
+                <!-- Right Column - Order Summary -->
+               <!-- Right Column - Order Summary -->
+<div class="order-summary">
+    <h3 class="summary-title">Order Summary</h3>
 
-                <script>
-                    let selectedAddressId = '<%= addresses.find(addr => addr.isDefault)?._id || (addresses.length > 0 ? addresses[0]._id : "") %>';
-                    let selectedPaymentMethod = 'cod';
+    <!-- Subtotal -->
+    <div class="summary-row">
+        <span class="summary-label">Subtotal (<%= itemCount %> items)</span>
+        <span class="summary-value">₹<%= subtotal.toFixed(2) %></span>
+    </div>
 
-                    function selectAddress(addressId) {
-                        document.querySelectorAll('.address-card').forEach(card => {
-                            card.classList.remove('selected');
-                        });
+    <!-- Product Discount -->
+    <% if (discount && parseFloat(discount) > 0) { %>
+    <div class="summary-row">
+        <span class="summary-label">Discount</span>
+        <span class="summary-value discount">-₹<%= parseFloat(discount).toFixed(2) %></span>
+    </div>
+    <% } %>
 
-                        document.querySelector(`[data-address-id="${addressId}"]`).classList.add('selected');
-                        selectedAddressId = addressId;
-                    }
+    <!-- Apply/Remove Coupon Buttons -->
+    <div style="margin-bottom: 15px; margin-top: 15px;">
+        <button id="applyCouponBtn" 
+            class="place-order-btn" 
+            style="background:#f9f6f1; color:#8B7355; border:2px solid #8B7355; width:100%;" 
+            onclick="openCouponModal()">
+            <i class="fas fa-ticket-alt"></i> Apply Coupon
+        </button>
 
-                    function selectPayment(paymentMethod) {
-                        document.querySelectorAll('.payment-method').forEach(method => {
-                            method.classList.remove('selected');
-                        });
+        <button id="removeCouponBtn"
+            class="place-order-btn"
+            style="display:none; background:#dc3545; color:white; width:100%; margin-top:10px;"
+            onclick="removeCoupon()">
+            <i class="fas fa-times"></i> Remove Coupon
+        </button>
+    </div>
 
-                        document.querySelector(`[data-payment="${paymentMethod}"]`).classList.add('selected');
-                        selectedPaymentMethod = paymentMethod;
-                    }
+    <!-- Coupon Discount Row (Dynamic) -->
+    <% if (couponDiscount && couponDiscount > 0) { %>
+    <div class="summary-row" id="couponDiscountRow">
+        <span class="summary-label">Coupon Discount</span>
+        <span class="summary-value discount">-₹<%= parseFloat(couponDiscount).toFixed(2) %></span>
+    </div>
+    <% } %>
 
-                    function openAddressModal() {
-                        window.location.href = "/addAddress?redirect=checkout";
-                    }
+    <!-- Shipping -->
+    <div class="summary-row">
+        <span class="summary-label">Delivery Fee</span>
+        <span class="summary-value">
+            <% if (shipping === 0) { %>
+                <span style="color: #28a745; font-weight: 700;">FREE</span>
+            <% } else { %>
+                ₹<%= shipping.toFixed(2) %>
+            <% } %>
+        </span>
+    </div>
 
-                    async function editAddress(addressId, event) {
-                        event.stopPropagation();
-                        window.location.href = `/editAddress/${addressId}?redirect=checkout`;
-                    }
+    <!-- Total -->
+    <div class="summary-row total">
+        <span>Total Amount</span>
+        <span>₹<%= total.toFixed(2) %></span>
+    </div>
 
-                    async function deleteAddress(addressId, event) {
-                        event.stopPropagation();
+    <!-- Place Order Button -->
+    <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
+        <i class="fas fa-lock"></i> Place Order
+    </button>
 
-                        const result = await swal({
-                            title: "Delete Address?",
-                            text: "This address will be permanently deleted.",
-                            icon: "warning",
-                            buttons: {
-                                cancel: "Cancel",
-                                confirm: {
-                                    text: "Delete",
-                                    value: true,
-                                }
-                            },
-                            dangerMode: true,
-                        });
+    <!-- Security Info -->
+    <div class="security-info">
+        <i class="fas fa-shield-alt"></i>
+        <span>Your payment information is secure and encrypted</span>
+    </div>
+</div>
 
-                        if (result) {
-                            try {
-                                const response = await fetch(`/deleteAddress/${addressId}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    }
-                                });
+    <%- include('../partials/user/footer.ejs') %>
 
-                                const data = await response.json();
+    <script>
+        let selectedAddressId = '<%= addresses.find(addr => addr.isDefault)?._id || (addresses.length > 0 ? addresses[0]._id : "") %>';
+        let selectedPaymentMethod = 'cod';
 
-                                if (data.success) {
-                                    swal("Deleted!", "Address has been deleted successfully.", "success")
-                                        .then(() => {
-                                            location.reload();
-                                        });
-                                } else {
-                                    swal("Error!", data.message, "error");
-                                }
-                            } catch (error) {
-                                console.error('Error:', error);
-                                swal("Error!", "Failed to delete address. Please try again.", "error");
-                            }
-                        }
-                    }
+        function selectAddress(addressId) {
+            document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+            document.querySelector(`[data-address-id="${addressId}"]`).classList.add('selected');
+            selectedAddressId = addressId;
+        }
 
-                    async function placeOrder() {
-                        if (!selectedAddressId) {
-                            swal("Error!", "Please select a shipping address", "error");
-                            return;
-                        }
+        function selectPayment(paymentMethod) {
+            document.querySelectorAll('.payment-method').forEach(method => method.classList.remove('selected'));
+            document.querySelector(`[data-payment="${paymentMethod}"]`).classList.add('selected');
+            selectedPaymentMethod = paymentMethod;
+        }
 
-                        if (!selectedPaymentMethod) {
-                            swal("Error!", "Please select a payment method", "error");
-                            return;
-                        }
+        function openAddressModal() { window.location.href = "/addAddress?redirect=checkout"; }
 
-                        const btn = document.getElementById('placeOrderBtn');
-                        const originalHTML = btn.innerHTML;
-                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                        btn.disabled = true;
+        async function editAddress(addressId, event) { event.stopPropagation(); window.location.href = `/editAddress/${addressId}?redirect=checkout`; }
 
-                        try {
-                            const response = await fetch('/placeOrder', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    addressId: selectedAddressId,
-                                    paymentMethod: selectedPaymentMethod
-                                })
-                            });
+        async function deleteAddress(addressId, event) {
+            event.stopPropagation();
+            const result = await swal({ title: "Delete Address?", text: "This address will be permanently deleted.", icon: "warning", buttons: { cancel: "Cancel", confirm: { text: "Delete", value: true } }, dangerMode: true });
+            if (result) {
+                try {
+                    const response = await fetch(`/deleteAddress/${addressId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                    const data = await response.json();
+                    if (data.success) swal("Deleted!", "Address deleted successfully.", "success").then(() => location.reload());
+                    else swal("Error!", data.message, "error");
+                } catch (error) { swal("Error!", "Failed to delete address.", "error"); }
+            }
+        }
 
-                            const data = await response.json();
+        async function placeOrder() {
+            if (!selectedAddressId) { swal("Error!", "Please select a shipping address", "error"); return; }
+            if (!selectedPaymentMethod) { swal("Error!", "Please select a payment method", "error"); return; }
 
-                            if (data.success) {
-                                if (selectedPaymentMethod === 'cod') {
-                                    swal("Order Placed!", `Your order has been placed successfully!\nOrder ID: ${data.orderId}`, "success")
-                                        .then(() => {
-                                            window.location.href = `/ordersuccess?orderId=${data.orderId}`;
-                                        });
-                                } else if (selectedPaymentMethod === 'online') {
-                                    const options = {
-                                        key: data.key,
-                                        amount: data.amount * 100,
-                                        currency: data.currency,
-                                        name: "MilliMillet",
-                                        description: "Order Payment",
-                                        order_id: data.razorpayOrderId,
-                                        handler: async function (response) {
-                                            try {
-                                                const verifyResponse = await fetch('/checkout/verify-payment', {
-                                                    method: 'POST',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                    },
-                                                    body: JSON.stringify({
-                                                        razorpay_order_id: response.razorpay_order_id,
-                                                        razorpay_payment_id: response.razorpay_payment_id,
-                                                        razorpay_signature: response.razorpay_signature,
-                                                        orderId: data.orderId
-                                                    })
-                                                });
+            const btn = document.getElementById('placeOrderBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'; btn.disabled = true;
 
-                                                const verifyData = await verifyResponse.json();
+            try {
+                const response = await fetch('/placeOrder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ addressId: selectedAddressId, paymentMethod: selectedPaymentMethod }) });
+                const data = await response.json();
 
-                                                if (verifyData.success) {
-                                                    swal("Payment Successful!", "Your order has been placed successfully.", "success")
-                                                        .then(() => {
-                                                            window.location.href = `/ordersuccess?orderId=${verifyData.orderId}`;
-                                                        });
-                                                } else {
-                                                    swal("Payment Verification Failed!", verifyData.message, "error")
-                                                        .then(() => {
-                                                            window.location.href = `/orderfailure?orderId=${data.orderId}`;
-                                                        });
-                                                }
-                                            } catch (error) {
-                                                swal("Error!", "Payment verification failed. Please contact support.", "error")
-                                                    .then(() => {
-                                                        window.location.href = `/orderfailure?orderId=${data.orderId}`;
-                                                    });
-                                            }
-                                        },
-                                        prefill: {
-                                            name: data.customerDetails.name,
-                                            email: data.customerDetails.email,
-                                            contact: data.customerDetails.contact
-                                        },
-                                        theme: {
-                                            color: "#8B7355"
-                                        },
-                                        modal: {
-                                            ondismiss: function () {
-                                                swal("Payment Cancelled!", "Order was placed but payment is pending.", "warning")
-                                                    .then(() => {
-                                                        window.location.href = `/orderfailure?orderId=${data.orderId}`;
-                                                    });
-                                            }
-                                        }
-                                    };
+                if (data.success) {
+                    if (selectedPaymentMethod === 'cod') window.location.href = `/ordersuccess?orderId=${data.orderId}`;
+                    else if (selectedPaymentMethod === 'online') openRazorpay(data);
+                } else { swal("Error!", data.message, "error"); btn.innerHTML = originalHTML; btn.disabled = false; }
+            } catch (error) { swal("Error!", "Failed to place order.", "error"); btn.innerHTML = originalHTML; btn.disabled = false; }
+        }
 
-                                    const rzp = new Razorpay(options);
+        function openCouponModal() {
+    swal({ 
+        title: "Apply Coupon", 
+        content: { 
+            element: "input", 
+            attributes: { 
+                placeholder: "Enter coupon code", 
+                type: "text" 
+            } 
+        }, 
+        buttons: { 
+            cancel: "Cancel", 
+            confirm: { text: "Apply", value: "apply" } 
+        } 
+    })
+    .then(value => { 
+        if (value) applyCoupon(value); 
+    });
+}
 
-                                    rzp.on('payment.failed', function (response) {
-                                        swal("Payment Failed!", response.error.description, "error")
-                                            .then(() => {
-                                                window.location.href = `/orderfailure?orderId=${data.orderId}`;
-                                            });
-                                    });
+async function applyCoupon(couponCode) {
+    console.log("🔵 applyCoupon called with code:", couponCode);
+    
+    if (!couponCode || couponCode.trim() === "") {
+        swal("Error!", "Please enter a coupon code", "error");
+        return;
+    }
 
-                                    rzp.open();
-                                }
-                            } else {
-                                swal("Error!", data.message, "error");
-                                btn.innerHTML = originalHTML;
-                                btn.disabled = false;
-                            }
-                        } catch (error) {
-                            console.error('Error:', error);
-                            swal("Error!", "Failed to place order. Please try again.", "error");
-                            btn.innerHTML = originalHTML;
-                            btn.disabled = false;
-                        }
-                    }
-                </script>
+    try {
+        console.log("Sending request to /applyCoupon");
+        
+        const response = await fetch('/applyCoupon', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            credentials: "include", // IMPORTANT: Include cookies for session
+            body: JSON.stringify({ couponCode: couponCode.trim() })
+        });
+
+        console.log(" Response status:", response.status);
+        
+        if (!response.ok) {
+            console.error(" HTTP Error:", response.status);
+            swal("Error!", "Server error occurred", "error");
+            return;
+        }
+
+        const data = await response.json();
+        console.log(" Response data:", data);
+
+        if (!data.success) {
+            swal("Invalid!", data.message || "Coupon is invalid!", "error");
+            return;
+        }
+
+        // Success popup
+        swal("Success!", data.message || "Coupon applied successfully!", "success");
+
+        // Update totals in UI
+        if (data.newTotal) {
+            const totalElement = document.querySelector(".summary-row.total span:last-child");
+            if (totalElement) {
+                totalElement.innerText = `Rs${data.newTotal.toFixed(2)}`;
+            }
+        }
+
+        // Display or update discount row
+      
+let discountRow = document.getElementById("couponDiscountRow");
+if (!discountRow) {
+    console.log("Creating new coupon discount row");
+    discountRow = document.createElement("div");
+    discountRow.id = "couponDiscountRow";
+    discountRow.classList.add("summary-row");
+    discountRow.innerHTML = `
+        <span class="summary-label">Coupon Discount</span>
+        <span class="summary-value discount">-Rs ${parseFloat(data.discount).toFixed(2)}</span>
+    `;
+    
+    const totalRow = document.querySelector(".summary-row.total");
+    if (totalRow && totalRow.parentNode) {
+        totalRow.parentNode.insertBefore(discountRow, totalRow);
+        console.log(" Discount row created and inserted");
+    } else {
+        console.error(" Could not find total row to insert before");
+    }
+} else {
+    console.log("Updating existing discount row");
+    const discountValue = discountRow.querySelector(".summary-value.discount");
+    if (discountValue) {
+        discountValue.innerText = `-Rs ${parseFloat(data.discount).toFixed(2)}`;
+    }
+    discountRow.style.display = "block";
+}
+
+        // Update Apply button
+        const applyBtn = document.querySelector('#applyCouponBtn');
+        if (applyBtn) {
+            applyBtn.innerHTML = '<i class="fas fa-check"></i> Coupon Applied ✔';
+            applyBtn.disabled = true;
+            applyBtn.style.background = "#C3E6CB";
+            applyBtn.style.border = "2px solid #28a745";
+            applyBtn.style.color = "#155724";
+        }
+
+        // Show Remove button
+        const removeBtn = document.getElementById("removeCouponBtn");
+        if (removeBtn) {
+            removeBtn.style.display = "block";
+        }
+
+    } catch (err) {
+        console.error(" Error:", err);
+        swal("Error!", "Something went wrong. Please try again.", "error");
+    }
+}
+
+async function removeCoupon() {
+    console.log("🔵 removeCoupon called");
+    
+    try {
+        console.log(" Sending request to /removeCoupon");
+        
+        const response = await fetch('/removeCoupon', {
+            method: 'POST',
+            headers: { 
+                "Content-Type": "application/json" 
+            },
+            credentials: "include" // IMPORTANT: Include cookies for session
+        });
+
+        console.log(" Response status:", response.status);
+        
+        if (!response.ok) {
+            console.error("HTTP Error:", response.status);
+            swal("Error!", "Server error occurred", "error");
+            return;
+        }
+
+        const data = await response.json();
+        console.log(" Response data:", data);
+
+        if (!data.success) {
+            swal("Error!", data.message, "error");
+            return;
+        }
+
+        swal("Removed!", data.message || "Coupon removed successfully", "success");
+
+        // Get the original total from the page or recalculate
+        const subtotalText = document.querySelector(".summary-row span:first-child")?.nextElementSibling?.innerText;
+        let originalTotal = subtotalText ? parseFloat(subtotalText.replace('Rs', '')) : 0;
+
+        // Update total amount
+        const totalElement = document.querySelector(".summary-row.total span:last-child");
+        if (totalElement && data.newTotal !== undefined) {
+            totalElement.innerText = `Rs${data.newTotal.toFixed(2)}`;
+        }
+
+        // Hide discount row
+        const discountRow = document.querySelector("#discountRow");
+        if (discountRow) {
+            discountRow.style.display = "none";
+        }
+
+        // Reset Apply button
+        const applyBtn = document.querySelector('#applyCouponBtn');
+        if (applyBtn) {
+            applyBtn.innerHTML = '<i class="fas fa-ticket-alt"></i> Apply Coupon';
+            applyBtn.disabled = false;
+            applyBtn.style.background = "#f9f6f1";
+            applyBtn.style.color = "#8B7355";
+            applyBtn.style.border = "2px solid #8B7355";
+        }
+
+        // Hide Remove button
+        const removeBtn = document.getElementById("removeCouponBtn");
+        if (removeBtn) {
+            removeBtn.style.display = "none";
+        }
+
+    } catch (err) {
+        console.error(" Error:", err);
+        swal("Error!", "Something went wrong. Please try again.", "error");
+    }
+}
+
+    </script>
+
 </body>
-
 </html>

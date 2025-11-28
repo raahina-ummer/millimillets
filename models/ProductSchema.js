@@ -38,6 +38,35 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
+    productOffer: {
+      discountPercentage: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+      },
+      maxDiscountAmount: {
+        type: Number,
+        default: null
+      },
+      offerDescription: {
+        type: String,
+        default: null
+      },
+      offerActive: {
+        type: Boolean,
+        default: false
+      },
+      offerStartDate: {
+        type: Date,
+        default: null
+      },
+      offerEndDate: {
+        type: Date,
+        default: null
+      }
+    },
+    
     variant: [
       {
         unitType: {
@@ -59,6 +88,7 @@ const productSchema = new Schema(
       },
     ],
   },
+  
   { timestamps: true }
 );
 

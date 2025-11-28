@@ -1,4 +1,7 @@
 import Product from "../../models/ProductSchema.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const getStockManagement = async (req, res) => {
   try {
@@ -126,7 +129,7 @@ const getStockManagement = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -135,33 +138,21 @@ const updateStockQuantity = async (req, res) => {
     const { productId, quantity, variantIndex = 0 } = req.body;
 
     if (!productId || !quantity) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid request - productId and quantity are required"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "Invalid request - productId and quantity are required"});
     }
 
     if (quantity <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Please enter a valid quantity"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false, message: "Please enter a valid quantity"});
     }
 
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Product not found" 
-      });
+      return res.status(Status.NOT_FOUND).json({success: false, message: "Product not found"});
     }
 
     if (!product.variant || product.variant.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Product has no variants"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false, message: "Product has no variants"});
     }
 
     // If variantIndex is provided, update that specific variant
@@ -169,10 +160,7 @@ const updateStockQuantity = async (req, res) => {
     const index = parseInt(variantIndex) || 0;
 
     if (index >= product.variant.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid variant index"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "Invalid variant index"});
     }
 
     // Add quantity to the variant's stock
@@ -188,7 +176,7 @@ const updateStockQuantity = async (req, res) => {
 
     await product.save();
 
-    return res.status(200).json({
+    return res.status(Status.OK).json({
       success: true,
       message: "Product stock updated successfully",
       newStock: product.variant[index].stock,
@@ -196,10 +184,7 @@ const updateStockQuantity = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating stock:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: error.message 
-    });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false,  message: error.message});
   }
 };
 

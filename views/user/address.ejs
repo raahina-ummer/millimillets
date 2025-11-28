@@ -258,6 +258,7 @@
             }
         }
     </style>
+     <%- include("../partials/user/header.ejs") %>
 </head>
 <body>
     <div class="main-container">
@@ -272,7 +273,7 @@
             </a>
         </div>
 
-  <!-- Address Cards -->
+<!-- Address Cards -->
 <div class="address-grid">
     <% if (addresses && addresses.length > 0) { %>
         <% addresses.forEach(address => { %>
@@ -309,8 +310,10 @@
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
+
             </div>
         <% }) %>
+
     <% } else { %>
         <!-- Empty State -->
         <div class="empty-state">
@@ -323,6 +326,37 @@
         </div>
     <% } %>
 </div>
+
+<!-- ⭐ Pagination should be here, OUTSIDE the loop -->
+<!-- Pagination -->
+<% if (totalPages >= 1) { %>
+<div class="pagination" style="margin-top: 20px; text-align: center;">
+
+    <% if (currentPage > 1) { %>
+        <a href="/address?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="btn btn-primary">
+            Previous
+        </a>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a 
+            href="/address?page=<%= i %>&limit=<%= limit %>"
+            class="btn <%= i === currentPage ? 'btn-dark' : 'btn-light' %>"
+            style="margin: 0 5px;"
+        >
+            <%= i %>
+        </a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="/address?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="btn btn-primary">
+            Next
+        </a>
+    <% } %>
+
+</div>
+<% } %>
+
 
     <script>
 

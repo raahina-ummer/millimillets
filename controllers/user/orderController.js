@@ -7,6 +7,9 @@ import Order from "../../models/OrderSchema.js";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import dotenv from "dotenv";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const loadOrderDetails = async (req, res) => {
   try {
@@ -24,7 +27,7 @@ const loadOrderDetails = async (req, res) => {
     res.render("orderdetails", { order, user });
   } catch (error) {
     console.error(error);
-    return res.json({ message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -67,7 +70,7 @@ const loadOrder = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.json({ message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -85,20 +88,14 @@ const cancelEntireOrder = async (req, res) => {
 
     if (!order) {
       console.log("Order not found");
-      return res.status(404).json({ 
-        success: false, 
-        message: "Order not found" 
-      });
+      return res.status(Status.NOT_FOUND).json({ success: false, message: "Order not found" });
     }
 
     console.log("Current order status:", order.status);
 
     // Check if order can be cancelled
     if (["Shipped", "Delivered", "Canceled", "Return Request", "Returned"].includes(order.status)) {
-      return res.status(400).json({
-        success: false,
-        message: `Order cannot be cancelled. Current status: ${order.status}`,
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: `Order cannot be cancelled. Current status: ${order.status}`,});
     }
 
     // Restore product stock for each item
@@ -136,16 +133,10 @@ const cancelEntireOrder = async (req, res) => {
 
     console.log("Order cancelled successfully");
 
-    return res.json({ 
-      success: true, 
-      message: "Order cancelled successfully. Stock has been restored." 
-    });
+    return res.status(Status.OK).json({success: true,  message: "Order cancelled successfully. Stock has been restored."});
   } catch (error) {
     console.error("Error cancelling order:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "An error occurred while cancelling the order. Please try again." 
-    });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success: false, message: "An error occurred while cancelling the order. Please try again."});
   }
 };
 
@@ -160,10 +151,7 @@ const cancelOrderItem = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Order not found" 
-      });
+      return res.status(Status.NOT_FOUND).json({ success: false, message: "Order not found" });
     }
 
     const item = order.orderedProducts.find(
@@ -171,17 +159,11 @@ const cancelOrderItem = async (req, res) => {
     );
 
     if (!item) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Product not found in order" 
-      });
+      return res.status(Status.NOT_FOUND).json({ success: false, message: "Product not found in order" });
     }
 
     if (["Shipped", "Delivered", "Canceled"].includes(order.status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Cannot cancel item after shipping or delivery" 
-      });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Cannot cancel item after shipping or delivery" });
     }
 
     // Restore stock for this item
@@ -205,16 +187,10 @@ const cancelOrderItem = async (req, res) => {
     
     await order.save();
 
-    res.json({ 
-      success: true, 
-      message: "Item cancelled successfully and stock restored" 
-    });
+    res.status(Status.OK).json({ success: true, message: "Item cancelled successfully and stock restored"  });
   } catch (error) {
     console.error("Error cancelling item:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "An error occurred. Please try again." 
-    });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,  message: "An error occurred. Please try again."});
   }
 };
 
@@ -231,24 +207,15 @@ const returnOrderItem = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Order not found" 
-      });
+      return res.status(Status.NOT_FOUND).json({ success: false,  message: "Order not found" });
     }
 
     if (order.status !== "Delivered") {
-      return res.status(400).json({
-        success: false,
-        message: "Return is only allowed for delivered orders",
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "Return is only allowed for delivered orders"});
     }
 
     if (!reason || reason.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Return reason is required",
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "Return reason is required"});
     }
 
     // Update order status to Return Request
@@ -256,16 +223,10 @@ const returnOrderItem = async (req, res) => {
     order.returnReason = reason;
     await order.save();
 
-    res.json({ 
-      success: true, 
-      message: "Return request submitted successfully. We'll process it soon." 
-    });
+    res.status(Status.OK).json({  success: true, message: "Return request submitted successfully. We'll process it soon."});
   } catch (error) {
     console.error("Error submitting return:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "An error occurred. Please try again." 
-    });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred. Please try again." });
   }
 };
 
@@ -279,11 +240,11 @@ const downloadInvoice = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(Status.NOT_FOUND).json({succes:false,message:"Order not found"});
     }
 
     if (order.status !== "Delivered") {
-      return res.status(400).send("Invoice is only available for delivered orders");
+      return res.status(Status.BAD_REQUEST).json({succes:false,message:"Invoice is only available for delivered orders"});
     }
 
     const user = await User.findById(userId);
@@ -388,7 +349,7 @@ const downloadInvoice = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error("Invoice error:", error);
-    res.status(500).send("Error generating invoice");
+    res.status(Status.INTERNAL_SERVER_ERROR).send("Error generating invoice");
   }
 };
 

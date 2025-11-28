@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -15,207 +13,274 @@
       :root {
         --primary-color: #8b6f47;
         --secondary-color: #4a4a4a;
-        --background-color: #D0C19A; /* Updated to match Figma */
-        --body-background: #D0C19A; /* Background color throughout */
+        --background-color: #D0C19A;
+        --body-background: #D0C19A;
         --text-color-dark: #333;
         --text-color-light: #666;
-        --button-color: #8b6f47; /* Brown button */
+        --button-color: #8b6f47;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
 
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: var(--body-background);
         color: var(--text-color-dark);
-        margin: 0;
-        padding: 0;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
       
-      /* --- Header and Branding --- */
+      /* Header and Branding */
       .header-section {
-        padding-top: 30px;
-        padding-bottom: 15px;
+        padding: 50px 0 30px 0;
         background-color: var(--background-color);
       }
 
       .brand-name {
         color: var(--primary-color);
-        font-size: 32px;
+        font-size: 42px;
         font-weight: 700;
-        letter-spacing: 4px;
+        letter-spacing: 8px;
         text-transform: uppercase;
+        margin-bottom: 8px;
       }
 
-      /* --- Form Section Styling --- */
+      .brand-tagline {
+        color: var(--text-color-light);
+        font-size: 14px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      /* Main Container */
+      .signup-container {
+        max-width: 650px;
+        margin: 0 auto;
+        padding: 0 20px;
+        flex: 1;
+      }
+
+      /* Form Section Styling */
       .form-section {
-        background: var(--background-color);
-        padding: 50px 40px;
-        border-radius: 0;
-        box-shadow: none;
+        background: white;
+        padding: 55px 50px;
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        margin: 40px 0 50px 0;
       }
       
       .form-section h2 {
-        font-size: 24px;
-        font-weight: 600;
+        font-size: 28px;
+        font-weight: 700;
         color: var(--secondary-color);
-        letter-spacing: 2px;
-        margin-bottom: 30px;
+        letter-spacing: 3px;
+        margin-bottom: 12px;
         text-transform: uppercase;
+      }
+
+      .form-subtitle {
+        color: var(--text-color-light);
+        font-size: 15px;
+        margin-bottom: 40px;
+        font-weight: 400;
       }
 
       .form-label {
         color: var(--text-color-dark);
         font-weight: 600;
-        font-size: 12px;
+        font-size: 13px;
         text-transform: uppercase;
         margin-bottom: 8px;
         letter-spacing: 0.5px;
+        display: block;
       }
 
       .form-control {
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        padding: 12px 15px;
-        height: 45px;
-        font-size: 14px;
-        background-color: white;
+        border-radius: 6px;
+        border: 1.5px solid #ddd;
+        padding: 14px 18px;
+        height: 50px;
+        font-size: 15px;
+        background-color: #fafafa;
+        transition: all 0.3s ease;
       }
       
       .form-control:focus {
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(139, 111, 71, 0.15);
+        box-shadow: 0 0 0 0.25rem rgba(139, 111, 71, 0.1);
+        background-color: white;
+        outline: none;
       }
 
-      /* --- Form Buttons and Links --- */
+      .form-control::placeholder {
+        color: #aaa;
+        font-size: 14px;
+      }
+
+      /* Form Buttons and Links */
       .submit-btn {
-        border-radius: 5px;
+        border-radius: 6px;
         background: var(--button-color);
         color: #fff;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
-        padding: 12px 15px;
-        transition: background 0.3s;
+        padding: 15px 20px;
+        transition: all 0.3s ease;
         border: none;
         font-size: 14px;
+        width: 100%;
+        margin-top: 15px;
       }
 
       .submit-btn:hover {
         background: #6d563a;
-        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 111, 71, 0.3);
       }
 
       .form-section a {
         color: var(--primary-color);
         font-weight: 600;
         text-decoration: none;
+        transition: color 0.3s ease;
       }
 
       .form-section a:hover {
+        color: #6d563a;
         text-decoration: underline;
       }
 
       .google-btn {
-        border-radius: 5px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 12px;
         font-weight: 600;
         background: #fff;
-        border: 1px solid #ddd;
-        padding: 12px 15px;
-        transition: box-shadow 0.3s;
+        border: 1.5px solid #ddd;
+        padding: 14px 20px;
+        transition: all 0.3s ease;
         color: var(--text-color-dark);
         text-decoration: none;
+        width: 100%;
+        font-size: 14px;
       }
 
       .google-btn:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #ccc;
+        transform: translateY(-1px);
       }
       
-      /* Eye icon for password visibility */
+      /* Password Toggle */
       .password-container {
-          position: relative;
+        position: relative;
       }
+
       .password-toggle {
-          position: absolute;
-          right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          color: #666;
-          font-size: 18px;
-          z-index: 10;
-          margin-top: 12px;
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #999;
+        font-size: 18px;
+        z-index: 10;
+        margin-top: 12px;
+        transition: color 0.3s ease;
+      }
+
+      .password-toggle:hover {
+        color: var(--primary-color);
       }
       
       .password-container .form-control {
-          padding-right: 45px; 
+        padding-right: 50px; 
       }
 
-      /* --- Promo Section Styling --- */
-      .promo-section {
-        height: 100%;
+      /* Error Messages */
+      .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        display: none;
+        margin-top: 6px;
+        font-weight: 500;
+      }
+      
+      .error-message.show {
+        display: block;
+      }
+
+      /* Divider */
+      .divider {
         display: flex;
         align-items: center;
-        justify-content: center;
-        padding: 0;
-        position: relative;
-      }
-
-      .promo-section img {
-        width: 100%;
-        height: 65%;
-        min-height: 400px;
-        object-fit: cover;
-        border-radius: 0;
-        box-shadow: none;
-      }
-      
-      .referral-badge-container {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 85%;
-        max-width: 400px;
-        z-index: 10;
-      }
-
-      .referral-badge {
-        background: white;
-        padding: 20px 25px;
-        border-radius: 30px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        border: none;
-      }
-      
-      .referral-badge p {
-        margin-bottom: 8px;
-        font-size: 13px;
-        color: var(--text-color-light);
-        position: relative;
-        background: transparent;
-        padding: 0;
-        border-radius: 0;
-        box-shadow: none;
+        margin: 28px 0;
       }
 
-      .referral-code {
+      .divider::before,
+      .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .divider span {
+        padding: 0 15px;
+        color: var(--text-color-light);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+      }
+
+      /* Referral Badge */
+      .referral-info-box {
+        background: linear-gradient(135deg, #f8f4ee 0%, #fff 100%);
+        border: 2px dashed var(--primary-color);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        margin: 30px 0;
+      }
+
+      .referral-info-box .icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .referral-info-box h4 {
         color: var(--primary-color);
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: 1.5px;
-        font-size: 15px;
         text-transform: uppercase;
+        margin-bottom: 8px;
       }
 
-      /* --- Footer Section Styling --- */
+      .referral-info-box p {
+        color: var(--text-color-light);
+        font-size: 13px;
+        margin: 0;
+        line-height: 1.6;
+      }
+
+      /* Footer Section Styling */
       .footer-section {
         background-color: #f8f8f8;
         color: var(--text-color-light);
-        padding: 50px 0 30px 0;
-        margin-top: 0;
+        padding: 60px 0 30px 0;
+        margin-top: auto;
       }
 
       .footer-section h4 {
@@ -233,6 +298,7 @@
         font-size: 14px;
         line-height: 2;
         display: block;
+        transition: color 0.3s ease;
       }
 
       .footer-section a:hover {
@@ -240,14 +306,20 @@
       }
       
       .footer-about p {
-          font-size: 13px;
-          line-height: 1.7;
-          color: var(--text-color-light);
+        font-size: 14px;
+        line-height: 1.8;
+        color: var(--text-color-light);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
       }
 
       .social-links a {
-        width: 35px;
-        height: 35px;
+        width: 38px;
+        height: 38px;
         background: var(--text-color-dark);
         border-radius: 50%;
         display: flex;
@@ -255,1090 +327,369 @@
         justify-content: center;
         color: white;
         font-size: 14px;
-        transition: background 0.3s;
+        transition: all 0.3s ease;
       }
+
       .social-links a:hover {
-          background: var(--primary-color);
+        background: var(--primary-color);
+        transform: translateY(-2px);
       }
       
       .copyright {
-          font-size: 13px;
-          margin-top: 20px;
-          color: var(--text-color-light);
+        font-size: 13px;
+        margin-top: 20px;
+        color: var(--text-color-light);
       }
 
-      .payment-icons img {
-          height: 25px;
-          margin-left: 8px;
-      }
-
-      .error-message {
-        color: #dc3545;
-        font-size: 0.8rem;
-        display: none;
-        margin-top: 5px;
-      }
-      
-      .error-message.show {
-        display: block;
-      }
-
-      /* Text styling adjustments */
       .text-muted {
         color: var(--text-color-light) !important;
         font-size: 14px;
       }
 
-      /* Main container adjustments */
-      .main-wrapper {
-        background-color: var(--background-color);
-        box-shadow: none;
+      .alert {
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 14px;
       }
 
-      /* Row adjustments */
-      .row.g-0 {
-        min-height: 650px;
+      /* Input group for referral code */
+      .input-group-text {
+        background-color: #f5f5f5;
+        border: 1.5px solid #ddd;
+        border-right: none;
+        color: var(--text-color-light);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .input-group .form-control {
+        border-left: none;
+      }
+
+      .input-group:focus-within .input-group-text {
+        border-color: var(--primary-color);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .form-section {
+          padding: 40px 30px;
+          margin: 30px 0 40px 0;
+        }
+
+        .brand-name {
+          font-size: 32px;
+          letter-spacing: 5px;
+        }
+
+        .brand-tagline {
+          font-size: 12px;
+        }
+
+        .header-section {
+          padding: 40px 0 25px 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-section {
+          padding: 30px 20px;
+        }
+
+        .brand-name {
+          font-size: 28px;
+          letter-spacing: 4px;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container my-5">
+    <div class="signup-container">
       <div class="text-center header-section">
-        <img
-          src="/milli millets img/logo.jpg"
-          alt="Millimillet Logo"
-          width="50"
-          class="mb-2"
-        />
         <div class="brand-name">MILLIMILLET</div>
+        <div class="brand-tagline">Natural. Nutritious. Delicious.</div>
       </div>
 
-      <div class="row g-0 justify-content-center">
-        <div class="col-lg-5 col-md-6">
-          <div class="form-section shadow-lg">
-            <h2 class="text-center">CREATE ACCOUNT</h2>
+      <div class="form-section">
+        <h2 class="text-center">CREATE ACCOUNT</h2>
+        <p class="text-center form-subtitle">Join us for a healthier lifestyle</p>
 
-            <form id="signForm" action="/signup" method="POST" onsubmit="return submitForm()">
-            
-              <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="name"
-                  name="name"
-                  placeholder = "Enter Name"
-                  onblur="validateName()"
-                  required
-                />
-                <span id="nameError" class="error-message"></span>
-              </div>
-              
-
-              <div class="mb-3">
-                <label for="email" class="form-label">E-mail</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  name="email"
-                  placeholder="Enter email"
-                  onblur="validateEmail()"
-                  required/>
-                  <span id="emailError" class="error-message"></span>
-              </div>
-
-              
-              <div class="mb-3">
-                <label for="phone" class="form-label">Mobile Number</label>
-                <input
-                  type="tel"
-                  class="form-control"
-                  id="phone"
-                  name="phone"
-                  placeholder="Enter your phone number"
-                  onblur="validatePhone()" 
-                  required>
-                  <span id="phoneError" class="error-message"></span>
-                </input>
-              </div>
-
-              <div class="mb-3 password-container">
-                <label for="password" class="form-label">Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password"
-                  name="password"
-                  placeholder="Password"
-                  onblur="validatePassword()"
-                  required
-                />
-                <span class="password-toggle" onclick ="togglePasswordVisibility('password')">👁️</span>
-                <span id="passwordError" class="error-message"></span>
-              </div>
-
-              <div class="mb-4 password-container">
-                <label for="cPassword" class="form-label"
-                  >Confirm Password</label
-                >
-                <input
-                  type="password"
-                  class="form-control"
-                  id="cPassword"
-                  name="cPassword"
-                  placeholder="Confirm Password"
-                  onblur="validateConfirmPassword()"
-                  required
-                />
-                <span class="password-toggle" onclick="togglePasswordVisibility('cPassword')">👁️</span>
-                <span id="cPasswordError" class="error-message"></span>
-              </div>
-
-                 <%if(locals.message && message.length>0){%>
-                  <div class = "alert alert-danger text-center">
-                    <%=message%>
-                  </div>
-                <%}%>
-
-              <div class="d-grid">
-                <button type="submit" class="btn submit-btn">
-                  Sign Up
-                </button>
-              </div>
-            </form>
-
-            <div class="text-center my-3">
-              Already have an account? <a href="/login">Log in</a>
-            </div>
-
-            <div class="text-center my-3 text-muted">Or Register with</div>
-
-            <div class="d-grid">
-              <button
-                class="btn google-btn"
-                onclick="window.location.href='/auth/google'"
-              >
-                <svg width="18" height="18" viewBox="0 0 18 18">
-                  <path
-                    fill="#4285F4"
-                    d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
-                  />
-                </svg>
-                Google
-              </button>
-            </div>
+        <form id="signForm" action="/signup" method="POST" onsubmit="return submitForm()">
+        
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="Enter your full name"
+              onblur="validateName()"
+              required
+            />
+            <span id="nameError" class="error-message"></span>
           </div>
+          
+          <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              onblur="validateEmail()"
+              required
+            />
+            <span id="emailError" class="error-message"></span>
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Mobile Number</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone"
+              name="phone"
+              placeholder="10-digit mobile number"
+              onblur="validatePhone()" 
+              required
+            />
+            <span id="phoneError" class="error-message"></span>
+          </div>
+
+          <div class="mb-3 password-container">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Minimum 8 characters"
+              onblur="validatePassword()"
+              required
+            />
+            <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
+            <span id="passwordError" class="error-message"></span>
+          </div>
+
+          <div class="mb-3 password-container">
+            <label for="cPassword" class="form-label">Confirm Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="cPassword"
+              name="cPassword"
+              placeholder="Re-enter your password"
+              onblur="validateConfirmPassword()"
+              required
+            />
+            <span class="password-toggle" onclick="togglePasswordVisibility('cPassword')">👁️</span>
+            <span id="cPasswordError" class="error-message"></span>
+          </div>
+
+          <div class="mb-4">
+            <label for="referralCode" class="form-label">Referral Code (Optional)</label>
+            <div class="input-group">
+              <span class="input-group-text">🎁</span>
+              <input
+                type="text"
+                class="form-control"
+                id="referralCode"
+                name="referralCode"
+                placeholder="Enter referral code"
+                style="text-transform: uppercase;"
+              />
+            </div>
+            <small class="text-muted" style="font-size: 12px;">Have a referral code? Enter it to claim your reward!</small>
+            <small id="referralMsg" class="mt-1 d-block" style="font-size: 12px;"></small>
+
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn submit-btn">
+              Create Account
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center mt-4">
+          <span class="text-muted">Already have an account?</span> <a href="/login">Log in</a>
         </div>
 
-        <div class="col-lg-5 col-md-6 position-relative d-flex align-items-center justify-content-center">
-          <div class="promo-section">
-            <img
-              src="/milli millets img/2.png"
-              alt="Millimillet Products"
-              class="img-fluid"
-            />
-          </div>
-          <div class="referral-badge-container">
-              <div class="referral-badge">
-                  <p class="mb-1 text-muted">Anyone has referred You? Claim the reward</p>
-                  <div class="referral-code">REFERRAL CODE</div>
-              </div>
-          </div>
+        <div class="divider">
+          <span>Or continue with</span>
+        </div>
+
+        <div class="d-grid">
+          <button
+            class="btn google-btn"
+            onclick="window.location.href='/auth/google'"
+          >
+            <svg width="20" height="20" viewBox="0 0 18 18">
+              <path
+                fill="#4285F4"
+                d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+              />
+              <path
+                fill="#34A853"
+                d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
+              />
+              <path
+                fill="#EA4335"
+                d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
+              />
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <div class="referral-info-box">
+          <div class="icon">🎁</div>
+          <h4>Get Rewards</h4>
+          <p>Have a friend who shops with us? Enter their referral code above and get exclusive discounts on your first order!</p>
         </div>
       </div>
     </div>
 
-
-    <footer class="footer-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 footer-about mb-4 mb-md-0">
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="" alt="Logo" width="25" class="me-2"/>
-                        <div class="brand-name" style="font-size: 18px; letter-spacing: 1px;">MILLIMILLET</div>
-                    </div>
-                    <p>Millimillet are a nutrient-dense, low-carb alternative to traditional grains that can boost your daily nutrition. Millets are a great source of protein, minerals, and dietary fiber, and can be used in a variety of delicious and nutritional sides.</p>
-                    <div class="social-links d-flex gap-2">
-                        <a href="#"><i class="bi bi-facebook">F</i></a>
-                        <a href="#"><i class="bi bi-instagram">I</i></a>
-                        <a href="#"><i class="bi bi-twitter">T</i></a>
-                        <a href="#"><i class="bi bi-youtube">Y</i></a>
-                    </div>
-                </div>
-
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h4>Company</h4>
-                    <a href="#">About</a>
-                    <a href="#">Features</a>
-                    <a href="#">Works</a>
-                    <a href="#">Career</a>
-                </div>
-
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h4>Help</h4>
-                    <a href="#">Customer Support</a>
-                    <a href="#">Delivery Details</a>
-                    <a href="#">Terms & Conditions</a>
-                    <a href="#">Privacy Policy</a>
-                </div>
-
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h4>FAQ</h4>
-                    <a href="#">Account</a>
-                    <a href="#">Manage Deliveries</a>
-                    <a href="#">Orders</a>
-                    <a href="#">Payments</a>
-                </div>
-
-                <div class="col-md-3">
-                    <h4>Resources</h4>
-                    <a href="#">Free eBooks</a>
-                    <a href="#">Development Tutorial</a>
-                    <a href="#">How to - Blog</a>
-                    <a href="#">Youtube Playlist</a>
-                </div>
-            </div>
-
-            <hr class="mt-4 mb-3"/>
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="copyright mb-0">Shop.co © 2000-2023, All Rights Reserved</p>
-                </div>
-                <div class="col-md-6 text-md-end payment-icons">
-                    <img src="" alt="Visa" />
-                    <img src="" alt="Mastercard" />
-                    <img src="" alt="Apple Pay" />
-                    <img src="" alt="PayPal" />
-                </div>
-            </div>
-        </div>
-    </footer>
-
+   <%- include('../partials/user/footer.ejs') %>
 
     <script>
-      
-
-       // Function to toggle password visibility 
-       function togglePasswordVisibility(inputId) {
-            const passwordInput = document.getElementById(inputId);
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-            } else {
-                passwordInput.type = 'password';
-            }
-        };
-
-        // Utility to display error
-        function displayError(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            errorElement.textContent = message;
-            // Use a class to manage display property as per the CSS
-            errorElement.classList.toggle('show', message.length > 0); 
+      function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+        } else {
+          passwordInput.type = 'password';
         }
+      }
 
-        function validateName() {
-            const nameInput = document.getElementById('name');
-            const name = nameInput.value.trim();
-            // Name can contain letters and spaces, and must not be empty
-            const namePattern = /^[A-Za-z\s]+$/; 
-            
-            if (name === "") {
-                displayError('nameError', "Name is required");
-                return false;
-            } else if (!namePattern.test(name)) {
-                displayError('nameError', "Name can only contain letters and spaces");
-                return false;
-            } else {
-                displayError('nameError', "");
-                return true;
-            }
-        }
+      function displayError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.classList.toggle('show', message.length > 0); 
+      }
 
-        function validateEmail() {
-            const email = document.getElementById("email").value.trim();
-            // A common regex for basic email validation
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; 
-            const isValid = emailPattern.test(email);
-
-            if (email === "") {
-                displayError("emailError", "Email is required");
-            } else if (!isValid) {
-                displayError("emailError", "Please enter a valid email address");
-            } else {
-                displayError("emailError", "");
-            }
-            return isValid;
-        }
-
-        function validatePhone() {
-            const phone = document.getElementById("phone").value.trim();
-            // Exactly 10 digits
-            const phonePattern = /^\d{10}$/; 
-            const isValid = phonePattern.test(phone);
-            
-            if (phone === "") {
-                 displayError("phoneError", "Phone number is required");
-            } else if (!isValid) {
-                 displayError("phoneError", "Enter a valid 10-digit phone number");
-            } else {
-                 displayError("phoneError", "");
-            }
-            return isValid;
-        }
-
-        function validatePassword() {
-            const password = document.getElementById("password").value;
-            let isValid = true;
-            let errorMessage = "";
-
-            // Regular expressions for checking numbers and letters
-            const hasNumber = /\d/.test(password);
-            const hasLetter = /[a-zA-Z]/.test(password);
-
-            if (password.length === 0) {
-                 errorMessage = "Password is required";
-                 isValid = false;
-            } else if (password.length < 8) {
-                errorMessage = "Should contain at least 8 characters";
-                isValid = false;
-            } else if (!hasLetter || !hasNumber) {
-                // Simplified validation to match the commented-out logic from your original script
-                errorMessage = "Should contain both letters and numbers";
-                isValid = false;
-            } 
-            // Note: The zxcvbn check was removed as the library is not included.
-
-            displayError("passwordError", errorMessage);
-            
-            // Re-validate confirm password if password changes
-            if (document.getElementById("cPassword").value.length > 0) {
-                 validateConfirmPassword();
-            }
-
-            return isValid;
-        }
+      function validateName() {
+        const nameInput = document.getElementById('name');
+        const name = nameInput.value.trim();
+        const namePattern = /^[A-Za-z\s]+$/; 
         
-        function validateConfirmPassword() {
-            const password = document.getElementById("password").value;
-            const cPassword = document.getElementById("cPassword").value;
-            const isValid = password === cPassword && cPassword.length > 0;
-            
-            if (cPassword.length === 0) {
-                 displayError("cPasswordError", "Confirm password is required");
-            } else if (!isValid) {
-                 displayError("cPasswordError", "Passwords do not match");
-            } else {
-                 displayError("cPasswordError", "");
-            }
-            return isValid;
+        if (name === "") {
+          displayError('nameError', "Name is required");
+          return false;
+        } else if (!namePattern.test(name)) {
+          displayError('nameError', "Name can only contain letters and spaces");
+          return false;
+        } else {
+          displayError('nameError', "");
+          return true;
+        }
+      }
+
+      function validateEmail() {
+        const email = document.getElementById("email").value.trim();
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; 
+        const isValid = emailPattern.test(email);
+
+        if (email === "") {
+          displayError("emailError", "Email is required");
+          return false;
+        } else if (!isValid) {
+          displayError("emailError", "Please enter a valid email address");
+          return false;
+        } else {
+          displayError("emailError", "");
+          return true;
+        }
+      }
+
+      function validatePhone() {
+        const phone = document.getElementById("phone").value.trim();
+        const phonePattern = /^\d{10}$/; 
+        const isValid = phonePattern.test(phone);
+        
+        if (phone === "") {
+          displayError("phoneError", "Phone number is required");
+          return false;
+        } else if (!isValid) {
+          displayError("phoneError", "Enter a valid 10-digit phone number");
+          return false;
+        } else {
+          displayError("phoneError", "");
+          return true;
+        }
+      }
+
+      function validatePassword() {
+        const password = document.getElementById("password").value;
+        let isValid = true;
+        let errorMessage = "";
+
+        const hasNumber = /\d/.test(password);
+        const hasLetter = /[a-zA-Z]/.test(password);
+
+        if (password.length === 0) {
+          errorMessage = "Password is required";
+          isValid = false;
+        } else if (password.length < 8) {
+          errorMessage = "Should contain at least 8 characters";
+          isValid = false;
+        } else if (!hasLetter || !hasNumber) {
+          errorMessage = "Should contain both letters and numbers";
+          isValid = false;
+        } 
+
+        displayError("passwordError", errorMessage);
+        
+        if (document.getElementById("cPassword").value.length > 0) {
+          validateConfirmPassword();
         }
 
-
-        // Final form submission function
-        function submitForm() {
-            const isValidName = validateName();
-            const isValidEmail = validateEmail();
-            const isValidPhone = validatePhone();
-            const isValidPassword = validatePassword();
-            const isValidConfirmPassword = validateConfirmPassword();
-            
-            // Re-run all validations to ensure all error messages are displayed before alert
-            if (isValidName && isValidEmail && isValidPhone && isValidPassword && isValidConfirmPassword) {
-                // If all are valid, the form will submit normally as it returns true.
-                // You can add your AJAX submission logic here if needed.
-                return true; 
-            } else {
-                // Scroll to the first error if submission is blocked
-                const firstError = document.querySelector('.error-message.show');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                alert("Please fix the errors in the form before submitting.");
-                return false; // Prevents the default form submission
-            }
+        return isValid;
+      }
+      
+      function validateConfirmPassword() {
+        const password = document.getElementById("password").value;
+        const cPassword = document.getElementById("cPassword").value;
+        const isValid = password === cPassword && cPassword.length > 0;
+        
+        if (cPassword.length === 0) {
+          displayError("cPasswordError", "Confirm password is required");
+          return false;
+        } else if (!isValid) {
+          displayError("cPasswordError", "Passwords do not match");
+          return false;
+        } else {
+          displayError("cPasswordError", "");
+          return true;
         }
+      }
+
+      function submitForm() {
+        const isValidName = validateName();
+        const isValidEmail = validateEmail();
+        const isValidPhone = validatePhone();
+        const isValidPassword = validatePassword();
+        const isValidConfirmPassword = validateConfirmPassword();
+        
+        if (isValidName && isValidEmail && isValidPhone && isValidPassword && isValidConfirmPassword) {
+          return true; 
+        } else {
+          const firstError = document.querySelector('.error-message.show');
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          alert("Please fix the errors in the form before submitting.");
+          return false;
+        }
+      }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up - Millimillet</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <style>
-      :root {
-        --primary-color: #8b6f47;
-        --secondary-color: #4a4a4a;
-        --background-color: #D0C19A; /* Updated to match Figma */
-        --body-background: #D0C19A; /* Background color throughout */
-        --text-color-dark: #333;
-        --text-color-light: #666;
-        --button-color: #8b6f47; /* Brown button */
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        background-color: var(--body-background);
-        color: var(--text-color-dark);
-        margin: 0;
-        padding: 0;
-      }
-      
-      /* --- Header and Branding --- */
-      .header-section {
-        padding-top: 30px;
-        padding-bottom: 15px;
-        background-color: var(--background-color);
-      }
-
-      .brand-name {
-        color: var(--primary-color);
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: 4px;
-        text-transform: uppercase;
-      }
-
-      /* --- Form Section Styling --- */
-      .form-section {
-        background: var(--background-color);
-        padding: 50px 40px;
-        border-radius: 0;
-        box-shadow: none;
-      }
-      
-      .form-section h2 {
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--secondary-color);
-        letter-spacing: 2px;
-        margin-bottom: 30px;
-        text-transform: uppercase;
-      }
-
-      .form-label {
-        color: var(--text-color-dark);
-        font-weight: 600;
-        font-size: 12px;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        letter-spacing: 0.5px;
-      }
-
-      .form-control {
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        padding: 12px 15px;
-        height: 45px;
-        font-size: 14px;
-        background-color: white;
-      }
-      
-      .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(139, 111, 71, 0.15);
-      }
-
-      /* --- Form Buttons and Links --- */
-      .submit-btn {
-        border-radius: 5px;
-        background: var(--button-color);
-        color: #fff;
-        font-weight: 700;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        padding: 12px 15px;
-        transition: background 0.3s;
-        border: none;
-        font-size: 14px;
-      }
-
-      .submit-btn:hover {
-        background: #6d563a;
-        color: #fff;
-      }
-
-      .form-section a {
-        color: var(--primary-color);
-        font-weight: 600;
-        text-decoration: none;
-      }
-
-      .form-section a:hover {
-        text-decoration: underline;
-      }
-
-      .google-btn {
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        font-weight: 600;
-        background: #fff;
-        border: 1px solid #ddd;
-        padding: 12px 15px;
-        transition: box-shadow 0.3s;
-        color: var(--text-color-dark);
-        text-decoration: none;
-      }
-
-      .google-btn:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      }
-      
-      /* Eye icon for password visibility */
-      .password-container {
-          position: relative;
-      }
-      .password-toggle {
-          position: absolute;
-          right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          color: #666;
-          font-size: 18px;
-          z-index: 10;
-          margin-top: 12px;
-      }
-      
-      .password-container .form-control {
-          padding-right: 45px; 
-      }
-
-      /* --- Promo Section Styling --- */
-      .promo-section {
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        position: relative;
-      }
-
-      .promo-section img {
-        width: 100%;
-        height: 65%;
-        min-height: 400px;
-        object-fit: cover;
-        border-radius: 0;
-        box-shadow: none;
-      }
-      
-      .referral-badge-container {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 85%;
-        max-width: 400px;
-        z-index: 10;
-      }
-
-      .referral-badge {
-        background: white;
-        padding: 20px 25px;
-        border-radius: 30px;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        border: none;
-      }
-      
-      .referral-badge p {
-        margin-bottom: 8px;
-        font-size: 13px;
-        color: var(--text-color-light);
-        position: relative;
-        background: transparent;
-        padding: 0;
-        border-radius: 0;
-        box-shadow: none;
-      }
-
-      .referral-code {
-        color: var(--primary-color);
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        font-size: 15px;
-        text-transform: uppercase;
-      }
-
-      /* --- Footer Section Styling --- */
-      .footer-section {
-        background-color: #f8f8f8;
-        color: var(--text-color-light);
-        padding: 50px 0 30px 0;
-        margin-top: 0;
-      }
-
-      .footer-section h4 {
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 700;
-        font-size: 14px;
-        color: var(--text-color-dark);
-        margin-bottom: 20px;
-      }
-
-      .footer-section a {
-        text-decoration: none;
-        color: var(--text-color-light);
-        font-size: 14px;
-        line-height: 2;
-        display: block;
-      }
-
-      .footer-section a:hover {
-        color: var(--primary-color);
-      }
-      
-      .footer-about p {
-          font-size: 13px;
-          line-height: 1.7;
-          color: var(--text-color-light);
-      }
-
-      .social-links a {
-        width: 35px;
-        height: 35px;
-        background: var(--text-color-dark);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 14px;
-        transition: background 0.3s;
-      }
-      .social-links a:hover {
-          background: var(--primary-color);
-      }
-      
-      .copyright {
-          font-size: 13px;
-          margin-top: 20px;
-          color: var(--text-color-light);
-      }
-
-      .payment-icons img {
-          height: 25px;
-          margin-left: 8px;
-      }
-
-      .error-message {
-        color: #dc3545;
-        font-size: 0.8rem;
-        display: none;
-        margin-top: 5px;
-      }
-      
-      .error-message.show {
-        display: block;
-      }
-
-      /* Text styling adjustments */
-      .text-muted {
-        color: var(--text-color-light) !important;
-        font-size: 14px;
-      }
-
-      /* Main container adjustments */
-      .main-wrapper {
-        background-color: var(--background-color);
-        box-shadow: none;
-      }
-
-      /* Row adjustments */
-      .row.g-0 {
-        min-height: 650px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container-fluid px-0">
-      <div class="main-wrapper">
-        <div class="text-center header-section">
-          <img
-            src="/milli millets img/logo 3.jpg"
-            alt="Millimillet Logo"
-            width="60"
-            class="mb-2"
-          />
-          <div class="brand-name">MILLIMILLET</div>
-        </div>
-
-        <div class="row g-0">
-          <div class="col-lg-6 col-md-6">
-            <div class="form-section">
-              <h2 class="text-center">CREATE ACCOUNT</h2>
-
-              <form id="signForm" action="/signup" method="POST" onsubmit="return submitForm()">
-              
-                <div class="mb-3">
-                  <label for="name" class="form-label">Name :</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    name="name"
-                    placeholder=""
-                    onblur="validateName()"
-                    required
-                  />
-                  <span id="nameError" class="error-message"></span>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="email" class="form-label">E-mail :</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    name="email"
-                    placeholder=""
-                    onblur="validateEmail()"
-                    required/>
-                    <span id="emailError" class="error-message"></span>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="phone" class="form-label">Mobile Number</label>
-                  <input
-                    type="tel"
-                    class="form-control"
-                    id="phone"
-                    name="phone"
-                    placeholder=""
-                    onblur="validatePhone()" 
-                    required>
-                    <span id="phoneError" class="error-message"></span>
-                  </input>
-                </div>
-
-                <div class="mb-3 password-container">
-                  <label for="password" class="form-label">Password</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    name="password"
-                    placeholder=""
-                    onblur="validatePassword()"
-                    required
-                  />
-                  <span class="password-toggle" onclick ="togglePasswordVisibility('password')">👁️</span>
-                  <span id="passwordError" class="error-message"></span>
-                </div>
-
-                <div class="mb-4 password-container">
-                  <label for="cPassword" class="form-label">Confirm Password :</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="cPassword"
-                    name="cPassword"
-                    placeholder=""
-                    onblur="validateConfirmPassword()"
-                    required
-                  />
-                  <span class="password-toggle" onclick="togglePasswordVisibility('cPassword')">👁️</span>
-                  <span id="cPasswordError" class="error-message"></span>
-                </div>
-
-                <div class="d-grid mb-3">
-                  <button type="submit" class="btn submit-btn">
-                    Sign Up
-                  </button>
-                </div>
-              </form>
-
-              <div class="text-center my-3">
-                Already have an account? <a href="/login">Log in</a>
-              </div>
-
-              <div class="text-center my-3 text-muted">Or Register with</div>
-
-              <div class="d-grid">
-                <a href="/auth/google" class="btn google-btn">
-                  <svg width="18" height="18" viewBox="0 0 18 18">
-                    <path
-                      fill="#4285F4"
-                      d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
-                    />
-                  </svg>
-                  Google
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6 col-md-6 position-relative">
-            <div class="promo-section">
-              <img
-                src="/milli millets img/2.png"
-                alt="Millimillet Products"
-                class="img-fluid"
-              />
-              <div class="referral-badge-container">
-                <div class="referral-badge">
-                  <p>Anyone has referred You? Claim the reward</p>
-                  <div class="referral-code">Referral Code</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <footer class="footer-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 footer-about mb-4 mb-md-0">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="brand-name" style="font-size: 16px; letter-spacing: 2px;">MILLIMILLET</div>
-                    </div>
-                    <p>Millimillet are a nutrient-dense, low-carb alternative to traditional grains that can boost your daily nutrition. Millets are a great source of protein, minerals, and dietary fiber.</p>
-                    <div class="social-links d-flex gap-2 mt-3">
-                        <a href="#">F</a>
-                        <a href="#">I</a>
-                        <a href="#">T</a>
-                        <a href="#">Y</a>
-                    </div>
-                </div>
-
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h4>Company</h4>
-                    <a href="#">About</a>
-                    <a href="#">Features</a>
-                    <a href="#">Works</a>
-                    <a href="#">Career</a>
-                </div>
-
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h4>Help</h4>
-                    <a href="#">Customer Support</a>
-                    <a href="#">Delivery Details</a>
-                    <a href="#">Terms & Conditions</a>
-                    <a href="#">Privacy Policy</a>
-                </div>
-
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h4>FAQ</h4>
-                    <a href="#">Account</a>
-                    <a href="#">Manage Deliveries</a>
-                    <a href="#">Orders</a>
-                    <a href="#">Payments</a>
-                </div>
-
-                <div class="col-md-3">
-                    <h4>Resources</h4>
-                    <a href="#">Free eBooks</a>
-                    <a href="#">Development Tutorial</a>
-                    <a href="#">How to - Blog</a>
-                    <a href="#">Youtube Playlist</a>
-                </div>
-            </div>
-
-            <hr class="mt-4 mb-3"/>
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="copyright mb-0">Millimillet © 2000-2025, All Rights Reserved</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <span class="text-muted">Payment methods accepted</span>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-      function togglePasswordVisibility(inputId) {
-          const passwordInput = document.getElementById(inputId);
-          if (passwordInput.type === 'password') {
-              passwordInput.type = 'text';
-          } else {
-              passwordInput.type = 'password';
-          }
-      }
-
-      function displayError(elementId, message) {
-          const errorElement = document.getElementById(elementId);
-          errorElement.textContent = message;
-          errorElement.classList.toggle('show', message.length > 0); 
-      }
-
-      function validateName() {
-          const nameInput = document.getElementById('name');
-          const name = nameInput.value.trim();
-          const namePattern = /^[A-Za-z\s]+$/; 
-          
-          if (name === "") {
-              displayError('nameError', "Name is required");
-              return false;
-          } else if (!namePattern.test(name)) {
-              displayError('nameError', "Name can only contain letters and spaces");
-              return false;
-          } else {
-              displayError('nameError', "");
-              return true;
-          }
-      }
-
-      function validateEmail() {
-          const email = document.getElementById("email").value.trim();
-          const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; 
-          const isValid = emailPattern.test(email);
-
-          if (email === "") {
-              displayError("emailError", "Email is required");
-              return false;
-          } else if (!isValid) {
-              displayError("emailError", "Please enter a valid email address");
-              return false;
-          } else {
-              displayError("emailError", "");
-              return true;
-          }
-      }
-
-      function validatePhone() {
-          const phone = document.getElementById("phone").value.trim();
-          const phonePattern = /^\d{10}$/; 
-          const isValid = phonePattern.test(phone);
-          
-          if (phone === "") {
-               displayError("phoneError", "Phone number is required");
-               return false;
-          } else if (!isValid) {
-               displayError("phoneError", "Enter a valid 10-digit phone number");
-               return false;
-          } else {
-               displayError("phoneError", "");
-               return true;
-          }
-      }
-
-      function validatePassword() {
-          const password = document.getElementById("password").value;
-          let isValid = true;
-          let errorMessage = "";
-
-          const hasNumber = /\d/.test(password);
-          const hasLetter = /[a-zA-Z]/.test(password);
-
-          if (password.length === 0) {
-               errorMessage = "Password is required";
-               isValid = false;
-          } else if (password.length < 8) {
-              errorMessage = "Should contain at least 8 characters";
-              isValid = false;
-          } else if (!hasLetter || !hasNumber) {
-              errorMessage = "Should contain both letters and numbers";
-              isValid = false;
-          } 
-
-          displayError("passwordError", errorMessage);
-          
-          if (document.getElementById("cPassword").value.length > 0) {
-               validateConfirmPassword();
-          }
-
-          return isValid;
-      }
-      
-      function validateConfirmPassword() {
-          const password = document.getElementById("password").value;
-          const cPassword = document.getElementById("cPassword").value;
-          const isValid = password === cPassword && cPassword.length > 0;
-          
-          if (cPassword.length === 0) {
-               displayError("cPasswordError", "Confirm password is required");
-               return false;
-          } else if (!isValid) {
-               displayError("cPasswordError", "Passwords do not match");
-               return false;
-          } else {
-               displayError("cPasswordError", "");
-               return true;
-          }
-      }
-
-      function submitForm() {
-          const isValidName = validateName();
-          const isValidEmail = validateEmail();
-          const isValidPhone = validatePhone();
-          const isValidPassword = validatePassword();
-          const isValidConfirmPassword = validateConfirmPassword();
-          
-          if (isValidName && isValidEmail && isValidPhone && isValidPassword && isValidConfirmPassword) {
-              return true; 
-          } else {
-              const firstError = document.querySelector('.error-message.show');
-              if (firstError) {
-                  firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-              alert("Please fix the errors in the form before submitting.");
-              return false;
-          }
-      }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html> -->

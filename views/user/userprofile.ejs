@@ -540,6 +540,8 @@
         </h3>
         <p>Saved Addresses</p>
       </div>
+
+ 
     </div>
 
     <!-- Profile Card -->
@@ -575,6 +577,9 @@
                 <% } %>
           </div>
         </div> -->
+
+
+
 
         <div class="profile-info">
           <h2 class="profile-name">
@@ -664,6 +669,18 @@
           </div>
     </div>
 
+    <!-- Referral Note
+     <% if (user.referralCode) { %> -->
+      <div class="note-box">
+        <span class="note-icon">💡</span>
+        <p>
+          <strong>Earn Rewards!</strong><br>
+          <span>Share your referral code with friends and earn wallet credits when they make their first
+            purchase.</span>
+        </p>
+      </div>
+      <% } %>
+
     <!-- Quick Links -->
     <div class="quick-links-section">
       <h2 class="section-title">
@@ -693,32 +710,26 @@
       </div>
     </div>
 
-    <!-- Referral Note
-    <!-- <% if (user.referralCode) { %> -->
-      <div class="note-box">
-        <span class="note-icon">💡</span>
-        <p>
-          <strong>Earn Rewards!</strong><br>
-          <span>Share your referral code with friends and earn wallet credits when they make their first
-            purchase.</span>
-        </p>
-      </div>
-      <% } %>
-  </div> -->
+  </div> 
 
   <script>
-    function copyReferralCode(code) {
-      navigator.clipboard.writeText(code).then(() => {
-        const btn = event.target.closest('.copy-btn');
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => {
-          btn.innerHTML = originalHTML;
-        }, 2000);
-      }).catch(err => {
-        alert('Failed to copy code');
-      });
-    }
+   function copyReferralCode(code, event) {
+  navigator.clipboard.writeText(code)
+    .then(() => {
+      const btn = event.target.closest('.copy-btn');
+      const originalHTML = btn.innerHTML;
+
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+      }, 2000);
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to copy code');
+    });
+}
 
     function confirmLogout(event) {
       event.preventDefault();

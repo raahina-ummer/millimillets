@@ -1,6 +1,9 @@
-import Order from "../../models/OrderSchema.js";
+import Order from "../../models/OrderSchema.js"
 import User from "../../models/userSchema.js";
 import Product from "../../models/ProductSchema.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 // Order Status Constants
 const OrderStatus = {
@@ -94,13 +97,12 @@ const loadOrders = async (req, res) => {
       status,
       sort,
       search,
+      
+
     });
   } catch (error) {
     console.error("Error loading orders:", error);
-    return res.status(500).render("500", {
-      message: "Failed to load orders",
-      error: error.message,
-    });
+   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -124,20 +126,14 @@ const updateOrderStatus = async (req, res) => {
     ];
 
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid status value",
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false, message: "Invalid status value"});
     }
 
     // Find order and populate products
     const order = await Order.findOne({ orderId }).populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "Order not found"});
     }
 
     // Validate status transitions
@@ -152,10 +148,7 @@ const updateOrderStatus = async (req, res) => {
       !validTransitions[order.status] ||
       !validTransitions[order.status].includes(status)
     ) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid status transition from ${order.status} to ${status}`,
-      });
+      return res.status(Status.BAD_GATEWAY).json({success: false,message: `Invalid status transition from ${order.status} to ${status}`});
     }
 
     const now = new Date();
@@ -206,10 +199,7 @@ const updateOrderStatus = async (req, res) => {
       // Find user and update wallet
       const user = await User.findById(order.userId);
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found"
-        });
+        return res.status(Status.BAD_REQUEST).json({success: false,message: "User not found"});
       }
 
     
@@ -251,18 +241,10 @@ const updateOrderStatus = async (req, res) => {
 
     await order.save();
 
-   return res.json({
-      success: true,
-      message: `Order status updated to ${status}`,
-      order,
-    });
+   return res.status(Status.OK).json({success: true,message: `Order status updated to ${status}`,order,});
   } catch (error) {
     console.error("Error updating order status:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update order status",
-      error: error.message,
-    });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,message: "Failed to update order status", error: error.message,});
   }
 };
 
@@ -279,7 +261,7 @@ const loadOrderDetails = async (req, res) => {
       .lean();
 
     if (!order) {
-      return res.status(404).render("500", { message: "Order not found" });
+      return res.status(Status.NOT_FOUND).json({success:false, message: "Order not found" });
     }
 
     // if request is from admin or user
@@ -291,10 +273,7 @@ const loadOrderDetails = async (req, res) => {
 
   } catch (error) {
     console.error("Error loading order details:", error);
-    res.status(500).render("500", {
-      message: "Failed to load order details",
-      error: error.message,
-    });
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -308,17 +287,11 @@ const approveOrRejectReturnRequest = async (req, res) => {
     console.log("Processing return request:", { orderId, action });
 
     if (!orderId?.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "OrderId is required"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false, message: "OrderId is required"});
     }
 
     if (!["approve", "reject"].includes(action)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid action. Use 'approve' or 'reject'"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "Invalid action. Use 'approve' or 'reject'"});
     }
 
     // Find order by orderId (not _id)
@@ -326,18 +299,12 @@ const approveOrRejectReturnRequest = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found"
-      });
+      return res.status(Status.NOT_FOUND).json({success: false,message: "Order not found"});
     }
 
     // Check if order has return request status
     if (order.status !== "Return Request") {
-      return res.status(400).json({
-        success: false,
-        message: "This order does not have a return request"
-      });
+      return res.status(Status.BAD_REQUEST).json({success: false,message: "This order does not have a return request"});
     }
 
     const userId = order.userId;
@@ -385,27 +352,18 @@ const approveOrRejectReturnRequest = async (req, res) => {
 
       await order.save();
 
-      return res.status(200).json({
-        success: true,
-        message: `Return request approved. ₹${refundAmount.toFixed(2)} refunded to customer's wallet.`
-      });
+      return res.status(Status.OK).json({success: true,message: `Return request approved. ₹${refundAmount.toFixed(2)} refunded to customer's wallet.`});
     } else if (action === "reject") {
       // Simply change status back to Delivered
       order.status = "Delivered";
       order.returnRejectedAt = new Date();
       await order.save();
 
-      return res.status(200).json({
-        success: true,
-        message: "Return request rejected successfully."
-      });
+      return res.status(Status.OK).json({success: true, message: "Return request rejected successfully."});
     }
   } catch (error) {
     console.error("Error processing return request:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    });
+   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 

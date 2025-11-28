@@ -3,13 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - MilliMillet</title>
-    <!-- Bootstrap CSS -->
+    <title>Admin Login - MilliMillet</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <style>
+      :root {
+        --primary-color: #8b6f47;
+        --secondary-color: #4a4a4a;
+        --background-color: #D0C19A;
+        --text-color-dark: #333;
+        --text-color-light: #666;
+        --button-color: #8b6f47;
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -17,13 +25,18 @@
       }
 
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #e8dcc4;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
       /* Promo Banner */
       .promo-banner {
-        background-color: #e8dcc4;
+        background-color: #f0e8d8;
         text-align: center;
         padding: 12px;
         font-size: 13px;
@@ -32,9 +45,13 @@
       }
 
       .promo-banner a {
-        color: #333;
-        text-decoration: underline;
+        color: var(--primary-color);
+        text-decoration: none;
         font-weight: 600;
+      }
+
+      .promo-banner a:hover {
+        text-decoration: underline;
       }
 
       .close-banner {
@@ -50,344 +67,394 @@
         line-height: 1;
       }
 
-      /* Main Container */
-      .main-container {
-        max-width: 100%;
-        margin: 0 auto;
-        background: #e8dcc4;
-        overflow: visible;
-      }
-
       /* Header Section */
       .header-section {
-        background: white;
-        padding: 40px 20px 30px;
-        text-align: center;
-
-        margin-left: calc(-50vw + 50%); /* ADD THIS LINE */
-      }
-      .brand-logo {
-        width: 60px;
-        height: auto;
-        margin-bottom: 15px;
+        padding: 50px 0 30px 0;
+        background-color: var(--background-color);
       }
 
       .brand-name {
-        color: #8b6f47;
-        font-size: 32px;
+        color: var(--primary-color);
+        font-size: 42px;
         font-weight: 700;
-        letter-spacing: 4px;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
       }
 
-      /* Login Section */
-      .login-section {
-        background: #e8dcc4;
-        padding: 60px 100px;
-        text-align: center;
+      .admin-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--primary-color), #6d563a);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-top: 10px;
+        box-shadow: 0 2px 8px rgba(139, 111, 71, 0.2);
       }
-      #loginForm {
-        max-width: 500px;
+
+      .brand-tagline {
+        color: var(--text-color-light);
+        font-size: 14px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-weight: 500;
+        margin-top: 15px;
+      }
+
+      /* Main Container */
+      .login-container {
+        max-width: 550px;
         margin: 0 auto;
+        padding: 0 20px;
+        flex: 1;
       }
 
-      .login-title {
+      /* Form Section */
+      .form-section {
+        background: white;
+        padding: 50px 45px;
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        margin: 40px 0 50px 0;
+        border: 1px solid rgba(139, 111, 71, 0.05);
+      }
+
+      .form-section h2 {
         font-size: 28px;
-        color: #333;
-        letter-spacing: 4px;
-        margin-bottom: 40px;
         font-weight: 700;
+        color: var(--secondary-color);
+        letter-spacing: 3px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+
+      .form-subtitle {
+        color: var(--text-color-light);
+        font-size: 15px;
+        margin-bottom: 40px;
+        font-weight: 400;
       }
 
       .form-label {
-        color: #333;
+        color: var(--text-color-dark);
         font-weight: 600;
-        margin-bottom: 10px;
-        font-size: 12px;
+        font-size: 13px;
         text-transform: uppercase;
+        margin-bottom: 8px;
         letter-spacing: 0.5px;
-        text-align: left;
         display: block;
       }
 
+      .form-control,
       .form-input {
-        border-radius: 5px;
-        border: 1px solid #aaa;
-        padding: 14px 20px;
-        font-size: 14px;
-        background: #fff;
-        width: 100%;
-        margin-bottom: 25px;
+        border-radius: 6px;
+        border: 1.5px solid #ddd;
+        padding: 14px 18px;
+        height: 50px;
+        font-size: 15px;
+        background-color: #fafafa;
+        transition: all 0.3s ease;
       }
 
+      .form-control:focus,
       .form-input:focus {
-        border-color: #8b6f47;
-        box-shadow: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(139, 111, 71, 0.1);
+        background-color: white;
         outline: none;
       }
 
-      .form-control {
-        border-radius: 5px;
-        border: 1px solid #aaa;
-        padding: 14px 20px;
+      .form-control::placeholder,
+      .form-input::placeholder {
+        color: #aaa;
         font-size: 14px;
-        background: #fff;
-        width: 100%;
-        margin-bottom: 25px;
       }
 
-      .form-control:focus {
-        border-color: #8b6f47;
-        box-shadow: none;
-        outline: none;
-      }
-
+      /* Password Container */
       .password-container {
         position: relative;
+        margin-bottom: 25px;
       }
 
-      .password-container .form-input,
-      .password-container .form-control {
-        padding-right: 45px; /* space for the eye icon */
-      }
-
-      .toggle-password {
+      .password-toggle {
         position: absolute;
-        right: 12px;
+        right: 18px;
         top: 50%;
         transform: translateY(-50%);
+        cursor: pointer;
+        color: #999;
+        font-size: 18px;
+        z-index: 10;
+        margin-top: 0;
+        transition: color 0.3s ease;
         background: none;
         border: none;
+        padding: 0;
+      }
+
+      .password-toggle:hover {
+        color: var(--primary-color);
+      }
+
+      .password-container .form-control,
+      .password-container .form-input {
+        padding-right: 50px;
+      }
+
+      /* Error Messages */
+      .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        display: none;
+        margin-top: 6px;
+        font-weight: 500;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      /* Remember Me */
+      .form-options {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .remember-me input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
         cursor: pointer;
-        font-size: 16px;
+        accent-color: var(--primary-color);
+      }
+
+      .remember-me label {
+        font-size: 13px;
+        color: var(--text-color-dark);
+        cursor: pointer;
+        margin: 0;
+        text-transform: none;
+        font-weight: 500;
       }
 
       /* Buttons */
-      .button-group {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-bottom: 30px;
-      }
-
+      .submit-btn,
       .btn-custom {
-        padding: 12px 45px;
-        border: none;
-        border-radius: 5px;
-        font-size: 13px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, var(--button-color), #6d563a);
+        color: #fff;
         font-weight: 700;
-        cursor: pointer;
         letter-spacing: 2px;
         text-transform: uppercase;
-        transition: all 0.3s;
+        padding: 15px 20px;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 14px;
+        width: 100%;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(139, 111, 71, 0.2);
       }
 
-      .btn-login {
-        background-color: #6d5438;
-        color: white;
-      }
-
-      .btn-login:hover {
-        background-color: #5a4530;
+      .submit-btn:hover,
+      .btn-custom:hover {
+        background: linear-gradient(135deg, #6d563a, #5a4530);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 20px rgba(139, 111, 71, 0.3);
       }
 
-      .btn-signup {
-        background-color: #8b7355;
-        color: white;
-      }
-
-      .btn-signup:hover {
-        background-color: #75614a;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      .submit-btn:disabled,
+      .btn-custom:disabled {
+        background: linear-gradient(135deg, #ddd, #ccc);
+        cursor: not-allowed;
+        transform: none;
       }
 
       /* Divider */
-      .divider-container {
+      .divider {
         display: flex;
         align-items: center;
-        margin: 30px auto;
-        max-width: 500px;
+        text-align: center;
+        margin: 28px 0;
       }
 
-      .divider-line {
+      .divider::before,
+      .divider::after {
+        content: '';
         flex: 1;
-        height: 1px;
-        background-color: #999;
+        border-bottom: 1px solid #ddd;
       }
 
-      .divider-text {
-        padding: 0 20px;
-        color: #666;
+      .divider span {
+        padding: 0 15px;
+        color: var(--text-color-light);
         font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         font-weight: 500;
       }
 
       /* Google Button */
       .google-btn {
-        border-radius: 5px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        font-weight: 500;
+        gap: 12px;
+        font-weight: 600;
         background: #fff;
-        border: 1px solid #ccc;
-        padding: 12px;
-        transition: all 0.3s;
-        cursor: pointer;
+        border: 1.5px solid #ddd;
+        padding: 14px 20px;
+        transition: all 0.3s ease;
+        color: var(--text-color-dark);
+        text-decoration: none;
         width: 100%;
-        max-width: 250px;
-        margin: 0 auto;
         font-size: 14px;
+        cursor: pointer;
       }
 
       .google-btn:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #ccc;
+        transform: translateY(-1px);
+        background: #f8f8f8;
       }
 
-      /* Footer */
+      /* Security Info */
+      .security-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-color-light);
+        font-size: 12px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #f0eae0;
+        justify-content: center;
+      }
+
+      .security-info i {
+        color: #28a745;
+        font-size: 14px;
+      }
+
+      /* Footer Section */
       .footer-section {
-        background: white;
-        padding: 50px 40px 30px;
-        width: 100vw; /* ADD THIS LINE */
-        position: relative; /* ADD THIS LINE */
-        left: 50%; /* ADD THIS LINE */
-        right: 50%; /* ADD THIS LINE */
-        margin-left: -50vw; /* ADD THIS LINE */
-        margin-right: -50vw; /* ADD THIS LINE */
-      }
-      .footer-content {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-        gap: 40px;
-        max-width: 1200px;
-        margin: 0 auto 40px;
+        background-color: #f8f8f8;
+        color: var(--text-color-light);
+        padding: 60px 0 30px 0;
+        margin-top: auto;
+        border-top: 1px solid #f0eae0;
       }
 
-      .footer-brand-logo {
-        width: 40px;
-        margin-bottom: 15px;
+      .footer-section h4 {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text-color-dark);
+        margin-bottom: 20px;
       }
 
-      .brand-tagline {
-        font-size: 13px;
-        color: #666;
+      .footer-section a {
+        text-decoration: none;
+        color: var(--text-color-light);
+        font-size: 14px;
+        line-height: 2;
+        display: block;
+        transition: color 0.3s ease;
+      }
+
+      .footer-section a:hover {
+        color: var(--primary-color);
+      }
+
+      .footer-about p {
+        font-size: 14px;
         line-height: 1.8;
-        margin-bottom: 25px;
+        color: var(--text-color-light);
       }
 
       .social-links {
         display: flex;
-        gap: 12px;
+        gap: 10px;
+        margin-top: 15px;
       }
 
       .social-links a {
-        width: 35px;
-        height: 35px;
+        width: 38px;
+        height: 38px;
+        background: var(--text-color-dark);
         border-radius: 50%;
-        background-color: #333;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        text-decoration: none;
         font-size: 14px;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
       }
 
       .social-links a:hover {
-        background-color: #8b6f47;
-        transform: translateY(-3px);
-      }
-
-      .footer-column h4 {
-        font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        color: #333;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-      }
-
-      .footer-column ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      .footer-column ul li {
-        margin-bottom: 12px;
-      }
-
-      .footer-column ul li a {
-        color: #666;
-        text-decoration: none;
-        font-size: 13px;
-        transition: color 0.3s;
-      }
-
-      .footer-column ul li a:hover {
-        color: #8b6f47;
-      }
-
-      .footer-bottom {
-        padding-top: 30px;
-        border-top: 1px solid #ddd;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
+        background: var(--primary-color);
+        transform: translateY(-2px);
       }
 
       .copyright {
-        font-size: 12px;
-        color: #999;
+        font-size: 13px;
+        margin-top: 20px;
+        color: var(--text-color-light);
       }
 
-      .payment-methods {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-      }
-
-      .payment-methods span {
-        font-size: 14px;
-        font-weight: 600;
-      }
-
-      .error-message {
-        color: #dc3545;
-        font-size: 11px;
-        display: block;
-        margin-top: -20px;
+      .admin-icon {
+        font-size: 32px;
         margin-bottom: 15px;
-        text-align: left;
       }
 
+      /* Responsive Design */
       @media (max-width: 768px) {
-        .login-section {
+        .form-section {
           padding: 40px 30px;
+          margin: 30px 0 40px 0;
         }
 
-        .footer-content {
-          grid-template-columns: 1fr;
+        .brand-name {
+          font-size: 32px;
+          letter-spacing: 5px;
         }
 
-        .button-group {
+        .brand-tagline {
+          font-size: 12px;
+        }
+
+        .header-section {
+          padding: 40px 0 25px 0;
+        }
+
+        .form-options {
           flex-direction: column;
+          gap: 15px;
+          align-items: flex-start;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-section {
+          padding: 30px 20px;
         }
 
-        .btn-custom {
-          width: 100%;
-        }
-
-        .footer-bottom {
-          flex-direction: column;
-          gap: 20px;
-          text-align: center;
+        .brand-name {
+          font-size: 28px;
+          letter-spacing: 4px;
         }
       }
     </style>
@@ -395,285 +462,180 @@
   <body>
     <!-- Promo Banner -->
     <div class="promo-banner">
-      Sign up and get 20% off to your first order.
-      <a href="/signup">Sign Up Now</a>
-      <button
-        class="close-banner"
-        onclick="this.parentElement.style.display='none'"
-      >
+      Admin Portal - Secure Access Only
+      <button class="close-banner" onclick="this.parentElement.style.display='none'">
         &times;
       </button>
     </div>
 
-    <div class="main-container">
-      <!-- Header -->
-      <div class="header-section">
-        <img src="/milli millets img/logo.jpg" alt="Logo" class="brand-logo" />
-        <h1 class="brand-name">MILLIMILLET</h1>
+    <div class="login-container">
+      <div class="text-center header-section">
+        <div class="admin-icon">🔐</div>
+        <div class="brand-name">MILLIMILLET</div>
+        <div class="admin-badge">Admin Portal</div>
+        <div class="brand-tagline">Administration Dashboard</div>
       </div>
 
-      <!-- Login Section -->
-      <div class="login-section">
-        <h2 class="login-title">LOGIN</h2>
+      <div class="form-section">
+        <h2 class="text-center">ADMIN LOGIN</h2>
+        <p class="text-center form-subtitle">Secure access to your administration panel</p>
 
-        <form id="loginForm" action="/admin/login" method="post" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="email">Email Address</label>
+        <form id="loginForm" action="/admin/login" method="POST" onsubmit="return validateLoginForm()">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
             <input
               type="email"
+              class="form-control"
               id="email"
               name="email"
-              class="form-input"
               placeholder="admin@company.com"
+              onblur="validateEmail()"
               required
             />
+            <span id="emailError" class="error-message"></span>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <div class="password-container">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                class="form-input"
-                placeholder="Enter your password"
-                required
-              />
-              <button
-                type="button"
-                class="toggle-password"
-                onclick="togglePassword()"
-              >
-                👁️
-              </button>
+          <div class="mb-3 password-container">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              onblur="validatePassword()"
+              required
+            />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</button>
+            <span id="passwordError" class="error-message"></span>
+          </div>
+
+          <div class="form-options">
+            <div class="remember-me">
+              <input type="checkbox" id="rememberMe" name="rememberMe" />
+              <label for="rememberMe">Remember me</label>
             </div>
           </div>
 
-          <button type="submit" class="btn-custom btn-login" id="loginBtn">
-            Sign In
-          </button>
+          <div class="d-grid">
+            <button type="submit" class="submit-btn">Admin Login</button>
+          </div>
         </form>
 
-        <div class="divider-container">
-          <div class="divider-line"></div>
-          <span class="divider-text">or</span>
-          <div class="divider-line"></div>
-        </div>
-
-        <button
-          class="google-btn"
-          onclick="window.location.href='/auth/google'"
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18">
-            <path
-              fill="#4285F4"
-              d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
-            />
-            <path
-              fill="#34A853"
-              d="M9.003 18c2.43 0 4.467-.806 5.956-2.183l-2.909-2.259c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"
-            />
-            <path
-              fill="#EA4335"
-              d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z"
-            />
-          </svg>
-          Login with Google
-        </button>
-      </div>
-
-      <!-- Footer -->
-      <div class="footer-section">
-        <div class="footer-content">
-          <div class="footer-brand">
-            <img
-              src="/milli millets img/logo.jpg"
-              alt="Logo"
-              class="footer-brand-logo"
-            />
-            <p class="brand-tagline"></p>
-            <div class="social-links">
-              <a href="#" aria-label="Twitter">T</a>
-              <a href="#" aria-label="Facebook">F</a>
-              <a href="#" aria-label="Instagram">I</a>
-              <a href="#" aria-label="GitHub">G</a>
-            </div>
-          </div>
-
-          <div class="footer-column">
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Features</a></li>
-              <li><a href="#">Works</a></li>
-              <li><a href="#">Career</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-column">
-            <h4>Help</h4>
-            <ul>
-              <li><a href="#">Customer Support</a></li>
-              <li><a href="#">Delivery Details</a></li>
-              <li><a href="#">Terms & Conditions</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-column">
-            <h4>FAQ</h4>
-            <ul>
-              <li><a href="#">Account</a></li>
-              <li><a href="#">Manage Deliveries</a></li>
-              <li><a href="#">Orders</a></li>
-              <li><a href="#">Payments</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-column">
-            <h4>Resources</h4>
-            <ul>
-              <li><a href="#">Free eBooks</a></li>
-              <li><a href="#">Development Tutorial</a></li>
-              <li><a href="#">How to - Blog</a></li>
-              <li><a href="#">Youtube Playlist</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="footer-bottom">
-          <p class="copyright">Millets © 2000-2023, All Rights Reserved</p>
-          <div class="payment-methods">
-            <span style="color: #1434cb">VISA</span>
-            <span style="color: #eb001b">●●</span>
-            <span style="color: #003087">PayPal</span>
-            <span style="color: #000">Apple Pay</span>
-            <span style="color: #5f6368">G Pay</span>
-          </div>
+        <div class="security-info">
+          <i class="fas fa-lock"></i>
+          <span>This area is for authorized administrators only</span>
         </div>
       </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <footer class="footer-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3 footer-about mb-4 mb-md-0">
+            <div class="brand-name" style="font-size: 18px; letter-spacing: 2px; margin-bottom: 15px;">MILLIMILLET</div>
+            <p>Millets are nutrient-dense, low-carb alternatives to traditional grains that boost your daily nutrition. They're a great source of protein, minerals, and dietary fiber for a healthier lifestyle.</p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook">F</a>
+              <a href="#" aria-label="Instagram">I</a>
+              <a href="#" aria-label="Twitter">T</a>
+              <a href="#" aria-label="YouTube">Y</a>
+            </div>
+          </div>
+
+          <div class="col-md-2 mb-4 mb-md-0">
+            <h4>Company</h4>
+            <a href="#">About</a>
+            <a href="#">Features</a>
+            <a href="#">Works</a>
+            <a href="#">Career</a>
+          </div>
+
+          <div class="col-md-2 mb-4 mb-md-0">
+            <h4>Help</h4>
+            <a href="#">Customer Support</a>
+            <a href="#">Delivery Details</a>
+            <a href="#">Terms & Conditions</a>
+            <a href="#">Privacy Policy</a>
+          </div>
+
+          <div class="col-md-2 mb-4 mb-md-0">
+            <h4>FAQ</h4>
+            <a href="#">Account</a>
+            <a href="#">Manage Deliveries</a>
+            <a href="#">Orders</a>
+            <a href="#">Payments</a>
+          </div>
+
+          <div class="col-md-3">
+            <h4>Resources</h4>
+            <a href="#">Free Recipes</a>
+            <a href="#">Health Benefits</a>
+            <a href="#">Nutrition Blog</a>
+            <a href="#">Cooking Tips</a>
+          </div>
+        </div>
+
+        <hr class="mt-4 mb-3"/>
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <p class="copyright mb-0">MilliMillet © 2000-2025, All Rights Reserved</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <span class="text-muted" style="font-size: 13px;">Secure Admin Access</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      function togglePassword() {
-        const passwordInput = document.getElementById("password");
-        const toggleBtn = document.querySelector(".toggle-password");
-        if (passwordInput.type === "password") {
-          passwordInput.type = "text";
-          toggleBtn.textContent = "🙈";
+      function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleBtn = event.target;
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleBtn.textContent = '🙈';
         } else {
-          passwordInput.type = "password";
-          toggleBtn.textContent = "👁️";
+          passwordInput.type = 'password';
+          toggleBtn.textContent = '👁️';
         }
       }
 
-      function handleForgotPassword() {
-        alert("Password reset functionality would be implemented here.");
+      function displayError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.classList.toggle('show', message.length > 0);
       }
 
-      // document.addEventListener("DOMContentLoaded", () => {
-      //   const form = document.getElementById("loginForm");
-      //   const emailInput = document.getElementById("email");
-      //   const passwordInput = document.getElementById("password");
-      //   const loginButton = document.getElementById("loginBtn");
-
-      //   form.addEventListener("submit", function (e) {
-      //     e.preventDefault();
-      //     clearErrors();
-
-      //     loginButton.disabled = true;
-      //     loginButton.textContent = "Loading...";
-
-      //     let valid = true;
-
-      //     if (!emailInput.value.trim()) {
-      //       showError(emailInput, "Email is required");
-      //       valid = false;
-      //     } else if (
-      //       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())
-      //     ) {
-      //       showError(emailInput, "Enter a valid email");
-      //       valid = false;
-      //     }
-
-      //     if (!passwordInput.value.trim()) {
-      //       showError(passwordInput, "Password is required");
-      //       valid = false;
-      //     } else if (passwordInput.value.trim().length < 6) {
-      //       showError(passwordInput, "Password must be at least 6 characters");
-      //       valid = false;
-      //     }
-
-      //     if (valid) {
-      //       form.submit();
-      //     } else {
-      //       // Re-enable button if validation fails
-      //       loginButton.disabled = false;
-      //       loginButton.textContent = "Sign In";
-      //     }
-      //   });
-
-      //   function showError(input, message) {
-      //     const error = document.createElement("div");
-      //     error.className = "error-message";
-      //     error.style.color = "#e53e3e";
-      //     error.style.fontSize = "12px";
-      //     error.style.marginTop = "4px";
-      //     error.textContent = message;
-      //     input.style.borderColor = "#e53e3e";
-      //     input.parentElement.appendChild(error);
-      //   }
-
-      //   function clearErrors() {
-      //     document
-      //       .querySelectorAll(".error-message")
-      //       .forEach((el) => el.remove());
-      //     document.querySelectorAll(".form-input").forEach((input) => {
-      //       input.style.borderColor = "#e2e8f0";
-      //     });
-      //   }
-      // });
-    </script>
-
-    <!-- <script>
       function validateEmail() {
-        const email = document.getElementById("email").value;
+        const email = document.getElementById("email").value.trim();
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        const emailError = document.getElementById("emailError");
 
-        if (email.trim() === "") {
-          emailError.textContent = "Email is required";
+        if (email === "") {
+          displayError("emailError", "Email is required");
           return false;
         } else if (!emailPattern.test(email)) {
-          emailError.textContent = "Please enter a valid email address";
+          displayError("emailError", "Please enter a valid email address");
           return false;
         } else {
-          emailError.textContent = "";
+          displayError("emailError", "");
           return true;
         }
       }
 
       function validatePassword() {
         const password = document.getElementById("password").value;
-        const passwordError = document.getElementById("passwordError");
 
         if (password.length === 0) {
-          passwordError.textContent = "Password is required";
+          displayError("passwordError", "Password is required");
           return false;
         } else if (password.length < 8) {
-          passwordError.textContent =
-            "Password must be at least 8 characters long";
+          displayError("passwordError", "Password must be at least 8 characters long");
           return false;
         } else {
-          passwordError.textContent = "";
+          displayError("passwordError", "");
           return true;
         }
       }
@@ -685,10 +647,13 @@
         if (isValidEmail && isValidPassword) {
           return true;
         } else {
-          alert("Please fix the errors in the form before submitting.");
+          const firstError = document.querySelector('.error-message.show');
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
           return false;
         }
       }
-    </script> -->
+    </script>
   </body>
 </html>

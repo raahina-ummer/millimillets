@@ -1,7 +1,8 @@
 import Product from "../../models/ProductSchema.js";
 import Category from "../../models/CategorySchema.js";
 import User from "../../models/userSchema.js";
-
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
@@ -47,7 +48,7 @@ const addProducts = async (req, res) => {
     // Category validation
     const categoryData = await Category.findOne({ name: products.category });
     if (!categoryData) {
-      return res.status(400).json("Invalid Category Name");
+      return res.status(Status.BAD_REQUEST).json({sucess:false,message:"Invalid Category Name"});
     }
 
     // Check for duplicate product
@@ -56,7 +57,7 @@ const addProducts = async (req, res) => {
     });
 
     if (existingProduct) {
-      return res.status(400).json("Product already Exists");
+      return res.status(Status.BAD_REQUEST).json({sucess:false,message:"Product already Exists"});
     }
 
     // Create variant array
@@ -182,9 +183,7 @@ const editProduct = async (req, res) => {
     });
 
     if (existingProduct) {
-      return res
-        .status(400)
-        .json({ error: "Entered same Name. Please try another name." });
+      return res.status(Status.BAD_REQUEST).json({ success:false,error: "Entered same Name. Please try another name." });
     }
 
     const images = [];
@@ -239,6 +238,110 @@ const deleteSingleImage = async (req, res) => {
   }
 };
 
+// Get product offer
+export const getProductOffer = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.json({ success: false, message: 'Product not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      offer: product.productOffer || {} 
+    });
+  } catch (error) {
+    console.error('Error fetching offer:', error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Update/Create product offer
+ const updateProductOffer = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const {
+      discountPercentage,
+      maxDiscountAmount,
+      offerDescription,
+      offerActive,
+      offerStartDate,
+      offerEndDate
+    } = req.body;
+
+    // Validation
+    if (discountPercentage < 0 || discountPercentage > 100) {
+      return res.json({
+        success: false,
+        message: 'Discount must be between 0 and 100'
+      });
+    }
+
+    if (offerStartDate && offerEndDate && new Date(offerStartDate) > new Date(offerEndDate)) {
+      return res.json({
+        success: false,
+        message: 'Start date cannot be after end date'
+      });
+    }
+
+    let product = await Product.findByIdAndUpdate(
+      productId,
+      {
+        productOffer: {
+          discountPercentage: parseInt(discountPercentage) || 0,
+          maxDiscountAmount: maxDiscountAmount ? parseInt(maxDiscountAmount) : null,
+          offerDescription,
+          offerActive: offerActive === true || offerActive === 'true',
+          offerStartDate: offerStartDate ? new Date(offerStartDate) : null,
+          offerEndDate: offerEndDate ? new Date(offerEndDate) : null
+        }
+      },
+      { new: true }
+    );
+
+    
+      if (!product) throw new Error("Product not found");
+
+        if (!product) throw new Error("Product not found");
+  product.salePrice = product.regularPrice - (( product.regularPrice * offerData.discountPercentage) /100);
+
+  await product.save();
+
+
+    res.json({
+      success: true,
+      message: 'Offer updated successfully',
+      product
+    });
+  } catch (error) {
+    console.error('Error updating offer:', error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+ const loadProductOffer = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.json({ success: false, message: 'Product not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      offer: product.productOffer || {} 
+    });
+  } catch (error) {
+    console.error('Error fetching offer:', error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
 export {
   getProductAddPage,
   addProducts,
@@ -248,4 +351,6 @@ export {
   getEditProduct,
   editProduct,
   deleteSingleImage,
+  loadProductOffer,
+  updateProductOffer,
 };

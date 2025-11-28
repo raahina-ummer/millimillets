@@ -1,6 +1,9 @@
 import Product from "../../models/ProductSchema.js";
 import User from "../../models/userSchema.js";
 import Category from "../../models/CategorySchema.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const productDetails = async (req, res) => {
   try {
@@ -13,15 +16,15 @@ const productDetails = async (req, res) => {
 
     console.log(product);
 
-    // const categoryOffer = findCategory?.categoryOffer + productOffer;
-    // const productOffer = product.productOffer || 0;
-    // const totalOffer = categoryOffer + productOffer;
+    const categoryOffer = findCategory?.categoryOffer + productOffer;
+    const productOffer = product.productOffer || 0;
+    const totalOffer = categoryOffer + productOffer;
 
     res.render("productdetails", {
       user: userData,
       product,
       quantity: product.quantity,
-      // totalOffer,
+      totalOffer,
       category: findCategory,
       relatedProducts,
       wishlist: [],
@@ -31,5 +34,8 @@ const productDetails = async (req, res) => {
     res.redirect("pageNotFound");
   }
 };
+
+
+
 
 export  { productDetails };
