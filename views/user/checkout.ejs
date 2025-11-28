@@ -718,7 +718,7 @@
                                 </div>
                             </div>
 
-                            <div class="payment-method" onclick="selectPayment('online')" data-payment="online">
+                            <div class="payment-method" onclick="selectPayment('razorpay')" data-payment="razorpay">
                                 <div class="payment-icon">
                                     <i class="fas fa-credit-card"></i>
                                 </div>
@@ -764,7 +764,6 @@
                     </div>
                 </div>
 
-                <!-- Right Column - Order Summary -->
                <!-- Right Column - Order Summary -->
 <div class="order-summary">
     <h3 class="summary-title">Order Summary</h3>
@@ -827,9 +826,22 @@
     </div>
 
     <!-- Place Order Button -->
-    <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
-        <i class="fas fa-lock"></i> Place Order
-    </button>
+   
+
+
+ <button class="place-order-btn" 
+        id="placeOrderBtn" 
+        onclick="placeOrder()">
+    <i class="fas fa-money-bill"></i> Place Order (COD)
+</button>
+
+
+<button class="place-order-btn" 
+        style="background:#0d6efd; margin-top:10px;" 
+        id="razorpayBtn" 
+        onclick="placeOrderRazorpay()">
+    <i class="fas fa-credit-card"></i> Pay With Razorpay
+</button>
 
     <!-- Security Info -->
     <div class="security-info">
@@ -840,247 +852,278 @@
 
     <%- include('../partials/user/footer.ejs') %>
 
-    <script>
-        let selectedAddressId = '<%= addresses.find(addr => addr.isDefault)?._id || (addresses.length > 0 ? addresses[0]._id : "") %>';
-        let selectedPaymentMethod = 'cod';
+ <script>
 
-        function selectAddress(addressId) {
-            document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
-            document.querySelector(`[data-address-id="${addressId}"]`).classList.add('selected');
-            selectedAddressId = addressId;
-        }
+let selectedAddressId = '<%= addresses.find(addr => addr.isDefault)?._id || (addresses.length > 0 ? addresses[0]._id : "") %>';
+let selectedPaymentMethod = 'cod';
 
-        function selectPayment(paymentMethod) {
-            document.querySelectorAll('.payment-method').forEach(method => method.classList.remove('selected'));
-            document.querySelector(`[data-payment="${paymentMethod}"]`).classList.add('selected');
-            selectedPaymentMethod = paymentMethod;
-        }
 
-        function openAddressModal() { window.location.href = "/addAddress?redirect=checkout"; }
+function selectAddress(addressId) {
+  document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+  const selectedCard = document.querySelector(`[data-address-id="${addressId}"]`);
+  if (selectedCard) selectedCard.classList.add('selected');
+  selectedAddressId = addressId;
+}
 
-        async function editAddress(addressId, event) { event.stopPropagation(); window.location.href = `/editAddress/${addressId}?redirect=checkout`; }
+function selectPayment(paymentMethod) {
+  document.querySelectorAll('.payment-method').forEach(method => method.classList.remove('selected'));
+  document.querySelector(`[data-payment="${paymentMethod}"]`).classList.add('selected');
 
-        async function deleteAddress(addressId, event) {
-            event.stopPropagation();
-            const result = await swal({ title: "Delete Address?", text: "This address will be permanently deleted.", icon: "warning", buttons: { cancel: "Cancel", confirm: { text: "Delete", value: true } }, dangerMode: true });
-            if (result) {
-                try {
-                    const response = await fetch(`/deleteAddress/${addressId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
-                    const data = await response.json();
-                    if (data.success) swal("Deleted!", "Address deleted successfully.", "success").then(() => location.reload());
-                    else swal("Error!", data.message, "error");
-                } catch (error) { swal("Error!", "Failed to delete address.", "error"); }
-            }
-        }
+  selectedPaymentMethod = paymentMethod;
 
-        async function placeOrder() {
-            if (!selectedAddressId) { swal("Error!", "Please select a shipping address", "error"); return; }
-            if (!selectedPaymentMethod) { swal("Error!", "Please select a payment method", "error"); return; }
+  if (paymentMethod === "razorpay") {
+    document.getElementById("razorpayBtn").style.display = "block";
+    document.getElementById("placeOrderBtn").style.display = "none";
+  } else {
+    document.getElementById("placeOrderBtn").style.display = "block";
+    document.getElementById("razorpayBtn").style.display = "none";
+  }
+}
 
-            const btn = document.getElementById('placeOrderBtn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'; btn.disabled = true;
 
-            try {
-                const response = await fetch('/placeOrder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ addressId: selectedAddressId, paymentMethod: selectedPaymentMethod }) });
-                const data = await response.json();
+function openAddressModal() {
+  window.location.href = "/addAddress?redirect=checkout";
+}
 
-                if (data.success) {
-                    if (selectedPaymentMethod === 'cod') window.location.href = `/ordersuccess?orderId=${data.orderId}`;
-                    else if (selectedPaymentMethod === 'online') openRazorpay(data);
-                } else { swal("Error!", data.message, "error"); btn.innerHTML = originalHTML; btn.disabled = false; }
-            } catch (error) { swal("Error!", "Failed to place order.", "error"); btn.innerHTML = originalHTML; btn.disabled = false; }
-        }
+async function editAddress(addressId, event) {
+  event.stopPropagation();
+  window.location.href = /editAddress/${addressId}?redirect=checkout;
+}
 
-        function openCouponModal() {
-    swal({ 
-        title: "Apply Coupon", 
-        content: { 
-            element: "input", 
-            attributes: { 
-                placeholder: "Enter coupon code", 
-                type: "text" 
-            } 
-        }, 
-        buttons: { 
-            cancel: "Cancel", 
-            confirm: { text: "Apply", value: "apply" } 
-        } 
-    })
-    .then(value => { 
-        if (value) applyCoupon(value); 
+async function deleteAddress(addressId, event) {
+  event.stopPropagation();
+  const result = await swal({
+    title: "Delete Address?",
+    text: "This address will be permanently deleted.",
+    icon: "warning",
+    buttons: { cancel: "Cancel", confirm: { text: "Delete", value: true } },
+    dangerMode: true
+  });
+
+  if (result) {
+    const response = await fetch(/deleteAddress/${addressId}, { method: 'DELETE' });
+    const data = await response.json();
+
+    if (data.success) {
+      swal("Deleted!", "Address deleted successfully.", "success").then(() => location.reload());
+    } else {
+      swal("Error!", data.message, "error");
+    }
+  }
+}
+
+/* ---------- Razorpay Payment ---------- */
+
+async function payNow(amount, orderId) {
+  const res = await fetch("/create-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount })
+  });
+
+  const data = await res.json();
+
+  const options = {
+    key: data.key,
+    amount: data.order.amount,
+    currency: "INR",
+    name: "Milli Millet Ecommerce",
+    order_id: data.order.id,
+    handler: async function (response) {
+      // Verify payment
+      const verifyRes = await fetch("/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentResponse: response, orderId })
+      });
+      const verifyData = await verifyRes.json();
+      if (verifyData.success) {
+        window.location.href = /ordersuccess?orderId=${orderId};
+      } else {
+        window.location.href = /orderfailure?orderId=${orderId};
+      }
+    },
+    theme: { color: "#3399cc" }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+}
+
+// Place Order function for COD only
+async function placeOrder() {
+  if (!selectedAddressId) return swal("Error!", "Please select a shipping address", "error");
+
+  const btn = document.getElementById('placeOrderBtn');
+  const originalHTML = btn.innerHTML;
+
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch('/placeOrder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        addressId: selectedAddressId, 
+        paymentMethod: 'cod'
+      })
     });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = /ordersuccess?orderId=${data.orderId};
+    } else {
+      swal("Error!", data.message, "error");
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    }
+  } catch (error) {
+    swal("Error!", "Something went wrong. Please try again.", "error");
+    btn.innerHTML = originalHTML;
+    btn.disabled = false;
+  }
+}
+
+// Place Order function for Razorpay only
+async function placeOrderRazorpay() {
+  if (!selectedAddressId) return swal("Error!", "Please select a shipping address", "error");
+
+  const btn = document.getElementById('razorpayBtn');
+  const originalHTML = btn.innerHTML;
+
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch('/placeOrder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        addressId: selectedAddressId, 
+        paymentMethod: 'razorpay'
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      payNow(data.amount, data.orderId);
+    } else {
+      swal("Error!", data.message, "error");
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    }
+  } catch (error) {
+    swal("Error!", "Something went wrong. Please try again.", "error");
+    btn.innerHTML = originalHTML;
+    btn.disabled = false;
+  }
+}
+
+/* ---------- Coupon Apply ---------- */
+
+function openCouponModal() {
+  swal({
+    title: "Apply Coupon",
+    content: { element: "input", attributes: { placeholder: "Enter coupon code", type: "text" } },
+    buttons: { cancel: "Cancel", confirm: { text: "Apply", value: "apply" } }
+  }).then(value => { if (value) applyCoupon(value); });
 }
 
 async function applyCoupon(couponCode) {
-    console.log("🔵 applyCoupon called with code:", couponCode);
-    
-    if (!couponCode || couponCode.trim() === "") {
-        swal("Error!", "Please enter a coupon code", "error");
-        return;
-    }
+  const response = await fetch('/applyCoupon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: "include",
+    body: JSON.stringify({ couponCode })
+  });
 
-    try {
-        console.log("Sending request to /applyCoupon");
-        
-        const response = await fetch('/applyCoupon', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json' 
-            },
-            credentials: "include", // IMPORTANT: Include cookies for session
-            body: JSON.stringify({ couponCode: couponCode.trim() })
-        });
+  const data = await response.json();
 
-        console.log(" Response status:", response.status);
-        
-        if (!response.ok) {
-            console.error(" HTTP Error:", response.status);
-            swal("Error!", "Server error occurred", "error");
-            return;
-        }
+  if (!data.success) return swal("Invalid!", data.message, "error");
 
-        const data = await response.json();
-        console.log(" Response data:", data);
+  swal("Success!", "Coupon applied successfully!", "success");
+  
+  const totalElement = document.querySelector(".summary-row.total span:last-child");
+  if (totalElement) totalElement.innerText = Rs${data.newTotal.toFixed(2)};
 
-        if (!data.success) {
-            swal("Invalid!", data.message || "Coupon is invalid!", "error");
-            return;
-        }
-
-        // Success popup
-        swal("Success!", data.message || "Coupon applied successfully!", "success");
-
-        // Update totals in UI
-        if (data.newTotal) {
-            const totalElement = document.querySelector(".summary-row.total span:last-child");
-            if (totalElement) {
-                totalElement.innerText = `Rs${data.newTotal.toFixed(2)}`;
-            }
-        }
-
-        // Display or update discount row
-      
-let discountRow = document.getElementById("couponDiscountRow");
-if (!discountRow) {
-    console.log("Creating new coupon discount row");
+  let discountRow = document.getElementById("couponDiscountRow");
+  if (!discountRow) {
     discountRow = document.createElement("div");
     discountRow.id = "couponDiscountRow";
     discountRow.classList.add("summary-row");
     discountRow.innerHTML = `
-        <span class="summary-label">Coupon Discount</span>
-        <span class="summary-value discount">-Rs ${parseFloat(data.discount).toFixed(2)}</span>
-    `;
+      <span class="summary-label">Coupon Discount</span>
+      <span class="summary-value discount">-Rs ${data.discount.toFixed(2)}</span>`;
     
     const totalRow = document.querySelector(".summary-row.total");
-    if (totalRow && totalRow.parentNode) {
-        totalRow.parentNode.insertBefore(discountRow, totalRow);
-        console.log(" Discount row created and inserted");
-    } else {
-        console.error(" Could not find total row to insert before");
-    }
-} else {
-    console.log("Updating existing discount row");
-    const discountValue = discountRow.querySelector(".summary-value.discount");
-    if (discountValue) {
-        discountValue.innerText = `-Rs ${parseFloat(data.discount).toFixed(2)}`;
-    }
+    totalRow.parentNode.insertBefore(discountRow, totalRow);
+  } else {
     discountRow.style.display = "block";
+  }
+
+  // Update Apply button
+  const applyBtn = document.querySelector('#applyCouponBtn');
+  applyBtn.innerHTML = '✔ Applied';
+  applyBtn.disabled = true;
+  applyBtn.style.background = "#C3E6CB";
+  applyBtn.style.color = "#155724";
+
+  // Show Remove button
+  const removeBtn = document.getElementById("removeCouponBtn");
+  if (removeBtn) removeBtn.style.display = "block";
 }
 
-        // Update Apply button
-        const applyBtn = document.querySelector('#applyCouponBtn');
-        if (applyBtn) {
-            applyBtn.innerHTML = '<i class="fas fa-check"></i> Coupon Applied ✔';
-            applyBtn.disabled = true;
-            applyBtn.style.background = "#C3E6CB";
-            applyBtn.style.border = "2px solid #28a745";
-            applyBtn.style.color = "#155724";
-        }
-
-        // Show Remove button
-        const removeBtn = document.getElementById("removeCouponBtn");
-        if (removeBtn) {
-            removeBtn.style.display = "block";
-        }
-
-    } catch (err) {
-        console.error(" Error:", err);
-        swal("Error!", "Something went wrong. Please try again.", "error");
-    }
-}
+/* ---------- Remove Coupon ---------- */
 
 async function removeCoupon() {
-    console.log("🔵 removeCoupon called");
-    
-    try {
-        console.log(" Sending request to /removeCoupon");
-        
-        const response = await fetch('/removeCoupon', {
-            method: 'POST',
-            headers: { 
-                "Content-Type": "application/json" 
-            },
-            credentials: "include" // IMPORTANT: Include cookies for session
-        });
+  const response = await fetch('/removeCoupon', {
+    method: 'POST',
+    headers: { "Content-Type": "application/json" },
+    credentials: "include"
+  });
 
-        console.log(" Response status:", response.status);
-        
-        if (!response.ok) {
-            console.error("HTTP Error:", response.status);
-            swal("Error!", "Server error occurred", "error");
-            return;
-        }
+  const data = await response.json();
 
-        const data = await response.json();
-        console.log(" Response data:", data);
+  if (!data.success) return swal("Error!", data.message, "error");
 
-        if (!data.success) {
-            swal("Error!", data.message, "error");
-            return;
-        }
+  swal("Removed!", "Coupon removed", "success");
 
-        swal("Removed!", data.message || "Coupon removed successfully", "success");
+  const discountRow = document.querySelector("#couponDiscountRow");
+  if (discountRow) discountRow.style.display = "none";
 
-        // Get the original total from the page or recalculate
-        const subtotalText = document.querySelector(".summary-row span:first-child")?.nextElementSibling?.innerText;
-        let originalTotal = subtotalText ? parseFloat(subtotalText.replace('Rs', '')) : 0;
+  const applyBtn = document.querySelector('#applyCouponBtn');
+  applyBtn.innerHTML = 'Apply Coupon';
+  applyBtn.disabled = false;
+  applyBtn.style.background = "";
+  applyBtn.style.color = "";
 
-        // Update total amount
-        const totalElement = document.querySelector(".summary-row.total span:last-child");
-        if (totalElement && data.newTotal !== undefined) {
-            totalElement.innerText = `Rs${data.newTotal.toFixed(2)}`;
-        }
-
-        // Hide discount row
-        const discountRow = document.querySelector("#discountRow");
-        if (discountRow) {
-            discountRow.style.display = "none";
-        }
-
-        // Reset Apply button
-        const applyBtn = document.querySelector('#applyCouponBtn');
-        if (applyBtn) {
-            applyBtn.innerHTML = '<i class="fas fa-ticket-alt"></i> Apply Coupon';
-            applyBtn.disabled = false;
-            applyBtn.style.background = "#f9f6f1";
-            applyBtn.style.color = "#8B7355";
-            applyBtn.style.border = "2px solid #8B7355";
-        }
-
-        // Hide Remove button
-        const removeBtn = document.getElementById("removeCouponBtn");
-        if (removeBtn) {
-            removeBtn.style.display = "none";
-        }
-
-    } catch (err) {
-        console.error(" Error:", err);
-        swal("Error!", "Something went wrong. Please try again.", "error");
-    }
+  const removeBtn = document.getElementById("removeCouponBtn");
+  if (removeBtn) removeBtn.style.display = "none";
 }
 
-    </script>
+/* ---------- Verify Razorpay Payment ---------- */
+
+async function verifyPayment(paymentResponse, orderId) {
+  const res = await fetch("/verify-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ paymentResponse, orderId })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    swal("Payment Successful!", "Redirecting...", "success");
+    setTimeout(() => window.location.href = /ordersuccess?orderId=${orderId}, 1500);
+  } else {
+    swal("Payment Failed!", "Try again.", "error");
+  }
+}
+</script>
+
 
 </body>
 </html>

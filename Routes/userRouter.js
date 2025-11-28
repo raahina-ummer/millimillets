@@ -94,7 +94,6 @@ router.get("/cartCount",userAuth,cartController.getCartCount)
 
 //checkout
 router.get("/checkOut",userAuth,checkoutController.loadCheckOut);
-router.post("/placeOrder",userAuth,checkoutController.placeOrder);
 router.get("/orderSuccess",userAuth,checkoutController.loadOrderSuccess);
 router.get("/orderFailure",userAuth,checkoutController.loadOrderFaliure);
 
@@ -106,6 +105,7 @@ router.patch("/orders/:orderId/cancel", userAuth, orderController.cancelEntireOr
 router.post("/orders/:orderId/items/:productId/cancel", userAuth, orderController.cancelOrderItem);
 router.post("/orders/:orderId/return", userAuth, orderController.returnOrderItem);
 router.get("/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
+router.post("/placeOrder",userAuth,orderController.placeOrder);
 
 //wishlist
 router.get("/wishlist",userAuth,wishlistController.loadWishlist)
@@ -118,6 +118,9 @@ router.delete("/removeWishlist/:productId",userAuth,wishlistController.removeFro
 router.post("/applyCoupon", userAuth,couponController.applyCoupon);
 router.post("/removeCoupon", userAuth, couponController.removeCoupon);
 
+//razorpay
+router.post("/create-order", userAuth,orderController.createOrder);
+router.post("/verify-payment", userAuth,orderController.verifyPayment);
 
 //wallet
 router.get("/wallet",userAuth,walletController.loadWallet);

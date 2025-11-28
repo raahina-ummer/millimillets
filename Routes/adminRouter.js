@@ -63,6 +63,9 @@ router.patch("/adminorderReturn/:orderId", adminAuth, orderController.approveOrR
 
 //stock management
 router.get("/stock",adminAuth,stockController.getStockManagement);
+router.get("/update-stock",adminAuth,stockController.updateVariantStock);
+
+
 
 
 
@@ -112,9 +115,7 @@ router.get("/referral-token/validate/:token", offerManagement.validateReferralTo
 
 router.get('/sales-report',adminAuth,salesreport.loadSalesReport);
 router.get('/sales-report/download',adminAuth,salesreport.downloadSalesReport);
-router.get('/sales-report/download/test', (req, res) => {
-  res.json({ message: 'Routes are working!', query: req.query });
-});
+
 
 
 

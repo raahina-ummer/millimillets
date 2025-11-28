@@ -10,32 +10,34 @@ const productDetails = async (req, res) => {
     const userId = req.session.user.id;
     const userData = await User.findById(userId);
     const productId = req.query.id;
+
     const product = await Product.findById(productId).populate("category");
-    const findCategory = product.category;
+    if (!product) return res.redirect("/pageNotFound");
+
     const relatedProducts = await Product.find().limit(4);
 
-    console.log(product);
+    const findCategory = product.category;
 
-    const categoryOffer = findCategory?.categoryOffer + productOffer;
-    const productOffer = product.productOffer || 0;
-    const totalOffer = categoryOffer + productOffer;
+    const productOffer = product.productOffer?.discountPercentage || 0;
+    const categoryOffer = findCategory?.categoryOffer || 0;
+
+    const totalOffer = productOffer + categoryOffer;
 
     res.render("productdetails", {
       user: userData,
       product,
-      quantity: product.quantity,
+      quantity: product.variant?.[0]?.stock || 0,
       totalOffer,
       category: findCategory,
       relatedProducts,
       wishlist: [],
     });
+
   } catch (error) {
     console.error("Error fetching product details:", error);
     res.redirect("pageNotFound");
   }
 };
-
-
 
 
 export  { productDetails };

@@ -644,7 +644,9 @@
                             <option value="Canceled">✕ Cancel</option>
                           <% } else if (order.status === 'Shipped') { %>
                             <option value="Delivered">✓ Delivered</option>
-                          <% } %>
+                          <% }  else if (order.status === 'Return Request') { %>
+    <option value="Returned">✔ Approve Return (Refund + Stock Restore)</option>
+  <% } %>
                         </select>
                       <% } %>
                     </div>

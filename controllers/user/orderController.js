@@ -4,12 +4,16 @@ import Category from "../../models/CategorySchema.js";
 import User from "../../models/userSchema.js";
 import OrderHistory from "../../models/OrderHistorySchema.js";
 import Order from "../../models/OrderSchema.js";
+import Wallet from "../../models/WalletSchema.js"; // NEW
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import dotenv from "dotenv";
+import crypto from "crypto"; // FIX #1: Added crypto import
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import { razorpay } from "../../utils/razorpay.js";
 
+dotenv.config();
 
 const loadOrderDetails = async (req, res) => {
   try {
@@ -74,7 +78,24 @@ const loadOrder = async (req, res) => {
   }
 };
 
-// Cancel an entire order
+const createOrder = async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    const order = await razorpay.orders.create({
+      amount: amount * 100,
+      currency: "INR",
+      receipt: "receipt_" + Date.now(),
+      payment_capture: 1
+    });
+
+    res.json({ success: true, key: process.env.RAZORPAY_KEY_ID, order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Failed to create order" });
+  }
+};
+
 const cancelEntireOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -93,9 +114,11 @@ const cancelEntireOrder = async (req, res) => {
 
     console.log("Current order status:", order.status);
 
-    // Check if order can be cancelled
     if (["Shipped", "Delivered", "Canceled", "Return Request", "Returned"].includes(order.status)) {
-      return res.status(Status.BAD_REQUEST).json({success: false,message: `Order cannot be cancelled. Current status: ${order.status}`,});
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: `Order cannot be cancelled. Current status: ${order.status}`,
+      });
     }
 
     // Restore product stock for each item
@@ -107,15 +130,12 @@ const cancelEntireOrder = async (req, res) => {
 
       console.log(`Restoring stock for product ${item.product._id}: +${item.quantity}`);
       
-      // Find the product and update stock
       const product = await Product.findById(item.product._id);
       
       if (product) {
-        // Check if variant exists and has stock field
         if (product.variant && product.variant.length > 0) {
           product.variant[0].stock += item.quantity;
         } else if (product.stock !== undefined) {
-          // Fallback to direct stock field if no variants
           product.stock += item.quantity;
         }
         
@@ -126,21 +146,25 @@ const cancelEntireOrder = async (req, res) => {
       }
     }
 
-    // Update order status
     order.status = "Canceled";
     order.cancellationReason = reason || "Cancelled by user";
     await order.save();
 
     console.log("Order cancelled successfully");
 
-    return res.status(Status.OK).json({success: true,  message: "Order cancelled successfully. Stock has been restored."});
+    return res.status(Status.OK).json({
+      success: true,
+      message: "Order cancelled successfully. Stock has been restored."
+    });
   } catch (error) {
     console.error("Error cancelling order:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success: false, message: "An error occurred while cancelling the order. Please try again."});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred while cancelling the order. Please try again."
+    });
   }
 };
 
-// Cancel a specific product in an order
 const cancelOrderItem = async (req, res) => {
   try {
     const { orderId, productId } = req.params;
@@ -163,10 +187,12 @@ const cancelOrderItem = async (req, res) => {
     }
 
     if (["Shipped", "Delivered", "Canceled"].includes(order.status)) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Cannot cancel item after shipping or delivery" });
+      return res.status(Status.BAD_REQUEST).json({ 
+        success: false, 
+        message: "Cannot cancel item after shipping or delivery" 
+      });
     }
 
-    // Restore stock for this item
     const product = await Product.findById(productId);
     if (product) {
       if (product.variant && product.variant.length > 0) {
@@ -177,24 +203,27 @@ const cancelOrderItem = async (req, res) => {
       await product.save();
     }
 
-    // Mark the item as cancelled
     item.status = "Cancelled";
     item.cancelReason = reason || "Cancelled by user";
     
-    // Recalculate order totals if needed
     order.totalPrice -= item.price * item.quantity;
     order.finalAmount = order.totalPrice - order.discount;
     
     await order.save();
 
-    res.status(Status.OK).json({ success: true, message: "Item cancelled successfully and stock restored"  });
+    res.status(Status.OK).json({ 
+      success: true, 
+      message: "Item cancelled successfully and stock restored" 
+    });
   } catch (error) {
     console.error("Error cancelling item:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,  message: "An error occurred. Please try again."});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again."
+    });
   }
 };
 
-// Return a delivered product
 const returnOrderItem = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -207,30 +236,155 @@ const returnOrderItem = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(Status.NOT_FOUND).json({ success: false,  message: "Order not found" });
+      return res.status(Status.NOT_FOUND).json({ 
+        success: false,
+        message: "Order not found" 
+      });
     }
 
     if (order.status !== "Delivered") {
-      return res.status(Status.BAD_REQUEST).json({success: false,message: "Return is only allowed for delivered orders"});
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return is only allowed for delivered orders"
+      });
     }
 
     if (!reason || reason.trim() === "") {
-      return res.status(Status.BAD_REQUEST).json({success: false,message: "Return reason is required"});
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return reason is required"
+      });
     }
 
-    // Update order status to Return Request
     order.status = "Return Request";
     order.returnReason = reason;
+    order.returnRequestDate = new Date(); // NEW: Track when return was requested
     await order.save();
 
-    res.status(Status.OK).json({  success: true, message: "Return request submitted successfully. We'll process it soon."});
+    res.status(Status.OK).json({
+      success: true,
+      message: "Return request submitted successfully. We'll process it soon."
+    });
   } catch (error) {
     console.error("Error submitting return:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred. Please try again." });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ 
+      success: false, 
+      message: "An error occurred. Please try again." 
+    });
   }
 };
 
-// Download Invoice (PDF)
+//  Admin function to verify and process return requests
+const verifyReturnRequest = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { approved, notes } = req.body; // approved: true/false, notes: admin notes
+
+    const order = await Order.findOne({ orderId })
+      .populate("orderedProducts.product");
+
+    if (!order) {
+      return res.status(Status.NOT_FOUND).json({ 
+        success: false, 
+        message: "Order not found" 
+      });
+    }
+
+    if (order.status !== "Return Request") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Order is not in return request status"
+      });
+    }
+
+    if (approved) {
+      // Process refund to wallet
+      let wallet = await Wallet.findOne({ userId: order.userId });
+
+      if (!wallet) {
+        wallet = new Wallet({
+          userId: order.userId,
+          balance: 0,
+          transactions: []
+        });
+      }
+
+      const refundAmount = order.finalAmount;
+      wallet.balance += refundAmount;
+      wallet.transactions.push({
+        type: "credit",
+        amount: refundAmount,
+        reason: `Refund for returned order ${orderId}`,
+        date: new Date()
+      });
+
+      await wallet.save();
+
+      // Restore stock
+      for (const item of order.orderedProducts) {
+        if (!item.product) continue;
+
+        const product = await Product.findById(item.product._id);
+        if (product) {
+          if (product.variant && product.variant.length > 0) {
+            product.variant[0].stock += item.quantity;
+          } else if (product.stock !== undefined) {
+            product.stock += item.quantity;
+          }
+          await product.save();
+        }
+      }
+
+      order.status = "Returned";
+      order.returnApprovedDate = new Date();
+      order.returnAdminNotes = notes || "";
+      await order.save();
+
+      return res.status(Status.OK).json({
+        success: true,
+        message: `Return approved. ₹${refundAmount} credited to wallet.`
+      });
+    } else {
+      // Reject return
+      order.status = "Delivered"; // Back to delivered
+      order.returnRejectedReason = notes || "";
+      await order.save();
+
+      return res.status(Status.OK).json({
+        success: true,
+        message: "Return request rejected."
+      });
+    }
+  } catch (error) {
+    console.error("Error verifying return:", error);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred while processing return."
+    });
+  }
+};
+
+//  Get all pending return requests (admin)
+const getPendingReturns = async (req, res) => {
+  try {
+    const returns = await Order.find({ status: "Return Request" })
+      .populate("userId", "name email")
+      .populate("orderedProducts.product", "productName")
+      .sort({ returnRequestDate: -1 });
+
+    res.status(Status.OK).json({
+      success: true,
+      data: returns
+    });
+  } catch (error) {
+    console.error("Error fetching returns:", error);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred."
+    });
+  }
+};
+
 const downloadInvoice = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -240,11 +394,17 @@ const downloadInvoice = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(Status.NOT_FOUND).json({succes:false,message:"Order not found"});
+      return res.status(Status.NOT_FOUND).json({
+        succes: false,
+        message: "Order not found"
+      });
     }
 
     if (order.status !== "Delivered") {
-      return res.status(Status.BAD_REQUEST).json({succes:false,message:"Invoice is only available for delivered orders"});
+      return res.status(Status.BAD_REQUEST).json({
+        succes: false,
+        message: "Invoice is only available for delivered orders"
+      });
     }
 
     const user = await User.findById(userId);
@@ -258,17 +418,14 @@ const downloadInvoice = async (req, res) => {
     
     doc.pipe(res);
 
-    // Header
     doc.fontSize(24).text("MilliMillet", { align: "center" });
     doc.fontSize(10).text("Tax Invoice", { align: "center" });
     doc.moveDown(2);
 
-    // Order Details
     doc.fontSize(12).text(`Invoice Date: ${new Date().toLocaleDateString()}`, { align: "right" });
     doc.text(`Order ID: ${orderId}`, { align: "right" });
     doc.moveDown();
 
-    // Customer Details
     doc.fontSize(14).text("Bill To:", { underline: true });
     doc.fontSize(11).text(`Name: ${user.name}`);
     doc.text(`Email: ${user.email}`);
@@ -282,7 +439,6 @@ const downloadInvoice = async (req, res) => {
     }
     doc.moveDown(2);
 
-    // Products Table Header
     doc.fontSize(12).text("Order Details:", { underline: true });
     doc.moveDown();
     
@@ -296,7 +452,6 @@ const downloadInvoice = async (req, res) => {
     doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
     doc.moveDown();
 
-    // Products
     let yPosition = doc.y + 5;
     order.orderedProducts.forEach((item, i) => {
       const productName = item.product ? item.product.productName : "Product";
@@ -314,7 +469,6 @@ const downloadInvoice = async (req, res) => {
     doc.moveDown(2);
     yPosition = doc.y;
 
-    // Summary
     doc.moveTo(350, yPosition).lineTo(550, yPosition).stroke();
     yPosition += 10;
     
@@ -337,7 +491,6 @@ const downloadInvoice = async (req, res) => {
     yPosition += 10;
     doc.moveTo(350, yPosition).lineTo(550, yPosition).stroke();
 
-    // Footer
     doc.fontSize(9)
       .text(
         "Thank you for your order!",
@@ -353,11 +506,224 @@ const downloadInvoice = async (req, res) => {
   }
 };
 
+const placeOrder = async (req, res) => {
+  try {
+    const { addressId, paymentMethod } = req.body;
+    const userId = req.session.user.id;
+
+    if (!addressId || !paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        message: "Address and payment method are required",
+      });
+    }
+
+    const userAddress = await Address.findOne({ userId });
+    if (!userAddress) return res.status(400).send("Invalid Request");
+
+    const selectedAddress = userAddress.addresses.find(
+      (addr) => addr._id.toString() === addressId
+    );
+    if (!selectedAddress) return res.status(400).send("Please add a valid address");
+
+    if (paymentMethod !== "cod") {
+      return res.status(400).send("Only Cash on Delivery is available");
+    }
+
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "products.productId",
+      populate: "category",
+    });
+
+    if (!cart || cart.products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart is empty or not found",
+      });
+    }
+
+    // Fix: Check stock and prices using product.variant[0]
+    const validCartItems = cart.products.filter((item) => {
+      const product = item.productId;
+      const variant = product.variant?.[0];
+      return (
+        product &&
+        variant &&
+        !product.isBlocked &&
+        product.category?.isListed &&
+        variant.stock >= item.quantity
+      );
+    });
+
+    if (validCartItems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid items in cart",
+      });
+    }
+
+    let subtotal = 0;
+    let totalDiscount = 0;
+    const orderItems = [];
+
+    for (const item of validCartItems) {
+      const product = item.productId;
+      const variant = product.variant?.[0]; // 🧠 Use first variant
+
+      const regularPrice = variant.regularPrice;
+      const salePrice = variant.salePrice;
+      const discountAmount = regularPrice - salePrice;
+      const totalPrice = salePrice * item.quantity;
+
+      subtotal += regularPrice * item.quantity;
+      totalDiscount += discountAmount * item.quantity;
+
+      orderItems.push({
+        productId: product._id,
+        productName: product.productName,
+        quantity: item.quantity,
+        price: salePrice,
+        totalPrice: totalPrice,
+        productImage: product.productImage[0] || null,
+        regularPrice,
+        discountAmount,
+        category: product.category,
+      });
+
+      // Update product stock immediately (COD)
+      await Product.findByIdAndUpdate(product._id, {
+        $inc: { "variant.0.stock": -item.quantity },
+      });
+    }
+
+    const shipping = subtotal >= 1000 ? 0 : 50;
+    const finalAmount = subtotal - totalDiscount + shipping;
+
+    const orderId =
+      "ORD" +
+      Date.now() +
+      Math.random().toString(36).substr(2, 5).toUpperCase();
+
+    const newOrder = new Order({
+      orderId,
+      userId,
+      orderedProducts: orderItems.map((item) => ({
+        product: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      totalPrice: subtotal,
+      discount: totalDiscount,
+      finalAmount,
+      address: selectedAddress,
+      status: "Pending",
+      createdOn: new Date(),
+    });
+
+    await newOrder.save();
+
+    // ✅ Clear cart after successful order
+    await Cart.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          products: [],
+          couponApplied: false,
+          couponCode: null,
+          couponDiscount: 0,
+        },
+      }
+    );
+
+    return res.json({
+      success: true,
+      message: "Order placed successfully",
+      orderId,
+      totalAmount: finalAmount,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Verify Razorpay Payment
+const verifyPayment = async (req, res) => {
+  try {
+    const { paymentResponse, orderId } = req.body;
+
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET)
+      .update(paymentResponse.razorpay_order_id + "|" + paymentResponse.razorpay_payment_id)
+      .digest("hex");
+
+    if (generatedSignature !== paymentResponse.razorpay_signature) {
+      // Payment verification failed - Update order status
+      await Order.findOneAndUpdate(
+        { orderId }, 
+        {
+          paymentStatus: "Failed",
+          status: "Payment Failed"
+        }
+      );
+      return res.json({ success: false, message: "Payment verification failed!" });
+    }
+
+    // Payment verified successfully
+    const order = await Order.findOne({ orderId }).populate('orderedProducts.product');
+    
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+
+    // Update order status
+    order.paymentStatus = "Paid";
+    order.status = "Processing";
+    order.razorpayOrderId = paymentResponse.razorpay_order_id;
+    order.paymentId = paymentResponse.razorpay_payment_id;
+    await order.save();
+
+    // Reduce stock
+    for (let item of order.orderedProducts) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        if (product.variant && product.variant.length > 0) {
+          product.variant[0].stock -= item.quantity;
+        } else if (product.stock !== undefined) {
+          product.stock -= item.quantity;
+        }
+        await product.save();
+      }
+    }
+
+    // Clear cart and coupon
+    await Cart.findOneAndUpdate(
+      { userId: req.session.user.id },
+      { products: [] }
+    );
+    delete req.session.appliedCoupon;
+
+    return res.json({
+      success: true,
+      message: "Payment verified and order updated",
+      orderId
+    });
+
+  } catch (error) {
+    console.error("Payment Verification Error:", error);
+    res.status(500).json({ success: false, message: "Server error while verifying payment" });
+  }
+};
 export {
   loadOrderDetails,
   loadOrder,
   cancelEntireOrder,
   cancelOrderItem,
   returnOrderItem,
+  verifyReturnRequest, 
+  getPendingReturns,   
   downloadInvoice,
+  verifyPayment,
+  createOrder,
+  placeOrder,
 };

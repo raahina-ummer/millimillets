@@ -18,7 +18,7 @@ const loadCheckOut = async (req, res) => {
       populate: {
         path: "category",
         select: "name isListed",
-      },
+      }, 
     });
 
     let address = await Address.findOne({ userId });
@@ -122,138 +122,6 @@ const total = subtotal - totalDiscount - couponDiscount + tax + shipping;
 
 
 
-
-const placeOrder = async (req, res) => {
-  try {
-    const { addressId, paymentMethod } = req.body;
-    const userId = req.session.user.id;
-
-    if (!addressId || !paymentMethod) {
-      return res.status(Status.BAD_REQUEST).json({success: false, message: "Address and payment method are required",});
-    }
-
-    const userAddress = await Address.findOne({ userId });
-    if (!userAddress) return res.status(400).send("Invalid Request");
-
-    const selectedAddress = userAddress.addresses.find(
-      (addr) => addr._id.toString() === addressId
-    );
-    if (!selectedAddress) return res.status(Status.BAD_REQUEST).send("Please add a valid address");
-
-    if (paymentMethod !== "cod") {
-      return res.status(Status.BAD_REQUEST).send("Only Cash on Delivery is available");
-    }
-
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "products.productId",
-      populate: "category",
-    });
-
-    if (!cart || cart.products.length === 0) {
-      return res.status(Status.NOT_FOUND).json({success: false,message: "Cart is empty or not found",});
-    }
-
-    // Fix: Check stock and prices using product.variant[0]
-    const validCartItems = cart.products.filter((item) => {
-      const product = item.productId;
-      const variant = product.variant?.[0];
-      return (
-        product &&
-        variant &&
-        !product.isBlocked &&
-        product.category?.isListed &&
-        variant.stock >= item.quantity
-      );
-    });
-
-    if (validCartItems.length === 0) {
-      return res.status(Status.BAD_GATEWAY).json({success: false,message: "No valid items in cart" });
-    }
-
-    let subtotal = 0;
-    let totalDiscount = 0;
-    const orderItems = [];
-
-    for (const item of validCartItems) {
-      const product = item.productId;
-      const variant = product.variant?.[0]; 
-
-      const regularPrice = variant.regularPrice;
-      const salePrice = variant.salePrice;
-      const discountAmount = regularPrice - salePrice;
-      const totalPrice = salePrice * item.quantity;
-
-      subtotal += regularPrice * item.quantity;
-      totalDiscount += discountAmount * item.quantity;
-
-      orderItems.push({
-        productId: product._id,
-        productName: product.productName,
-        quantity: item.quantity,
-        price: salePrice,
-        totalPrice: totalPrice,
-        productImage: product.productImage[0] || null,
-        regularPrice,
-        discountAmount,
-        category: product.category,
-      });
-
-      // Update product stock immediately (COD)
-      await Product.findByIdAndUpdate(product._id, {
-        $inc: { "variant.0.stock": -item.quantity },
-      });
-    }
-
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const finalAmount = subtotal - totalDiscount + shipping;
-
-    const orderId =
-      "ORD" +
-      Date.now() +
-      Math.random().toString(36).substr(2, 5).toUpperCase();
-
-    const newOrder = new Order({
-      orderId,
-      userId,
-      orderedProducts: orderItems.map((item) => ({
-        product: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      totalPrice: subtotal,
-      discount: totalDiscount,
-      finalAmount,
-      address: selectedAddress,
-      status: "Pending",
-      createdOn: new Date(),
-    });
-
-    await newOrder.save();
-
-    //  Clear cart after successful order
-    await Cart.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          products: [],
-          couponApplied: false,
-          couponCode: null,
-          couponDiscount: 0,
-        },
-      }
-    );
-
-    return res.status(Status.OK).json({
-      success: true,
-      message: "Order placed successfully",
-      orderId,
-      totalAmount: finalAmount,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
-  }
-};
 
 
 
@@ -361,7 +229,7 @@ const loadOrderFaliure = async (req, res) => {
 
 export {
   loadCheckOut,
-  placeOrder,
   loadOrderSuccess,
   loadOrderFaliure,
 };
+
