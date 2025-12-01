@@ -41,7 +41,59 @@
         }
 
         /* Search Bar */
-        .search-section {
+            .filter-search-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.form-select, .form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+
+
+
+
+        /* .search-section {
             background: white;
             border-radius: 15px;
             padding: 25px;
@@ -61,7 +113,7 @@
             border-color: #8B7355;
             box-shadow: 0 0 0 0.2rem rgba(139, 115, 85, 0.15);
             outline: none;
-        }
+        } */
 
         .btn-primary-custom {
             background-color: #8B7355;
@@ -471,32 +523,65 @@
             <p class="orders-count"><%= orders.length %> orders found</p>
 
             <!-- Search Section -->
-            <div class="search-section">
-                <form method="GET" action="/orders">
-                    <div class="row align-items-center">
-                        <div class="col-md-8 mb-3 mb-md-0">
-                            <input 
-                                type="text" 
-                                name="search" 
-                                class="form-control search-input" 
-                                placeholder="Search by Order ID or Status..."
-                                value="<%= typeof search !== 'undefined' ? search : '' %>">
-                        </div>
-                        <div class="col-md-4">
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary-custom flex-grow-1">
-                                    <i class="fas fa-search"></i> Search
-                                </button>
-                                <% if (typeof search !== 'undefined' && search) { %>
-                                <a href="/orders" class="btn btn-outline-custom">
-                                    <i class="fas fa-times"></i>
-                                </a>
-                                <% } %>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+            <!-- Filter and Search Section -->
+                <div class="filter-search-section">
+    <form method="GET" action="/orders" class="filter-search-form" id="orderFilterForm">
+        <div class="row g-3 align-items-end">
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <label class="form-label">Order Status</label>
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="Pending" <%= status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                    <option value="Shipped" <%= status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                    <option value="Delivered" <%= status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                    <option value="Canceled" <%= status === 'Canceled' ? 'selected' : '' %>>Cancelled</option>
+                    <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                    <option value="Return Requested" <%= status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                </select>
             </div>
+
+            <!-- Sort Filter -->
+            <div class="col-md-3">
+                <label class="form-label">Sort By</label>
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="date_desc" <%= sort === 'date_desc' ? 'selected' : '' %>>Latest First</option>
+                    <option value="date_asc" <%= sort === 'date_asc' ? 'selected' : '' %>>Oldest First</option>
+                    <option value="amount_desc" <%= sort === 'amount_desc' ? 'selected' : '' %>>High Amount</option>
+                    <option value="amount_asc" <%= sort === 'amount_asc' ? 'selected' : '' %>>Low Amount</option>
+                </select>
+            </div>
+
+            <!-- Search Input -->
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    id="searchInput"
+                    class="form-control" 
+                    placeholder="Search by Order ID..."
+                    value="<%= typeof search !== 'undefined' ? search : '' %>">
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-2">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a href="/orders" class="btn btn-outline-secondary" title="Reset Filters">
+                        <i class="fas fa-redo"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+  
 
             <!-- Orders List -->
             <% if (orders && orders.length > 0) { %>
@@ -854,6 +939,23 @@
                 swal("Error!", "Something went wrong. Please try again.", "error");
             }
         }
+
+
+
+        //search
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('orderFilterForm');
+    const searchInput = document.getElementById('searchInput');
+    
+    // Prevent form submission when user types in search (Enter key)
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            form.submit();
+        }
+    });
+});
+
     </script>
 </body>
 </html>

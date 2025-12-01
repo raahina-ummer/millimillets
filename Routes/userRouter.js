@@ -82,7 +82,7 @@ router.get("/resetPassword",profileController.getPostNewPassword);
 router.post("/resetPassword",profileController.postNewPassword);
 
 // Product management
-router.get("/productDetails", userAuth, productController.productDetails);
+router.get("/product/details/:id",  userAuth,productController.productDetails);
 
 // Cart management
 router.get("/cart", userAuth, cartController.loadCart);
@@ -118,9 +118,9 @@ router.delete("/removeWishlist/:productId",userAuth,wishlistController.removeFro
 router.post("/applyCoupon", userAuth,couponController.applyCoupon);
 router.post("/removeCoupon", userAuth, couponController.removeCoupon);
 
-//razorpay
-router.post("/create-order", userAuth,orderController.createOrder);
-router.post("/verify-payment", userAuth,orderController.verifyPayment);
+//razorpay/payNow
+router.post("/create-order",userAuth, orderController.createOrder);
+router.post("/verify-payment",userAuth, orderController.verifyPayment);
 
 //wallet
 router.get("/wallet",userAuth,walletController.loadWallet);

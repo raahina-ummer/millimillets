@@ -4,7 +4,6 @@ import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 
 
-// Fetch customer info with search + pagination
  const customerInfo = async (req, res) => {
   try {
     const search = req.query.search || "";
@@ -49,7 +48,7 @@ import message from "../../utils/message.js";
       delete req.session.user;
     }
 
-    res.redirect("/admin/users");
+    res.status(Status.OK).json({success:true,message:'Customer blocked successfully' })
   } catch (error) {
     console.error("Error blocking user:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
@@ -62,14 +61,14 @@ import message from "../../utils/message.js";
     const id = req.query.id;
     await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
 
-    res.redirect("/admin/users");
+   res.status(Status.OK).json({ success: true, message: 'Customer activated successfully' });
   } catch (error) {
     console.error("Error unblocking user:", error);
    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
-// Export all functions at the end
+
 export {
   customerInfo,
   customerBlocked,

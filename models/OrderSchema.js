@@ -84,6 +84,8 @@ const orderSchema = new Schema({
   returnRejectedAt: Date,
   cancellationReason: String,
   returnReason: String,
+  returnRejectedReason:String,
+
 
   refundAmount: { type: Number, default: 0 },
   refundMethod: { type: String, enum: ["wallet", "bank", null], default: null },

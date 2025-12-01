@@ -179,7 +179,7 @@ const loadOrderFaliure = async (req, res) => {
     let order = null;
 
     if (orderId) {
-      order = await Order.findOne({ orderId }).populate("products.productId");
+      order = await Order.findOne({ orderId }).populate("orderedProducts.product");
     }
 
     if (order.paymentMethod === "online" && order.paymentStatus === "pending") {

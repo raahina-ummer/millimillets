@@ -692,6 +692,7 @@
     }
 </style>
 
+
 <!-- Breadcrumb Section -->
 <section class="breadcrumb-section">
     <div class="container">
@@ -727,40 +728,35 @@
                     </span>
 
                     <!-- Discount Badge -->
-                    <% if (product.productOffer > 0 || (category && category.categoryOffer > 0)) { %>
-                        <% let totalOffer = (product.productOffer || 0) + (category?.categoryOffer || 0); %>
+                    <% if (totalOffer > 0) { %>
                         <span class="discount-badge">
                             -<%= totalOffer %>% OFF
                         </span>
                     <% } %>
 
                     <!-- Wishlist Button -->
-                    <button class="wishlist-btn" onclick="toggleWishlist('<%= product._id %>')">
-                        <i class="bi bi-heart"></i>
-                    </button>
-
+                   
 
                     <!-- Main Image -->
-<div class="main-image-wrapper" id="mainImageWrapper">
-    <img src="/uploads/images/<%= product.productImage[0] %>" 
-         alt="<%= product.productName %>" 
-         class="main-product-image"
-         id="mainProductImage">
-</div>
+                    <div class="main-image-wrapper" id="mainImageWrapper">
+                        <img src="/uploads/images/<%= product.productImage[0] %>" 
+                             alt="<%= product.productName %>" 
+                             class="main-product-image"
+                             id="mainProductImage">
+                    </div>
 
-<!-- Thumbnail Gallery -->
-<div class="thumbnail-gallery">
-    <% product.productImage.forEach((image, index) => { %>
-        <div class="thumbnail-item <%= index === 0 ? 'active' : '' %>" 
-             onclick="changeMainImage('/uploads/images/<%= image %>', this)">
-            <img src="/uploads/images/<%= image %>" alt="Product image <%= index + 1 %>">
-        </div>
-    <% }); %>
-</div>
+                    <!-- Thumbnail Gallery -->
+                    <div class="thumbnail-gallery">
+                        <% product.productImage.forEach((image, index) => { %>
+                            <div class="thumbnail-item <%= index === 0 ? 'active' : '' %>" 
+                                 onclick="changeMainImage('/uploads/images/<%= image %>', this)">
+                                <img src="/uploads/images/<%= image %>" alt="Product image <%= index + 1 %>">
+                            </div>
+                        <% }); %>
+                    </div>
                 </div>
             </div>
         
-
             <!-- Product Info -->
             <div class="col-lg-6">
                 <!-- Product Title -->
@@ -814,7 +810,7 @@
                     <label class="variants-label">Select Variant:</label>
                     <div class="variant-options">
                         <% product.variant.forEach((variant, index) => { %>
-                            <button class="variant-btn <%= index === 0 ? 'active' : '' %> <%= variant.stock === 0 ? 'disabled' : '' %>"
+                            <button class="variant-btn <%= index === 0 ? 'active' : '' %>"
                                     data-variant-index="<%= index %>"
                                     data-sale-price="<%= variant.salePrice %>"
                                     data-regular-price="<%= variant.regularPrice %>"
@@ -950,7 +946,7 @@
                         </tr>
                         <tr>
                             <td>Date Added</td>
-                            <td><%= new Date(product.date).toLocaleDateString() %></td>
+                            <td><%= new Date(product.createdAt).toLocaleDateString() %></td>
                         </tr>
                     </tbody>
                 </table>
@@ -966,15 +962,13 @@
         <h2 class="section-title">You May Also Like</h2>
         <div class="row">
             <% relatedProducts.forEach(relProduct => { %>
-                <% if (relProduct._id.toString() !== product._id.toString()) { %>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="related-product-card">
-    <a href="/product/details/<%= relProduct._id %>">
-        <img src="/uploads/images/<%= relProduct.productImage[0] %>" 
-             alt="<%= relProduct.productName %>" 
-             class="related-product-image">
-    </a>
-                
+                        <a href="/product/details/<%= relProduct._id %>">
+                            <img src="/uploads/images/<%= relProduct.productImage[0] %>" 
+                                 alt="<%= relProduct.productName %>" 
+                                 class="related-product-image">
+                        </a>
                         <div class="related-product-info">
                             <h6 class="related-product-name"><%= relProduct.productName %></h6>
                             <div class="related-product-price">
@@ -986,29 +980,29 @@
                         </div>
                     </div>
                 </div>
-                <% } %>
             <% }); %>
         </div>
     </div>
 </section>
 <% } %>
 
-
 <script>
-   
-  // Product data from server
-    const productData = <%-JSON.stringify({
+    // Product data from server
+    const productData = JSON.stringify({
         id: product._id,
         name: product.productName,
         variants: product.variant,
         images: product.productImage,
         isBlocked: product.isBlocked,
         status: product.status
-    }) %>;
+    }) ;
 
     let selectedVariantIndex = 0;
     let quantity = 1;
     let maxStock = productData.variants[0].stock;
+
+    // Check if user is logged in
+    const isUserLoggedIn = <%= user ? 'true' : 'false' %>;
 
     // Check if product is blocked or unavailable
     function checkProductAvailability() {
@@ -1030,7 +1024,6 @@
         const mainImage = document.getElementById('mainProductImage');
         mainImage.src = imageSrc;
         
-        // Update active thumbnail
         document.querySelectorAll('.thumbnail-item').forEach(thumb => {
             thumb.classList.remove('active');
         });
@@ -1042,47 +1035,32 @@
         if (!checkProductAvailability()) return;
         
         const variant = productData.variants[index];
-        
-        // Check if variant is out of stock
-        if (variant.stock === 0) {
-            return;
-        }
+        if (variant.stock === 0) return;
         
         selectedVariantIndex = index;
         maxStock = variant.stock;
         
-        // Reset quantity to 1
         quantity = 1;
         document.getElementById('quantity').value = 1;
         document.getElementById('quantity').max = maxStock;
         
-        // Update active button
         document.querySelectorAll('.variant-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        event.target.classList.add('active');
+        document.querySelectorAll('.variant-btn')[index].classList.add('active');
         
-        // Update price display
         updatePriceDisplay(variant);
-        
-        // Update stock info
         updateStockInfo(variant);
-        
-        // Update button states
         updateButtonStates();
     }
 
     // Update price display
     function updatePriceDisplay(variant) {
-        const currentPrice = document.getElementById('currentPrice');
-        const originalPrice = document.getElementById('originalPrice');
-        const discountPercent = document.getElementById('discountPercent');
-        
-        currentPrice.textContent = '₹' + variant.salePrice.toFixed(2);
-        originalPrice.textContent = '₹' + variant.regularPrice.toFixed(2);
+        document.getElementById('currentPrice').textContent = '₹' + variant.salePrice.toFixed(2);
+        document.getElementById('originalPrice').textContent = '₹' + variant.regularPrice.toFixed(2);
         
         const discount = Math.round(((variant.regularPrice - variant.salePrice) / variant.regularPrice) * 100);
-        discountPercent.textContent = '-' + discount + '%';
+        document.getElementById('discountPercent').textContent = '-' + discount + '%';
     }
 
     // Update stock information
@@ -1109,14 +1087,7 @@
         
         const currentVariant = productData.variants[selectedVariantIndex];
         
-        // Enable/disable cart button based on stock
-        if (currentVariant.stock === 0 || productData.isBlocked) {
-            addToCartBtn.disabled = true;
-        } else {
-            addToCartBtn.disabled = false;
-        }
-        
-        // Update quantity buttons
+        addToCartBtn.disabled = currentVariant.stock === 0 || productData.isBlocked;
         decreaseBtn.disabled = quantity <= 1;
         increaseBtn.disabled = quantity >= maxStock;
     }
@@ -1140,8 +1111,14 @@
     }
 
     // Add to cart
-    function addToCart() {
+    async function addToCart() {
         if (!checkProductAvailability()) return;
+        
+        if (!isUserLoggedIn) {
+            alert('Please login to add items to cart');
+            window.location.href = '/login';
+            return;
+        }
         
         const variant = productData.variants[selectedVariantIndex];
         
@@ -1155,44 +1132,44 @@
             return;
         }
         
-        const cartData = {
-            productId: productData.id,
-            variantIndex: selectedVariantIndex,
-            quantity: quantity
-        };
-        
-        // TODO: Replace with actual API call when backend is ready
-        console.log('Adding to cart:', cartData);
-        alert('Product will be added to cart! (API integration pending)');
-        
-        /* Uncomment when API is ready:
-        fetch('/api/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(cartData)
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productData.id,
+                    variantIndex: selectedVariantIndex,
+                    quantity: quantity
+                })
+            });
+            
+            const data = await response.json();
+            
             if (data.success) {
                 alert('Product added to cart successfully!');
-                // Update cart count in header if exists
-                updateCartCount();
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
             } else {
                 alert(data.message || 'Failed to add product to cart');
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error:', error);
             alert('An error occurred. Please try again.');
-        });
-        */
+        }
     }
 
     // Buy now
-    function buyNow() {
+    async function buyNow() {
         if (!checkProductAvailability()) return;
+        
+        if (!isUserLoggedIn) {
+            alert('Please login to proceed');
+            window.location.href = '/login';
+            return;
+        }
         
         const variant = productData.variants[selectedVariantIndex];
         
@@ -1201,28 +1178,51 @@
             return;
         }
         
-        // Add to cart and redirect to checkout
-        addToCart();
-        // TODO: Redirect to checkout page
-        // window.location.href = '/checkout';
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productData.id,
+                    variantIndex: selectedVariantIndex,
+                    quantity: quantity
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = '/checkout';
+            } else {
+                alert(data.message || 'Failed to proceed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
     }
 
     // Toggle wishlist
-    function toggleWishlist(productId) {
-        // TODO: Replace with actual API call when backend is ready
-        console.log('Toggling wishlist for product:', productId);
-        alert('Wishlist feature coming soon!');
+    async function toggleWishlist(productId) {
+        if (!isUserLoggedIn) {
+            alert('Please login to add items to wishlist');
+            window.location.href = '/login';
+            return;
+        }
         
-        /* Uncomment when API is ready:
-        fetch('/api/wishlist/toggle', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ productId: productId })
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId: productId })
+            });
+            
+            const data = await response.json();
+            
             if (data.success) {
                 const wishlistBtn = document.querySelector('.wishlist-btn');
                 const icon = wishlistBtn.querySelector('i');
@@ -1230,22 +1230,24 @@
                 if (data.added) {
                     icon.classList.remove('bi-heart');
                     icon.classList.add('bi-heart-fill');
-                    wishlistBtn.style.color = '#dc3545';
+                    wishlistBtn.classList.add('active');
+                    alert('Added to wishlist!');
                 } else {
                     icon.classList.remove('bi-heart-fill');
                     icon.classList.add('bi-heart');
-                    wishlistBtn.style.color = '';
+                    wishlistBtn.classList.remove('active');
+                    alert('Removed from wishlist!');
                 }
+            } else {
+                alert(data.message || 'Failed to update wishlist');
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error:', error);
             alert('An error occurred. Please try again.');
-        });
-        */
+        }
     }
 
-    // Image zoom functionality
+    // Image zoom
     const mainImageWrapper = document.getElementById('mainImageWrapper');
     const mainImage = document.getElementById('mainProductImage');
 
@@ -1253,7 +1255,6 @@
         const rect = mainImageWrapper.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
-        
         mainImage.style.transformOrigin = `${x}% ${y}%`;
     });
 
@@ -1261,16 +1262,12 @@
         mainImage.style.transformOrigin = 'center center';
     });
 
-    // Initialize on page load
+    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
         checkProductAvailability();
         updateButtonStates();
-        
-        // Check if user is authenticated for wishlist/cart
-        // This should come from your session/auth system
     });
 
-    // Handle page refresh - check if product is still available
     window.addEventListener('load', function() {
         if (productData.isBlocked || productData.status === 'Discontinued') {
             checkProductAvailability();

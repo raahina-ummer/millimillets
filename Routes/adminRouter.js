@@ -67,8 +67,6 @@ router.get("/update-stock",adminAuth,stockController.updateVariantStock);
 
 
 
-
-
 //coupon management
 router.get("/coupon", adminAuth, couponController.loadCoupon);
 router.post("/addCoupon", adminAuth, couponController.createCoupon);

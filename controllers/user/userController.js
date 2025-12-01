@@ -28,47 +28,76 @@ const pageNotFound = async (req, res) => {
   }
 };
 
+// Controller - Homepage (Updated for your schema)
 const loadHomepage = async (req, res) => {
   try {
-    const userId = req.session?.user?.id;
-    const categories = await Category.find({ isListed: true });
-    const categoryIds =
-      categories.length > 0 ? categories.map((cat) => cat._id) : [];
-    const productData = await Product.find({
+    const userId = req.session.user?.id;
+    let user = null;
+    
+    if (userId) {
+      user = await User.findById(userId);
+    }
+
+    // Get best selling products (top 4)
+    // Since you don't have popularity field, use newest products
+    const products = await Product.find({ 
       isBlocked: false,
-      category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      status: "Available"
     })
-      .sort({ createdAt: -1 })
+      .populate('category')
+      .sort({ createdAt: -1 }) // Newest first
       .limit(4);
 
-    if (userId) {
-      let cart = await Cart({ userId });
-      console.log(cart)
-      let cartCount;
-
-      if (cart) {
-        cartCount = cart.products.length;
-      }
-
-      console.log(cartCount);
-      const userData = await User.findById(userId);
-      return res.render("home", {
-        user: userData,
-        products: productData,
-        categories,
-        cartCount : cartCount ?? 0,
-      });
-    } else {
-      return res.render("home", {
-        user: null,
-        products: productData,
-        categories,
-      }); 
+        if (products.length > 0) {
+      console.log('First product:', products[0].productName);
+      console.log('Image path stored:', products[0].productImage);
+      console.log('First image:', products[0].productImage[0]);
     }
+
+    // Get active categories (top 3)
+    const categories = await Category.find({ isListed: true })
+      .sort({ name: 1 })
+      .limit(3);
+
+    // Get products with active offers for Summer Offer section
+    const currentDate = new Date();
+    const offerProducts = await Product.find({ 
+      isBlocked: false,
+      status: "Available",
+      'productOffer.offerActive': true,
+      'productOffer.discountPercentage': { $gt: 0 },
+      $or: [
+        { 'productOffer.offerEndDate': { $gte: currentDate } },
+        { 'productOffer.offerEndDate': null }
+      ]
+    })
+      .populate('category')
+      .sort({ 'productOffer.discountPercentage': -1 }) // Highest discount first
+      .limit(4);
+
+    // If less than 4 offer products, fill with regular products
+    if (offerProducts.length < 4) {
+      const additionalProducts = await Product.find({
+        isBlocked: false,
+        status: "Available",
+        _id: { $nin: offerProducts.map(p => p._id) }
+      })
+        .populate('category')
+        .sort({ createdAt: -1 })
+        .limit(4 - offerProducts.length);
+      
+      offerProducts.push(...additionalProducts);
+    }
+
+    res.render('home', {
+      user,
+      products,
+      categories,
+      offerProducts
+    });
   } catch (error) {
-    console.log("Home Page not Found", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send("Server error");
+    console.error('Error loading homepage:', error);
+    res.status(500).send('Server Error');
   }
 };
 
@@ -370,8 +399,8 @@ const loadShop = async (req, res) => {
     // Search filter
     if (searchQuery.trim()) {
       query.$or = [
-        { productName: { $regex: searchQuery, $options: "i" } },
-        { description: { $regex: searchQuery, $options: "i" } },
+        { productName: { $regex: `^${searchQuery}`, $options: "i" } },
+        { description: { $regex: `^${searchQuery}`, $options: "i" } },
       ];
     }
 

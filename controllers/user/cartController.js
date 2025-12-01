@@ -49,7 +49,7 @@ const loadCart = async (req, res) => {
     let subtotal = 0;
     let totalProductDiscount = 0;
 
-    // ✅ CORRECT CALCULATION
+    // CORRECT CALCULATION
     cart.products.forEach((product) => {
       const item = product.productId;
       const variant = item.variant && item.variant.length > 0 ? item.variant[0] : null;
@@ -75,14 +75,13 @@ const loadCart = async (req, res) => {
 
     await cart.save();
 
-    // ✅ COUPON DISCOUNT (based on subtotal)
     const couponDiscount = cart.couponApplied ? cart.couponDiscount : 0;
 
-    // ✅ SHIPPING (based on subtotal, not after coupon)
+    
     const tax = 0;
     const shipping = subtotal >= 1000 ? 0 : 50;
 
-    // ✅ FINAL TOTAL CALCULATION
+  
     const total = subtotal - totalProductDiscount - couponDiscount + tax + shipping;
 
     res.render("cart", {
@@ -351,12 +350,12 @@ const updateCartQuantity = async (req, res) => {
       return res.status(Status.BAD_REQUEST).json({ success: false, message: "Maximum quantity limit reached" });
     }
 
-    // Ensure prices are numbers
+    
     const salePrice = Number(productData.salePrice) || 0;
     const regularPrice = Number(productData.regularPrice) || 0;
     const discountAmount = regularPrice - salePrice;
 
-    // Update quantity and pricing
+  
     const product = cart.products[productIndex];
     product.quantity = newQuantity;
     product.price = salePrice;
@@ -416,7 +415,7 @@ const removeCartItem = async (req, res) => {
       return res.status(Status.NOT_FOUND).json({ success: false, message: "Product not found in cart" });
     }
 
-    //  Remove product
+    
     cart.products.splice(productIndex, 1);
     await cart.save();
 

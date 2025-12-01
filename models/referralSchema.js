@@ -93,10 +93,10 @@ const referralSchema = new Schema(
   { timestamps: true }
 );
 
-// Index for faster lookups
-referralSchema.index({ referrer: 1 });
-referralSchema.index({ referralCode: 1 });
-referralSchema.index({ referralToken: 1 });
+// // // Index for faster lookups
+// // referralSchema.index({ referrer: 1 });
+// referralSchema.index({ referralCode: 1 });
+// referralSchema.index({ referralToken: 1 });
 
 const ReferralOffer = mongoose.model("ReferralOffer", referralSchema);
 export default ReferralOffer;

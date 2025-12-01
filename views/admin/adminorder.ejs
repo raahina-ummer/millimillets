@@ -633,7 +633,10 @@
                       </a>
 
                       <% if (!['Delivered', 'Canceled', 'delivered', 'canceled'].includes(order.status)) { %>
-                        <select class="status-select" onchange="updateOrderStatus('<%= order.orderId %>', this.value, '<%= order.status %>', '<%= order.userId?._id || '' %>')">
+                        <select class="status-select" 
+                      onchange="updateOrderStatus('<%= order.orderId %>', this.value, '<%= order.status %>', <%= JSON.stringify((order.userId && order.userId._id) || 'N/A') %>)">
+
+
 
                           <option value="">Update</option>
                           <% if (order.status === 'Pending') { %>
@@ -644,9 +647,9 @@
                             <option value="Canceled">✕ Cancel</option>
                           <% } else if (order.status === 'Shipped') { %>
                             <option value="Delivered">✓ Delivered</option>
-                          <% }  else if (order.status === 'Return Request') { %>
-    <option value="Returned">✔ Approve Return (Refund + Stock Restore)</option>
-  <% } %>
+                          <% } else if (order.status === 'Return Request') { %>
+                            <option value="Returned">✔ Approve Return</option>
+                          <% } %>
                         </select>
                       <% } %>
                     </div>

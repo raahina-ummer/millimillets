@@ -1,1138 +1,642 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MilliMillet - Nature's Ancient Superfood</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MilliMillet - Premium Ancient Grains</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background-color: #f5f5f5;
-      }
-
-      /* Header Styles */
-      header {
-        background: linear-gradient(135deg, #6D5A43 0%, #8B7355 50%, #A0826D 100%);
-        padding: 20px 0;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-
-      header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent 0%, #5D4E37 50%, transparent 100%);
-      }
-
-      .header-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 40px;
-      }
-
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 0;
-        transition: transform 0.3s ease;
-        text-decoration: none;
-      }
-
-      .logo:hover {
-        transform: scale(1.05);
-      }
-
-      .logo h1 {
-        color: #fff;
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: 3px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        margin: 0;
-      }
-
-      nav ul {
-        display: flex;
-        list-style: none;
-        gap: 40px;
-        align-items: center;
-        margin: 0;
-      }
-
-      nav a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        position: relative;
-        padding: 8px 0;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-      }
-
-      nav a::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        height: 2px;
-        background: #E8D4B8;
-        transition: width 0.3s ease;
-      }
-
-      nav a:hover {
-        color: #E8D4B8;
-      }
-
-      nav a:hover::after {
-        width: 100%;
-      }
-
-      .header-icons {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-      }
-
-      .icon-btn {
-        background: rgba(255, 255, 255, 0.15);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        color: #fff;
-        font-size: 18px;
-        cursor: pointer;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-      }
-
-      .icon-btn:hover {
-        background: rgba(196, 165, 123, 0.9);
-        border-color: #C4A57B;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(196, 165, 123, 0.4);
-      }
-
-      .dropdown {
-        position: relative;
-        display: inline-block;
-      }
-
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        background: white;
-        min-width: 200px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-        right: 0;
-        top: calc(100% + 15px);
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid #e0e0e0;
-      }
-
-      .dropdown-content a {
-        color: #5D4E37;
-        padding: 16px 24px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        border-bottom: 1px solid #f0f0f0;
-      }
-
-      .dropdown-content a:last-child {
-        border-bottom: none;
-      }
-
-      .dropdown-content a i {
-        width: 20px;
-        text-align: center;
-        color: #8B7355;
-      }
-
-      .dropdown-content a:hover {
-        background: #F5E6D3;
-        color: #6D5A43;
-        padding-left: 30px;
-      }
-
-      .dropdown:hover .dropdown-content {
-        display: block;
-        animation: fadeInDown 0.3s ease;
-      }
-
-      @keyframes fadeInDown {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .signin-link {
-        cursor: pointer;
-        background: rgba(196, 165, 123, 0.2);
-        padding: 10px 20px;
-        border-radius: 25px;
-        border: 1px solid rgba(196, 165, 123, 0.4);
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .signin-link i {
-        font-size: 16px;
-      }
-
-      .signin-link:hover {
-        background: rgba(196, 165, 123, 0.4);
-        border-color: #C4A57B;
-      }
-
-      /* Hero Section */
-      .hero {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4)), 
-                          url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1200');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        height: 550px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        margin-bottom: 80px;
-      }
-
-      .hero::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 100px;
-        background: linear-gradient(to top, #f5f5f5, transparent);
-      }
-
-      .hero-content {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        color: white;
-        max-width: 900px;
-        padding: 0 40px;
-      }
-
-      .hero-content h2 {
-        font-size: 48px;
-        font-weight: 700;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
-        line-height: 1.4;
-        margin-bottom: 20px;
-        letter-spacing: 1px;
-      }
-
-      .hero-content p {
-        font-size: 20px;
-        font-weight: 500;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-        margin-top: 15px;
-        opacity: 0.95;
-      }
-
-      /* Section Title */
-      .section-title {
-        text-align: center;
-        font-size: 38px;
-        font-weight: 700;
-        margin-bottom: 50px;
-        color: #2d2d2d;
-        letter-spacing: 2px;
-        position: relative;
-        display: inline-block;
-        width: 100%;
-      }
-
-      .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, #8B7355, #C4A57B);
-        border-radius: 2px;
-      }
-
-      /* Best Selling Items */
-      .best-selling {
-        max-width: 1400px;
-        margin: 0 auto 100px;
-        padding: 0 40px;
-      }
-
-      .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 35px;
-      }
-
-      .product-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.4s ease;
-        position: relative;
-        border: 2px solid transparent;
-      }
-
-      .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(139, 115, 85, 0.2);
-        border-color: #8B7355;
-      }
-
-      .product-image {
-        width: 100%;
-        height: 320px;
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      }
-
-      .product-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.4s ease;
-      }
-
-      .product-card:hover .product-image img {
-        transform: scale(1.1);
-      }
-
-      .product-offer-badge {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: linear-gradient(135deg, #dc3545, #e4606d);
-        color: #fff;
-        padding: 8px 16px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: 700;
-        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .product-offer-badge i {
-        font-size: 12px;
-      }
-
-      .product-info {
-        padding: 25px;
-        text-align: center;
-        background-color: #F5E6D3;
-      }
-
-      .product-info h3 {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 12px;
-        color: #5D4E37;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        letter-spacing: 0.5px;
-      }
-
-      .product-price {
-        font-size: 26px;
-        font-weight: 700;
-        color: #dc3545;
-        margin-bottom: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-      }
-
-      .product-price i {
-        font-size: 20px;
-      }
-
-      .btn-shop {
-        background: linear-gradient(135deg, #8B7355, #6D5A43);
-        color: white;
-        border: none;
-        padding: 14px 35px;
-        border-radius: 30px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
-      }
-
-      .btn-shop i {
-        font-size: 16px;
-        transition: transform 0.3s ease;
-      }
-
-      .btn-shop:hover {
-        background: linear-gradient(135deg, #6D5A43, #5D4E37);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
-      }
-
-      .btn-shop:hover i {
-        transform: translateX(5px);
-      }
-
-      /* Shop By Categories */
-      .categories {
-        max-width: 1400px;
-        margin: 0 auto 100px;
-        padding: 0 40px;
-      }
-
-      .category-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-        gap: 35px;
-      }
-
-      .category-card {
-        position: relative;
-        height: 450px;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-        transition: all 0.4s ease;
-        cursor: pointer;
-      }
-
-      .category-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 35px rgba(139, 115, 85, 0.25);
-      }
-
-      .category-image {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #A0826D 0%, #8B7355 50%, #6D5A43 100%);
-        position: relative;
-      }
-
-      .category-image::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.7));
-      }
-
-      .category-info {
-        position: absolute;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: calc(100% - 60px);
-        text-align: center;
-      }
-
-      /* Summer Offer */
-      .summer-offer {
-        background: linear-gradient(135deg, #F9F5F0 0%, #F5E6D3 100%);
-        padding: 80px 40px;
-        margin-bottom: 100px;
-        position: relative;
-      }
-
-      .summer-offer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, transparent 0%, #8B7355 50%, transparent 100%);
-      }
-
-      .offer-grid {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 35px;
-      }
-
-      .offer-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.4s ease;
-        border: 2px solid transparent;
-      }
-
-      .offer-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(139, 115, 85, 0.2);
-        border-color: #8B7355;
-      }
-
-      .offer-image {
-        width: 100%;
-        height: 300px;
-        background: linear-gradient(135deg, #FFE4B5 0%, #DEB887 100%);
-        position: relative;
-      }
-
-      .offer-image::after {
-        content: '\f06b';
-        font-family: 'Font Awesome 6 Free';
-        font-weight: 900;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 80px;
-        color: rgba(255, 255, 255, 0.3);
-      }
-
-      .offer-card h3 {
-        padding: 20px 25px 12px;
-        font-size: 20px;
-        font-weight: 700;
-        color: #2d2d2d;
-        letter-spacing: 0.5px;
-      }
-
-      .price {
-        padding: 0 25px 25px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
-      .current-price {
-        font-size: 28px;
-        font-weight: 700;
-        color: #2D5016;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .current-price i {
-        font-size: 20px;
-      }
-
-      .old-price {
-        font-size: 18px;
-        text-decoration: line-through;
-        color: #999;
-      }
-
-      .discount {
-        background: linear-gradient(135deg, #FFE8E8, #FFD1D1);
-        color: #FF3333;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 700;
-        border: 1px solid rgba(255, 51, 51, 0.2);
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .discount i {
-        font-size: 11px;
-      }
-
-      /* Testimonials */
-      .testimonials {
-        background: linear-gradient(135deg, #F5EFE7 0%, #E8DCC4 100%);
-        padding: 80px 40px;
-        margin-bottom: 100px;
-        position: relative;
-      }
-
-      .testimonials::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, transparent 0%, #8B7355 50%, transparent 100%);
-      }
-
-      .testimonials-container {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .testimonials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-        gap: 35px;
-      }
-
-      .testimonial-card {
-        background: white;
-        padding: 35px;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        position: relative;
-        border: 2px solid transparent;
-      }
-
-      .testimonial-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(139, 115, 85, 0.15);
-        border-color: #8B7355;
-      }
-
-      .testimonial-card::before {
-        content: '\f10d';
-        font-family: 'Font Awesome 6 Free';
-        font-weight: 900;
-        position: absolute;
-        top: 25px;
-        right: 30px;
-        font-size: 40px;
-        color: rgba(139, 115, 85, 0.1);
-      }
-
-      .testimonial-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .testimonial-name {
-        font-weight: 700;
-        font-size: 18px;
-        color: #2d2d2d;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .testimonial-name i {
-        color: #8B7355;
-        font-size: 16px;
-      }
-
-      .verified {
-        background: linear-gradient(135deg, #4CAF50, #45a049);
-        color: white;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-      }
-
-      .stars {
-        margin-bottom: 18px;
-        color: #FFD700;
-        font-size: 18px;
-        display: flex;
-        gap: 3px;
-      }
-
-      .testimonial-text {
-        color: #555;
-        line-height: 1.8;
-        font-size: 15px;
-        position: relative;
-        z-index: 1;
-      }
-
-      /* Newsletter */
-      .newsletter {
-        background: linear-gradient(135deg, #8B7355 0%, #6D5A43 100%);
-        padding: 80px 40px;
-        margin-bottom: 0;
-        position: relative;
-      }
-
-      .newsletter::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: 
-          repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.03) 10px, rgba(255, 255, 255, 0.03) 20px);
-      }
-
-      .newsletter-container {
-        max-width: 700px;
-        margin: 0 auto;
-        text-align: center;
-        position: relative;
-        z-index: 1;
-      }
-
-      .newsletter-container h3 {
-        color: white;
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        letter-spacing: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-      }
-
-      .newsletter-container h3 i {
-        font-size: 36px;
-        color: #E8D4B8;
-      }
-
-      .newsletter-container p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 16px;
-        margin-bottom: 35px;
-        line-height: 1.6;
-      }
-
-      .newsletter-form {
-        display: flex;
-        gap: 15px;
-        max-width: 550px;
-        margin: 0 auto;
-      }
-
-      .newsletter-input {
-        flex: 1;
-        padding: 18px 25px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 30px;
-        font-size: 16px;
-        outline: none;
-        background: rgba(255, 255, 255, 0.95);
-        transition: all 0.3s ease;
-      }
-
-      .newsletter-input:focus {
-        background: white;
-        border-color: #E8D4B8;
-        box-shadow: 0 0 0 3px rgba(232, 212, 184, 0.2);
-      }
-
-      .btn-subscribe {
-        background: linear-gradient(135deg, white, #f8f9fa);
-        color: #8B7355;
-        border: none;
-        padding: 18px 35px;
-        border-radius: 30px;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      }
-
-      .btn-subscribe i {
-        font-size: 18px;
-        transition: transform 0.3s ease;
-      }
-
-      .btn-subscribe:hover {
-        background: linear-gradient(135deg, #E8D4B8, #D4C5B0);
-        color: #5D4E37;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-      }
-
-      .btn-subscribe:hover i {
-        transform: translateX(5px);
-      }
-
-      /* Responsive */
-      @media (max-width: 1200px) {
-        .header-container,
-        .best-selling,
-        .categories,
-        .testimonials-container {
-          padding: 0 30px;
-        }
-      }
-
-      @media (max-width: 968px) {
-        .header-container {
-          flex-wrap: wrap;
-          gap: 20px;
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6D5A43;
+            --primary-light: #A0826D;
+            --accent: #C4A57B;
+            --text-dark: #2d2d2d;
+            --text-muted: #666;
+            --bg-light: #F9F5F0;
+            --success: #2D5016;
+            --danger: #dc3545;
         }
 
-        nav ul {
-          gap: 25px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        nav a {
-          font-size: 13px;
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #fff;
+            color: var(--text-dark);
+            line-height: 1.6;
         }
 
-        .category-grid {
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }
-      }
-
-      @media (max-width: 768px) {
-        header {
-          padding: 15px 0;
-        }
-
-        .logo h1 {
-          font-size: 24px;
-          letter-spacing: 2px;
-        }
-
+        /* Hero Section - Premium & Clean */
         .hero {
-          height: 400px;
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            background: linear-gradient(135deg, rgba(109, 90, 67, 0.95), rgba(139, 115, 85, 0.9)),
+                        url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
         }
 
-        .hero-content h2 {
-          font-size: 32px;
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.2) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5%;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
         }
 
         .hero-content p {
-          font-size: 16px;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            color: var(--primary-dark);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            color: var(--primary);
+        }
+
+        /* Section Styling */
+        .section {
+            padding: 5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
 
         .section-title {
-          font-size: 28px;
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
 
-        nav ul {
-          gap: 15px;
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        nav a {
-          font-size: 12px;
+        /* Product Cards - Modern & Premium */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
         }
 
-        .header-icons {
-          gap: 10px;
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.06);
+            position: relative;
         }
 
-        .icon-btn {
-          width: 40px;
-          height: 40px;
-          font-size: 16px;
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            border-color: transparent;
         }
 
-        .products-grid,
-        .category-grid,
-        .offer-grid,
+        .product-image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            background: var(--bg-light);
+            overflow: hidden;
+        }
+
+        .product-image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover .product-image-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            min-height: 3rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .product-price-old {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .product-discount {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .btn-shop {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-shop:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Offer Section - Premium Design */
+        .offer-section {
+            background: linear-gradient(135deg, #F9F5F0 0%, #F5E6D3 100%);
+            padding: 5rem 5%;
+        }
+
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .offer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+
+        .offer-image {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            background: var(--bg-light);
+            overflow: hidden;
+        }
+
+        .offer-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .offer-card:hover .offer-image img {
+            transform: scale(1.08);
+        }
+
+        .offer-content {
+            padding: 1.5rem;
+        }
+
+        .offer-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            min-height: 2.5rem;
+        }
+
+        .offer-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Testimonials - Clean & Professional */
+        .testimonials-section {
+            background: white;
+            padding: 5rem 5%;
+        }
+
         .testimonials-grid {
-          grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .testimonial-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .testimonial-stars {
+            color: #FFB800;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 0.9375rem;
+        }
+
+        /* Newsletter - Modern */
+        .newsletter-section {
+            background: var(--primary-dark);
+            color: white;
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .newsletter-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .newsletter-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-subtitle {
+            opacity: 0.9;
+            margin-bottom: 2rem;
         }
 
         .newsletter-form {
-          flex-direction: column;
+            display: flex;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
-        .newsletter-container h3 {
-          font-size: 24px;
-          flex-direction: column;
-          gap: 10px;
+        .newsletter-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
-        .btn-subscribe {
-          justify-content: center;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .header-container,
-        .best-selling,
-        .categories,
-        .summer-offer,
-        .testimonials,
-        .newsletter {
-          padding: 15px 20px;
+        .newsletter-input::placeholder {
+            color: rgba(255,255,255,0.6);
         }
 
-        .logo h1 {
-          font-size: 20px;
+        .newsletter-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255,255,255,0.15);
         }
 
-        .hero-content h2 {
-          font-size: 24px;
+        .btn-newsletter {
+            padding: 1rem 2rem;
+            background: white;
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        .section-title {
-          font-size: 24px;
+        .btn-newsletter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,255,255,0.3);
         }
 
-        .product-info h3 {
-          font-size: 18px;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section {
+                padding: 3rem 1.5rem;
+            }
+
+            .products-grid,
+            .offer-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .hero {
+                height: 70vh;
+                min-height: 500px;
+            }
         }
-      }
     </style>
-    
-  </head>
-  <body>
-     <%- include('../partials/user/header.ejs') %>
-    <!-- Header -->
-    
+</head>
+<body>
+    <%- include('../partials/user/header.ejs') %>
 
-<!-- Hero Section -->
-<section class="hero">
-    <div class="hero-content">
-        <h2>Millets – Nature's ancient superfood, for today's healthy living</h2>
-    </div>
-</section>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Nature's Ancient Superfood<br>for Modern Living</h1>
+            <p>Discover the nutritional power of organic millets, sustainably sourced and delivered fresh to your doorstep.</p>
+            <a href="/shop" class="hero-cta">
+                Explore Products
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
 
-<!-- Best Selling Items -->
-<section class="best-selling">
-    <h2 class="section-title">BEST SELLING ITEMS</h2>
-    <div class="products-grid">
-        <% if (products && products.length > 0) { %>
-            <% for(let i = 0; i < products.length && i < 4; i++) { %>
-            <div class="product-card">
-                <div class="product-image">
-                    <% if (products[i].productOffer > 0) { %>
-                        <span class="product-offer-badge">
-                            <%= products[i].productOffer %>% Off
-                        </span>
-                    <% } %>
-                    <a href="/product/details/<%= products[i]._id %>">
-                        <img src="<%= products[i].productImage[0].path %>" 
-                             alt="<%= products[i].productName %>">
-                    </a>
-                </div>
-                <div class="product-info">
-                    <h3><%= products[i].productName %></h3>
-                    <div class="product-price">
-                        ₹<%= products[i].variant[0].salePrice.toFixed(2) %>
+    <!-- Best Selling Products -->
+    <section class="section">
+        <div class="section-header">
+            <span class="section-tag">Trending Now</span>
+            <h2 class="section-title">Best Selling Products</h2>
+            <p class="section-subtitle">Handpicked selections loved by our community</p>
+        </div>
+        <div class="products-grid">
+            <% if (products && products.length > 0) { %>
+                <% products.slice(0, 4).forEach(product => { %>
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <% if (product.productOffer?.offerActive && product.productOffer?.discountPercentage > 0) { %>
+                            <span class="product-badge"><%= product.productOffer.discountPercentage %>% OFF</span>
+                        <% } %>
+                        <a href="/product/details/<%= product._id %>">
+                            <img src="/uploads/images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+                        </a>
                     </div>
-                    <a href="/product/details/<%= products[i]._id %>" class="btn-shop">
-                        SHOP NOW
-                    </a>
+                    <div class="product-info">
+                        <h3 class="product-name"><%= product.productName %></h3>
+                        <div class="product-price-row">
+                            <span class="product-price">₹<%= product.variant[0].salePrice.toFixed(2) %></span>
+                            <% if (product.variant[0].regularPrice > product.variant[0].salePrice) { %>
+                                <span class="product-price-old">₹<%= product.variant[0].regularPrice.toFixed(2) %></span>
+                            <% } %>
+                        </div>
+                        <a class="btn btn-primary" href="/product/details/<%= product._id %>">
+  View Details
+</a>
+
+                            <i class="fas fa-shopping-bag"></i>
+                            View Product
+                        </a>
+                    </div>
                 </div>
-            </div>
+                <% }) %>
             <% } %>
-        <% } else { %>
-            <!-- Placeholder cards if no products -->
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-info">
-                    <h3>Finger Millet (Ragi)</h3>
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-info">
-                    <h3>Pearl Millet (Bajra)</h3>
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-info">
-                    <h3>Sorghum Millet (Jowar)</h3>
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-info">
-                    <h3>Foxtail Millet (Korra)</h3>
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-        <% } %>
-    </div>
-</section>
+        </div>
+    </section>
 
-<!-- Shop By Categories -->
-<section class="categories">
-    <h2 class="section-title">Shop By Categories</h2>
-    <div class="category-grid">
-        <% if (categories && categories.length > 0) { %>
-            <% for(let i = 0; i < categories.length && i < 3; i++) { %>
-            <div class="category-card">
-                <div class="category-image"></div>
-                <div class="category-info">
-                    <a href="/shop?category=<%= categories[i]._id %>">
-                        <button class="btn-shop"><%= categories[i].name %></button>
-                    </a>
+    <!-- Special Offers -->
+    <section class="offer-section">
+        <div class="section-header">
+            <span class="section-tag">Limited Time</span>
+            <h2 class="section-title">Special Offers</h2>
+            <p class="section-subtitle">Exclusive deals on premium millet products</p>
+        </div>
+        <div class="offer-grid">
+            <% if (offerProducts && offerProducts.length > 0) { %>
+                <% offerProducts.forEach(product => { %>
+                <div class="offer-card">
+                    <div class="offer-image">
+                        <a href="/product/details/<%= product._id %>">
+                            <img src="/uploads/images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+                        </a>
+                    </div>
+                    <div class="offer-content">
+                        <h3 class="offer-title"><%= product.productName %></h3>
+                        <% if (product.productOffer?.offerDescription) { %>
+                            <p class="offer-description"><%= product.productOffer.offerDescription %></p>
+                        <% } %>
+                        <div class="product-price-row">
+                            <span class="product-price">₹<%= product.calculateFinalPrice().toFixed(2) %></span>
+                            <% if (product.getDiscountPercentage() > 0) { %>
+                                <span class="product-price-old">₹<%= product.variant[0].salePrice.toFixed(2) %></span>
+                                <span class="product-discount"><%= product.getDiscountPercentage() %>% OFF</span>
+                            <% } %>
+                        </div>
+                        <a href="/product/details/<%= product._id %>" class="btn-shop">
+                            <i class="fas fa-shopping-bag"></i>
+                            Shop Now
+                        </a>
+                    </div>
                 </div>
-            </div>
+                <% }) %>
+            <% } else { %>
+                <div class="offer-card">
+                    <div class="offer-image"></div>
+                    <div class="offer-content">
+                        <h3 class="offer-title">Coming Soon</h3>
+                        <p class="offer-description">Exciting offers are on the way. Check back soon!</p>
+                    </div>
+                </div>
             <% } %>
-        <% } else { %>
-            <div class="category-card">
-                <div class="category-image"></div>
-                <div class="category-info">
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-            <div class="category-card">
-                <div class="category-image"></div>
-                <div class="category-info">
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-            <div class="category-card">
-                <div class="category-image"></div>
-                <div class="category-info">
-                    <button class="btn-shop">SHOP NOW</button>
-                </div>
-            </div>
-        <% } %>
-    </div>
-</section>
+        </div>
+    </section>
 
-<!-- Summer Offer -->
-<section class="summer-offer">
-    <h2 class="section-title">Summer Offer</h2>
-    <div class="offer-grid">
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Combo Pack</h3>
-            <div class="price">
-                <span class="current-price">₹1,125</span>
-                <span class="old-price">₹1,500</span>
-                <span class="discount">25% OFF</span>
-            </div>
+    <!-- Testimonials -->
+    <section class="testimonials-section">
+        <div class="section-header">
+            <span class="section-tag">Customer Stories</span>
+            <h2 class="section-title">What Our Customers Say</h2>
         </div>
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Multi Millet Health Mix</h3>
-            <div class="price">
-                <span class="current-price">₹2,204</span>
-                <span class="old-price">₹2,939</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Instant Mix Pack</h3>
-            <div class="price">
-                <span class="current-price">₹1,025</span>
-                <span class="old-price">₹1,367</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Energy Bars</h3>
-            <div class="price">
-                <span class="current-price">₹270</span>
-                <span class="old-price">₹360</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials -->
-<section class="testimonials">
-    <div class="testimonials-container">
-        <h2 class="section-title">OUR HAPPY CUSTOMERS</h2>
         <div class="testimonials-grid">
             <div class="testimonial-card">
                 <div class="testimonial-header">
-                    <span class="testimonial-name">Sarah M.</span>
-                    <span class="verified">✓</span>
+                    <div class="testimonial-avatar">SM</div>
+                    <div>
+                        <div class="testimonial-name">Sarah M.</div>
+                        <div class="testimonial-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">"I started buying MilliMillet products because I wanted to eat healthier, but now I continue because I believe in what they stand for. They source locally, support farmers, and promote sustainable agriculture — something I truly respect."</p>
+                <p class="testimonial-text">"I started buying MilliMillet products because I wanted to eat healthier. The quality is exceptional and I love supporting sustainable agriculture."</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">
-                    <span class="testimonial-name">Alex K.</span>
-                    <span class="verified">✓</span>
+                    <div class="testimonial-avatar">AK</div>
+                    <div>
+                        <div class="testimonial-name">Alex K.</div>
+                        <div class="testimonial-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
                 <p class="testimonial-text">"My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!"</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">
-                    <span class="testimonial-name">James L.</span>
-                    <span class="verified">✓</span>
+                    <div class="testimonial-avatar">JL</div>
+                    <div>
+                        <div class="testimonial-name">James L.</div>
+                        <div class="testimonial-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
                 <p class="testimonial-text">"I swapped my regular breakfast for MilliMillet porridge – now my mornings feel lighter and fuller!"</p>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Newsletter -->
-<section class="newsletter">
-    <div class="newsletter-container">
-        <h3>STAY UPDATED ABOUT OUR LATEST OFFERS</h3>
-        <form class="newsletter-form">
-            <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
-            <button type="submit" class="btn-subscribe">Subscribe to Newsletter</button>
-        </form>
-    </div>
-</section>
+    <!-- Newsletter -->
+    <section class="newsletter-section">
+        <div class="newsletter-content">
+            <h3 class="newsletter-title">Stay Updated</h3>
+            <p class="newsletter-subtitle">Get the latest offers and health tips delivered to your inbox</p>
+            <form class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                <button type="submit" class="btn-newsletter">Subscribe</button>
+            </form>
+        </div>
+    </section>
 
-<%-include("../../views/partials/user/footer.ejs")%>
+    <%- include('../../views/partials/user/footer.ejs') %>
+</body>
+</html>

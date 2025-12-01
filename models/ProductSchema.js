@@ -67,6 +67,7 @@ const productSchema = new Schema(
       }
     },
     
+    
     variant: [
       {
         unitType: {
@@ -87,10 +88,86 @@ const productSchema = new Schema(
         },
       },
     ],
+    
   },
   
   { timestamps: true }
 );
+productSchema.index({ 'productOffer.offerActive': 1 });
+productSchema.index({ 'productOffer.discountPercentage': -1 });
+productSchema.index({ status: 1, isBlocked: 1 });
+productSchema.index({ createdAt: -1 });
+productSchema.index({ productName: 'text', description: 'text' })
 
+
+
+// Method to calculate final price with offers
+productSchema.methods.calculateFinalPrice = function(variantIndex = 0) {
+  const variant = this.variant[variantIndex];
+  if (!variant) return 0;
+  
+  let finalPrice = variant.salePrice;
+  
+  if (this.productOffer.offerActive && this.productOffer.discountPercentage > 0) {
+    // Check if offer is valid (date check)
+    const now = new Date();
+    const offerValid = (!this.productOffer.offerStartDate || this.productOffer.offerStartDate <= now) &&
+                       (!this.productOffer.offerEndDate || this.productOffer.offerEndDate >= now);
+    
+    if (offerValid) {
+      const offerDiscount = (variant.salePrice * this.productOffer.discountPercentage) / 100;
+      const actualDiscount = this.productOffer.maxDiscountAmount 
+        ? Math.min(offerDiscount, this.productOffer.maxDiscountAmount)
+        : offerDiscount;
+      
+      finalPrice = variant.salePrice - actualDiscount;
+    }
+  }
+  
+  return Math.round(finalPrice * 100) / 100; // Round to 2 decimal places
+};
+
+// Method to get discount percentage
+productSchema.methods.getDiscountPercentage = function(variantIndex = 0) {
+  const variant = this.variant[variantIndex];
+  if (!variant) return 0;
+  
+  const finalPrice = this.calculateFinalPrice(variantIndex);
+  const salePrice = variant.salePrice;
+  
+  if (finalPrice < salePrice) {
+    return Math.round(((salePrice - finalPrice) / salePrice) * 100);
+  }
+  
+  // If no offer, calculate discount from regular to sale price
+  const regularPrice = variant.regularPrice;
+  if (salePrice < regularPrice) {
+    return Math.round(((regularPrice - salePrice) / regularPrice) * 100);
+  }
+  
+  return 0;
+};
+
+// Method to check if offer is currently valid
+productSchema.methods.isOfferValid = function() {
+  if (!this.productOffer.offerActive) return false;
+  
+  const now = new Date();
+  const startValid = !this.productOffer.offerStartDate || this.productOffer.offerStartDate <= now;
+  const endValid = !this.productOffer.offerEndDate || this.productOffer.offerEndDate >= now;
+  
+  return startValid && endValid;
+};
+
+// Virtual for total stock across all variants
+productSchema.virtual('totalStock').get(function() {
+  return this.variant.reduce((total, v) => total + v.stock, 0);
+});
+
+// Ensure virtuals are included when converting to JSON
+productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toObject', { virtuals: true });
+
+// ============== CREATE MODEL HERE ============== //
 const Product = mongoose.model("Product", productSchema);
 export default Product;
