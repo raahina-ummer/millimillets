@@ -9,6 +9,7 @@ import sharp from "sharp";
 import mongoose from "mongoose";
 import { MongoExpiredSessionError } from "mongodb";
 import { adminAuth } from "../../middleware/auth.js";
+import logger from '../../utils/logger.js';
 
 const getProductAddPage = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ const getProductAddPage = async (req, res) => {
     res.render("add-product", { cat: category });
   } catch (error) {
     console.log("Error: " + error);
-    res.redirect("/pageerror");
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -41,7 +42,7 @@ const addProducts = async (req, res) => {
 
     // Validation - Required fields
     if (!productName || !description || !category || !weight || !gst || !stock || !regularPrice) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Missing required fields" 
       });
@@ -49,25 +50,25 @@ const addProducts = async (req, res) => {
 
     // Validation - Numeric values
     if (parseFloat(weight) <= 0) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Weight must be positive" 
       });
     }
     if (parseFloat(regularPrice) <= 0) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Regular price must be positive" 
       });
     }
     if (parseInt(stock) < 0) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Stock must be non-negative" 
       });
     }
     if (parseFloat(gst) < 0 || parseFloat(gst) > 100) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "GST must be between 0 and 100" 
       });
@@ -75,7 +76,7 @@ const addProducts = async (req, res) => {
 
     // Validation - Sale price
     if (salePrice && parseFloat(salePrice) > parseFloat(regularPrice)) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Sale price cannot be greater than regular price" 
       });
@@ -84,7 +85,7 @@ const addProducts = async (req, res) => {
     // Category validation
     const categoryDoc = await Category.findOne({ name: category });
     if (!categoryDoc) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Invalid category name" 
       });
@@ -95,7 +96,7 @@ const addProducts = async (req, res) => {
       productName: productName.trim()
     });
     if (existingProduct) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Product already exists" 
       });
@@ -103,14 +104,14 @@ const addProducts = async (req, res) => {
 
     // Image validation
     if (!images || images.length === 0) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "At least one product image is required" 
       });
     }
 
     if (images.length > 4) {
-      return res.status(400).json({ 
+      return res.status(Status.BAD_REQUEST).json({ 
         success: false, 
         message: "Maximum 4 images allowed" 
       });
@@ -127,7 +128,7 @@ const addProducts = async (req, res) => {
     const imageFilenames = [];
     for (let file of images) {
       if (!validImageTypes.includes(file.mimetype)) {
-        return res.status(400).json({ 
+        return res.status(Status.BAD_REQUEST).json({ 
           success: false, 
           message: "Only image files (PNG, JPEG, JPG, WEBP) are allowed" 
         });
@@ -163,11 +164,9 @@ const addProducts = async (req, res) => {
 
   } catch (error) {
     console.error("Add product error:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "An error occurred while adding the product",
-      error: error.message 
-    });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, 
+      message: message.SERVER_ERROR,
+  });
   }
 };
 
@@ -175,7 +174,7 @@ const getAllProducts = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 7;
+    const limit = 10;
 
     const productData = await Product.find({
       $or: [
@@ -220,7 +219,7 @@ const blockProduct = async (req, res) => {
     await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/products");
   } catch (error) {
-    res.redirect("/pageError");
+   res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -230,7 +229,7 @@ const unblockProduct = async (req, res) => {
     await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
     res.redirect("/admin/products");
   } catch (error) {
-    res.redirect("/pageError");
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -244,13 +243,10 @@ const getEditProduct = async (req, res) => {
       cat: category,
     });
   } catch (error) {
-    res.redirect("/pageError");
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
-
-
-// 
 
 
 
@@ -363,7 +359,7 @@ const editProduct = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({ 
+    res.status(Status.OK).json({ 
       success: true, 
       message: "Product updated successfully", 
       product: updatedProduct 
@@ -371,10 +367,7 @@ const editProduct = async (req, res) => {
 
   } catch (error) {
     console.error("Edit product error:", error);
-    res.status(400).json({ 
-      success: false, 
-      error: error.message 
-    });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -384,7 +377,7 @@ const deleteSingleImage = async (req, res) => {
 
     // validation
     if (!productIdToServer || !productIdToServer.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         status: false,
         error: "Invalid product ID"
       });
@@ -392,7 +385,7 @@ const deleteSingleImage = async (req, res) => {
 
    
     if (!imageNameToServer || imageNameToServer.includes('/') || imageNameToServer.includes('..')) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         status: false,
         error: "Invalid image name"
       });
@@ -401,7 +394,7 @@ const deleteSingleImage = async (req, res) => {
     // check product exists
     const product = await Product.findById(productIdToServer);
     if (!product) {
-      return res.status(404).json({
+      return res.status(Status.BAD_REQUEST).json({
         status: false,
         error: "Product not found"
       });
@@ -409,7 +402,7 @@ const deleteSingleImage = async (req, res) => {
 
     // Check if image exists in product's image 
     if (!product.productImage.includes(imageNameToServer)) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         status: false,
         error: "Image not found in product"
       });
@@ -417,7 +410,7 @@ const deleteSingleImage = async (req, res) => {
 
     
     if (product.productImage.length === 1) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         status: false,
         error: "Cannot delete the last image. A product must have at least one image."
       });
@@ -455,34 +448,10 @@ const deleteSingleImage = async (req, res) => {
 
   } catch (error) {
     console.error("Delete image error:", error);
-    return res.status(500).json({
-      status: false,
-      error: "Internal server error"
-    });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
-
-// const deleteSingleImage = async (req, res) => {
-//   try {
-//     const { imageNameToServer, productIdToServer } = req.body;
-//     await Product.findByIdAndUpdate(productIdToServer, {
-//       $pull: { productImage: imageNameToServer },
-//     });
-//     const imagePath = path.join(
-//       "public",
-//       "upload",
-//       "product-images",
-//       imageNameToServer
-//     );
-//     if (fs.existsSync(imagePath)) {
-//       await fs.unlinkSync(imagePath);
-//     }
-//     res.send({ status: true });
-//   } catch (error) {
-//     res.redirect("/pageError");
-//   }
-// };
 
 // Get product offer
 export const getProductOffer = async (req, res) => {
@@ -491,16 +460,16 @@ export const getProductOffer = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.json({ success: false, message: 'Product not found' });
+      return res.Status(Status.BAD_REQUEST).json({ success: false, message:message.PRODUCT_NOT_FOUND  });
     }
 
-    res.json({
+    res.Status(Status.OK).json({
       success: true,
       offer: product.productOffer || {}
     });
   } catch (error) {
     console.error('Error fetching offer:', error);
-    res.json({ success: false, message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -520,14 +489,14 @@ const updateProductOffer = async (req, res) => {
 
     // Validation
     if (discountPercentage < 0 || discountPercentage > 100) {
-      return res.json({
+      return res.Status(Status.BAD_REQUEST).json({
         success: false,
         message: 'Discount must be between 0 and 100'
       });
     }
 
     if (offerStartDate && offerEndDate && new Date(offerStartDate) > new Date(offerEndDate)) {
-      return res.json({
+      return res.Status(Status.BAD_REQUEST).json({
         success: false,
         message: 'Start date cannot be after end date'
       });
@@ -557,14 +526,14 @@ const updateProductOffer = async (req, res) => {
     await product.save();
 
 
-    res.json({
+    res.Status(Status.OK).json({
       success: true,
       message: 'Offer updated successfully',
       product
     });
   } catch (error) {
     console.error('Error updating offer:', error);
-    res.json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -575,16 +544,16 @@ const loadProductOffer = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.json({ success: false, message: 'Product not found' });
+      return res.Status(Status.BAD_REQUEST).json({ success: false, message: 'Product not found' });
     }
 
-    res.json({
+    res.Status(Status.OK).json({
       success: true,
       offer: product.productOffer || {}
     });
   } catch (error) {
     console.error('Error fetching offer:', error);
-    res.json({ success: false, message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 

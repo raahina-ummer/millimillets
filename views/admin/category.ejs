@@ -516,14 +516,14 @@
                                 Category Name
                                 <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
                             </th>
-                            <th>
+                            <!-- <th>
                                 Sold
                                 <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
                             </th>
                             <th>
                                 Stock
                                 <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
-                            </th>
+                            </th> -->
                             <th>
                                 Added
                                 <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
@@ -548,8 +548,8 @@
                                             <span class="category-name"><%= category.name %></span>
                                         </div>
                                     </td>
-                                    <td><%= category.sold || 0 %></td>
-                                    <td><%= category.stock || 0 %></td>
+                                    <!-- <td><%= category.sold || 0 %></td>
+                                    <td><%= category.stock || 0 %></td> -->
                                     <td><%= category.createdAt ? new Date(category.createdAt).toLocaleDateString() : "N/A" %></td>
                                     <td>
                                         <div class="action-icons">
@@ -728,7 +728,8 @@
         }
 
         function fetchOfferData(categoryId) {
-            fetch(`/admin/categoryOffer/${categoryId}`)
+            fetch(`/admin/category-offer/${categoryId}`)
+
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.offer) {
@@ -762,7 +763,7 @@
             document.getElementById('discountError').style.display = 'none';
 
             try {
-                const response = await fetch(`/admin/categoryOffer/${categoryId}`, {
+                const response = await fetch(`/admin/category-offer/${categoryId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

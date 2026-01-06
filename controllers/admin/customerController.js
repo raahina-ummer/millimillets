@@ -2,13 +2,14 @@
 import User from "../../models/userSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 
  const customerInfo = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 6;
+    const limit = 10;
 
     const query = {
       isAdmin: false,
@@ -34,9 +35,11 @@ import message from "../../utils/message.js";
     });
   } catch (error) {
     console.error("Error loading customers:", error);
-   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
+
+
 
 // Block a customer
  const customerBlocked = async (req, res) => {
@@ -51,9 +54,11 @@ import message from "../../utils/message.js";
     res.status(Status.OK).json({success:true,message:'Customer blocked successfully' })
   } catch (error) {
     console.error("Error blocking user:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
+
+
 
 // Unblock a customer
  const customerunBlocked = async (req, res) => {
@@ -64,8 +69,9 @@ import message from "../../utils/message.js";
    res.status(Status.OK).json({ success: true, message: 'Customer activated successfully' });
   } catch (error) {
     console.error("Error unblocking user:", error);
-   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+   res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
+  
 };
 
 

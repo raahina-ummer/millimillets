@@ -10,6 +10,7 @@ import uploads from "../../Helpers/multer.js";
 import { debugPort } from "process";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 
 dotenv.config();
@@ -51,14 +52,21 @@ const securePassword = async (password) => {
        return res.redirect("/verifyForgotOtp");
        
       } else {
-       return res.json({ success: false, message: "Failed to send OTP. Please try again!" });
+      return res.render("forgotpassword", { 
+        message: "User with this email does not exist",
+        messageType: "error"
+      });
       }
     } else {
-     return  res.render("forgotpassword", { message: "User with this email does not exist" });
-    }
+  return res.render("forgotpassword", { 
+    message: "User with this email does not exist",
+    messageType: "error"
+  });
+}
+    
   } catch (error) {
     console.error(error.message);
-    return res.redirect("/pageNotFound");
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -69,7 +77,7 @@ const securePassword = async (password) => {
     otpType: "FORGET_PASSWORD"
    });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -82,7 +90,7 @@ const securePassword = async (password) => {
     if (timeDiff > 60000) {
       delete req.session.userOtp;
       delete req.session.timer;
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "OTP expired. Request a new one." });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.OTP_EXPIRED });
     }
 
     if (String(req.session.userOtp) === String(otp)) {
@@ -93,7 +101,7 @@ const securePassword = async (password) => {
     }
   } catch (error) {
     console.error("OTP Verification Error:", error.message);
-   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server Error" });
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message:message.SERVER_ERROR});
   }
 };
 
@@ -103,10 +111,10 @@ const resendOtp = async (req, res) => {
   try {
     console.log("resendOtop invocked");
   const email = 
-  req.session?.pendingEmail ||         // Email change 
-  req.session?.userData?.email ||      // During signup
-  req.session?.email ||                // Forgot password
-  req.session?.newEmail;               // Alternative
+  req.session?.pendingEmail ||          
+  req.session?.userData?.email ||      
+  req.session?.email ||                
+  req.session?.newEmail;               
 
 
 
@@ -160,7 +168,7 @@ const resendOtp = async (req, res) => {
     if (!req.session.email) return res.redirect("/forgotPassword");
     return res.render("resetpassword");
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -178,7 +186,7 @@ const resendOtp = async (req, res) => {
       return res.json({ success: false, message: "Passwords do not match" });
     }
   } catch (error) {
-    return res.redirect("/pageNotFound");
+   res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -213,7 +221,7 @@ const resendOtp = async (req, res) => {
       walletTransactions: [],
     });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -227,7 +235,7 @@ const resendOtp = async (req, res) => {
     const user = await User.findById(userId);
     return res.render("editProfile", { user });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -242,7 +250,7 @@ const loadChangePassword = async (req, res) => {
       return res.render("googlechangepassword", { user });
     }
   } catch (error) {
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
@@ -285,7 +293,7 @@ const loadChangePassword = async (req, res) => {
     console.log(user,userId,user.dateOfBirth,dob)
     return res.redirect("/userProfile")
   } catch (error) {
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -313,7 +321,7 @@ const updateChangePassword = async (req, res) => {
 
     return res.status(Status.OK).json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-   return  res.redirect("/pageNotFound");
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -360,10 +368,10 @@ const updateEmail = async (req, res) => {
 
 
     console.log("OTP sent:", otp);
-    return res.status(Status.Ok).json({sucess:true,message: "OTP send Sucessfully!!"})
+    return res.status(Status.OK).json({sucess:true,message: "OTP send Sucessfully!!"})
   } catch (error) {
     console.log(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error" });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -384,7 +392,7 @@ const loadChangeEmail = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading verify OTP page:", error);
-    return res.redirect("/pageNotFound");
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -430,7 +438,7 @@ const changeEmailVerifyOtp = async (req, res) => {
     return res.status(Status.OK).json({message: 'otp verified successfully',success: true});
   } catch (error) {
     console.log("Error verifying OTP:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success:false,message: 'otp invalid' })
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -471,7 +479,7 @@ const loadAddress = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    return res.redirect("pageNotFound");
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -557,7 +565,7 @@ console.log("All addresses before save:", userAddress.addresses);
 
   } catch (error) {
     console.log("Error message:", error.message);
-     return res.status(Status.INTERNAL_SERVER_ERROR).json({ success:false,message: 'otp invalid' })
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
 
   }
 };
@@ -664,7 +672,7 @@ const editAddress = async (req, res) => {
     return res.status(Status.Ok).json({ success: true, message: "Address Updated successfully" });
   } catch (error) {
     console.log(error.message);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -694,7 +702,7 @@ const setDefaultAddress = async (req, res) => {
 
   } catch (error) {
     console.error("Error setting default address:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,message: "Something went wrong.",error: error.message,});
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -749,7 +757,7 @@ const deleteAddress = async (req, res) => {
 
   } catch (error) {
     console.error("Error deleting address:", error.message);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 

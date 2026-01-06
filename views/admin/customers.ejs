@@ -544,18 +544,18 @@
         });
 
         // Confirmation dialogs
-        document.querySelectorAll('.update-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                const action = this.textContent.trim();
-                const confirmMsg = action === 'Block' 
-                    ? 'Are you sure you want to block this customer?' 
-                    : 'Are you sure you want to activate this customer?';
+        // document.querySelectorAll('.update-btn').forEach(btn => {
+        //     btn.addEventListener('click', function(e) {
+        //         const action = this.textContent.trim();
+        //         const confirmMsg = action === 'Block' 
+        //             ? 'Are you sure you want to block this customer?' 
+        //             : 'Are you sure you want to activate this customer?';
                 
-                if (!confirm(confirmMsg)) {
-                    e.preventDefault();
-                }
-            });
-        });
+        //         if (!confirm(confirmMsg)) {
+        //             e.preventDefault();
+        //         }
+        //     });
+        // });
 
 
             // Block Customer Handler

@@ -7,9 +7,9 @@ import Category from "../../models/CategorySchema.js";
  import * as offerService from "../../Services/offerService.js"
 import { calculateBestOffer,getCategoriesWithOffers,getProductsWithOffers } from "../../Services/offerService.js";
 import * as referalService from "../../Services/refferralService.js"
-// import { getReferralOffers } from "../../Services/refferralService.js";
+import logger from '../../utils/logger.js';
 
-// ============ MAIN OFFER PAGE ============
+
 export const loadOffer = async (req, res) => {
   try {
     const categories = await getCategoriesWithOffers();
@@ -32,24 +32,22 @@ export const loadOffer = async (req, res) => {
   }
 };
 
-// ============ PRODUCT OFFER CONTROLLERS ============
+
 export const getProductOffers = async (req, res) => {
   try {
     const products = await offerService.getProductsWithOffers();
     res.render("productOffer", { products, currentRoute: "offer" });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ 
-      message: message.SERVER_ERROR 
-    });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const getSingleProductOffer = async (req, res) => {
   try {
     const offer = await offerService.getSingleProductOffer(req.params.productId);
-    res.json({ success: true, offer });
+    res.Status(Status.OK).json({ success: true, offer });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -58,28 +56,28 @@ export const addProductOffer = async (req, res) => {
     await offerService.addProductOffer(req.body.productId, req.body);
     res.status(Status.OK).json({ message: "Product offer added successfully" });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const updateProductOffer = async (req, res) => {
   try {
     const product = await offerService.updateProductOffer(req.body.productId, req.body);
-    res.status(200).json({ message: "Product offer updated successfully", product });
+    res.status(Status.OK).json({ message: "Product offer updated successfully", product });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const toggleProductOffer = async (req, res) => {
   try {
     await offerService.toggleProductOfferStatus(req.body.productId, req.body.offerActive);
-    res.status(200).json({ 
+    res.status(Status.OK).json({ 
       success: true, 
       message: `Product offer ${req.body.offerActive ? 'activated' : 'deactivated'} successfully` 
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -87,13 +85,12 @@ export const removeProductOffer = async (req, res) => {
   try {
     await offerService.removeProductOffer(req.body.productId);
     console.log("hair hello from delete")
-    res.status(200).json({ message: "Product offer removed successfully" });
+    res.status(Status.OK).json({ message: "Product offer removed successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
-// ============ CATEGORY OFFER CONTROLLERS ============
 export const getCategoryOffers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -127,143 +124,148 @@ export const getCategoryOffers = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching category offers:", error);
-    res.status(500).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const getSingleCategoryOffer = async (req, res) => {
   try {
     const offer = await offerService.getSingleCategoryOffer(req.params.categoryId);
-    res.json({ success: true, offer });
+    res.Status(Status.OK).json({ success: true, offer });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const addCategoryOffer = async (req, res) => {
   try {
     await offerService.addCategoryOffer(req.body.categoryId, req.body);
-    res.status(200).json({ message: "Category offer added successfully" });
+    res.status(Status.OK).json({ message: "Category offer added successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const updateCategoryOffer = async (req, res) => {
   try {
-    const category = await offerService.updateCategoryOffer(req.body.categoryId, req.body);
-    res.status(200).json({ message: "Category offer updated successfully", category });
+
+    console.log("Update category offer Invocked");
+     const categoryId = req.params.categoryId;
+
+    const category = await offerService.updateCategoryOffer(categoryId, req.body);
+    res.status(Status.OK).json({ success:true,message: "Category offer updated successfully", category });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log("updateCategoryOffer",error)
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const toggleCategoryOffer = async (req, res) => {
   try {
     await offerService.toggleCategoryOfferStatus(req.body.categoryId, req.body.offerActive);
-    res.status(200).json({ 
+    res.status(Status.OK).json({ 
       success: true, 
       message: `Category offer ${req.body.offerActive ? 'activated' : 'deactivated'} successfully` 
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const removeCategoryOffer = async (req, res) => {
   try {
     await offerService.removeCategoryOffer(req.body.categoryId);
-    res.status(200).json({ message: "Category offer removed successfully" });
+    res.status(Status.OK).json({ message: "Category offer removed successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
-// ============ REFERRAL OFFER CONTROLLERS ============
+
 export const getReferralOffers = async (req, res) => {
   try {
-    const referralOffers = await referralService.getReferralOffers();
+    const referralOffers = await referalService.getReferralOffers();
     res.render("admin/referralOffer", { referralOffers, currentRoute: "offer" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const createReferralOffer = async (req, res) => {
   try {
-    const referralOffer = await referralService.createReferralOffer(req.body.referrerId, req.body);
-    res.status(201).json({
+    const referralOffer = await referalService.createReferralOffer(req.body.referrerId, req.body);
+    res.status(Status.OK).json({
       message: "Referral offer created successfully",
       referralCode: referralOffer.referralCode,
       referralToken: referralOffer.referralToken,
       referralOffer,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const generateReferralCoupon = async (req, res) => {
   try {
-    const coupon = await referralService.generateReferralCoupon(req.body.referralOfferId, req.body.expiryDays);
-    res.status(200).json({
+    const coupon = await referalService.generateReferralCoupon(req.body.referralOfferId, req.body.expiryDays);
+    res.status(Status.OK).json({
       message: "Coupon generated successfully",
       coupon,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+   res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const toggleReferralOffer = async (req, res) => {
   try {
-    await referralService.toggleReferralOfferStatus(req.body.offerId, req.body.isActive);
-    res.status(200).json({ 
+    await referalService.toggleReferralOfferStatus(req.body.offerId, req.body.isActive);
+    res.status(Status.OK).json({ 
       success: true, 
       message: `Referral offer ${req.body.isActive ? 'activated' : 'deactivated'} successfully` 
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const removeReferralOffer = async (req, res) => {
   try {
-    await referralService.removeReferralOffer(req.body.offerId);
-    res.status(200).json({ 
+    await referalService.removeReferralOffer(req.body.offerId);
+    res.status(Status.OK).json({ 
       success: true, 
       message: "Referral offer removed successfully" 
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const validateReferralCode = async (req, res) => {
   try {
     const referralOffer = await referralService.validateReferralCode(req.body.referralCode);
-    res.status(200).json({
+    res.status(Status.OK).json({
       message: "Valid referral code",
       referralOffer,
     });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 export const validateReferralToken = async (req, res) => {
   try {
     const referralOffer = await referralService.validateReferralToken(req.params.token);
-    res.status(200).json({
+    res.status(Status.OK).json({
       message: "Valid referral token",
       referralOffer,
     });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
-// ============ OFFER CALCULATION CONTROLLERS ============
+// OFFER CALCULATION CONTROLLERS
 export const calculateProductOffer = async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId);
@@ -272,13 +274,13 @@ export const calculateProductOffer = async (req, res) => {
     const bestOffer = offerService.calculateBestOffer(product, category);
     const pricing = offerService.calculateFinalPrice(product.price, product, category);
     
-    res.json({
+    res.Status(Status.OK).json({
       success: true,
       bestOffer,
       pricing
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -289,11 +291,11 @@ export const getApplicableOffers = async (req, res) => {
     
     const offers = offerService.getAllApplicableOffers(product, category);
     
-    res.json({
+    res.Status(Status.OK).json({
       success: true,
       offers
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };

@@ -12,6 +12,24 @@ const Messages = {
   PASSWORD_MISMATCH: "Passwords do not match.",
   UNAUTHORIZED_ACCESS: "Unauthorized access. Please login again.",
 
+  // Category
+  CATEGORY_ALREADY_EXISTS: "The category already exists",
+  CATEGORY_UPDATED_SUCCESS: "Category updated successfully",
+  CATEGORY_NOT_FOUND: "Category not found",
+  CATEGORY_OFFER_UPDATED_SUCCESS: "Category offer updated successfully",
+  CATEGORY_OFFER_DELETED_SUCCESS: "Category offer deleted successfully",
+
+  DISCOUNT_PERCENTAGE_INVALID: "Discount must be between 0 and 100",
+  MAX_DISCOUNT_NEGATIVE: "Max discount amount cannot be negative",
+  OFFER_DATE_INVALID: "Start date cannot be after end date",
+  CATEGORY_NOT_FOUND: "Category not found",
+  CATEGORY_CREATED_SUCCESS: "Category created successfully",
+CATEGORY_UPDATED_SUCCESS: "Category updated successfully",
+CATEGORY_OFFER_UPDATED_SUCCESS: "Category offer updated successfully",
+
+
+
+
   // Product
   PRODUCT_NOT_FOUND: "Product not found.",
   PRODUCT_OUT_OF_STOCK: "This product is currently out of stock.",

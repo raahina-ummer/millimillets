@@ -13,6 +13,7 @@ import message from "../../utils/message.js";
 import Cart from "../../models/CartSchema.js";
 import Wallet from "../../models/WalletSchema.js"
 import ReferralOffer from "../../models/referralSchema.js"
+import logger from '../../utils/logger.js';
 
 dotenv.config();
 
@@ -39,13 +40,13 @@ const loadHomepage = async (req, res) => {
     }
 
     // Get best selling products (top 4)
-    // Since you don't have popularity field, use newest products
+    //  e newest products
     const products = await Product.find({ 
       isBlocked: false,
       status: "Available"
     })
       .populate('category')
-      .sort({ createdAt: -1 }) // Newest first
+      .sort({ createdAt: -1 }) 
       .limit(4);
 
         if (products.length > 0) {
@@ -97,7 +98,7 @@ const loadHomepage = async (req, res) => {
     });
   } catch (error) {
     console.error('Error loading homepage:', error);
-    res.status(500).send('Server Error');
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -106,7 +107,7 @@ const loadSignup = async (req, res) => {
     return res.render("signup");
   } catch (error) {
     console.log("Something went wrong while signup!", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send("Server Error");
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -182,11 +183,11 @@ const verifyOtp = async (req, res) => {
     // OTP Expiration Check
     const timeDiff = new Date() - req.session.timer;
     if (timeDiff > 60000) {
-      return res.status(400).json({ success: false, message: "OTP expired" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: "OTP expired" });
     }
 
     if (String(otp) !== String(req.session.userOtp)) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         success: false,
         message: "Invalid OTP",
       });
@@ -268,13 +269,13 @@ const verifyOtp = async (req, res) => {
     // Clean OTP
     delete req.session.userOtp;
 
-    return res.status(200).json({ success: true, redirectUrl: "/" });
+    return res.status(Status.OK).json({ success: true, redirectUrl: "/" });
 
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    return res.status(500).json({
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Server error verifying OTP",
+      message: message.SERVER_ERROR,
     });
   }
 };
@@ -309,7 +310,7 @@ const resendOtp = async (req, res) => {
     console.error("Error resending OTP", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal Server Error. Please try again",
+      message: message.SERVER_ERROR,
     });
   }
 };
@@ -329,24 +330,40 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
     const findUser = await User.findOne({ isAdmin: 0, email });
+    
     if (!findUser) {
-      return res.render("login", { message: "User not found" });
+      return res.render("login", { 
+        message: "No account found with this email address" 
+      });
     }
+    
     if (findUser.isBlocked) {
-      return res.render("login", { message: "User is blocked by Admin" });
+      return res.render("login", { 
+        message: "Your account has been blocked by the administrator. Please contact support." 
+      });
     }
 
     const passwordMatch = await bcrypt.compare(password, findUser.password);
+    
     if (!passwordMatch) {
-      return res.render("login", { message: "Incorrect Password" });
+      return res.render("login", { 
+        message: "Incorrect password. Please try again." 
+      });
     }
 
     req.session.user = { id: findUser._id };
-    res.redirect("/");
+    
+    // Optional: Success message before redirect
+    req.session.loginSuccess = true;
+  res.redirect("/");
+    
   } catch (error) {
     console.error("Login error", error);
-    res.render("login", { message: "Login failed. Please try again later" });
+    res.render("login", { 
+      message: "Login failed. Please try again later." 
+    });
   }
 };
 
@@ -399,8 +416,8 @@ const loadShop = async (req, res) => {
     // Search filter
     if (searchQuery.trim()) {
       query.$or = [
-        { productName: { $regex: `^${searchQuery}`, $options: "i" } },
-        { description: { $regex: `^${searchQuery}`, $options: "i" } },
+        { productName: { $regex: `${searchQuery}`, $options: "i" } },
+        { description: { $regex: `${searchQuery}`, $options: "i" } },
       ];
     }
 
@@ -510,8 +527,12 @@ const loadShop = async (req, res) => {
       { min: 5000, max: Infinity },
     ];
 
+    const totalProducts = products.length;
+
     res.render("shop", {
       products: products.slice(skip, skip + limit),
+      totalProducts: totalProducts,  
+      totalPages: Math.ceil(totalProducts / limit), 
       categoryGroups,
       priceRanges,
       currentCategory: categoryId || null,
@@ -524,7 +545,7 @@ const loadShop = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading shop:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send("Server Error");
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 

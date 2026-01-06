@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 
 const loadWishlist = async (req, res) => {
@@ -45,7 +46,7 @@ const loadWishlist = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -78,7 +79,7 @@ const addToWishList = async (req, res) => {
     return res.status(Status.OK).json({ success: true, message: "Added to wishlist" });
   } catch (error) {
     console.error(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -102,7 +103,7 @@ const deleteWishlist = async (req, res) => {
     return res.status(Status.OK).json({ success: true, message: "Wishlist cleared successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
@@ -130,7 +131,7 @@ const removeFromWishlist = async (req, res) => {
     return res.status(Status.OK).json({success: true,message: "The product removed from the wishlist successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 

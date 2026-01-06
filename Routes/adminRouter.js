@@ -11,6 +11,7 @@ import * as stockController from "../controllers/admin/stockController.js";
 import * as offerManagement from "../controllers/admin/offerManagement.js";
 import * as couponController from  "../controllers/admin/couponController.js";
 import * as salesreport from "../controllers/admin/salesreport.js";
+import * as dashboard from  "../controllers/admin/dashboard.js"
 import multer from "multer";
 import storage from "../Helpers/multer.js";
 import passport from "../config/passport.js";
@@ -27,7 +28,6 @@ router.get("/pageerror", adminController.pageerror);
 // Admin management
 router.get("/login", adminController.loadLogin);
 router.post("/login", adminController.login);
-router.get("/dashboard", adminAuth, adminController.loadDashboard);
 router.get("/logout", adminController.logout);
 
 // Customer management
@@ -63,7 +63,7 @@ router.patch("/adminorderReturn/:orderId", adminAuth, orderController.approveOrR
 
 //stock management
 router.get("/stock",adminAuth,stockController.getStockManagement);
-router.get("/update-stock",adminAuth,stockController.updateVariantStock);
+router.post("/update-stock",adminAuth,stockController.updateVariantStock);
 
 
 
@@ -94,7 +94,7 @@ router.delete("/product-offer/remove", adminAuth,  offerManagement.removeProduct
 router.get("/category-offers", adminAuth, offerManagement.getCategoryOffers);
 router.get("/category-offer/:categoryId", adminAuth, offerManagement.getSingleCategoryOffer);
 router.post("/category-offer/add", adminAuth, offerManagement.addCategoryOffer);
-router.put("/category-offer/update", adminAuth, offerManagement.updateCategoryOffer);
+router.put("/category-offer/:categoryId", adminAuth, offerManagement.updateCategoryOffer);
 router.put("/category-offer/toggle", adminAuth, offerManagement.toggleCategoryOffer);
 router.delete("/category-offer/remove", adminAuth, offerManagement.removeCategoryOffer);
 
@@ -113,6 +113,15 @@ router.get("/referral-token/validate/:token", offerManagement.validateReferralTo
 
 router.get('/sales-report',adminAuth,salesreport.loadSalesReport);
 router.get('/sales-report/download',adminAuth,salesreport.downloadSalesReport);
+
+router.get("/dashboard", adminAuth, dashboard.loadDashboard);
+router.get("/best-products",adminAuth,dashboard.bestSellingProducts);
+router.get("/best-categories", adminAuth,dashboard.bestSellingCategories);
+router.get("/dashboard/sales-chart", adminAuth,dashboard.getSalesChartData);
+router.get("/dashboard/search", adminAuth,dashboard.searchDashboard);
+
+
+
 
 
 

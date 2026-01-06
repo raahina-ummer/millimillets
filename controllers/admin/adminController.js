@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import Order from "../../models/OrderSchema.js";
+import logger from '../../utils/logger.js';
 
 
 const pageerror = async (req, res) => {
@@ -28,10 +30,10 @@ const login = async (req, res) => {
         console.log("Admin session set:", req.session.admin);
         return res.redirect("/admin/dashboard");
       } else {
-        return res.render("adminlogin",{message:message.INVALID_CREDENTIALS});
+        return res.render("adminlogin", { message: message.INVALID_CREDENTIALS });
       }
     } else {
-      return res.render("adminlogin",{message:message.USER_NOT_FOUND});
+      return res.render("adminlogin", { message: message.USER_NOT_FOUND });
     }
   } catch (error) {
     console.log("Login error:", error);
@@ -39,17 +41,6 @@ const login = async (req, res) => {
   }
 };
 
-const loadDashboard = async (req, res) => {
-  if (req.session.admin) {
-    try {
-      res.render("dashboard");
-    } catch (error) {
-      res.redirect("/admin/pageNotFound");
-    }
-  } else {
-    return res.redirect("/admin/login");
-  }
-};
 
 const logout = async (req, res) => {
   try {
@@ -62,8 +53,13 @@ const logout = async (req, res) => {
     });
   } catch (error) {
     console.log("Unexpected error during logout:", error);
-    res.redirect("/pageError");
+    res.Status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR})
   }
 };
 
-export { loadLogin, login, loadDashboard, pageerror, logout };
+export {
+  loadLogin,
+  login,
+  pageerror,
+  logout
+};

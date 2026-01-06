@@ -4,14 +4,14 @@ import Product from "../models/ProductSchema.js";
 // Product Offer Services
 export const getProductsWithOffers = async () => {
   return await Product.find({
-    "productOffer.offerActive": true 
+    "productOffer.offerActive": true
   }).select("productName productImage productOffer");
 };
 
 export const getSingleProductOffer = async (productId) => {
   const product = await Product.findById(productId)
     .select("productName productOffer");
-  
+
   if (!product) throw new Error("Product not found");
   return product.productOffer || null;
 };
@@ -29,7 +29,7 @@ export const addProductOffer = async (productId, offerData) => {
     offerEndDate: new Date(offerData.offerEndDate),
   };
 
-  product.salePrice = product.regularPrice - (( product.regularPrice * offerData.discountPercentage) /100);
+  product.salePrice = product.regularPrice - ((product.regularPrice * offerData.discountPercentage) / 100);
 
   await product.save();
   return product;
@@ -54,7 +54,7 @@ export const updateProductOffer = async (productId, offerData) => {
   console.log("is this is working")
 
   if (!product) throw new Error("Product not found");
-  product.variant[0].salePrice = product.variant[0].regularPrice - (( product.variant[0].regularPrice * offerData.discountPercentage) /100);
+  product.variant[0].salePrice = product.variant[0].regularPrice - ((product.variant[0].regularPrice * offerData.discountPercentage) / 100);
 
   await product.save();
 
@@ -95,14 +95,14 @@ export const removeProductOffer = async (productId) => {
 // Category Offer Services
 export const getCategoriesWithOffers = async () => {
   return await Category.find({
-    "categoryOffer.offerActive":  true 
+    "categoryOffer.offerActive": true
   }).select("name image categoryOffer");
 };
 
 export const getSingleCategoryOffer = async (categoryId) => {
   const category = await Category.findById(categoryId)
     .select("name categoryOffer");
-  
+
   if (!category) throw new Error("Category not found");
   return category.categoryOffer || null;
 };
@@ -141,6 +141,32 @@ export const updateCategoryOffer = async (categoryId, offerData) => {
   );
 
   if (!category) throw new Error("Category not found");
+
+  const products = await Product.find({ category: categoryId });
+
+  for (const product of products) {
+    if (!Array.isArray(product.variant)) continue;
+
+    product.variant = product.variant.map((v) => {
+      
+      let basePrice = v.regularPrice;
+      let finalPrice = basePrice;
+
+      if (offerData.offerActive && offerData.discountPercentage > 0) {
+        finalPrice =
+          basePrice -
+          (basePrice * offerData.discountPercentage) / 100;
+      }
+
+      return {
+        ...v,
+        salePrice: Math.round(finalPrice),
+      };
+    });
+
+    await product.save();
+  }
+
   return category;
 };
 
@@ -177,15 +203,15 @@ export const removeCategoryOffer = async (categoryId) => {
 
 // Offer Calculation Logic
 export const calculateBestOffer = (product, category) => {
-  const productDiscount = product?.productOffer?.offerActive ? 
+  const productDiscount = product?.productOffer?.offerActive ?
     product.productOffer.discountPercentage : 0;
-  
-  const categoryDiscount = category?.categoryOffer?.offerActive ? 
+
+  const categoryDiscount = category?.categoryOffer?.offerActive ?
     category.categoryOffer.discountPercentage : 0;
-  
+
   const bestDiscount = Math.max(productDiscount, categoryDiscount);
   const offerType = bestDiscount === productDiscount ? 'product' : 'category';
-  
+
   return {
     discountPercentage: bestDiscount,
     offerType,

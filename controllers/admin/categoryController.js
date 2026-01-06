@@ -3,12 +3,13 @@ import Category from "../../models/CategorySchema.js";
 import Product from "../../models/ProductSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 
 const categoryInfo = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 10;
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
 
@@ -33,8 +34,8 @@ const categoryInfo = async (req, res) => {
       search: search,
     });
   } catch (error) {
-    console.error(error);
-     res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    logger.error("Category info error", error);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -42,23 +43,23 @@ const loadAddCategory = (req, res) => {
   try {
     return res.render("addcategory");
   } catch (error) {
-   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
 const addCategory = async (req, res) => {
-  console.log("Add Category Invoked");
-  console.log("REQ BODY:", req.body);
+  logger.info("Add category invoked");
+  logger.debug("Add category request body", req.body);
   let { name, description } = req.body;
 
   try {
     // Convert name to lowercase for comparison
     const existingCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') } // case-insensitive
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
     });
 
     if (existingCategory) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "The category already exists" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.CATEGORY_ALREADY_EXISTS });
 
     }
 
@@ -68,10 +69,17 @@ const addCategory = async (req, res) => {
     });
 
     await newCategory.save();
-    return res.json({ message: "Category added Successfully" });
+    return res.status(Status.CREATED).json({
+      success: true,
+      message: message.CATEGORY_CREATED_SUCCESS,
+    });
+
   } catch (error) {
-    console.log("Error:", error);
-    return res.status(Status.CREATED).json({ error: "Internal Server Error" });
+    logger.error("Add category error", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.SERVER_ERROR,
+    });
   }
 };
 
@@ -111,9 +119,13 @@ const editCategory = async (req, res) => {
     const id = req.params.id;
     const { categoryName, description } = req.body;
 
-    const existingCategory = await Category.findOne({ name: categoryName });
+    const existingCategory = await Category.findOne({
+      name: categoryName,
+      _id: { $ne: id },
+    });
+
     if (existingCategory) {
-       return res.status(Status.BAD_REQUEST).json({ success: false, message: "The category already exists" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.CATEGORY_ALREADY_EXISTS });
     }
 
     const updateCategory = await Category.findByIdAndUpdate(
@@ -126,33 +138,34 @@ const editCategory = async (req, res) => {
     );
 
     if (updateCategory) {
-        res.status(Status.CREATED).json({ message: "Successfully added" });
+      res.status(Status.OK).json({ success: true, message: message.CATEGORY_UPDATED_SUCCESS });
     } else {
-       res.status(Status.NOT_FOUND).json({ message: "Category not found" });
+      res.status(Status.NOT_FOUND).json({ success: false, message: message.CATEGORY_NOT_FOUND });
     }
   } catch (error) {
-     res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
- const loadCategoryOffer = async (req, res) => {
+const loadCategoryOffer = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    
+
     const category = await Category.findById(categoryId);
 
     if (!category) {
-      return res.status(Status.NOT_FOUND).json({ success: false, message: "Category not found" });
+      return res.status(Status.NOT_FOUND).json({ success: false, message: message.CATEGORY_NOT_FOUND });
     }
 
-    res.status(Status.OK).json({  success: true, offer: category.categoryOffer || {}  });
+    res.status(Status.OK).json({ success: true, offer: category.categoryOffer || {} });
   } catch (error) {
-    console.error("Error fetching category offer:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+
+    logger.error("Error fetching category offer", error);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
 // Create/Update category offer
- const updateCategoryOffer = async (req, res) => {
+const updateCategoryOffer = async (req, res) => {
   try {
     const { categoryId } = req.params;
     const {
@@ -166,28 +179,30 @@ const editCategory = async (req, res) => {
 
     // Validation
     if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
-      return res.json({
+      return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Discount must be between 0 and 100"
+        message: message.DISCOUNT_PERCENTAGE_INVALID,
       });
     }
 
     if (maxDiscountAmount && maxDiscountAmount < 0) {
-      return res.json({
+      return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Max discount amount cannot be negative"
+        message: message.MAX_DISCOUNT_NEGATIVE,
       });
+
     }
 
     if (offerStartDate && offerEndDate) {
       const startDate = new Date(offerStartDate);
       const endDate = new Date(offerEndDate);
-      
+
       if (startDate > endDate) {
-        return res.json({
+        return res.status(Status.BAD_REQUEST).json({
           success: false,
-          message: "Start date cannot be after end date"
+          message: message.OFFER_DATE_INVALID,
         });
+
       }
     }
 
@@ -206,19 +221,27 @@ const editCategory = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.json({
+    if (!category) {
+      return res.status(Status.NOT_FOUND).json({
+        success: false,
+        message: message.CATEGORY_NOT_FOUND,
+      });
+    }
+    return res.status(Status.OK).json({
       success: true,
-      message: "Category offer updated successfully",
-      category
+      message: message.CATEGORY_OFFER_UPDATED_SUCCESS,
+      category,
     });
+
+
   } catch (error) {
-    console.error("Error updating category offer:", error);
-    res.json({ success: false, message: error.message });
+    logger.error("Error updating category offer", error);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
 // Delete category offer
- const deleteCategoryOffer = async (req, res) => {
+const deleteCategoryOffer = async (req, res) => {
   try {
     const { categoryId } = req.params;
 
@@ -237,14 +260,23 @@ const editCategory = async (req, res) => {
       { new: true }
     );
 
-    res.json({
+    if (!category) {
+      return res.status(Status.NOT_FOUND).json({
+        success: false,
+        message: message.CATEGORY_NOT_FOUND,
+      });
+    }
+
+
+    return res.status(Status.OK).json({
       success: true,
-      message: "Category offer deleted successfully",
-      category
+      message: message.CATEGORY_OFFER_DELETED_SUCCESS,
+      category,
     });
+
   } catch (error) {
-    console.error("Error deleting category offer:", error);
-    res.json({ success: false, message: error.message });
+    logger.error("Error deleting category offer", error);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 

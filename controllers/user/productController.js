@@ -4,6 +4,7 @@ import Category from "../../models/CategorySchema.js";
 import Wishlist from "../../models/WishListSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 
 const productDetails = async (req, res) => {
@@ -16,7 +17,6 @@ const productDetails = async (req, res) => {
       return res.redirect("/pageNotFound");
     }
 
-    //  Fetch product with category
     const product = await Product.findById(productId).populate("category");
     if (!product || product.isBlocked) {
       return res.redirect("/pageNotFound");
@@ -66,50 +66,11 @@ const productDetails = async (req, res) => {
 
   } catch (error) {
     console.error("Error fetching product details:", error);
-    res.redirect("/pageNotFound");
+    res.status(Status.INTERNAL_SERVER_ERROR).json({sucess:false,message:message.SERVER_ERROR})
   }
 };
 
 
-
-
-
-
-
-// const pr
-// oductDetails = async (req, res) => {
-//   try {
-//     const userId = req.session.user.id;
-//     const userData = await User.findById(userId);
-//     const productId = req.query.id;
-
-//     const product = await Product.findById(productId).populate("category");
-//     if (!product) return res.redirect("/pageNotFound");
-
-//     const relatedProducts = await Product.find().limit(4);
-
-//     const findCategory = product.category;
-
-//     const productOffer = product.productOffer?.discountPercentage || 0;
-//     const categoryOffer = findCategory?.categoryOffer || 0;
-
-//     const totalOffer = productOffer + categoryOffer;
-
-//     res.render("productdetails", {
-//       user: userData,
-//       product,
-//       quantity: product.variant?.[0]?.stock || 0,
-//       totalOffer,
-//       category: findCategory,
-//       relatedProducts,
-//       wishlist: [],
-//     });
-
-//   } catch (error) {
-//     console.error("Error fetching product details:", error);
-//     res.redirect("pageNotFound");
-//   }
-// };
 
 
 export  { productDetails };

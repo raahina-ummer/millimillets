@@ -714,10 +714,10 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <% if (order) { %>
-                <a href="/checkout/<%= order.orderId %>" class="btn-danger-custom">
-                    <i class="fas fa-redo"></i>
-                    Retry Payment
-                </a>
+  <button onclick="retryPayment('<%= order.orderId %>', '<%= order.finalAmount %>')" class="btn-danger-custom">
+    <i class="fas fa-redo"></i>
+    Retry Payment
+</button>
                 <a href="/orders/<%= order.orderId %>" class="btn-outline-custom">
                     <i class="fas fa-receipt"></i>
                     View Order Details
@@ -760,18 +760,110 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+async function retryPayment(orderId, amount) {
+    console.log(" Retry Payment Started:", orderId, amount); // ✅ Check if function runs
     
-    <script>
-        // Button click animations
-        document.querySelectorAll('.btn-primary-custom, .btn-danger-custom, .btn-outline-custom').forEach(button => {
-            button.addEventListener('click', function(e) {
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 150);
-            });
+    try {
+        // Show loading
+        swal({
+            title: "Processing...",
+            text: "Please wait",
+            icon: "info",
+            buttons: false,
+            closeOnClickOutside: false
+        });
+
+        console.log("📡 Fetching /create-retry-order..."); // ✅ Check if fetch starts
+
+        // Create new Razorpay order for retry
+        const response = await fetch('/create-retry-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: orderId })
+        });
+
+        console.log("Response received:", response.status); // ✅ Check response status
+
+        const data = await response.json();
+        console.log(" Response data:", data); // ✅ Check data
+        
+        if (!data.success) {
+            console.error("❌ Error:", data.message);
+            swal("Error", data.message, "error");
+            return;
+        }
+
+        swal.close();
+        console.log(" Opening Razorpay modal...");
+
+     
+
+        // Open Razorpay modal
+        const options = {
+            key: data.key,
+            amount: data.order.amount,
+            currency: "INR",
+            name: "Milli Millet Ecommerce",
+            description: "Retry Payment for Order #" + orderId,
+            order_id: data.order.id,
+            handler: async function (response) {
+                // Payment success
+                const verifyRes = await fetch("/verify-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        paymentResponse: response,
+                        orderId: orderId  // Pass original orderId
+                    })
+                });
+
+                const verifyData = await verifyRes.json();
+
+                if (verifyData.success) {
+                    swal("Success!", "Payment successful!", "success")
+                        .then(() => {
+                            window.location.href = `/ordersuccess?orderId=${orderId}`;
+                        });
+                } else {
+                    swal("Error", verifyData.message, "error");
+                }
+            },
+            modal: {
+                ondismiss: function() {
+                    swal("Cancelled", "Payment was cancelled", "warning");
+                }
+            },
+            theme: { color: "#3399cc" }
+        };
+
+        const rzp = new Razorpay(options);
+        
+        rzp.on('payment.failed', function (response) {
+            swal("Payment Failed", response.error.description, "error");
         });
         
+        rzp.open();
+
+    } catch (error) {
+        console.error(error);
+        swal("Error", "Something went wrong", "error");
+    }
+}
+
+</script>
+<script>
+// ✅ Only animate non-retry buttons
+document.querySelectorAll('.btn-primary-custom, .btn-outline-custom').forEach(button => {
+    button.addEventListener('click', function(e) {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 150);
+    });
+});
         // Add entrance animations on scroll
         const observerOptions = {
             threshold: 0.1,

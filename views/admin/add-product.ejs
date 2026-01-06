@@ -989,25 +989,7 @@
                     </div>
                     <!-- Add this pagination section at the bottom of your product list (before closing container) -->
 <!-- Pagination -->
-<% if (totalPages > 1) { %>
-    <div class="pagination-container">
-        <div class="pagination-info">
-            Showing <%= ((currentPage - 1) * 7) + 1 %>-<%= Math.min(currentPage * 7, totalCategories) %> from <%= totalCategories %>
-        </div>
-        <nav>
-            <ul class="pagination">
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="/admin/products?page=<%= i %>&search=<%= search || '' %>">
-                            <%= i < 10 ? '0' + i : i %>
-                        </a>
-                    </li>
-                <% } %>
-            </ul>
-        </nav>
-    </div>
-<% } %>
-</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1016,106 +998,104 @@ let croppers = {};
 
 // Image preview and cropper initialization
 function viewImage(event, index) {
-    let input = event.target;
-    let reader = new FileReader();
+    const input = event.target;
+    if (!input.files || !input.files[0]) return;
+
+    const reader = new FileReader();
+
     reader.onload = function () {
-        let dataURL = reader.result;
-        let image = document.getElementById('imgView' + index);
+        const dataURL = reader.result;
+
+        const image = document.getElementById('imgView' + index);
+        const cropperContainer = document.getElementById('cropperContainer' + index);
+        const croppedImage = document.getElementById('croppedImg' + index);
+
+        // Preview original image
         image.src = dataURL;
         image.style.display = 'block';
 
         // Hide placeholder
-        let placeholder = image.parentElement.querySelector('.upload-placeholder, .browse-text');
-        if (placeholder) {
-            placeholder.style.display = 'none';
-        }
+        const placeholder = image.parentElement.querySelector('.upload-placeholder, .browse-text');
+        if (placeholder) placeholder.style.display = 'none';
 
-        // Show cropper container
-        let cropperContainer = document.getElementById('cropperContainer' + index);
-        let croppedImage = document.getElementById('croppedImg' + index);
+        // Show cropper
         croppedImage.src = dataURL;
         cropperContainer.classList.add('active');
 
-        // Destroy existing cropper if any
+        // Destroy old cropper safely
         if (croppers[index]) {
             croppers[index].destroy();
+            delete croppers[index];
         }
 
-        // Initialize new Cropper instance with zoom
+        // Init cropper
         croppers[index] = new Cropper(croppedImage, {
             aspectRatio: 1,
-            viewMode: 1,
-            guides: true,
-            background: false,
+            viewMode: 2,
             autoCropArea: 1,
+            background: false,
             zoomable: true,
-            zoomOnWheel: true,
-            zoomOnTouch: true,
-            wheelZoomRatio: 0.1,
-            minCropBoxWidth: 100,
-            minCropBoxHeight: 100
+            movable: true,
+            responsive: true,
+            minCropBoxWidth: 150,
+            minCropBoxHeight: 150
         });
 
-        // Add zoom controls
-        let zoomInBtn = document.querySelector('#zoomIn' + index);
-        let zoomOutBtn = document.querySelector('#zoomOut' + index);
-        let resetBtn = document.querySelector('#resetZoom' + index);
+        // Zoom controls
+        const zoomInBtn = document.getElementById('zoomIn' + index);
+        const zoomOutBtn = document.getElementById('zoomOut' + index);
+        const resetBtn = document.getElementById('resetZoom' + index);
 
-        if (zoomInBtn) {
-            zoomInBtn.onclick = function() {
-                croppers[index].zoom(0.1);
-            };
-        }
+        if (zoomInBtn) zoomInBtn.onclick = () => croppers[index].zoom(0.1);
+        if (zoomOutBtn) zoomOutBtn.onclick = () => croppers[index].zoom(-0.1);
+        if (resetBtn) resetBtn.onclick = () => croppers[index].reset();
 
-        if (zoomOutBtn) {
-            zoomOutBtn.onclick = function() {
-                croppers[index].zoom(-0.1);
-            };
-        }
+        // Save cropped image
+        const saveButton = document.getElementById('saveButton' + index);
+        saveButton.onclick = function () {
 
-        if (resetBtn) {
-            resetBtn.onclick = function() {
-                croppers[index].reset();
-            };
-        }
+            if (!croppers[index]) return;
 
-        // Save button click event
-        let saveButton = document.querySelector('#saveButton' + index);
-        saveButton.onclick = async function () {
-            let croppedCanvas = croppers[index].getCroppedCanvas();
-            
-            // Update preview image
-            image.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
-
-            // Create and assign the new file
-            await croppedCanvas.toBlob(blob => {
-                let imageFile = new File([blob], `cropped-img-${Date.now()}-${index}.png`, { type: "image/png" });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(imageFile);
-                input.files = dataTransfer.files;
+            const croppedCanvas = croppers[index].getCroppedCanvas({
+                width: 600,
+                height: 600,
+                imageSmoothingQuality: "high"
             });
 
-            // Hide cropper container
-            cropperContainer.classList.remove('active');
-            croppers[index].destroy();
+            // Update preview
+            image.src = croppedCanvas.toDataURL("image/jpeg", 0.9);
+
+            // Convert canvas → File
+            croppedCanvas.toBlob((blob) => {
+                const croppedFile = new File(
+                    [blob],
+                    `cropped-img-${Date.now()}-${index}.jpg`,
+                    { type: "image/jpeg" }
+                );
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                input.files = dataTransfer.files;
+
+                // Close cropper
+                cropperContainer.classList.remove('active');
+                croppers[index].destroy();
+                delete croppers[index];
+
+            }, "image/jpeg", 0.9);
         };
     };
+
     reader.readAsDataURL(input.files[0]);
 }
 
-// Setup image inputs
-document.getElementById('input1').addEventListener('change', function(e) {
-    viewImage(e, 1);
-});
-document.getElementById('input2').addEventListener('change', function(e) {
-    viewImage(e, 2);
-});
-document.getElementById('input3').addEventListener('change', function(e) {
-    viewImage(e, 3);
-});
-document.getElementById('input4').addEventListener('change', function(e) {
-    viewImage(e, 4);
-});
+// Input listeners
+document.getElementById('input1').addEventListener('change', e => viewImage(e, 1));
+document.getElementById('input2').addEventListener('change', e => viewImage(e, 2));
+document.getElementById('input3').addEventListener('change', e => viewImage(e, 3));
+document.getElementById('input4').addEventListener('change', e => viewImage(e, 4));
+
+
 
 // Form validation - UPDATED TO MATCH CONTROLLER
 function validateForm() {

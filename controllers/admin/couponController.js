@@ -1,6 +1,7 @@
 import Coupon from "../../models/CouponSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 const loadCoupon = async (req, res) => {
   try {
@@ -17,12 +18,12 @@ const loadCoupon = async (req, res) => {
 
     const totalCoupons = await Coupon.countDocuments(query);
     const activeCoupons = await Coupon.countDocuments({ ...query, isActive: true });
-    const expiredCoupons = await Coupon.countDocuments({ 
-      ...query, 
-      expiresAt: { $lt: new Date() } 
+    const expiredCoupons = await Coupon.countDocuments({
+      ...query,
+      expiresAt: { $lt: new Date() }
     });
     const usedCoupons = await Coupon.countDocuments({ ...query, usedCount: { $gt: 0 } });
-    
+
     const totalPages = Math.ceil(totalCoupons / limit);
     const skip = (page - 1) * limit;
 
@@ -38,21 +39,20 @@ const loadCoupon = async (req, res) => {
       limit,
       search,
       totalCoupons,
-      activeCoupons,      
-      expiredCoupons,     
-      usedCoupons,        
+      activeCoupons,
+      expiredCoupons,
+      usedCoupons,
       user: null,
     });
   } catch (error) {
     console.error(error);
-    return res.json({ success: false, message: error.message });
+    return res.Status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
   }
 };
 
 
- const createCoupon = async (req, res) => {
+const createCoupon = async (req, res) => {
   try {
-    console.log("the add Coupon req.body", req.body);
     const {
       code,
       discountPercent,
@@ -64,8 +64,60 @@ const loadCoupon = async (req, res) => {
       totalUsageLimit,
     } = req.body;
 
-    // Check if already exists
-    const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
+    //validations
+    if (!code || !code.trim()) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Coupon code is required",
+      });
+    }
+
+    if (discountPercent === undefined || discountPercent === null) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Discount percentage is required",
+      });
+    }
+
+    if (!expiresAt) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Expiry date is required",
+      });
+    }
+
+
+
+    const couponCode = code.trim().toUpperCase();
+    const discount = parseInt(discountPercent);
+    const minPurchase = parseInt(minPurchaseAmount) || 0;
+    const maxDiscount = maxDiscountAmount ? parseInt(maxDiscountAmount) : null;
+    const perUserLimit = parseInt(usageLimitPerUser) || 1;
+    const totalLimit = totalUsageLimit ? parseInt(totalUsageLimit) : null;
+    const expiryDate = new Date(expiresAt);
+
+    if (isNaN(discount) || discount <= 0) {
+      throw new Error("Discount percentage must be greater than 0");
+    }
+
+    if (isNaN(minPurchase) || minPurchase < 0) {
+      throw new Error("Minimum purchase amount cannot be negative");
+    }
+
+    if (maxDiscount !== null && (isNaN(maxDiscount) || maxDiscount < 0)) {
+      throw new Error("Max discount amount cannot be negative");
+    }
+
+    if (perUserLimit < 1) {
+      throw new Error("Usage limit per user must be at least 1");
+    }
+
+    if (totalLimit !== null && totalLimit < 1) {
+      throw new Error("Total usage limit must be at least 1");
+    }
+
+
+    const existingCoupon = await Coupon.findOne({ code: couponCode });
     if (existingCoupon) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -73,57 +125,76 @@ const loadCoupon = async (req, res) => {
       });
     }
 
-    // Validate expiry date
-    if (new Date(expiresAt) < new Date()) {
-      return res.json({
-        success: false,
-        message: "Expiry date cannot be in the past",
-      });
+
+
+    if (isNaN(expiryDate.getTime())) {
+      throw new Error("Invalid expiry date");
     }
 
-    // Validate max discount amount
-    if (maxDiscountAmount > 10000) {
-      throw new Error("The max discount should be below 10000");
+    if (expiryDate < new Date()) {
+      throw new Error("Expiry date cannot be in the past");
     }
 
-    // Validate min purchase amount
-    if (minPurchaseAmount < 800) {
-      throw new Error("The min purchase amount should be atleast 800 or above");
+
+    if (discount > 70) {
+      throw new Error("Discount percentage cannot exceed 70%");
     }
 
-    // Validate discount percent
-    if (discountPercent > 70) {
-      throw new Error("The maximum discount amount should be below 70%");
+    if (minPurchase < 800) {
+      throw new Error("Minimum purchase amount must be at least 800");
     }
 
-    // Validate relationship between discount percent and minimum purchase
-    const estimatedDiscount = (discountPercent / 100) * minPurchaseAmount;
-    console.log("The estimatedDiscount is", estimatedDiscount);
-    if (maxDiscountAmount && estimatedDiscount > maxDiscountAmount) {
-      throw new Error("Minimum purchase too low for the discount percent");
+    if (maxDiscount !== null && maxDiscount > 10000) {
+      throw new Error("Maximum discount amount must be below 10000");
     }
+
+    const estimatedDiscount = (discount / 100) * minPurchase;
+    if (maxDiscount !== null && estimatedDiscount > maxDiscount) {
+      throw new Error("Minimum purchase amount is too low for this discount");
+    }
+
+    if (totalLimit !== null && perUserLimit > totalLimit) {
+      throw new Error(
+        "Usage limit per user cannot exceed total usage limit"
+      );
+    }
+
+
+
+    const allowedOnlyFor = ["all", "newUsers", "existingUsers"];
+    if (onlyFor && !allowedOnlyFor.includes(onlyFor)) {
+      throw new Error("Invalid coupon eligibility type");
+    }
+
 
     const newCoupon = new Coupon({
-      code: code.toUpperCase(),
-      discountPercent: parseInt(discountPercent),
-      maxDiscountAmount: maxDiscountAmount ? parseInt(maxDiscountAmount) : null,
-      minPurchaseAmount: parseInt(minPurchaseAmount) || 0,
-      expiresAt: new Date(expiresAt),
-      onlyFor,
-      usageLimitPerUser: parseInt(usageLimitPerUser) || 1,
-      totalUsageLimit: totalUsageLimit ? parseInt(totalUsageLimit) : null,
+      code: couponCode,
+      discountPercent: discount,
+      maxDiscountAmount: maxDiscount,
+      minPurchaseAmount: minPurchase,
+      expiresAt: expiryDate,
+      onlyFor: onlyFor || "all",
+      usageLimitPerUser: perUserLimit,
+      totalUsageLimit: totalLimit,
     });
 
     await newCoupon.save();
-    res.status(Status.CREATED).json({ 
-      success: true, 
-      message: "Coupon added successfully" 
+
+    return res.status(Status.CREATED).json({
+      success: true,
+      message: message.COUPON_APPLIED_SUCCESSFULLY,
     });
+
   } catch (error) {
     console.error("Error adding coupon:", error);
-    res.json({ success: false, message: error.message });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.SERVER_ERROR,
+    });
   }
 };
+
+
 
 const loadEditCoupon = async (req, res) => {
   try {
@@ -131,20 +202,21 @@ const loadEditCoupon = async (req, res) => {
     const coupon = await Coupon.findById(id);
 
     if (!coupon) {
-      return res.redirect("/pageerror");
+      throw new Error("Not Coupon")
     }
 
-    return res.render("editcoupon", { 
-        coupon,
-         user: null,
-     });
+    return res.render("editcoupon", {
+      coupon,
+      user: null,
+    });
   } catch (error) {
     console.error(error);
-    return res.redirect("/pageerror");
+    return res.Status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR })
   }
 };
 
- const editCoupon = async (req, res) => {
+
+const editCoupon = async (req, res) => {
   try {
     console.log(req.body);
     const {
@@ -167,9 +239,9 @@ const loadEditCoupon = async (req, res) => {
     });
 
     if (existingCoupon) {
-      return res.json({ 
-        success: false, 
-        message: "Coupon code already exists" 
+      return res.json({
+        success: false,
+        message: "Coupon code already exists"
       });
     }
 
@@ -207,69 +279,80 @@ const loadEditCoupon = async (req, res) => {
     };
 
     await Coupon.findByIdAndUpdate(id, updateData);
-    res.status(Status.ACCEPTED).json({success: true,message: "Coupon updated successfully" 
+    res.status(Status.ACCEPTED).json({
+      success: true, message: "Coupon updated successfully"
     });
   } catch (error) {
     console.error("Error updating coupon:", error);
-    res.json({ success: false, message: error.message });
+    return res.Status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR })
+
   }
 };
 
- const deleteCoupon = async (req, res) => {
+
+
+const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.body;
     const coupon = await Coupon.findById(id);
 
     if (!coupon) {
-      return res.json({ 
-        success: false, 
-        message: "Coupon not found" 
+      return res.json({
+        success: false,
+        message: "Coupon not found"
       });
     }
 
     // Check if coupon has been used
     if (coupon.usedCount > 0) {
-      return res.json({success: false, message:"Cannot delete coupon that has been used. Deactivate it instead.",
+      return res.json({
+        success: false, message: "Cannot delete coupon that has been used. Deactivate it instead.",
       });
     }
 
     await Coupon.findByIdAndDelete(id);
-    res.json({ success: true, message: "Coupon deleted successfully" 
+    res.Status(Status.OK).json({
+      success: true, message: message.COUPON_REMOVED
     });
   } catch (error) {
     console.error("Error deleting coupon:", error);
-    res.json({success: false,message: message.SERVER_ERROR });
+    return res.Status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR })
   }
 };
 
- const activateCoupon = async (req, res) => {
+
+
+const activateCoupon = async (req, res) => {
   try {
     const { id } = req.body;
     await Coupon.findByIdAndUpdate(id, { isActive: true });
-    res.json({success: true,message: "Coupon activated successfully"});
+    res.json({ success: true, message: "Coupon activated successfully" });
   } catch (error) {
     console.error("Error activating coupon:", error);
-    res.json({success: false,message: "Error activating coupon"});
+    return res.Status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR })
   }
 };
 
- const deactivateCoupon = async (req, res) => {
+
+
+
+const deactivateCoupon = async (req, res) => {
   try {
     const { id } = req.body;
     await Coupon.findByIdAndUpdate(id, { isActive: false });
-    res.json({ success: true,message: "Coupon deactivated successfully"});
+    res.Status(Status.OK).json({ success: true, message: "Coupon deactivated successfully" });
   } catch (error) {
     console.error("Error deactivating coupon:", error);
-    res.json({success: false,message: "Error deactivating coupon"});
+    return res.Status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR })
   }
 };
 
 export {
-      loadCoupon,
-      createCoupon,
-      deleteCoupon,
-      loadEditCoupon,
-      editCoupon,
-      activateCoupon,
-      deactivateCoupon,  
+  loadCoupon,
+  createCoupon,
+  deleteCoupon,
+  loadEditCoupon,
+  editCoupon,
+  activateCoupon,
+  deactivateCoupon,
 }

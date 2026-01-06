@@ -7,7 +7,7 @@ import session from "express-session";
 import "./config/passport.js";
 import passport from "passport";
 import connectDB from "./config/db.js";
-
+import logger from './utils/logger.js';
 import { router as adminRouter } from "./Routes/adminRouter.js";
 import { router as userRouter } from "./Routes/userRouter.js";
 

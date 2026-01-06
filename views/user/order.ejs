@@ -676,9 +676,9 @@
                             <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-action btn-invoice">
                                 <i class="fas fa-download"></i> Download Invoice
                             </button>
-                            <button onclick="openReturnModal('<%= order.orderId %>')" class="btn-action btn-return">
+                            <!-- <button onclick="openReturnModal('<%= order.orderId %>')" class="btn-action btn-return">
                                 <i class="fas fa-undo"></i> Return Order
-                            </button>
+                            </button> -->
                             <% } %>
                             
                             <% if (order.status === 'Pending' || order.status === 'Processing') { %>
@@ -870,50 +870,9 @@
             bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
         });
 
-        // Return Order Modal
-        function openReturnModal(orderId) {
-            document.getElementById('returnOrderId').value = orderId;
-            const modal = new bootstrap.Modal(document.getElementById('returnModal'));
-            modal.show();
-        }
+        
 
-        // Return Form Submission
-        document.getElementById('returnForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const orderId = document.getElementById('returnOrderId').value;
-            const reason = document.getElementById('returnReason').value;
-            
-            if (!reason.trim()) {
-                swal("Error!", "Please provide a reason for return", "error");
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/orders/${orderId}/return`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ reason })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    swal("Success!", "Return request submitted successfully. We'll process it soon.", "success")
-                        .then(() => location.reload());
-                } else {
-                    swal("Error!", data.message || "Failed to submit return request", "error");
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                swal("Error!", "Something went wrong. Please try again.", "error");
-            }
-            
-            bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
-        });
-
+       
         // Download Invoice
         async function downloadInvoice(orderId) {
             try {

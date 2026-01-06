@@ -2,6 +2,10 @@ import Order from "../../models/OrderSchema.js";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 import { calculateStatistics, getDateRange } from "../../Helpers/salesCalculation.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
+
 
 // Load sales report page
 const loadSalesReport = async (req, res) => {
@@ -57,7 +61,7 @@ const loadSalesReport = async (req, res) => {
     });
   } catch (error) {
     console.error("Error generating sales report:", error);
-    res.status(500).render("error", { message: "Error generating sales report" });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -102,7 +106,7 @@ const downloadSalesReport = async (req, res) => {
     }
   } catch (error) {
     console.error("Error downloading sales report:", error);
-    res.status(500).json({ success: false, message: "Error downloading report" });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
@@ -219,7 +223,7 @@ const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
         const discount = order.discount || 0;
         const rowData = [
           (index + 1).toString(),
-          order._id.toString().slice(-8),
+          order.orderId || order._id.toString().slice(-8),
           new Date(order.createdOn).toLocaleDateString(),
           order.userId?.name || "N/A",
           `₹${(order.totalPrice || 0).toFixed(0)}`,
@@ -309,7 +313,7 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
       const discount = order.discount || 0;
       worksheet.addRow([
         index + 1,
-        order._id.toString(),
+        order.orderId.toString(),
         new Date(order.createdOn).toLocaleDateString(),
         order.userId?.name || "N/A",
         order.userId?.email || "N/A",
@@ -336,7 +340,7 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
     res.send(buffer);
   } catch (error) {
     console.error("Error generating Excel:", error);
-    res.status(500).json({ success: false, message: "Error generating Excel report" });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 

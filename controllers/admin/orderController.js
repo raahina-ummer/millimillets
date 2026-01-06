@@ -3,6 +3,7 @@ import User from "../../models/userSchema.js";
 import Product from "../../models/ProductSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
 
 
 // Order Status Constants
@@ -16,7 +17,7 @@ const OrderStatus = {
   RETURNED: "Returned",
 };
 
-// GET: Load Orders Page with Filters
+
 const loadOrders = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -102,11 +103,11 @@ const loadOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading orders:", error);
-   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
-//  Update Order Status (WITH STOCK MANAGEMENT)
+//  Update Order Status 
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -166,7 +167,6 @@ const updateOrderStatus = async (req, res) => {
     else if (status === "Canceled") {
       order.status = "Canceled";
       order.cancelledAt = now;
-      order.cancelledBy = "admin";
       order.cancellationReason = "Cancelled by admin";
 
       //  RESTORE STOCK FOR ALL PRODUCTS
@@ -231,20 +231,26 @@ const updateOrderStatus = async (req, res) => {
       console.log(`Return approved. ₹${refundAmount} refunded to wallet. Stock restored.`);
     }
     else {
-      // For other status changes (Processing, Shipped, etc.)
       order.status = status;
       
       if (status === "Shipped") {
         order.shippedAt = now;
       }
     }
+    order.orderedProducts.forEach(item => {
+  if (item.status !== 'Cancelled' && 
+      item.status !== 'Returned' && 
+      item.status !== 'Return Request') {
+    item.status = status;
+  }
+});
 
-    await order.save();
+    await order.save({ validateModifiedOnly: true });
 
    return res.status(Status.OK).json({success: true,message: `Order status updated to ${status}`,order,});
   } catch (error) {
     console.error("Error updating order status:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,message: "Failed to update order status", error: error.message,});
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,message: message.SERVER_ERROR,});
   }
 };
 
@@ -273,7 +279,7 @@ const loadOrderDetails = async (req, res) => {
 
   } catch (error) {
     console.error("Error loading order details:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 

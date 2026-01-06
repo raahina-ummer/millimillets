@@ -373,6 +373,252 @@
       color: #8B7355;
       margin-top: 4px;
     }
+      /* Address Card Styles - Millet Theme */
+
+.address-card {
+    background: linear-gradient(135deg, #f9f6f1 0%, #E8DCC4 100%);
+    border-radius: 12px;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #d4c5b0;
+    transition: all 0.3s ease;
+}
+
+.address-card:hover {
+    border-color: #8B7355;
+    box-shadow: 0 5px 20px rgba(139, 115, 85, 0.15);
+}
+
+.address-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #8B7355 0%, #755e45 100%);
+}
+
+.address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(212, 197, 176, 0.5);
+}
+
+.recipient-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.recipient-info h4 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+    font-weight: 700;
+}
+
+/* Badge Styles - Millet Theme */
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.badge-home {
+    background: linear-gradient(135deg, #8B7355 0%, #755e45 100%);
+    color: white;
+}
+
+.badge-work {
+    background: linear-gradient(135deg, #d4c5b0 0%, #c4b5a0 100%);
+    color: #333;
+}
+
+.badge-other {
+    background: linear-gradient(135deg, #E8DCC4 0%, #d4c5b0 100%);
+    color: #755e45;
+    border: 2px solid #8B7355;
+}
+
+/* Address Details */
+.address-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px 0;
+}
+
+.detail-item i {
+    color: #8B7355;
+    font-size: 18px;
+    margin-top: 3px;
+    min-width: 22px;
+    flex-shrink: 0;
+}
+
+.detail-item span {
+    color: #755e45;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.address-text {
+    flex: 1;
+}
+
+.address-text p {
+    color: #755e45;
+    line-height: 1.8;
+    margin: 0 0 5px 0;
+    font-size: 0.95rem;
+}
+
+.address-text p:last-child {
+    margin-bottom: 0;
+}
+
+/* No Address State */
+.no-address {
+    text-align: center;
+    padding: 50px 20px;
+    background: #f9f6f1;
+    border-radius: 12px;
+    border: 2px dashed #d4c5b0;
+}
+
+.no-address i {
+    font-size: 56px;
+    margin-bottom: 20px;
+    color: #d4c5b0;
+    display: block;
+}
+
+.no-address p {
+    margin: 0;
+    font-size: 16px;
+    color: #8B7355;
+    font-weight: 600;
+}
+
+/* Alternative Simplified Address Box (matching existing theme better) */
+.address-box-simple {
+    background: #f9f6f1;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid #8B7355;
+    transition: all 0.3s ease;
+}
+
+.address-box-simple:hover {
+    background: #f0eae0;
+    box-shadow: 0 3px 15px rgba(139, 115, 85, 0.1);
+}
+
+.address-box-simple h4 {
+    margin: 0 0 15px;
+    color: #333;
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.address-box-simple .address-type-tag {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: #8B7355;
+    color: white;
+    border-radius: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.address-box-simple p {
+    margin: 0 0 10px;
+    color: #666;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.address-box-simple p:last-child {
+    margin-bottom: 0;
+}
+
+.address-box-simple p strong {
+    color: #8B7355;
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.address-box-simple p i {
+    color: #8B7355;
+    margin-right: 8px;
+    width: 18px;
+    display: inline-block;
+}
+
+.address-box-simple a {
+    color: #8B7355;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.address-box-simple a:hover {
+    color: #755e45;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .address-card,
+    .address-box-simple {
+        padding: 20px;
+    }
+    
+    .recipient-info h4 {
+        font-size: 18px;
+    }
+    
+    .address-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .detail-item {
+        flex-direction: row;
+        gap: 12px;
+    }
+    
+    .no-address {
+        padding: 30px 15px;
+    }
+    
+    .no-address i {
+        font-size: 42px;
+    }
+}
 
     @media (max-width: 768px) {
       .page-header h1 {
@@ -494,7 +740,7 @@
           </div>
         </div>
 
-        <!-- Shipping Address -->
+        <!-- Shipping Address
         <div class="info-card">
           <h3 class="card-title">
             <i class="fas fa-map-marker-alt"></i>
@@ -502,7 +748,7 @@
           </h3>
           <div class="info-row">
             <span class="info-label">Recipient</span>
-            <span class="info-value"><%= order.address.firstName %> <%= order.address.lastName %></span>
+            <span class="info-value"><%= order.address.name %> </span>
           </div>
           <div class="info-row">
             <span class="info-label">Phone</span>
@@ -528,97 +774,99 @@
             <span class="info-label">Country</span>
             <span class="info-value"><%= order.address.country %></span>
           </div>
-        </div>
+        </div> -->
+
+
+
+
+        <div class="detail-section shipping-address">
+    <div class="section-header">
+        <h3><i class="fas fa-map-marker-alt"></i> Shipping Address</h3>
+    </div>
+    <div class="section-content">
+        <% if (order.address) { %>
+            <div class="address-card">
+                <div class="address-header">
+                    <div class="recipient-info">
+                        <h4><%= order.address.name %></h4>
+                        <% if (order.address.addressType) { %>
+                            <span class="badge badge-<%= order.address.addressType.toLowerCase() %>">
+                                <%= order.address.addressType %>
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="address-details">
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span><%= order.address.mobile %></span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="address-text">
+                            <p><%= order.address.addressLine1 %></p>
+                            <% if (order.address.addressLine2 && order.address.addressLine2.trim()) { %>
+                                <p><%= order.address.addressLine2 %></p>
+                            <% } %>
+                            <p><%= order.address.city %>, <%= order.address.state %></p>
+                            <p><%= order.address.country %> - <%= order.address.pincode %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="no-address">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Address information is not available for this order</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
 
         <!-- Order Items -->
         <div class="info-card">
-          <h3 class="card-title">
-            <i class="fas fa-box"></i>
-            Order Items
-          </h3>
-          <% if (order.orderedProducts && order.orderedProducts.length > 0) { %>
-            <% order.orderedProducts.forEach(item => { %>
-              <div class="product-item">
-                <% if (item.product?.productImage?.[0]?.path) { %>
-                  <img src="/<%= item.product.productImage[0].path %>" alt="<%= item.product.productName %>" class="product-image" />
-                <% } else { %>
-                  <div class="product-image" style="background: #E8DCC4; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-image" style="color: #8B7355; font-size: 24px;"></i>
-                  </div>
-                <% } %>
-                
-                <div class="product-details">
-                  <div class="product-name"><%= item.product?.productName || 'Product' %></div>
-                  <div class="product-meta">
-                    <span><i class="fas fa-layer-group"></i> Qty: <%= item.quantity %></span>
-                    <span><i class="fas fa-rupee-sign"></i> <%= item.price.toFixed(2) %></span>
-                    <span><strong>Total: ₹<%= (item.price * item.quantity).toFixed(2) %></strong></span>
-                  </div>
-                  <div class="mt-2">
-                    <span class="status-badge <%= (item.status || 'active').toLowerCase().replace(/\s+/g, '-') %>">
-                      <%= item.status || 'Active' %>
-                    </span>
-                  </div>
-                  <% if (item.cancellationReason) { %>
-                    <div style="font-size: 12px; color: #dc2626; margin-top: 8px;">
-                      <i class="fas fa-exclamation-circle"></i> Reason: <%= item.cancellationReason %>
-                    </div>
-                  <% } %>
-                </div>
-
-                <div class="product-actions">
-                  <% if (item.status === 'return requested') { %>
-                    <button class="action-btn success" onclick="handleItemReturnRequest('<%= order._id %>', '<%= item._id %>', 'approve')">
-                      <i class="fas fa-check"></i> Approve
-                    </button>
-                    <button class="action-btn danger" onclick="handleItemReturnRequest('<%= order._id %>', '<%= item._id %>', 'reject')">
-                      <i class="fas fa-times"></i> Reject
-                    </button>
-                  <% } else if (!['cancelled', 'returned'].includes(item.status) && !['Delivered', 'Canceled'].includes(order.status)) { %>
-                    <select class="status-select" onchange="updateItemStatus('<%= order._id %>', '<%= item._id %>', this.value)" style="width: auto; padding: 6px 10px; font-size: 12px;">
-                      <option value="">Update Status</option>
-                      <option value="active">Active</option>
-                      <option value="cancelled">Cancel</option>
-                    </select>
-                  <% } %>
-                </div>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <p class="text-center text-muted">No items found</p>
+  <h3 class="card-title">
+    <i class="fas fa-box"></i>
+    Order Items
+  </h3>
+  <% if (order.orderedProducts && order.orderedProducts.length > 0) { %>
+    <% order.orderedProducts.forEach(item => { %>
+      <div class="product-item">
+        <% if (item.product?.productImage?.[0]?.path) { %>
+          <img src="/<%= item.product.productImage[0].path %>" alt="<%= item.product.productName %>" class="product-image" />
+        <% } else { %>
+          <div class="product-image" style="background: #E8DCC4; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-image" style="color: #8B7355; font-size: 24px;"></i>
+          </div>
+        <% } %>
+        
+        <div class="product-details">
+          <div class="product-name"><%= item.product?.productName || 'Product' %></div>
+          <div class="product-meta">
+            <span><i class="fas fa-layer-group"></i> Qty: <%= item.quantity %></span>
+            <span><i class="fas fa-rupee-sign"></i> <%= item.price.toFixed(2) %></span>
+            <span><strong>Total: ₹<%= (item.price * item.quantity).toFixed(2) %></strong></span>
+          </div>
+          <div class="mt-2">
+            <span class="status-badge <%= (item.status || 'active').toLowerCase().replace(/\s+/g, '-') %>">
+              <%= item.status || 'Active' %>
+            </span>
+          </div>
+          <% if (item.cancelReason) { %>
+            <div style="font-size: 12px; color: #dc2626; margin-top: 8px;">
+              <i class="fas fa-exclamation-circle"></i> Reason: <%= item.cancelReason %>
+            </div>
           <% } %>
         </div>
       </div>
-
-      <!-- Right Column -->
-      <div class="col-lg-4">
-        <!-- Status Update -->
-        <% if (!['Delivered', 'Canceled'].includes(order.status)) { %>
-        <div class="info-card">
-          <h3 class="card-title">
-            <i class="fas fa-edit"></i>
-            Update Status
-          </h3>
-          <div class="status-update-section">
-            <select id="statusSelect" class="status-select">
-              <option value="">Select Status</option>
-              <% if (order.status === 'Pending') { %>
-                <option value="Processing">Processing</option>
-                <option value="Canceled">Cancel</option>
-              <% } else if (order.status === 'Processing') { %>
-                <option value="Shipped">Shipped</option>
-                <option value="Canceled">Cancel</option>
-              <% } else if (order.status === 'Shipped') { %>
-                <option value="Delivered">Delivered</option>
-              <% } %>
-            </select>
-            <button class="action-btn primary w-100" onclick="updateOrderStatus('<%= order._id %>', '<%= order.userId?._id %>')">
-              <i class="fas fa-sync-alt"></i> Update Status
-            </button>
-          </div>
-        </div>
-        <% } %>
-
+    <% }) %>
+  <% } else { %>
+    <p class="text-center text-muted">No items found</p>
+  <% } %>
+</div>
         <!-- Order Summary -->
         <div class="info-card">
           <h3 class="card-title">

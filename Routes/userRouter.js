@@ -95,7 +95,7 @@ router.get("/cartCount",userAuth,cartController.getCartCount)
 //checkout
 router.get("/checkOut",userAuth,checkoutController.loadCheckOut);
 router.get("/orderSuccess",userAuth,checkoutController.loadOrderSuccess);
-router.get("/orderFailure",userAuth,checkoutController.loadOrderFaliure);
+router.get("/orderFailure",userAuth,checkoutController.loadOrderFailure);
 
 
 //Order management
@@ -103,9 +103,10 @@ router.get("/orders", userAuth, orderController.loadOrder);
 router.get("/orders/:orderId", userAuth, orderController.loadOrderDetails);
 router.patch("/orders/:orderId/cancel", userAuth, orderController.cancelEntireOrder);
 router.post("/orders/:orderId/items/:productId/cancel", userAuth, orderController.cancelOrderItem);
-router.post("/orders/:orderId/return", userAuth, orderController.returnOrderItem);
+router.post("/orders/:orderId/return/:productId", userAuth, orderController.returnOrderItem);
 router.get("/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
-router.post("/placeOrder",userAuth,orderController.placeOrder);
+router.post("/placeOrder",userAuth,orderController.placeCodOrder);
+router.post('/create-retry-order', userAuth,orderController.createRetryOrder);
 
 //wishlist
 router.get("/wishlist",userAuth,wishlistController.loadWishlist)
@@ -115,15 +116,17 @@ router.delete("/removeWishlist/:productId",userAuth,wishlistController.removeFro
 
 //coupon
 // Coupon management
+router.get("/listcoupon",userAuth,couponController.loadCoupon);
 router.post("/applyCoupon", userAuth,couponController.applyCoupon);
 router.post("/removeCoupon", userAuth, couponController.removeCoupon);
 
 //razorpay/payNow
-router.post("/create-order",userAuth, orderController.createOrder);
+router.post("/create-order",userAuth, orderController.createRazorpayOrder);
 router.post("/verify-payment",userAuth, orderController.verifyPayment);
 
 //wallet
 router.get("/wallet",userAuth,walletController.loadWallet);
+router.post("/walletPayment",userAuth,walletController.walletPayment);
 
 
 export { router};

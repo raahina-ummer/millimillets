@@ -906,7 +906,8 @@ function quickRestock(productId, variantId, label, currentStock) {
       .then(data => {
         if (data.success) {
           Swal.fire('Updated', 'Stock updated successfully', 'success')
-          setTimeout(() => location.reload(), 1000)
+          setTimeout(() => window.location.reload(true), 500)
+
         } else {
           Swal.fire('Failed', data.message, 'error')
         }

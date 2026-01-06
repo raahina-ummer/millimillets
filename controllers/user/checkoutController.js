@@ -6,11 +6,18 @@ import User from "../../models/userSchema.js"; //
 import dotenv from "dotenv";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import Wallet from "../../models/WalletSchema.js";
+import logger from '../../utils/logger.js';
+
+
+
 
 
 const loadCheckOut = async (req, res) => {
   try {
     const userId = req.session.user.id;
+    const wallet = await Wallet.findOne({ userId });
+const walletBalance = wallet ? wallet.balance : 0;
 
     const cart = await Cart.findOne({ userId }).populate({
       path: "products.productId",
@@ -44,6 +51,7 @@ const loadCheckOut = async (req, res) => {
         itemCount: 0,
         availableCoupons: [],
         appliedCoupon: null,
+        walletBalance: walletBalance
       });
     }
 
@@ -65,26 +73,31 @@ const loadCheckOut = async (req, res) => {
     });
 
     let subtotal = 0;
-    let totalDiscount = 0;
+    let saletotal = 0;
+    let discount = 0;
 
     filterCart.forEach((product) => {
       const item = product.productId;
       const variant = item.variant && item.variant[0];
 
-      const regularPrice = variant ? variant.regularPrice : 0;
-      const salePrice = variant ? variant.salePrice : regularPrice;
+      const regularPrice =  variant.regularPrice;
+      const salePrice = variant.salePrice;
       const quantity = product.quantity || 1;
 
-      const discount = regularPrice - salePrice;
-      const totalPrice = salePrice * quantity;
+const itemDiscount = regularPrice - salePrice;
+  const itemTotalPrice = salePrice * quantity;
+
 
       product.originalPrice = regularPrice;
       product.price = salePrice;
-      product.discount = discount;
-      product.totalPrice = totalPrice;
+      product.discount = itemDiscount;
+      product.totalPrice = itemTotalPrice;
 
       subtotal += regularPrice * quantity;
-      totalDiscount += discount * quantity;
+      saletotal += salePrice * quantity;
+      discount += (regularPrice - salePrice) * quantity;
+
+     
     });
 
     cart.products = filterCart;
@@ -94,9 +107,12 @@ const loadCheckOut = async (req, res) => {
 
   // const cartAmount = subtotal - totalDiscount - couponDiscount;
   const tax = 0;
-const shipping = subtotal >= 1000 ? 0 : 50;  // Based on SUBTOTAL
+const shipping = saletotal >= 1000 ? 0 : 50;  
 const couponDiscount = cart.couponApplied ? cart.couponDiscount : 0;
-const total = subtotal - totalDiscount - couponDiscount + tax + shipping;
+   const total = Math.max(
+      saletotal - couponDiscount + shipping + tax,
+      0
+    );
 
 
    return res.render("checkout", {
@@ -104,7 +120,8 @@ const total = subtotal - totalDiscount - couponDiscount + tax + shipping;
   cart: { products: filterCart },
   addresses: address.addresses,
   subtotal,
-  discount: totalDiscount,
+  saletotal,
+  discount,
   couponDiscount,
   tax,
   shipping,
@@ -112,14 +129,14 @@ const total = subtotal - totalDiscount - couponDiscount + tax + shipping;
   itemCount: filterCart.length,
   availableCoupons: [],
   appliedCoupon: cart.couponApplied ? cart.couponCode : null,
+   walletBalance: walletBalance,
 });
 
   } catch (error) {
     console.error("Error loading checkout page:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false, message: "Failed to load checkout page. Please try again.",});
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
-
 
 
 
@@ -148,7 +165,7 @@ const loadOrderSuccess = async (req, res) => {
       return res.redirect("/");
     }
 
-    const tax = order.totalPrice * 0.05; //  5% GST
+    const tax = order.totalPrice * 0.05; 
 
 
     res.render("ordersuccess", {
@@ -160,69 +177,41 @@ const loadOrderSuccess = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading order success:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
   }
 };
 
 
-
-
-
-
-
-const loadOrderFaliure = async (req, res) => {
+const loadOrderFailure = async (req, res) => {
   try {
-    const { orderId } = req.query;
     const userId = req.session.user.id;
+    const reason = req.query.reason || 'Payment failed';
+    const orderId = req.query.orderId; 
 
-    const user = await User.findOne({userId });
+    
+    const user = await User.findById(userId);
+    
     let order = null;
-
     if (orderId) {
-      order = await Order.findOne({ orderId }).populate("orderedProducts.product");
+      order = await Order.findOne({ orderId: orderId }).populate("orderedProducts.product");
+      console.log("Order found:", order); 
     }
 
-    if (order.paymentMethod === "online" && order.paymentStatus === "pending") {
-      const cart = await Cart.findOne({ userId: order.userId });
-      if (cart.couponApplied) {
-        await Coupon.findOneAndUpdate(
-          { code: cart.couponCode },
-          {
-            $inc: { usedCount: 1 },
-            $push: { usedBy: userId },
-          }
-        );
-      }
+    res.render("orderfailure", { 
+      user, 
+      reason,
+      order: order  
+    });
 
-      // Clear user's cart
-      await Cart.findOneAndUpdate(
-        { userId: order.userId },
-        {
-          $set: {
-            items: [],
-            couponApplied: false,
-            couponCode: null,
-            couponDiscount: 0,
-          },
-        }
-      );
-
-      // Reduce stock for each product
-      for (const product of order.products) {
-        await Product.findByIdAndUpdate(product.productId, {
-          $inc: { stock: -product.quantity },
-        });
-      }
-    }
-
-    res.render("orderfailure", { order, user });
   } catch (error) {
     console.error("Error loading failure page:", error);
-    res.render("order-failure", { order: null });
+    res.render("orderfailure", { 
+      user: null, 
+      reason: 'Payment failed',
+      order: null
+    });
   }
 };
-
-
 
 
 
@@ -230,6 +219,6 @@ const loadOrderFaliure = async (req, res) => {
 export {
   loadCheckOut,
   loadOrderSuccess,
-  loadOrderFaliure,
+ loadOrderFailure,
 };
 

@@ -391,47 +391,65 @@
             font-size: 15px;
         }
 
-        /* Pagination */
-        .pagination-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            padding: 25px;
-            background: #f9f9f9;
-            border-top: 2px solid #8b7355;
-            margin-top: 0;
-        }
+        /* Pagination Styles */
+.pagination-wrapper {
+    display: flex;
+     justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 25px;
+    background: #f9f9f9;
+    border-top: 2px solid #8b7355;
+    margin-top: 0;
+}
 
-        .pagination a {
-            text-decoration: none;
-        }
+.pagination-wrapper .pagination {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
 
-        .pagination button {
-            padding: 8px 12px;
-            border: 2px solid #e8e0d0;
-            background: white;
-            color: #6b6b6b;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            font-size: 13px;
-            font-weight: 700;
-            min-width: 36px;
-            text-align: center;
-        }
+.pagination-wrapper a {
+    text-decoration: none;
+}
 
-        .pagination button:hover {
-            background: #f9f9f9;
-            border-color: #8b7355;
-            color: #8b7355;
-        }
+.pagination-wrapper button {
+    padding: 8px 12px;
+    border: 2px solid #e8e0d0;
+    background: white;
+    color: #6b6b6b;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+}
 
-        .pagination button.active {
-            background: #8b7355;
-            color: white;
-            border-color: #8b7355;
-        }
+.pagination-wrapper button:hover {
+    background: #f9f9f9;
+    border-color: #8b7355;
+    color: #8b7355;
+    transform: translateY(-2px);
+}
+
+.pagination-wrapper button.active {
+    background: #8b7355;
+    color: white;
+    border-color: #8b7355;
+}
+
+.pagination-wrapper button:disabled {
+    border: none;
+    background: transparent;
+    cursor: default;
+    color: #999;
+}
+
+.pagination-wrapper button:disabled:hover {
+    transform: none;
+}
 
         /* Responsive */
         @media (max-width: 1400px) {
@@ -546,12 +564,12 @@
                     </select>
                 </div>
 
-                <div class="form-group" id="startDateGroup" style="display: <%= period === 'custom' ? 'flex' : 'none' %>;">
+                <div class="form-group" id="startDateGroup" style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
                     <label>Start Date</label>
                     <input type="date" name="startDate" value="<%= startDate || '' %>" />
                 </div>
 
-                <div class="form-group" id="endDateGroup" style="display: <%= period === 'custom' ? 'flex' : 'none' %>;">
+                <div class="form-group" id="endDateGroup" style="display:"<%= period === 'custom' ? 'flex' : 'none' %>">
                     <label>End Date</label>
                     <input type="date" name="endDate" value="<%= endDate || '' %>" />
                 </div>
@@ -720,7 +738,7 @@
                                 <tr>
                                     <td><strong><%= (currentPage - 1) * 10 + index + 1 %></strong></td>
                                     <td>
-                                        <span class="order-id"><%= order._id.toString().slice(-8) %></span>
+                                        <span class="order-id"><%= order.orderId %></span>
                                     </td>
                                     <td><%= new Date(order.createdOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                                     <td><strong><%= order.userId?.name || 'N/A' %></strong></td>
@@ -756,7 +774,7 @@
                 <% if (totalPages > 1) { %>
                     <div class="pagination-wrapper">
                         <% for (let i = 1; i <= totalPages; i++) { %>
-                            <a href="/admin/sales/report?page=<%= i %>&period=<%= period %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>">
+                            <a href="/admin/sales-report?page=<%= i %>&period=<%= period %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>">
                                 <button class="<%= i === currentPage ? 'active' : '' %>"><%= i %></button>
                             </a>
                         <% } %>

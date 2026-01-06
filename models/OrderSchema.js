@@ -16,16 +16,25 @@ const orderSchema = new Schema({
     required: true,
   },
 
-  orderedProducts: [
-    {
-      product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
-      productNameSnapshot: String,
-      productImageSnapshot: String,
-      price: Number,
-      quantity: Number,
-      variantName: String,
+orderedProducts: [
+  {
+    product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    productNameSnapshot: String,
+    productImageSnapshot: String,
+    price: Number,
+    quantity: Number,
+    variantName: String,
+    status: { 
+      type: String, 
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"],
+      default: "Pending" 
     },
-  ],
+    cancelReason: String,
+    cancelledAt: Date,
+    returnReason: String,
+    returnedAt: Date,
+  },
+],
 
   totalPrice: { type: Number, required: true },
   discount: { type: Number, default: 0 },
@@ -37,6 +46,7 @@ const orderSchema = new Schema({
 
   couponApplied: { type: Boolean, default: false },
   couponCode: { type: String, default: null },
+  
 
   paymentMethod: {
     type: String,
@@ -67,12 +77,16 @@ const orderSchema = new Schema({
       "Processing",
       "Shipped",
       "Delivered",
-      "Canceled",
+      "Cancelled",
       "Return Request",
       "Returned",
+      "Pending Payment",
+      "Payment Failed"
+
     ],
     default: "Pending",
   },
+  
 
   createdOn: { type: Date, default: Date.now },
   processedAt: Date,
@@ -90,6 +104,46 @@ const orderSchema = new Schema({
   refundAmount: { type: Number, default: 0 },
   refundMethod: { type: String, enum: ["wallet", "bank", null], default: null },
 
+    paymentStatus: {
+    type: String,
+    enum: ["Pending", "Completed", "Failed", "Refunded"],
+    default: "Pending"
+  },
+  refundStatus: {
+    type: String,
+    enum: ["None", "Pending", "Completed", "Failed"],
+    default: "None"
+  },
+    refundDate: {
+    type: Date,
+    default: null
+  },
+    amountToPay: {
+    type: Number,
+    default: 0
+  },
+    returnStatus: {
+    type: String,
+    enum: ["None", "Requested", "Approved", "Rejected"],
+    default: "None"
+  },
+    returnRequestDate: {
+    type: Date,
+    default: null
+  },
+    rejectionReason: {
+    type: String,
+    default: null
+  },
+  
+walletUsed: {
+  type: Number,
+  default: 0
+},
+amountPaid: {
+  type: Number,
+  default:0,
+},
   InvoiceDate: Date,
   invoiceNumber: String,
 },{ timestamps: true });

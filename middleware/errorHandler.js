@@ -1,7 +1,7 @@
 // Global Error Handling Middleware
 
 const errorHandler = (err, req, res, next) => {
-  console.error("🔥 Error:", err.stack || err);
+  console.error(" Error:", err.stack || err);
 
   // Set default status if not already set
   const statusCode = err.statusCode || 500;

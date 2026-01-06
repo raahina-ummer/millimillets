@@ -13,6 +13,7 @@ const walletSchema = new Schema({
     default: 0,
     min: 0
   },
+  
   transactions: [
     {
       type: {
@@ -26,10 +27,10 @@ const walletSchema = new Schema({
       },
       reason: {
         type: String,
-        required: true  // e.g. "Refund", "Order Payment"
+        required: true
       },
       orderId: {
-        type: String  // Optional traceable order ID
+        type: String
       },
       date: {
         type: Date,
