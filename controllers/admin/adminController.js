@@ -1,6 +1,9 @@
 import User from "../../models/userSchema.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const pageerror = async (req, res) => {
   res.render("pagerror");
@@ -25,10 +28,10 @@ const login = async (req, res) => {
         console.log("Admin session set:", req.session.admin);
         return res.redirect("/admin/dashboard");
       } else {
-        return res.render("adminlogin");
+        return res.render("adminlogin",{message:message.INVALID_CREDENTIALS});
       }
     } else {
-      return res.render("adminlogin");
+      return res.render("adminlogin",{message:message.USER_NOT_FOUND});
     }
   } catch (error) {
     console.log("Login error:", error);

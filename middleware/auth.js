@@ -12,6 +12,8 @@ import User from "../models/userSchema.js";
       return res.redirect("/login");
     }
 
+    req.user = user;
+
     next();
   } catch (error) {
     console.log(error);

@@ -5,7 +5,6 @@
 </head>
 
 <style>
-/* Product Management Container */
 .product-management-container {
     min-height: 100vh;
     background: #E8DCC4;
@@ -21,30 +20,31 @@
 /* Page Header */
 .page-header {
     background-color: #E8DCC4;
-    padding: 20px 30px;
+    padding: 25px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: none;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.2);
 }
 
 .page-title {
-    font-size: 24px;
+    font-size: 28px;
     color: #2c2c2c;
-    font-weight: 600;
+    font-weight: 700;
     margin: 0;
+    letter-spacing: 0.5px;
 }
 
 .btn-back {
-    padding: 10px 25px;
+    padding: 11px 26px;
     background: #8b7355;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s;
-    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 14px;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -53,90 +53,114 @@
 
 .btn-back:hover {
     background: #6d5940;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Edit Product Modal */
 .edit-product-modal {
-    background: #c4a574;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    margin: 0 30px 30px 30px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+    margin: 30px 40px;
+    overflow: hidden;
+    border: 1px solid #e0d5c7;
 }
 
 .modal-header-custom {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    padding: 25px 35px;
+    background: linear-gradient(135deg, #8b7355 0%, #6d5940 100%);
+    border-bottom: none;
 }
 
 .modal-header-custom h3 {
     margin: 0;
     font-size: 24px;
-    color: #2c2c2c;
-    font-weight: 600;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 .btn-close-modal {
-    background: none;
+    background: rgba(255, 255, 255, 0.15);
     border: none;
-    font-size: 28px;
-    color: #2c2c2c;
+    font-size: 24px;
+    color: #ffffff;
     cursor: pointer;
     line-height: 1;
-    padding: 0;
-    width: 30px;
-    height: 30px;
+    padding: 5px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-close-modal:hover {
-    color: #000;
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(90deg);
 }
 
 /* Modal Body Layout */
 .modal-body {
     display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 30px;
+    grid-template-columns: 450px 1fr;
+    gap: 0;
+    padding: 35px;
 }
 
 /* Image Upload Section */
 .image-upload-section {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
+    padding-right: 30px;
+    border-right: 2px solid #f0f0f0;
 }
 
 /* Existing Images Display */
 .existing-images {
-    background: rgba(255, 255, 255, 0.5);
+    background: #f8f9fa;
     border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
+    padding: 18px;
+    border: 1px solid #e9ecef;
 }
 
 .existing-images-title {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: #2c2c2c;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
 .existing-images-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 12px;
 }
 
 .existing-image-item {
     position: relative;
-    height: 100px;
-    border-radius: 8px;
+    height: 110px;
+    border-radius: 10px;
     overflow: hidden;
-    border: 2px solid rgba(139, 115, 85, 0.3);
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.existing-image-item:hover {
+    border-color: #8b7355;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(139, 115, 85, 0.2);
 }
 
 .existing-image-item img {
@@ -147,35 +171,43 @@
 
 .delete-image-btn {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(220, 53, 69, 0.9);
+    top: 6px;
+    right: 6px;
+    background: rgba(220, 53, 69, 0.95);
     color: white;
     border: none;
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    transition: all 0.3s;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .delete-image-btn:hover {
     background: #c82333;
-    transform: scale(1.1);
+    transform: scale(1.15);
 }
 
 .main-image-upload {
     width: 100%;
-    height: 320px;
-    background: rgba(255, 255, 255, 0.5);
+    height: 300px;
+    background: #f8f9fa;
     border-radius: 12px;
     overflow: hidden;
     position: relative;
-    border: 2px dashed rgba(139, 115, 85, 0.3);
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.main-image-upload:hover {
+    border-color: #8b7355;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(139, 115, 85, 0.1);
 }
 
 .image-upload-label {
@@ -201,17 +233,25 @@
     color: #5a4a3a;
 }
 
+.upload-placeholder::before {
+    content: "📷";
+    font-size: 42px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+}
+
 .upload-text {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     margin: 0;
-    color: #666;
+    color: #2c2c2c;
 }
 
 .upload-subtext {
-    font-size: 11px;
-    margin: 5px 0 0;
-    color: #999;
+    font-size: 12px;
+    margin: 6px 0 0;
+    color: #5a4a3a;
+    opacity: 0.8;
 }
 
 /* Additional Images Grid */
@@ -222,18 +262,27 @@
 }
 
 .additional-image-upload {
-    height: 110px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
+    height: 100px;
+    background: #f8f9fa;
+    border-radius: 10px;
     overflow: hidden;
     position: relative;
-    border: 2px dashed rgba(139, 115, 85, 0.3);
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.additional-image-upload:hover {
+    border-color: #8b7355;
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 10px rgba(139, 115, 85, 0.1);
 }
 
 .image-upload-label-small {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     cursor: pointer;
@@ -247,9 +296,17 @@
 }
 
 .browse-text {
-    font-size: 12px;
-    color: #666;
-    font-weight: 500;
+    font-size: 13px;
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+.browse-text::before {
+    content: "+";
+    display: block;
+    font-size: 26px;
+    margin-bottom: 4px;
+    opacity: 0.7;
 }
 
 /* Image Cropper Container */
@@ -260,7 +317,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     z-index: 9999;
     align-items: center;
     justify-content: center;
@@ -275,6 +332,26 @@
 .image-cropper img {
     max-width: 90%;
     max-height: 70vh;
+    border-radius: 8px;
+}
+
+.image-cropper button {
+    margin-top: 20px;
+    padding: 13px 40px;
+    background: #8b7355;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-cropper button:hover {
+    background: #6d5940;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(139, 115, 85, 0.4);
 }
 
 /* Description */
@@ -285,34 +362,39 @@
 
 .form-group-description label {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: #2c2c2c;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
 .form-group-description textarea {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(139, 115, 85, 0.2);
-    border-radius: 8px;
-    padding: 12px 15px;
-    font-size: 13px;
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
     color: #2c2c2c;
     resize: vertical;
     line-height: 1.6;
     min-height: 120px;
+    transition: all 0.3s ease;
 }
 
 .form-group-description textarea:focus {
     outline: none;
     border-color: #8b7355;
-    background: #fff;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
 }
 
 /* Form Fields Section */
 .form-fields-section {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
+    padding-left: 30px;
 }
 
 .form-group {
@@ -322,102 +404,245 @@
 
 .form-group label {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: #2c2c2c;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
 .form-control {
-    padding: 12px 15px;
-    border: 1px solid rgba(139, 115, 85, 0.2);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
+    padding: 14px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 14px;
     color: #2c2c2c;
     outline: none;
+    transition: all 0.3s ease;
 }
 
 .form-control:focus {
-    background: #fff;
+    background: #ffffff;
     border-color: #8b7355;
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
+.form-control:hover {
+    border-color: #dee2e6;
 }
 
 .form-select {
-    padding: 12px 15px;
-    border: 1px solid rgba(139, 115, 85, 0.2);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
+    padding: 14px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 14px;
     color: #2c2c2c;
     outline: none;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .form-select:focus {
-    background: #fff;
+    background: #ffffff;
     border-color: #8b7355;
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
+.form-select:hover {
+    border-color: #dee2e6;
 }
 
 /* Form Row for multiple fields */
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 18px;
 }
 
 .form-row-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+/* Variant Section Styles */
+.variant-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid #e9ecef;
+    margin-top: 10px;
+}
+
+.variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.variant-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2c;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0;
+}
+
+.btn-add-variant {
+    padding: 9px 20px;
+    background: #8b7355;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-add-variant:hover {
+    background: #6d5940;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+#variants-container {
+    display: flex;
+    flex-direction: column;
     gap: 15px;
+}
+
+.variant-item {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    padding-top: 45px;
+    border: 2px solid #e9ecef;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.variant-item:hover {
+    border-color: #8b7355;
+    box-shadow: 0 2px 10px rgba(139, 115, 85, 0.08);
+}
+
+.variant-label {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8b7355;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-remove-variant {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove-variant:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+}
+
+.variant-item .form-row-3 {
+    margin-bottom: 15px;
+}
+
+.variant-item .form-row-3:last-child {
+    margin-bottom: 0;
 }
 
 /* Action Buttons */
 .form-actions {
     display: flex;
     gap: 15px;
-    margin-top: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
 }
 
 .btn-save,
 .btn-cancel {
     flex: 1;
-    padding: 12px 30px;
+    padding: 14px 32px;
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
 .btn-save {
     background: #5a4a3a;
     color: white;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-save:hover {
     background: #3a2f25;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+.btn-save:disabled {
+    background: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .btn-cancel {
-    background: #8b7355;
-    color: white;
+    background: #f8f9fa;
+    color: #2c2c2c;
+    border: 2px solid #e9ecef;
 }
 
 .btn-cancel:hover {
-    background: #6d5940;
+    background: #e9ecef;
+    border-color: #dee2e6;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Error Messages */
 .error-message {
     color: #dc3545;
-    font-size: 11px;
-    margin-top: 4px;
+    font-size: 12px;
+    margin-top: 6px;
     display: block;
+    font-weight: 600;
 }
 
 /* Page Container */
@@ -425,14 +650,63 @@
     padding: 0;
 }
 
+/* Loading Spinner */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 /* Responsive Design */
+@media (max-width: 1400px) {
+    .modal-body {
+        grid-template-columns: 400px 1fr;
+    }
+}
+
+@media (max-width: 1200px) {
+    .modal-body {
+        grid-template-columns: 380px 1fr;
+        gap: 0;
+    }
+    
+    .image-upload-section {
+        padding-right: 25px;
+    }
+    
+    .form-fields-section {
+        padding-left: 25px;
+    }
+}
+
 @media (max-width: 1024px) {
     .modal-body {
         grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .image-upload-section {
+        padding-right: 0;
+        padding-bottom: 25px;
+        border-right: none;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .form-fields-section {
+        padding-left: 0;
+        padding-top: 25px;
     }
     
     .additional-images-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .edit-product-modal {
+        padding: 0;
+        margin: 25px 30px;
     }
 }
 
@@ -441,10 +715,15 @@
         flex-direction: column;
         gap: 15px;
         align-items: flex-start;
+        padding: 20px 25px;
+    }
+    
+    .page-title {
+        font-size: 24px;
     }
     
     .modal-body {
-        grid-template-columns: 1fr;
+        padding: 25px;
     }
     
     .form-row,
@@ -463,8 +742,153 @@
     .existing-images-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .edit-product-modal {
+        margin: 20px;
+        border-radius: 12px;
+    }
+    
+    .modal-header-custom {
+        padding: 20px 25px;
+    }
+    
+    .modal-header-custom h3 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .additional-images-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .existing-images-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .main-image-upload {
+        height: 250px;
+    }
+    
+    .additional-image-upload {
+        height: 120px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+}
+/* Variant Section Styles */
+.variant-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid #e9ecef;
+    margin-top: 10px;
+}
+
+.variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.variant-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2c;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0;
+}
+
+.btn-add-variant {
+    padding: 9px 20px;
+    background: #8b7355;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-add-variant:hover {
+    background: #6d5940;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+#variants-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.variant-item {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    padding-top: 45px;
+    border: 2px solid #e9ecef;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.variant-item:hover {
+    border-color: #8b7355;
+    box-shadow: 0 2px 10px rgba(139, 115, 85, 0.08);
+}
+
+.variant-label {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8b7355;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-remove-variant {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove-variant:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+}
+
+.variant-item .form-row-3 {
+    margin-bottom: 15px;
+}
+
+.variant-item .form-row-3:last-child {
+    margin-bottom: 0;
 }
 </style>
+
 
 <div class="product-management-container">
     <div class="content-wrapper">
@@ -485,8 +909,8 @@
                     <button class="btn-close-modal" type="button" onclick="window.location.href='/admin/products'">&times;</button>
                 </div>
                
-
-                <form id="editProductForm" action="/admin/editProduct/<%= product._id %>"  method="post" enctype="multipart/form-data">
+                <!-- FORM OPENS HERE -->
+                <form id="editProductForm" data-product-id="<%= product._id %>" method="POST" enctype="multipart/form-data">
                     <div class="modal-body">
                         <!-- Left Section: Image Uploads & Description -->
                         <div class="image-upload-section">
@@ -497,9 +921,9 @@
                                     <div class="existing-images-grid">
                                         <% product.productImage.forEach((image, index) => { %>
                                             <div class="existing-image-item" id="existing-image-<%= index %>">
-                                                <input type="hidden" value="<%= image %>" id="imageDatas-<%= index %>">
+                                                <input type="hidden" name="existingImages" value="<%= image %>" id="imageDatas-<%= index %>">
                                                 <img src="/uploads/images/<%= image %>" alt="Product Image <%= index + 1 %>">
-                                                <!-- <button type="button" class="delete-image-btn" onclick="deleteSingleImage('<%= image %>', '<%= product._id %>', <%= index %>)"> -->
+                                                <button type="button" class="delete-image-btn" onclick="deleteSingleImage('<%= image %>', '<%= product._id %>', '<%= index %>')">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -555,19 +979,15 @@
                             <div id="images-error-3" class="error-message"></div>
                             <div id="images-error-4" class="error-message"></div>
 
-                            <!-- Cropper for Image 2 -->
+                            <!-- Cropper for Images 2, 3, 4 -->
                             <div class="image-cropper" id="cropperContainer2">
-                                <img src="/uploads/images/" id="croppedImg2" alt="Cropped Image 2">
+                                <img src="" id="croppedImg2" alt="Cropped Image 2">
                                 <button type="button" id="saveButton2" class="btn btn-primary mt-3">Save Crop</button>
                             </div>
-
-                            <!-- Cropper for Image 3 -->
                             <div class="image-cropper" id="cropperContainer3">
                                 <img src="" id="croppedImg3" alt="Cropped Image 3">
                                 <button type="button" id="saveButton3" class="btn btn-primary mt-3">Save Crop</button>
                             </div>
-
-                            <!-- Cropper for Image 4 -->
                             <div class="image-cropper" id="cropperContainer4">
                                 <img src="" id="croppedImg4" alt="Cropped Image 4">
                                 <button type="button" id="saveButton4" class="btn btn-primary mt-3">Save Crop</button>
@@ -620,56 +1040,111 @@
                                 </div>
                             </div>
 
-                            <% 
-                                // Get variant data if exists
-                                const variant = product.variant && product.variant[0] ? product.variant[0] : null;
-                                const weight = variant ? variant.unitType.split(' ')[0] : '';
-                                const unit = variant ? variant.unitType.split(' ')[1] : 'grm';
-                                const regularPrice = variant ? variant.regularPrice : product.regularPrice || 0;
-                                const salePrice = variant ? variant.salePrice : product.salePrice || 0;
-                                const stock = variant ? variant.stock : product.quantity || 0;
-                            %>
+                            <!-- VARIANTS SECTION -->
+                            <div class="variant-section">
+                                <div class="variant-header">
+                                    <h4 class="variant-title">Product Variants</h4>
+                                    <button type="button" class="btn-add-variant" onclick="addVariant()">
+                                        <i class="fas fa-plus"></i> Add Variant
+                                    </button>
+                                </div>
 
-                            <!-- Weight, Unit, Regular Price Row -->
-                            <div class="form-row-3">
-                                <div class="form-group">
-                                    <label>Weight</label>
-                                    <input type="text" name="weight" id="weight" class="form-control" placeholder="500" value="<%= weight %>">
-                                    <div id="weight-error" class="error-message"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Unit</label>
-                                    <select class="form-select" id="unit" name="unit">
-                                        <option value="grm" <%= unit === 'grm' ? 'selected' : '' %>>grm</option>
-                                        <option value="kg" <%= unit === 'kg' ? 'selected' : '' %>>kg</option>
-                                        <option value="ml" <%= unit === 'ml' ? 'selected' : '' %>>ml</option>
-                                        <option value="ltr" <%= unit === 'ltr' ? 'selected' : '' %>>ltr</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Regular Price</label>
-                                    <input type="text" name="regularPrice" id="regularPrice" class="form-control" placeholder="₹" value="<%= regularPrice %>">
-                                    <div id="regularPrice-error" class="error-message"></div>
-                                </div>
-                            </div>
+                                <div id="variants-container">
+                                    <% if(product.variant && product.variant.length > 0) { %>
+                                        <% product.variant.forEach((variant, index) => { 
+                                            const weight = variant.unitType.split(' ')[0];
+                                            const unit = variant.unitType.split(' ')[1];
+                                        %>
+                                            <div class="variant-item" data-variant-index="<%= index %>">
+                                                <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                
+                                                <div class="variant-label">Variant <%= index + 1 %></div>
+                                                
+                                                <div class="form-row-3">
+                                                    <div class="form-group">
+                                                        <label>Weight</label>
+                                                        <input type="text" name="variants[<%= index %>][weight]" class="form-control variant-weight" placeholder="500" value="<%= weight %>">
+                                                        <div class="error-message"></div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Unit</label>
+                                                        <select class="form-select variant-unit" name="variants[<%= index %>][unit]">
+                                                            <option value="grm" <%= unit === 'grm' ? 'selected' : '' %>>grm</option>
+                                                            <option value="kg" <%= unit === 'kg' ? 'selected' : '' %>>kg</option>
+                                                            <option value="ml" <%= unit === 'ml' ? 'selected' : '' %>>ml</option>
+                                                            <option value="ltr" <%= unit === 'ltr' ? 'selected' : '' %>>ltr</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Regular Price</label>
+                                                        <input type="text" name="variants[<%= index %>][regularPrice]" class="form-control variant-regular-price" placeholder="₹" value="<%= variant.regularPrice %>">
+                                                        <div class="error-message"></div>
+                                                    </div>
+                                                </div>
 
-                            <!-- Sale Price, Quantity and Stock Row -->
-                            <div class="form-row-3">
-                                <div class="form-group">
-                                    <label>Sale Price</label>
-                                    <input type="text" name="salePrice" id="salePrice" class="form-control" placeholder="₹" value="<%= salePrice %>">
-                                    <div id="salePrice-error" class="error-message"></div>
+                                                <div class="form-row-3">
+                                                    <div class="form-group">
+                                                        <label>Sale Price</label>
+                                                        <input type="text" name="variants[<%= index %>][salePrice]" class="form-control variant-sale-price" placeholder="₹" value="<%= variant.salePrice %>">
+                                                        <div class="error-message"></div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Stock</label>
+                                                        <input type="text" name="variants[<%= index %>][stock]" class="form-control variant-stock" placeholder="Available" value="<%= variant.stock %>">
+                                                        <div class="error-message"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <!-- Default single variant if none exist -->
+                                        <div class="variant-item" data-variant-index="0">
+                                            <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            
+                                            <div class="variant-label">Variant 1</div>
+                                            
+                                            <div class="form-row-3">
+                                                <div class="form-group">
+                                                    <label>Weight</label>
+                                                    <input type="text" name="variants[0][weight]" class="form-control variant-weight" placeholder="500">
+                                                    <div class="error-message"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Unit</label>
+                                                    <select class="form-select variant-unit" name="variants[0][unit]">
+                                                        <option value="grm">grm</option>
+                                                        <option value="kg">kg</option>
+                                                        <option value="ml">ml</option>
+                                                        <option value="ltr">ltr</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Regular Price</label>
+                                                    <input type="text" name="variants[0][regularPrice]" class="form-control variant-regular-price" placeholder="₹">
+                                                    <div class="error-message"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-row-3">
+                                                <div class="form-group">
+                                                    <label>Sale Price</label>
+                                                    <input type="text" name="variants[0][salePrice]" class="form-control variant-sale-price" placeholder="₹">
+                                                    <div class="error-message"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Stock</label>
+                                                    <input type="text" name="variants[0][stock]" class="form-control variant-stock" placeholder="Available">
+                                                    <div class="error-message"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% } %>
                                 </div>
-                                <div class="form-group">
-                                    <label>Quantity</label>
-                                    <input type="text" name="quantity" id="quantity" class="form-control" placeholder="packets" value="<%= stock %>">
-                                    <div id="quantity-error" class="error-message"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Stock</label>
-                                    <input type="text" name="stock" id="stock" class="form-control" placeholder="Available" value="<%= stock %>">
-                                    <div id="stock-error" class="error-message"></div>
-                                </div>
+                                <div id="variants-error" class="error-message"></div>
                             </div>
 
                             <!-- Submit Error -->
@@ -678,15 +1153,156 @@
                             <!-- Action Buttons -->
                             <div class="form-actions">
                                 <button type="submit" class="btn-save">Save Changes</button>
-                                <button type="button" class="btn-cancel">Cancel</button>
+                                <button type="button" class="btn-cancel" onclick="window.location.href='/admin/products'">Cancel</button>
                             </div>
                         </div>
                     </div>
                 </form>
+                <!-- FORM CLOSES HERE -->
             </div>
         </div>
     </div>
 </div>
+
+
+
+<script>
+
+let variantCount = <%- JSON.stringify(product?.variant?.length || 1) %>;
+
+
+// Add new variant
+function addVariant() {
+    const container = document.getElementById('variants-container');
+    const variantHTML = `
+        <div class="variant-item" data-variant-index="${variantCount}">
+            <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="variant-label">Variant ${variantCount + 1}</div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Weight</label>
+                    <input type="text" name="variants[${variantCount}][weight]" class="form-control variant-weight" placeholder="500">
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select class="form-select variant-unit" name="variants[${variantCount}][unit]">
+                        <option value="grm">grm</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="ltr">ltr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Regular Price</label>
+                    <input type="text" name="variants[${variantCount}][regularPrice]" class="form-control variant-regular-price" placeholder="₹">
+                    <div class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Sale Price</label>
+                    <input type="text" name="variants[${variantCount}][salePrice]" class="form-control variant-sale-price" placeholder="₹">
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="text" name="variants[${variantCount}][stock]" class="form-control variant-stock" placeholder="Available">
+                    <div class="error-message"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', variantHTML);
+    variantCount++;
+    formModified = true;
+    
+    // Add input validation for new variant
+    addVariantInputValidation();
+}
+
+// Remove variant
+function removeVariant(button) {
+    const variantsContainer = document.getElementById('variants-container');
+    const variantItems = variantsContainer.querySelectorAll('.variant-item');
+    
+    if (variantItems.length <= 1) {
+        Swal.fire({
+            title: 'Cannot Remove',
+            text: 'At least one variant is required for the product.',
+            icon: 'warning',
+            confirmButtonColor: '#8b7355',
+            background: '#ffffff'
+        });
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Remove Variant?',
+        text: 'Are you sure you want to remove this variant?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, remove it!',
+        background: '#ffffff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            button.closest('.variant-item').remove();
+            updateVariantLabels();
+            formModified = true;
+        }
+    });
+}
+
+// Update variant labels after removal
+function updateVariantLabels() {
+    const variants = document.querySelectorAll('.variant-item');
+    variants.forEach((variant, index) => {
+        const label = variant.querySelector('.variant-label');
+        if (label) {
+            label.textContent = `Variant ${index + 1}`;
+        }
+        variant.setAttribute('data-variant-index', index);
+    });
+}
+
+// Add input validation for variant fields
+function addVariantInputValidation() {
+    document.querySelectorAll('.variant-regular-price, .variant-sale-price, .variant-weight').forEach(input => {
+        input.removeEventListener('input', handlePriceInput);
+        input.addEventListener('input', handlePriceInput);
+    });
+    
+    document.querySelectorAll('.variant-stock').forEach(input => {
+        input.removeEventListener('input', handleStockInput);
+        input.addEventListener('input', handleStockInput);
+    });
+}
+
+function handlePriceInput(e) {
+    const value = e.target.value;
+    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+}
+
+function handleStockInput(e) {
+    const value = e.target.value;
+    if (value && !/^\d*$/.test(value)) {
+        e.target.value = value.slice(0, -1);
+    }
+}
+
+// Initialize variant input validation
+addVariantInputValidation();
+</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -704,52 +1320,67 @@ function deleteSingleImage(imageId, productId, index) {
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Yes, delete it!',
-        background: '#E8DCC4'
+        background: '#ffffff'
     }).then((result) => {
         if (result.isConfirmed) {
-            $.ajax({
-                url: '/admin/deleteSingleImage',
-                method: 'delete',
-                data: { 
-                    imageNameToServer: imageId, 
-                    productIdToServer: productId 
-                },
-                success: function(response) {
-                    if (response.status === true) {
-                        // Remove the image element from DOM
-                        const imageElement = document.getElementById('existing-image-' + index);
-                        if (imageElement) {
-                            imageElement.remove();
-                        }
-                        
-                        Swal.fire({
-                            title: 'Deleted!',
-                            text: 'Image has been deleted.',
-                            icon: 'success',
-                            confirmButtonColor: '#8b7355',
-                            background: '#E8DCC4'
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to delete image.',
-                        icon: 'error',
-                        confirmButtonColor: '#dc3545',
-                        background: '#E8DCC4'
-                    });
-                }
-            });
+            deleteSingleImageFetch(imageId, productId, index);
         }
     });
+}
+
+// Delete image using Fetch API
+async function deleteSingleImageFetch(imageId, productId, index) {
+    try {
+        const response = await fetch('/admin/deleteImage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                imageNameToServer: imageId,
+                productIdToServer: productId
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.status === true) {
+            const imageElement = document.getElementById('existing-image-' + index);
+            if (imageElement) {
+                imageElement.remove();
+            }
+            
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Image has been deleted.',
+                icon: 'success',
+                confirmButtonColor: '#8b7355',
+                background: '#ffffff'
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: data.error || 'Failed to delete image.',
+                icon: 'error',
+                confirmButtonColor: '#dc3545',
+                background: '#ffffff'
+            });
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to delete image.',
+            icon: 'error',
+            confirmButtonColor: '#dc3545',
+            background: '#ffffff'
+        });
+    }
 }
 
 // Image preview and cropper initialization
 function viewImage(event, index) {
     let input = event.target;
-    
-    // Validate file type
     const file = input.files[0];
     if (!file) return;
     
@@ -760,7 +1391,6 @@ function viewImage(event, index) {
         return;
     }
     
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
         displayErrorMessage(`images-error-${index}`, 'Image size should not exceed 5MB.');
         input.value = '';
@@ -774,24 +1404,20 @@ function viewImage(event, index) {
         image.src = dataURL;
         image.style.display = 'block';
 
-        // Hide placeholder
         let placeholder = image.parentElement.querySelector('.upload-placeholder, .browse-text');
         if (placeholder) {
             placeholder.style.display = 'none';
         }
 
-        // Show cropper container
         let cropperContainer = document.getElementById('cropperContainer' + index);
         let croppedImage = document.getElementById('croppedImg' + index);
         croppedImage.src = dataURL;
         cropperContainer.classList.add('active');
 
-        // Destroy existing cropper if any
         if (croppers[index]) {
             croppers[index].destroy();
         }
 
-        // Initialize new Cropper instance
         croppers[index] = new Cropper(croppedImage, {
             aspectRatio: 1,
             viewMode: 1,
@@ -803,7 +1429,6 @@ function viewImage(event, index) {
             rotatable: true
         });
 
-        // Save button click event
         let saveButton = document.querySelector('#saveButton' + index);
         saveButton.onclick = async function () {
             let croppedCanvas = croppers[index].getCroppedCanvas({
@@ -813,21 +1438,17 @@ function viewImage(event, index) {
                 imageSmoothingQuality: 'high'
             });
             
-            // Update preview image
             image.src = croppedCanvas.toDataURL('image/jpeg', 0.9);
 
-            // Create and assign the new file
             await croppedCanvas.toBlob(blob => {
                 let imageFile = new File([blob], `cropped-img-${Date.now()}-${index}.jpg`, { type: "image/jpeg" });
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(imageFile);
                 input.files = dataTransfer.files;
                 
-                // Clear any previous error for this image
                 displayErrorMessage(`images-error-${index}`, '');
             }, 'image/jpeg', 0.9);
 
-            // Hide cropper container
             cropperContainer.classList.remove('active');
             croppers[index].destroy();
         };
@@ -836,54 +1457,10 @@ function viewImage(event, index) {
 }
 
 // Setup image inputs
-document.getElementById('input1').addEventListener('change', function(e) {
-    viewImage(e, 1);
-});
-document.getElementById('input2').addEventListener('change', function(e) {
-    viewImage(e, 2);
-});
-document.getElementById('input3').addEventListener('change', function(e) {
-    viewImage(e, 3);
-});
-document.getElementById('input4').addEventListener('change', function(e) {
-    viewImage(e, 4);
-});
-
-// Real-time validation for numeric fields
-document.getElementById('regularPrice').addEventListener('input', function(e) {
-    const value = e.target.value;
-    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
-        e.target.value = value.slice(0, -1);
-    }
-});
-
-document.getElementById('salePrice').addEventListener('input', function(e) {
-    const value = e.target.value;
-    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
-        e.target.value = value.slice(0, -1);
-    }
-});
-
-document.getElementById('quantity').addEventListener('input', function(e) {
-    const value = e.target.value;
-    if (value && !/^\d*$/.test(value)) {
-        e.target.value = value.slice(0, -1);
-    }
-});
-
-document.getElementById('weight').addEventListener('input', function(e) {
-    const value = e.target.value;
-    if (value && !/^\d*\.?\d{0,2}$/.test(value)) {
-        e.target.value = value.slice(0, -1);
-    }
-});
-
-document.getElementById('stock').addEventListener('input', function(e) {
-    const value = e.target.value;
-    if (value && !/^\d*$/.test(value)) {
-        e.target.value = value.slice(0, -1);
-    }
-});
+document.getElementById('input1').addEventListener('change', function(e) { viewImage(e, 1); });
+document.getElementById('input2').addEventListener('change', function(e) { viewImage(e, 2); });
+document.getElementById('input3').addEventListener('change', function(e) { viewImage(e, 3); });
+document.getElementById('input4').addEventListener('change', function(e) { viewImage(e, 4); });
 
 // GST input formatting
 document.getElementById('gst').addEventListener('blur', function(e) {
@@ -893,31 +1470,16 @@ document.getElementById('gst').addEventListener('blur', function(e) {
     }
 });
 
-// Form validation
+// Form validation with variants
 function validateForm() {
     clearErrorMessages();
 
     const name = document.getElementById('productName').value.trim();
     const description = document.getElementById('description').value.trim();
-    const regularPrice = document.getElementById('regularPrice').value.trim();
-    const salePrice = document.getElementById('salePrice').value.trim();
-    const quantity = document.getElementById('quantity').value.trim();
-    const stock = document.getElementById('stock').value.trim();
     const category = document.getElementById('category').value;
-    const weight = document.getElementById('weight').value.trim();
     const gst = document.getElementById('gst').value.trim();
-
-    // Check existing images
-    const existingImageInputs = document.querySelectorAll('[id^="imageDatas-"]');
+    const variants = document.querySelectorAll('.variant-item');
     
-    // Check new image inputs
-    const newImageInputs = [
-        document.getElementById('input1'),
-        document.getElementById('input2'),
-        document.getElementById('input3'),
-        document.getElementById('input4')
-    ];
-
     let isValid = true;
 
     // Product name validation
@@ -956,18 +1518,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Weight validation
-    if (weight === "") {
-        displayErrorMessage('weight-error', 'Weight is required.');
-        isValid = false;
-    } else if (!/^\d+(\.\d{1,2})?$/.test(weight)) {
-        displayErrorMessage('weight-error', 'Please enter a valid weight (numbers only, up to 2 decimal places).');
-        isValid = false;
-    } else if (parseFloat(weight) <= 0) {
-        displayErrorMessage('weight-error', 'Weight must be greater than 0.');
-        isValid = false;
-    }
-
     // GST validation
     if (gst === "") {
         displayErrorMessage('gst-error', 'GST is required.');
@@ -983,57 +1533,83 @@ function validateForm() {
         }
     }
 
-    // Regular price validation
-    if (regularPrice === "") {
-        displayErrorMessage('regularPrice-error', 'Regular price is required.');
+    // Validate each variant
+    if (variants.length === 0) {
+        displayErrorMessage('variants-error', 'At least one variant is required.');
         isValid = false;
-    } else if (!/^\d+(\.\d{1,2})?$/.test(regularPrice)) {
-        displayErrorMessage('regularPrice-error', 'Please enter a valid price.');
-        isValid = false;
-    } else if (parseFloat(regularPrice) <= 0) {
-        displayErrorMessage('regularPrice-error', 'Price must be greater than 0.');
-        isValid = false;
+    } else {
+        variants.forEach((variant, index) => {
+            const weight = variant.querySelector('.variant-weight').value.trim();
+            const regularPrice = variant.querySelector('.variant-regular-price').value.trim();
+            const salePrice = variant.querySelector('.variant-sale-price').value.trim();
+            const stock = variant.querySelector('.variant-stock').value.trim();
+
+            const weightError = variant.querySelector('.variant-weight').nextElementSibling;
+            const regularPriceError = variant.querySelector('.variant-regular-price').nextElementSibling;
+            const salePriceError = variant.querySelector('.variant-sale-price').nextElementSibling;
+            const stockError = variant.querySelector('.variant-stock').nextElementSibling;
+
+            // Weight validation
+            if (weight === "") {
+                weightError.innerText = 'Weight is required.';
+                isValid = false;
+            } else if (!/^\d+(\.\d{1,2})?$/.test(weight)) {
+                weightError.innerText = 'Please enter a valid weight.';
+                isValid = false;
+            } else if (parseFloat(weight) <= 0) {
+                weightError.innerText = 'Weight must be greater than 0.';
+                isValid = false;
+            }
+
+            // Regular price validation
+            if (regularPrice === "") {
+                regularPriceError.innerText = 'Regular price is required.';
+                isValid = false;
+            } else if (!/^\d+(\.\d{1,2})?$/.test(regularPrice)) {
+                regularPriceError.innerText = 'Please enter a valid price.';
+                isValid = false;
+            } else if (parseFloat(regularPrice) <= 0) {
+                regularPriceError.innerText = 'Price must be greater than 0.';
+                isValid = false;
+            }
+
+            // Sale price validation
+            if (salePrice !== "") {
+                if (!/^\d+(\.\d{1,2})?$/.test(salePrice)) {
+                    salePriceError.innerText = 'Please enter a valid sale price.';
+                    isValid = false;
+                } else if (parseFloat(salePrice) < 0) {
+                    salePriceError.innerText = 'Sale price cannot be negative.';
+                    isValid = false;
+                } else if (regularPrice !== "" && parseFloat(salePrice) >= parseFloat(regularPrice)) {
+                    salePriceError.innerText = 'Sale price must be less than regular price.';
+                    isValid = false;
+                }
+            }
+
+            // Stock validation
+            if (stock === "") {
+                stockError.innerText = 'Stock is required.';
+                isValid = false;
+            } else if (!/^\d+$/.test(stock)) {
+                stockError.innerText = 'Please enter a valid stock amount.';
+                isValid = false;
+            } else if (parseInt(stock) < 0) {
+                stockError.innerText = 'Stock cannot be negative.';
+                isValid = false;
+            }
+        });
     }
 
-    // Sale price validation
-    if (salePrice !== "") {
-        if (!/^\d+(\.\d{1,2})?$/.test(salePrice)) {
-            displayErrorMessage('salePrice-error', 'Please enter a valid sale price.');
-            isValid = false;
-        } else if (parseFloat(salePrice) < 0) {
-            displayErrorMessage('salePrice-error', 'Sale price cannot be negative.');
-            isValid = false;
-        } else if (regularPrice !== "" && parseFloat(salePrice) >= parseFloat(regularPrice)) {
-            displayErrorMessage('salePrice-error', 'Sale price must be less than regular price.');
-            isValid = false;
-        }
-    }
+    // Image validation
+    const existingImageInputs = document.querySelectorAll('[id^="imageDatas-"]');
+    const newImageInputs = [
+        document.getElementById('input1'),
+        document.getElementById('input2'),
+        document.getElementById('input3'),
+        document.getElementById('input4')
+    ];
 
-    // Quantity validation
-    if (quantity === "") {
-        displayErrorMessage('quantity-error', 'Quantity is required.');
-        isValid = false;
-    } else if (!/^\d+$/.test(quantity)) {
-        displayErrorMessage('quantity-error', 'Please enter a valid quantity (whole numbers only).');
-        isValid = false;
-    } else if (parseInt(quantity) < 0) {
-        displayErrorMessage('quantity-error', 'Quantity cannot be negative.');
-        isValid = false;
-    }
-
-    // Stock validation
-    if (stock === "") {
-        displayErrorMessage('stock-error', 'Stock is required.');
-        isValid = false;
-    } else if (!/^\d+$/.test(stock)) {
-        displayErrorMessage('stock-error', 'Please enter a valid stock amount (whole numbers only).');
-        isValid = false;
-    } else if (parseInt(stock) < 0) {
-        displayErrorMessage('stock-error', 'Stock cannot be negative.');
-        isValid = false;
-    }
-
-    // Image validation - must have at least one (existing or new)
     const hasExistingImages = existingImageInputs.length > 0;
     const hasNewImages = newImageInputs.some(input => input.files.length > 0);
 
@@ -1042,11 +1618,9 @@ function validateForm() {
         isValid = false;
     }
 
-    // Display submit error if validation fails
     const submitError = document.getElementById('submit-error');
     if (!isValid) {
         submitError.innerText = "Please fix the errors above before submitting.";
-        // Scroll to first error
         const firstError = document.querySelector('.error-message:not(:empty)');
         if (firstError) {
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1070,36 +1644,74 @@ function clearErrorMessages() {
 }
 
 // Form submission
-document.getElementById('editProductForm').addEventListener('submit', function(e) {
+document.getElementById('editProductForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     if (validateForm()) {
-        // Show loading state
         const submitBtn = document.querySelector('.btn-save');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         submitBtn.style.cursor = 'not-allowed';
 
-        Swal.fire({
-            title: 'Success!',
-            text: 'Product updated successfully!',
-            icon: 'success',
-            confirmButtonText: 'OK',
-            allowOutsideClick: false,
-            background: '#c4a574',
-            color: '#2c2c2c',
-            confirmButtonColor: '#5a4a3a'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById("editProductForm").submit();
+        try {
+            const formData = new FormData(document.getElementById('editProductForm'));
+            const productId = document.querySelector('[data-product-id]')?.getAttribute('data-product-id') || window.location.pathname.split('/').pop();
+
+            const response = await fetch(`/admin/editProduct/${productId}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: result.message || 'Product updated successfully!',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    background: '#ffffff',
+                    color: '#2c2c2c',
+                    confirmButtonColor: '#8b7355'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formModified = false;
+                        window.location.href = '/admin/products';
+                    }
+                });
             } else {
-                // Reset button if cancelled
+                Swal.fire({
+                    title: 'Error!',
+                    text: result.error || 'Failed to update product.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    background: '#ffffff',
+                    color: '#2c2c2c',
+                    confirmButtonColor: '#dc3545'
+                });
+
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 submitBtn.style.cursor = 'pointer';
             }
-        });
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while updating the product.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                background: '#ffffff',
+                color: '#2c2c2c',
+                confirmButtonColor: '#dc3545'
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            submitBtn.style.cursor = 'pointer';
+        }
     }
 });
 
@@ -1137,14 +1749,11 @@ document.querySelectorAll('.image-cropper').forEach(container => {
             if (croppers[index]) {
                 croppers[index].destroy();
             }
-            // Clear the file input
             const input = document.getElementById('input' + index);
             input.value = '';
-            // Hide the preview image
             const img = document.getElementById('imgView' + index);
             img.style.display = 'none';
             img.src = '';
-            // Show placeholder again
             const placeholder = img.parentElement.querySelector('.upload-placeholder, .browse-text');
             if (placeholder) {
                 placeholder.style.display = '';
@@ -1186,13 +1795,11 @@ document.getElementById('editProductForm').addEventListener('keydown', function(
     }
 });
 
-// Confirm before leaving page with unsaved changes
+// Track form modifications
 let formModified = false;
-
 document.getElementById('editProductForm').addEventListener('input', function() {
     formModified = true;
 });
-
 document.getElementById('editProductForm').addEventListener('change', function() {
     formModified = true;
 });
@@ -1205,16 +1812,14 @@ window.addEventListener('beforeunload', function(e) {
     }
 });
 
-// Reset formModified on successful submit
-document.getElementById('editProductForm').addEventListener('submit', function() {
-    formModified = false;
-});
-
-// Initialize console message
-console.log('Edit Product form initialized successfully');
+console.log('Edit Product form with variants initialized');
 console.log('Form validation: Active');
 console.log('Image cropper: Ready');
-console.log('Product ID: <%= product._id %>');
+
+
+
+
+
 </script>
 
 <%- include('../partials/admin/footer') %>

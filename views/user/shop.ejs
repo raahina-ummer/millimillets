@@ -1,4 +1,4 @@
-<%- include('../partials/user/header') %>
+<%- include('../partials/user/header.ejs') %>
 
 <style>
 /* Main Shop Container */
@@ -1104,7 +1104,7 @@
                                 <div class="product-card">
                                     <!-- Product Image -->
                                     <div class="product-image-wrapper">
-                                        <a href="/productDetails?id=<%= product._id %>">
+                                        <a href="/product/details/<%= product._id %>">
                                             <img src="/uploads/images/<%= product.productImage[0] %>" 
                                                  alt="<%= product.productName %>" 
                                                  class="product-image">
@@ -1140,7 +1140,9 @@
                                         </div>
 
                                         <h3 class="product-name">
-                                            <a href="/productDetails?id=<%= product._id %>">
+                                            <a href="/product/details/<%= product._id %>">
+  
+
                                                 <%= product.productName %>
                                             </a>
                                         </h3>

@@ -1,42 +1,51 @@
 <style>
   /* Footer */
   .footer-section {
-    background: white;
-    padding: 50px 40px 30px;
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    background: #f8f8f8;
+    padding: 60px 40px 35px;
+    width: 100%;
+    margin-top: 80px;
+  }
+
+  .footer-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .footer-content {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    gap: 40px;
-    max-width: 1200px;
-    margin: 0 auto 40px;
+    gap: 50px;
+    margin-bottom: 50px;
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
   }
 
   .footer-brand-logo {
-    width: 40px;
-    margin-bottom: 15px;
+    width: 45px;
+    height: 45px;
+    margin-bottom: 18px;
+    object-fit: contain;
   }
 
   .footer-brand h3 {
-    color: #333;
-    font-size: 16px;
+    color: #8b6f47;
+    font-size: 18px;
     font-weight: 700;
-    margin-bottom: 15px;
-    letter-spacing: 1px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
   }
 
   .brand-tagline {
     font-size: 13px;
     color: #666;
     line-height: 1.8;
-    margin-bottom: 25px;
+    margin-bottom: 28px;
+    font-weight: 400;
   }
 
   .social-links {
@@ -45,30 +54,31 @@
   }
 
   .social-links a {
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background-color: #f0f0f0;
+    background-color: #e8e8e8;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #333;
     text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s;
+    font-size: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
   }
 
   .social-links a:hover {
     background-color: #8b6f47;
     color: white;
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(139, 111, 71, 0.25);
   }
 
   .footer-column h4 {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     color: #333;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -77,47 +87,81 @@
   .footer-column ul {
     list-style: none;
     padding: 0;
+    margin: 0;
   }
 
   .footer-column ul li {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .footer-column ul li a {
     color: #666;
     text-decoration: none;
     font-size: 13px;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
+    font-weight: 400;
   }
 
   .footer-column ul li a:hover {
     color: #8b6f47;
   }
 
+  .footer-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #ddd, transparent);
+    margin: 40px 0;
+  }
+
   .footer-bottom {
-    padding-top: 30px;
-    border-top: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 30px;
   }
 
   .copyright {
-    font-size: 12px;
+    font-size: 13px;
     color: #999;
+    font-weight: 400;
   }
 
   .payment-methods {
     display: flex;
-    gap: 15px;
+    gap: 18px;
     align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .payment-methods-label {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .payment-icons {
+    display: flex;
+    gap: 15px;
   }
 
   .payment-methods img {
-    height: 20px;
+    height: 24px;
     object-fit: contain;
+    transition: opacity 0.3s ease;
+  }
+
+  .payment-methods img:hover {
+    opacity: 0.7;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .footer-content {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+    }
   }
 
   @media (max-width: 768px) {
@@ -128,82 +172,165 @@
 
     .footer-bottom {
       flex-direction: column;
-      gap: 20px;
       text-align: center;
     }
 
     .footer-section {
-      padding: 40px 20px 20px;
+      padding: 50px 25px 30px;
+      margin-top: 60px;
+    }
+
+    .payment-methods {
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .payment-icons {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-section {
+      padding: 40px 15px 25px;
+      margin-top: 50px;
+    }
+
+    .footer-content {
+      gap: 25px;
+    }
+
+    .footer-brand h3 {
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    .brand-tagline {
+      font-size: 12px;
+    }
+
+    .footer-column h4 {
+      font-size: 11px;
+      margin-bottom: 18px;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column ul li a {
+      font-size: 12px;
+    }
+
+    .copyright {
+      font-size: 12px;
+    }
+
+    .payment-methods img {
+      height: 20px;
     }
   }
 </style>
 
 <!-- Footer -->
-<div class="footer-section">
-  <div class="footer-content">
-    <div class="footer-brand">
-      <img src="/milli millets img/logo.jpg" alt="Logo" class="footer-brand-logo" />
-      <h3>MILLIMILLET</h3>
-      <p class="brand-tagline"></p>
-      <div class="social-links">
-        <a href="#" aria-label="Facebook">f</a>
-        <a href="#" aria-label="Twitter">t</a>
-        <a href="#" aria-label="LinkedIn">in</a>
-        <a href="#" aria-label="GitHub">g</a>
+<footer class="footer-section">
+  <div class="footer-wrapper">
+    <div class="footer-content">
+      <!-- Brand Section -->
+      <div class="footer-brand">
+        <!-- <img src="/milli millets img/logo.jpg" alt="Millimillet Logo" class="footer-brand-logo" /> -->
+        <h3>MILLIMILLET</h3>
+        <p class="brand-tagline">Nutrient-dense, low-carb alternatives to traditional grains. A great source of protein, minerals, and dietary fiber for your daily nutrition.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook" title="Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="Instagram" title="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.441 6.888h-1.016c-.597 0-.71.238-.71.851v1.116h1.426l-.187 1.367h-1.239v4.55c0 .397.083.612.595.612.158 0 .42-.013.516-.026v1.205c-.218.038-.91.065-1.535.065-1.516 0-2.036-.569-2.036-1.613v-4.793h-.957v-1.367h.957v-1.366c0-1.451.581-2.292 2.279-2.292h1.413v1.191z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="Twitter" title="Twitter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.953 4.57a10 10 0 002.856-3.708 10.02 10.02 0 01-2.856.856c1.008-.6 1.81-1.55 2.19-2.68a10.02 10.02 0 01-3.022 1.15A5 5 0 0016.88 3c-2.76 0-5 2.24-5 5 0 .39.045.77.127 1.139C7.7 8.946 4.738 7.476 2.7 5.102c-.427.722-.666 1.561-.666 2.475 0 1.71.87 3.213 2.188 4.096a4.998 4.998 0 01-2.266-.616v.06c0 2.422 1.72 4.44 4.009 4.89a4.993 4.993 0 01-2.26.085c.636 2.002 2.493 3.461 4.694 3.5-1.71 1.338-3.86 2.14-6.19 2.14-.402 0-.798-.012-1.185-.035 2.19 1.403 4.793 2.222 7.577 2.222 9.092 0 14.06-7.534 14.06-14.06 0-.214-.005-.428-.014-.641a10.012 10.012 0 002.457-2.548z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="YouTube" title="YouTube">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136c.502-1.884.502-5.814.502-5.814s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Company Column -->
+      <div class="footer-column">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Our Story</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+
+      <!-- Help Column -->
+      <div class="footer-column">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Track Order</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal Column -->
+      <div class="footer-column">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Terms & Conditions</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Disclaimer</a></li>
+          <li><a href="#">Sitemap</a></li>
+        </ul>
+      </div>
+
+      <!-- Resources Column -->
+      <div class="footer-column">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Recipes</a></li>
+          <li><a href="#">Health Guide</a></li>
+          <li><a href="#">Nutrition Tips</a></li>
+          <li><a href="#">Video Tutorials</a></li>
+          <li><a href="#">eBook Library</a></li>
+        </ul>
       </div>
     </div>
 
-    <div class="footer-column">
-      <h4>Company</h4>
-      <ul>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Features</a></li>
-        <li><a href="#">Works</a></li>
-        <li><a href="#">Career</a></li>
-      </ul>
-    </div>
+    <!-- Footer Divider -->
+    <div class="footer-divider"></div>
 
-    <div class="footer-column">
-      <h4>Help</h4>
-      <ul>
-        <li><a href="#">Customer Support</a></li>
-        <li><a href="#">Delivery Details</a></li>
-        <li><a href="#">Terms & Conditions</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-column">
-      <h4>FAQ</h4>
-      <ul>
-        <li><a href="#">Account</a></li>
-        <li><a href="#">Manage Deliveries</a></li>
-        <li><a href="#">Orders</a></li>
-        <li><a href="#">Payments</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-column">
-      <h4>Resources</h4>
-      <ul>
-        <li><a href="#">Free eBooks</a></li>
-        <li><a href="#">Development Tutorial</a></li>
-        <li><a href="#">How to - Blog</a></li>
-        <li><a href="#">Youtube Playlist</a></li>
-      </ul>
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <p class="copyright">© 2024 Millimillet. All Rights Reserved. | Designed with care</p>
+      
+      <div class="payment-methods">
+        <span class="payment-methods-label">Accepted Payments:</span>
+        <div class="payment-icons">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Pay">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay">
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="footer-bottom">
-    <p class="copyright">Shop.co © 2000-2023, All Rights Reserved</p>
-    <div class="payment-methods">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Pay">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay">
-    </div>
-  </div>
-</div>
-</body>
-</html>
+</footer>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wallet</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Nunito Sans", sans-serif;
+      background-color: #e8dcc4;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .page-header {
+      background-color: #ffffff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #2d2d2d;
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .page-title i {
+      color: #8b7355;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: #8b7355;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+    }
+
+    .btn-primary:hover {
+      background-color: #755e45;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(139, 115, 85, 0.35);
+    }
+
+    .btn-secondary {
+      background-color: #f9f6f1;
+      border: 2px solid #8b7355;
+      color: #8b7355;
+    }
+
+    .btn-secondary:hover {
+      background-color: #8b7355;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    /* Balance Card */
+    .balance-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 35px;
+    }
+
+    .balance-card {
+      background: linear-gradient(135deg, #8b7355 0%, #a0845f 100%);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 8px 24px rgba(139, 115, 85, 0.3);
+      color: #ffffff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .balance-card-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .balance-label {
+      font-size: 0.95rem;
+      opacity: 0.95;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .balance-amount {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .balance-updated {
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+    .card-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 3rem;
+      opacity: 0.2;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 35px;
+    }
+
+    /* Transactions Section */
+    .transactions-section {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 35px 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 35px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      color: #2d2d2d;
+      font-weight: 700;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: #8b7355;
+    }
+
+    .transaction-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      border-bottom: 1px solid #f5f0e8;
+      transition: all 0.3s ease;
+    }
+
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+
+    .transaction-item:hover {
+      background-color: #fafaf8;
+      padding-left: 25px;
+    }
+
+    .transaction-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-right: 20px;
+      flex-shrink: 0;
+    }
+
+    .transaction-icon.credit {
+      background-color: #e8f5e9;
+      color: #2d7a3e;
+    }
+
+    .transaction-icon.debit {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .transaction-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .transaction-reason {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2d2d2d;
+      margin-bottom: 5px;
+    }
+
+    .transaction-meta {
+      font-size: 0.85rem;
+      color: #6b6b6b;
+    }
+
+    .transaction-amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-left: 20px;
+    }
+
+    .transaction-amount.credit {
+      color: #2d7a3e;
+    }
+
+    .transaction-amount.debit {
+      color: #c62828;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      color: #d4c5b0;
+      margin-bottom: 20px;
+    }
+
+    .empty-text {
+      color: #6b6b6b;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #d4c5b0;
+      background-color: #ffffff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #8b7355;
+      transition: all 0.3s ease;
+    }
+
+    .page-btn:hover {
+      background-color: #f9f6f1;
+      border-color: #8b7355;
+    }
+
+    .page-btn.active {
+      background-color: #8b7355;
+      color: #ffffff;
+      border-color: #8b7355;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 20px 15px;
+      }
+
+      .page-header {
+        padding: 20px 25px;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .balance-amount {
+        font-size: 2.5rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .transaction-item {
+        flex-wrap: wrap;
+        padding: 15px;
+      }
+
+      .transaction-details {
+        flex-basis: 100%;
+        margin-bottom: 10px;
+      }
+
+      .transaction-amount {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-container {
+        padding: 15px 10px;
+      }
+
+      .page-header {
+        padding: 15px 20px;
+      }
+
+      .page-title {
+        font-size: 1.25rem;
+      }
+
+      .balance-card {
+        padding: 30px 20px;
+      }
+
+      .balance-amount {
+        font-size: 2rem;
+      }
+
+      .transactions-section {
+        padding: 20px 15px;
+      }
+
+      .section-title {
+        font-size: 1.2rem;
+      }
+
+      .transaction-item {
+        padding: 12px;
+      }
+
+      .transaction-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        margin-right: 12px;
+      }
+    }
+  </style>
+   <%- include("../partials/user/header.ejs") %>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="fas fa-wallet"></i>
+        My Wallet
+      </h1>
+      <a href="/userProfile" class="btn btn-primary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Balance Section -->
+    <div class="balance-section">
+      <div class="balance-card">
+        <div class="card-icon">
+          <i class="fas fa-piggy-bank"></i>
+        </div>
+        <div class="balance-card-content">
+          <div class="balance-label">Available Balance</div>
+       <div class="balance-amount">₹<%= walletData?.balance || 0 %></div>
+<div class="balance-updated">Last updated: <%= walletData?.updatedAt?.toDateString() || "N/A" %></div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Money
+      </button>
+      <button class="btn btn-secondary">
+        <i class="fas fa-arrow-up"></i> Withdraw
+      </button>
+      <button class="btn btn-secondary">
+        <i class="fas fa-history"></i> Transaction History
+      </button>
+    </div>
+
+    <!-- Transactions Section -->
+    <div class="transactions-section">
+      <h2 class="section-title">
+        <i class="fas fa-exchange-alt"></i>
+        Recent Transactions
+      </h2>
+
+      <div class="transaction-list">
+  <% if(walletData && walletData.transactions && walletData.transactions.length > 0) { %>
+    <% walletData.transactions.forEach(tx => { %>
+      <div class="transaction-item">
+        <div class="transaction-icon <%= tx.type === 'credit' ? 'credit' : 'debit' %>">
+          <i class="fas <%= tx.type === 'credit' ? 'fa-plus' : 'fa-minus' %>"></i>
+        </div>
+
+        <div class="transaction-details">
+          <div class="transaction-reason"><%= tx.reason %></div>
+          <div class="transaction-meta"><%= tx.meta || '' %></div>
+        </div>
+
+        <div class="transaction-amount <%= tx.type === 'credit' ? 'credit' : 'debit' %>">
+          <%= tx.type === 'credit' ? '+ ' : '- ' %> ₹<%= tx.amount %>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="no-transactions">No transactions yet.</p>
+  <% } %>
+</div>
+
+        </div>
+
+        
+      <!-- Pagination -->
+      <div class="pagination">
+  <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="?page=<%= i %>" class="page-btn <%= currentPage === i ? 'active' : '' %>">
+      <%= i %>
+    </a>
+  <% } %>
+</div>
+
+
+    
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+  <script>
+    function confirmLogout(event) {
+      event.preventDefault();
+      swal({
+        title: "Are you sure?",
+        text: "You will be logged out of your account.",
+        icon: "warning",
+        buttons: {
+          cancel: {
+            text: "Cancel",
+            value: null,
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          confirm: {
+            text: "Logout",
+            value: true,
+            visible: true,
+            className: "",
+            closeModal: true
+          }
+        },
+        dangerMode: true,
+      })
+        .then((willLogout) => {
+          if (willLogout) {
+            window.location.href = '/logout';
+          }
+        });
+    }
+
+    // Mobile Menu Toggle
+    const menuToggle = document.querySelector('.canvas__open');
+    const headerMenu = document.querySelector('.header__menu');
+    
+    if (menuToggle && headerMenu) {
+      menuToggle.addEventListener('click', () => {
+        headerMenu.classList.toggle('active');
+      });
+    }
+
+    // Add Money Button
+    document.querySelector('.btn-primary')?.addEventListener('click', function(e) {
+      if (this.textContent.includes('Add Money')) {
+        e.preventDefault();
+        swal({
+          title: "Add Money",
+          text: "Enter the amount you want to add to your wallet",
+          icon: "info",
+          buttons: {
+            cancel: true,
+            confirm: "Add"
+          }
+        });
+      }
+    });
+
+    // Withdraw Button
+    document.querySelectorAll('.btn-secondary').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        if (this.textContent.includes('Withdraw')) {
+          e.preventDefault();
+          swal({
+            title: "Withdraw Money",
+            text: "Enter the amount you want to withdraw from your wallet",
+            icon: "info",
+            buttons: {
+              cancel: true,
+              confirm: "Withdraw"
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

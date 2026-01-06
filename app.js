@@ -13,6 +13,8 @@ import { router as userRouter } from "./Routes/userRouter.js";
 
 import { fileURLToPath } from "url";
 
+
+
 // Equivalent of __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,6 +66,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // Routes
 app.use("/admin", adminRouter);
 app.use("/", userRouter);
+
+
 
 // Start server
 app.listen(process.env.PORT, () => {

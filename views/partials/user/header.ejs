@@ -330,7 +330,7 @@
         </button>
 
         <div class="logo">
-          <div class="logo-icon"></div>
+          <!-- <div class="logo-icon"></div> -->
           <h1>MILLIMILLET</h1>
         </div>
 
@@ -373,12 +373,31 @@
           </button>
           <button class="icon-btn" onclick="window.location.href='/cart'">
             <i class="fas fa-shopping-cart"></i>
-            <% if(user) { %>
-            <span class="cart-badge" id="cartCountDisplay">0</span>
-            <% } %>
+          
+   <span class="cart-badge" id="cartCountDisplay"></span>
+
           </button>
         </div>
       </div>
+
+      <script>
+        let cartCountDisplay = document.getElementById("cartCountDisplay");
+
+        async function fetchCount() {
+          fetch("/cartCount")
+          .then((res)=> res.json())
+          .then((data)=>{
+            console.log(data);
+            if(data.cartCount)
+          {
+            
+            cartCountDisplay.innerHTML = data.cartCount;
+          }
+          })
+        } 
+
+        fetchCount()
+      </script>
     </header>
 
     <script>

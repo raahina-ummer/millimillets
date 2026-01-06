@@ -4,6 +4,9 @@ import Product from "../../models/ProductSchema.js";
 import Order from "../../models/OrderSchema.js";
 import User from "../../models/userSchema.js"; // 
 import dotenv from "dotenv";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+
 
 const loadCheckOut = async (req, res) => {
   try {
@@ -15,7 +18,7 @@ const loadCheckOut = async (req, res) => {
       populate: {
         path: "category",
         select: "name isListed",
-      },
+      }, 
     });
 
     let address = await Address.findOne({ userId });
@@ -87,177 +90,38 @@ const loadCheckOut = async (req, res) => {
     cart.products = filterCart;
     await cart.save();
 
-    const cartAmount = subtotal - totalDiscount;
-    const tax = 0;
-    const shipping = cartAmount >= 1000 ? 0 : 50;
-    const total = cartAmount + tax + shipping;
+//Apply Coupon if exists
 
-    return res.render("checkout", {
-      user,
-      cart: { products: filterCart },
-      addresses: address.addresses,
-      subtotal,
-      discount: totalDiscount,
-      couponDiscount: 0,
-      tax,
-      shipping,
-      total,
-      itemCount: filterCart.length,
-      availableCoupons: [],
-      appliedCoupon: null,
-    });
+  // const cartAmount = subtotal - totalDiscount - couponDiscount;
+  const tax = 0;
+const shipping = subtotal >= 1000 ? 0 : 50;  // Based on SUBTOTAL
+const couponDiscount = cart.couponApplied ? cart.couponDiscount : 0;
+const total = subtotal - totalDiscount - couponDiscount + tax + shipping;
+
+
+   return res.render("checkout", {
+  user,
+  cart: { products: filterCart },
+  addresses: address.addresses,
+  subtotal,
+  discount: totalDiscount,
+  couponDiscount,
+  tax,
+  shipping,
+  total,
+  itemCount: filterCart.length,
+  availableCoupons: [],
+  appliedCoupon: cart.couponApplied ? cart.couponCode : null,
+});
+
   } catch (error) {
     console.error("Error loading checkout page:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to load checkout page. Please try again.",
-    });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false, message: "Failed to load checkout page. Please try again.",});
   }
 };
 
 
 
-
-const placeOrder = async (req, res) => {
-  try {
-    const { addressId, paymentMethod } = req.body;
-    const userId = req.session.user.id;
-
-    if (!addressId || !paymentMethod) {
-      return res.status(400).json({
-        success: false,
-        message: "Address and payment method are required",
-      });
-    }
-
-    const userAddress = await Address.findOne({ userId });
-    if (!userAddress) return res.status(400).send("Invalid Request");
-
-    const selectedAddress = userAddress.addresses.find(
-      (addr) => addr._id.toString() === addressId
-    );
-    if (!selectedAddress) return res.status(400).send("Please add a valid address");
-
-    if (paymentMethod !== "cod") {
-      return res.status(400).send("Only Cash on Delivery is available");
-    }
-
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "products.productId",
-      populate: "category",
-    });
-
-    if (!cart || cart.products.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Cart is empty or not found",
-      });
-    }
-
-    // Fix: Check stock and prices using product.variant[0]
-    const validCartItems = cart.products.filter((item) => {
-      const product = item.productId;
-      const variant = product.variant?.[0];
-      return (
-        product &&
-        variant &&
-        !product.isBlocked &&
-        product.category?.isListed &&
-        variant.stock >= item.quantity
-      );
-    });
-
-    if (validCartItems.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid items in cart",
-      });
-    }
-
-    let subtotal = 0;
-    let totalDiscount = 0;
-    const orderItems = [];
-
-    for (const item of validCartItems) {
-      const product = item.productId;
-      const variant = product.variant?.[0]; // 🧠 Use first variant
-
-      const regularPrice = variant.regularPrice;
-      const salePrice = variant.salePrice;
-      const discountAmount = regularPrice - salePrice;
-      const totalPrice = salePrice * item.quantity;
-
-      subtotal += regularPrice * item.quantity;
-      totalDiscount += discountAmount * item.quantity;
-
-      orderItems.push({
-        productId: product._id,
-        productName: product.productName,
-        quantity: item.quantity,
-        price: salePrice,
-        totalPrice: totalPrice,
-        productImage: product.productImage[0] || null,
-        regularPrice,
-        discountAmount,
-        category: product.category,
-      });
-
-      // Update product stock immediately (COD)
-      await Product.findByIdAndUpdate(product._id, {
-        $inc: { "variant.0.stock": -item.quantity },
-      });
-    }
-
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const finalAmount = subtotal - totalDiscount + shipping;
-
-    const orderId =
-      "ORD" +
-      Date.now() +
-      Math.random().toString(36).substr(2, 5).toUpperCase();
-
-    const newOrder = new Order({
-      orderId,
-      userId,
-      orderedProducts: orderItems.map((item) => ({
-        product: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      totalPrice: subtotal,
-      discount: totalDiscount,
-      finalAmount,
-      address: selectedAddress,
-      status: "Pending",
-      createdOn: new Date(),
-    });
-
-    await newOrder.save();
-
-    // ✅ Clear cart after successful order
-    await Cart.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          products: [],
-          couponApplied: false,
-          couponCode: null,
-          couponDiscount: 0,
-        },
-      }
-    );
-
-    return res.json({
-      success: true,
-      message: "Order placed successfully",
-      orderId,
-      totalAmount: finalAmount,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
 
 
 
@@ -296,7 +160,7 @@ const loadOrderSuccess = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading order success:", error);
-    res.json({ success: false, message: error.message });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -315,7 +179,7 @@ const loadOrderFaliure = async (req, res) => {
     let order = null;
 
     if (orderId) {
-      order = await Order.findOne({ orderId }).populate("products.productId");
+      order = await Order.findOne({ orderId }).populate("orderedProducts.product");
     }
 
     if (order.paymentMethod === "online" && order.paymentStatus === "pending") {
@@ -365,7 +229,7 @@ const loadOrderFaliure = async (req, res) => {
 
 export {
   loadCheckOut,
-  placeOrder,
   loadOrderSuccess,
   loadOrderFaliure,
 };
+

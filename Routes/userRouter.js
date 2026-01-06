@@ -9,7 +9,10 @@ import * as orderController from "../controllers/user/orderController.js";
 import * as cartController from "../controllers/user/cartController.js";
 import * as checkoutController from "../controllers/user/checkoutController.js";
 import * as wishlistController from "../controllers/user/wishlistController.js";
+import * as walletController from "../controllers/user/walletController.js";
+import * as couponController from "../controllers/user/couponController.js";
 import { userAuth, adminAuth } from "../middleware/auth.js";
+
 
 import multer from "multer";
 import storage from "../Helpers/multer.js";
@@ -70,16 +73,16 @@ router.patch("/address/default/:id", userAuth, profileController.setDefaultAddre
 router.delete("/deleteAddress/:id",userAuth,profileController.deleteAddress);
 
 // Forgot Password
-router.get("/forgotPassword", profileController.getForgotPassword);
+router.get("/forgotPassword",profileController.getForgotPassword);
 router.post("/forgotEmailValid", profileController.forgotEmailValid);
-router.get("/verifyForgotOtp", profileController.getVerifyOtp);
-router.post("/verifyForgotOtp", profileController.verifyForgotOtp);
-router.post("/resendOtp", profileController.resendOtp);
-router.get("/resetPassword", profileController.getPostNewPassword);
-router.post("/resetPassword", profileController.postNewPassword);
+router.get("/verifyForgotOtp",profileController.getVerifyOtp);
+router.post("/verifyForgotOtp",profileController.verifyForgotOtp);
+router.post("/resendOtp",profileController.resendOtp);
+router.get("/resetPassword",profileController.getPostNewPassword);
+router.post("/resetPassword",profileController.postNewPassword);
 
 // Product management
-router.get("/productDetails", userAuth, productController.productDetails);
+router.get("/product/details/:id",  userAuth,productController.productDetails);
 
 // Cart management
 router.get("/cart", userAuth, cartController.loadCart);
@@ -87,10 +90,10 @@ router.post("/cart/:productId",userAuth,cartController.addToCart)
 router.put("/updateCart",userAuth,cartController.updateCartQuantity);
 router.delete("/removeCart",userAuth,cartController.removeCartItem) //remove specific product
 router.delete("/clearCart",userAuth,cartController.clearCart); //remove entire product and clear cart
+router.get("/cartCount",userAuth,cartController.getCartCount)
 
 //checkout
 router.get("/checkOut",userAuth,checkoutController.loadCheckOut);
-router.post("/placeOrder",userAuth,checkoutController.placeOrder);
 router.get("/orderSuccess",userAuth,checkoutController.loadOrderSuccess);
 router.get("/orderFailure",userAuth,checkoutController.loadOrderFaliure);
 
@@ -102,12 +105,25 @@ router.patch("/orders/:orderId/cancel", userAuth, orderController.cancelEntireOr
 router.post("/orders/:orderId/items/:productId/cancel", userAuth, orderController.cancelOrderItem);
 router.post("/orders/:orderId/return", userAuth, orderController.returnOrderItem);
 router.get("/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
+router.post("/placeOrder",userAuth,orderController.placeOrder);
 
 //wishlist
 router.get("/wishlist",userAuth,wishlistController.loadWishlist)
 router.post("/addWishlist/:id",userAuth,wishlistController.addToWishList)
 router.delete("/clearWishlist",userAuth,wishlistController.deleteWishlist);//entire wishlist
 router.delete("/removeWishlist/:productId",userAuth,wishlistController.removeFromWishlist);//specific item
+
+//coupon
+// Coupon management
+router.post("/applyCoupon", userAuth,couponController.applyCoupon);
+router.post("/removeCoupon", userAuth, couponController.removeCoupon);
+
+//razorpay/payNow
+router.post("/create-order",userAuth, orderController.createOrder);
+router.post("/verify-payment",userAuth, orderController.verifyPayment);
+
+//wallet
+router.get("/wallet",userAuth,walletController.loadWallet);
 
 
 export { router};

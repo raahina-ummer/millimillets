@@ -149,11 +149,14 @@
       PATH = "/verifyOtp"
       break;
     case "FORGET_PASSWORD":
+        console.log("ha hello from frontend")
      PATH = "/verifyForgotOtp"
       break;
     default:
       
   }
+
+
 
     
                 const response = await fetch(PATH, {
@@ -173,6 +176,7 @@
                         position: "center",
                         toast: true,
                     }).then(() => {
+                        console.log("verfy otp pafe",data)
                         window.location.href = data.redirectUrl || "/userprofile";
                     });
                 } else {

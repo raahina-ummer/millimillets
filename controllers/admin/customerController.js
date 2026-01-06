@@ -1,7 +1,9 @@
 
 import User from "../../models/userSchema.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
 
-// Fetch customer info with search + pagination
+
  const customerInfo = async (req, res) => {
   try {
     const search = req.query.search || "";
@@ -32,7 +34,7 @@ import User from "../../models/userSchema.js";
     });
   } catch (error) {
     console.error("Error loading customers:", error);
-    res.redirect("/pageerror");
+   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -46,10 +48,10 @@ import User from "../../models/userSchema.js";
       delete req.session.user;
     }
 
-    res.redirect("/admin/users");
+    res.status(Status.OK).json({success:true,message:'Customer blocked successfully' })
   } catch (error) {
     console.error("Error blocking user:", error);
-    res.redirect("/pageerror");
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
@@ -59,14 +61,14 @@ import User from "../../models/userSchema.js";
     const id = req.query.id;
     await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
 
-    res.redirect("/admin/users");
+   res.status(Status.OK).json({ success: true, message: 'Customer activated successfully' });
   } catch (error) {
     console.error("Error unblocking user:", error);
-    res.redirect("/pageerror");
+   res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
   }
 };
 
-// Export all functions at the end
+
 export {
   customerInfo,
   customerBlocked,

@@ -49,7 +49,7 @@ const cartSchema = new Schema(
       },
     ],
 
-    //  add Coupon fields to cart
+    // Coupon fields
     couponApplied: {
       type: Boolean,
       default: false,
@@ -62,12 +62,15 @@ const cartSchema = new Schema(
       type: Number,
       default: 0,
     },
+    
+    // ADD THIS: Total amount after discount
+    total: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true } // Adds createdAt and updatedAt automatically
+  { timestamps: true }
 );
 
 const Cart = mongoose.model("Cart", cartSchema);
 export default Cart;
-
-
-
