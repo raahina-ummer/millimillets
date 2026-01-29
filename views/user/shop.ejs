@@ -603,7 +603,7 @@
             color: #dc3545;
         }
 
-        .add-to-cart-btn {
+        .addToCartButton {
             width: 100%;
             padding: 12px;
             background: linear-gradient(135deg, #8b7355 0%, #6d5940 100%);
@@ -619,12 +619,12 @@
             gap: 8px;
         }
 
-        .add-to-cart-btn:hover {
+        .addToCartButton:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
         }
 
-        .add-to-cart-btn:disabled {
+        .addToCartButton:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
@@ -746,6 +746,23 @@
             background: #c82333;
         }
 
+
+        /* Category Offer Tag (Price Section) */
+.category-offer-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+
         /* Responsive */
         @media (max-width: 1200px) {
             .product-grid {
@@ -848,11 +865,13 @@
             <% if (search) { %>
                 <div class="search-results-header">
                     <p class="search-query">Showing results for "<%= search %>"</p>
-                    <a href="/shop?<%= new URLSearchParams({
-                    ...(currentCategory ? {category: currentCategory} : {}),
-                    ...(currentSort && currentSort !== 'newest' ? {sort: currentSort} : {}),
-                    ...(currentPriceRange.min ? {minPrice: currentPriceRange.min, maxPrice: currentPriceRange.max} : {})
-                }).toString() %>" class="clear-search">
+             <a href="/shop?<%= new URLSearchParams({
+  category: cat._id.toString(),
+  ...(currentSort && currentSort !== 'newest' ? {sort: currentSort} : {}),
+  ...(currentPriceRange.min ? {minPrice: currentPriceRange.min, maxPrice: currentPriceRange.max} : {}),
+  ...(search ? {search: search} : {})
+}).toString() %>"
+ class="clear-search">
                         <i class="fas fa-times"></i> Clear Search
                     </a>
                 </div>
@@ -1089,115 +1108,104 @@
                                     </div>
                                     <% } else { %>
                                         <div class="product-grid">
-                                            <% products.forEach(function(product) { // Get variant data const
-                                                variant=product.variant && product.variant[0] ? product.variant[0] :
-                                                null; const regularPrice=variant ? variant.regularPrice : 0; const
-                                                salePrice=variant ? variant.salePrice : regularPrice; const
-                                                stock=variant ? variant.stock : 0; // Calculate discount const
-                                                discount=regularPrice> salePrice ? Math.round(((regularPrice -
-                                                salePrice) / regularPrice) * 100) : 0; // Determine stock status
-                                                const isOutOfStock = stock === 0; const isLowStock = stock > 0 &&
-                                                stock <= 10; %>
-                                                    <div class="product-card">
-                                                        <!-- Product Image -->
-                                                        <div class="product-image-wrapper">
-                                                            <a href="/product/details/<%= product._id %>">
-                                                                <img src="/uploads/images/<%= product.productImage[0] %>"
-                                                                    alt="<%= product.productName %>"
-                                                                    class="product-image" />
-                                                            </a>
+  <% products.forEach(function (product) { %>
 
-                                                            <!-- Badges -->
-                                                            <div class="product-badges">
-                                                                <% if (discount> 0) { %>
-                                                                    <span class="badge badge-sale">
-                                                                        <%= discount %>% OFF
-                                                                    </span>
-                                                                    <% } %>
-                                                                        <% if (isLowStock) { %>
-                                                                            <span class="badge badge-hot">Limited
-                                                                                Stock</span>
-                                                                            <% } %>
-                                                                                <% if (product.createdAt && (new Date()
-                                                                                    - new Date(product.createdAt)) < 30
-                                                                                    * 24 * 60 * 60 * 1000) { %>
-                                                                                    <span
-                                                                                        class="badge badge-new">New</span>
-                                                                                    <% } %>
-                                                            </div>
+    <%
+      const variant = product.variant && product.variant[0] ? product.variant[0] : null;
+      const stock = variant ? variant.stock : 0;
 
-                                                            <!-- Quick Actions -->
-                                                            <div class="product-actions">
-                                                                <button class="action-btn add-to-wishlist"
-                                                                    data-product-id="<%= product._id %>"
-                                                                    aria-label="Add to Wishlist">
-                                                                    <i class="fas fa-heart"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
+      const basePrice = product.basePrice ?? (variant ? variant.regularPrice : 0);
+      const finalPrice = product.finalPrice ?? basePrice;
+      const discount = product.discountPercentage ?? 0;
 
-                                                        <!-- Product Info -->
-                                                        <div class="product-info">
-                                                            <div class="product-category">
-                                                                <%= product.category ? product.category.name
-                                                                    : 'Uncategorized' %>
-                                                            </div>
+      const isOutOfStock = stock === 0;
+      const isLowStock = stock > 0 && stock <= 10;
+    %>
 
-                                                            <h3 class="product-name">
-                                                                <a href="/product/details/<%= product._id %>">
-                                                                    <%= product.productName %>
-                                                                </a>
-                                                            </h3>
+    <div class="product-card">
+      <!-- Product Image -->
+      <div class="product-image-wrapper">
+        <a href="/product/details/<%= product._id %>">
+          <img
+            src="/uploads/images/<%= product.productImage[0] %>"
+            alt="<%= product.productName %>"
+            class="product-image"
+          />
+        </a>
 
-                                                            <div class="product-rating">
-                                                                <div class="stars">
-                                                                    <i class="fas fa-star"></i>
-                                                                    <i class="fas fa-star"></i>
-                                                                    <i class="fas fa-star"></i>
-                                                                    <i class="fas fa-star"></i>
-                                                                    <i class="fas fa-star-half-alt"></i>
-                                                                </div>
-                                                                <span class="rating-count">(4.5)</span>
-                                                            </div>
+        <!-- Badges -->
+        <div class="product-badges">
+          <% if (discount > 0) { %>
+            <span class="badge badge-sale"><%= discount %>% OFF</span>
+          <% } %>
 
-                                                            <div class="product-price">
-                                                                <span class="current-price">₹<%= salePrice %></span>
-                                                                <% if (discount> 0) { %>
-                                                                    <span class="original-price">₹<%= regularPrice %>
-                                                                    </span>
-                                                                    <span class="discount-badge">-<%= discount %>
-                                                                            %</span>
-                                                                    <% } %>
-                                                            </div>
+          <% if (isLowStock) { %>
+            <span class="badge badge-hot">Limited Stock</span>
+          <% } %>
 
-                                                            <div
-                                                                class="stock-status <%= isOutOfStock ? 'out-of-stock' : isLowStock ? 'low-stock' : 'in-stock' %>">
-                                                                <% if (isOutOfStock) { %>
-                                                                    <i class="fas fa-times-circle"></i> Out of Stock <%
-                                                                        } else if (isLowStock) { %>
-                                                                        <i class="fas fa-exclamation-triangle"></i> Only
-                                                                        <%= stock %>
-                                                                            left <% } else { %> <i
-                                                                                    class="fas fa-check-circle"></i> In
-                                                                                Stock (<%= stock %>) <% } %>
-                                                            </div>
+          <% if (product.createdAt && (new Date() - new Date(product.createdAt)) < 30 * 24 * 60 * 60 * 1000) { %>
+            <span class="badge badge-new">New</span>
+          <% } %>
+        </div>
 
-                                                            <% if (!isOutOfStock) { %>
-                                                                <button class="add-to-cart-btn addToCartButton"
-                                                                    data-product-id="<%= product._id %>">
-                                                                    <i class="fas fa-shopping-cart"></i>
-                                                                    Add to Cart
-                                                                </button>
-                                                                <% } else { %>
-                                                                    <button class="add-to-cart-btn" disabled>
-                                                                        <i class="fas fa-ban"></i>
-                                                                        Out of Stock
-                                                                    </button>
-                                                                    <% } %>
-                                                        </div>
-                                                    </div>
-                                                    <% }); %>
-                                        </div>
+        <!-- Wishlist -->
+        <div class="product-actions">
+          <button class="action-btn add-to-wishlist" data-product-id="<%= product._id %>">
+            <i class="fas fa-heart"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <div class="product-category">
+          <%= product.category ? product.category.name : "Uncategorized" %>
+        </div>
+
+        <h3 class="product-name">
+          <a href="/product/details/<%= product._id %>"><%= product.productName %></a>
+        </h3>
+
+        <!-- Price -->
+        <div class="product-price">
+          <span class="current-price">₹<%= finalPrice %></span>
+
+          <% if (discount > 0) { %>
+            <span class="original-price">₹<%= basePrice %></span>
+            <span class="discount-badge">-<%= discount %>%</span>
+          <% } %>
+        </div>
+
+        <!-- Stock -->
+        <div class="stock-status <%= isOutOfStock ? 'out-of-stock' : isLowStock ? 'low-stock' : 'in-stock' %>">
+          <% if (isOutOfStock) { %>
+            <i class="fas fa-times-circle"></i> Out of Stock
+          <% } else if (isLowStock) { %>
+            <i class="fas fa-exclamation-triangle"></i> Only <%= stock %> left
+          <% } else { %>
+            <i class="fas fa-check-circle"></i> In Stock (<%= stock %>)
+          <% } %>
+        </div>
+
+        <!-- Cart -->
+        <% if (!isOutOfStock) { %>
+          <button
+            class="addToCartButton"
+            data-product-id="<%= product._id %>"
+            data-variant-id="<%= product.variant[0]._id %>"
+          >
+            Add to Cart
+          </button>
+        <% } else { %>
+          <button class="add-to-cart-btn" disabled>
+            <i class="fas fa-ban"></i> Out of Stock
+          </button>
+        <% } %>
+      </div>
+    </div>
+
+  <% }); %>
+</div>
 
                                         <!-- Pagination -->
                                         <% if (currentPage || products.length>= 9) { %>
@@ -1254,12 +1262,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
-     // Add this at the very top of your script section
-document.addEventListener('click', (e) => {
-    console.log('Clicked element:', e.target);
-    console.log('Closest .addToCartButton:', e.target.closest('.addToCartButton'));
-    console.log('Closest a tag:', e.target.closest('a'));
-}, true);
+        // Add this at the very top of your script section
+        document.addEventListener('click', (e) => {
+            console.log('Clicked element:', e.target);
+            console.log('Closest .addToCartButton:', e.target.closest('.addToCartButton'));
+            console.log('Closest a tag:', e.target.closest('a'));
+        }, true);
 
 
         // Add to Cart Functionality
@@ -1270,6 +1278,7 @@ document.addEventListener('click', (e) => {
 
                     const button = e.target.closest(".addToCartButton");
                     const productId = button.dataset.productId;
+                    const variantId = button.dataset.variantId;
                     const quantity = 1;
 
                     // Disable button during request
@@ -1283,7 +1292,7 @@ document.addEventListener('click', (e) => {
                             headers: {
                                 "Content-Type": "application/json",
                             },
-                            body: JSON.stringify({ productId, quantity }),
+                            body: JSON.stringify({ productId, variantId, quantity }),
                         });
 
                         const data = await response.json();
@@ -1382,86 +1391,58 @@ document.addEventListener('click', (e) => {
         document.querySelectorAll(".add-to-wishlist").forEach((button) => {
             button.addEventListener("click", async (event) => {
                 event.preventDefault();
-                const productId = button.getAttribute("data-product-id");
+
+                const productId = button.dataset.productId;
+                const icon = button.querySelector("i");
 
                 button.disabled = true;
 
                 try {
-                    // FIXED: Changed to POST and moved productId to URL
                     const response = await fetch(`/addWishlist/${productId}`, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        // No body needed - productId is in URL
+                        headers: { "Content-Type": "application/json" }
                     });
 
-                    const result = await response.json();
+                    if (!response.ok) throw new Error("Request failed");
 
-                    if (response.ok) {
+                    const data = await response.json();
+
+                    if (data.action === "added") {
+                        button.classList.add("added");
+                        icon.style.color = "#28a745";
+
                         Swal.fire({
-                            text: result.message,
-                            icon: result.isExisting ? "info" : "success",
+                            icon: "success",
+                            title: "Added to Wishlist",
                             toast: true,
                             position: "top-end",
                             timer: 2000,
-                            showConfirmButton: false,
-                            background: "#8b7355",
-                            color: "#fff",
+                            showConfirmButton: false
                         });
 
-                        if (!result.isExisting) {
-                            button.classList.add("added");
-                            const icon = button.querySelector("i");
-                            if (icon) {
-                                icon.style.color = "#28a745";
-                            }
+                    } else if (data.action === "removed") {
+                        button.classList.remove("added");
+                        icon.style.color = "";
 
-                            // Update wishlist count
-                            const wishlistCountElement = document.querySelector(
-                                "#wishlistCountDisplay, .wishlist-count"
-                            );
-                            if (wishlistCountElement && result.wishlistCount) {
-                                wishlistCountElement.textContent = result.wishlistCount;
-                            }
-                        }
-                    } else if (response.status === 401) {
                         Swal.fire({
-                            title: "Login Required!",
-                            text: "Please login to add items to your wishlist.",
                             icon: "info",
-                            confirmButtonText: "Login Now",
-                            showCancelButton: true,
-                            confirmButtonColor: "#8b7355",
-                            cancelButtonColor: "#6c757d",
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "/login";
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            text: result.message || "Failed to add to wishlist.",
-                            icon: "error",
+                            title: "Removed from Wishlist",
                             toast: true,
                             position: "top-end",
                             timer: 2000,
-                            showConfirmButton: false,
-                            background: "#dc3545",
-                            color: "#fff",
+                            showConfirmButton: false
                         });
                     }
+
                 } catch (error) {
-                    console.error("Error adding to Wishlist:", error);
+                    console.error("Wishlist error:", error);
                     Swal.fire({
-                        text: "Something went wrong. Please try again.",
                         icon: "error",
+                        title: "Something went wrong",
                         toast: true,
                         position: "top-end",
-                        timer: 3000,
-                        showConfirmButton: false,
-                        background: "#dc3545",
-                        color: "#fff",
+                        timer: 2000,
+                        showConfirmButton: false
                     });
                 } finally {
                     button.disabled = false;

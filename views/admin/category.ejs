@@ -440,6 +440,94 @@
         background-color: #d0d0d0;
     }
 
+
+    .category-search-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.category-search-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 220px;
+  font-size: 14px;
+}
+
+.btn-search {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #8b7355;
+  color: #fff;
+  cursor: pointer;
+}
+
+
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* LEFT SIDE */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title-search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* SEARCH */
+.category-search-form {
+  display: flex;
+  gap: 6px;
+}
+
+.category-search-input {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  min-width: 220px;
+}
+
+.btn-search {
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: #8b7355;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* ACTION BUTTONS */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.offer-badge {
+  background: #e53935;
+  color: #fff;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+
     @media (max-width: 768px) {
         .main-content {
             margin-left: 0;
@@ -478,32 +566,50 @@
 <body>
     <div class="main-content">
         <!-- Page Header with Action Buttons -->
-        <div class="page-header">
-            <div class="page-header-row">
-                <div>
-                    <h1 class="page-title">Categories</h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item">
-                                <a href="/admin/dashboard">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">Categories</li>
-                        </ol>
-                    </nav>
-                </div>
+  <div class="page-header">
+  <div class="page-header-row">
 
-                <div class="action-buttons">
-                    <button class="btn-export" onclick="exportCategories()">
-                        <i class="fas fa-download"></i>
-                        Export
-                    </button>
-                    <a href="/admin/addCategory" class="btn-create">
-                        <i class="fas fa-plus"></i>
-                        Create Category
-                    </a>
-                </div>
-            </div>
-        </div>
+    <!-- LEFT SIDE -->
+    <div class="header-left">
+      <div class="title-search">
+        <h1 class="page-title">Categories</h1>
+
+        <form method="GET" action="/admin/category" class="category-search-form">
+          <input 
+            type="text" 
+            name="search"
+            placeholder="Search categories..."
+            value="<%= search || '' %>"
+            class="category-search-input"
+          />
+          <button type="submit" class="btn-search">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+      </div>
+
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="/admin/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Categories</li>
+        </ol>
+      </nav>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="action-buttons">
+      <button class="btn-export" onclick="exportCategories()">
+        <i class="fas fa-download"></i> Export
+      </button>
+      <a href="/admin/addCategory" class="btn-create">
+        <i class="fas fa-plus"></i> Create Category
+      </a>
+    </div>
+
+  </div>
+</div>
 
         <!-- Table Card -->
         <div class="table-card">
@@ -546,6 +652,13 @@
                                                 <% } %>
                                             </div>
                                             <span class="category-name"><%= category.name %></span>
+
+<% if (category.hasOffer) { %>
+  <span class="offer-badge">
+    <%= category.activeOffer.discountPercentage %>% OFF
+  </span>
+<% } %>
+
                                         </div>
                                     </td>
                                     <!-- <td><%= category.sold || 0 %></td>
@@ -553,12 +666,39 @@
                                     <td><%= category.createdAt ? new Date(category.createdAt).toLocaleDateString() : "N/A" %></td>
                                     <td>
                                         <div class="action-icons">
-                                            <button class="action-icon edit" data-id="<%= category._id %>" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="action-icon offer" data-id="<%= category._id %>" data-name="<%= category.name %>" title="Edit Offer">
-                                                <i class="fas fa-tag"></i>
-                                            </button>
+                                          <button
+  type="button"
+  class="action-icon edit"
+  data-id="<%= category._id %>"
+  title="Edit">
+  <i class="fas fa-edit"></i>
+</button>
+
+                                           
+                                           <% if (category.hasOffer) { %>
+  <!-- Edit Offer -->
+  <button
+    type="button"
+    class="action-icon offer active-offer"
+    data-id="<%= category._id %>"
+    data-name="<%= category.name %>"
+    title="Edit Offer"
+  >
+    <i class="fas fa-tag"></i>
+  </button>
+<% } else { %>
+  <!-- Add Offer -->
+  <button
+    type="button"
+    class="action-icon offer add-offer"
+    data-id="<%= category._id %>"
+    data-name="<%= category.name %>"
+    title="Add Offer"
+  >
+    <i class="fas fa-plus-circle"></i>
+  </button>
+<% } %>
+
                                             <button class="action-icon toggle-list <%= category.isListed ? 'listed' : 'unlisted' %>" 
                                                 data-id="<%= category._id %>" 
                                                 data-listed="<%= category.isListed %>"
@@ -674,7 +814,8 @@
         document.querySelectorAll(".action-icon.edit").forEach(button => {
             button.addEventListener("click", function() {
                 const categoryId = this.getAttribute("data-id");
-                window.location.href = `/admin/editCategory?id=${categoryId}`;
+               window.location.href = `/admin/editCategory/${categoryId}`;
+;
             });
         });
 

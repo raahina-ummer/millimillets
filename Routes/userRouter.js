@@ -28,8 +28,9 @@ router.get("/pageNotFound", userController.pageNotFound);
 // Signup Management
 router.get("/signup", userController.loadSignup);
 router.post("/signup", userController.signup);
+router.get("/verifyOtp", userController.loadVerifyOtp);
 router.post("/verifyOtp", userController.verifyOtp);
-router.post("/resendOtp", userController.resendOtp);
+router.post("/resendSignupOtp", userController.resendOtp);
 
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),
@@ -77,12 +78,13 @@ router.get("/forgotPassword",profileController.getForgotPassword);
 router.post("/forgotEmailValid", profileController.forgotEmailValid);
 router.get("/verifyForgotOtp",profileController.getVerifyOtp);
 router.post("/verifyForgotOtp",profileController.verifyForgotOtp);
-router.post("/resendOtp",profileController.resendOtp);
+router.post("/resendForgotOtp",profileController.resendOtp);
 router.get("/resetPassword",profileController.getPostNewPassword);
 router.post("/resetPassword",profileController.postNewPassword);
 
 // Product management
 router.get("/product/details/:id",  userAuth,productController.productDetails);
+router.get("/product/variant-price/:productId/:variantId",userAuth,productController.getVariantPrice);
 
 // Cart management
 router.get("/cart", userAuth, cartController.loadCart);
@@ -102,8 +104,8 @@ router.get("/orderFailure",userAuth,checkoutController.loadOrderFailure);
 router.get("/orders", userAuth, orderController.loadOrder);
 router.get("/orders/:orderId", userAuth, orderController.loadOrderDetails);
 router.patch("/orders/:orderId/cancel", userAuth, orderController.cancelEntireOrder);
-router.post("/orders/:orderId/items/:productId/cancel", userAuth, orderController.cancelOrderItem);
-router.post("/orders/:orderId/return/:productId", userAuth, orderController.returnOrderItem);
+router.post("/orders/:orderId/items/:productId/:variantId/cancel",userAuth,orderController.cancelOrderItem);
+router.post("/orders/:orderId/return/:productId/:variantId", userAuth, orderController.returnOrderItem);
 router.get("/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
 router.post("/placeOrder",userAuth,orderController.placeCodOrder);
 router.post('/create-retry-order', userAuth,orderController.createRetryOrder);
@@ -127,6 +129,9 @@ router.post("/verify-payment",userAuth, orderController.verifyPayment);
 //wallet
 router.get("/wallet",userAuth,walletController.loadWallet);
 router.post("/walletPayment",userAuth,walletController.walletPayment);
+
+//aboutPage
+router.get("/about",userAuth,userController.loadAboutPage)
 
 
 export { router};

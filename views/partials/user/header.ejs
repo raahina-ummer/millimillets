@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -175,19 +177,19 @@
       }
 
       /* Mobile Navigation */
-      .mobile-nav {
-        display: none;
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 280px;
-        height: 100vh;
-        background-color: #ffffff;
-        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
-        transition: right 0.3s ease;
-        z-index: 1000;
-        overflow-y: auto;
-      }
+    .mobile-nav {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 280px;
+  height: 100vh;
+  background-color: #ffffff;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
 
       .mobile-nav.active {
         right: 0;
@@ -249,6 +251,26 @@
         display: block;
       }
 
+      nav a.active,
+.mobile-nav-links a.active {
+  color: #d4af37 !important;
+  font-weight: 600;
+}
+
+/* Optional underline for desktop */
+nav a.active::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background-color: #d4af37;
+  margin-top: 4px;
+}
+
+/* Active icon highlight */
+.mobile-nav-links a.active i {
+  color: #d4af37;
+}
+
       /* Responsive */
       @media (max-width: 992px) {
         nav {
@@ -282,8 +304,10 @@
         }
       }
     </style>
+    
   </head>
   <body>
+    
     <!-- Mobile Overlay -->
     <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
 
@@ -303,7 +327,7 @@
         <a href="/"><i class="fas fa-home"></i> Home</a>
         <a href="/shop"><i class="fas fa-store"></i> Shop</a>
         <a href="/about"><i class="fas fa-info-circle"></i> About</a>
-        <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
+        
         
         <% if(user) { %>
           <hr style="margin: 20px 0; border-color: #e0e0e0;">
@@ -340,7 +364,7 @@
             <li><a href="/">Home</a></li>
             <li><a href="/shop">Shop</a></li>
             <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
+           
             <% if(user) { %>
             <li class="dropdown">
               <a href="#" class="signin-link">
@@ -372,33 +396,67 @@
           </button>
           <button class="icon-btn" onclick="window.location.href='/wishlist'">
             <i class="fas fa-heart"></i>
-          </button>
-          <button class="icon-btn" onclick="window.location.href='/cart'">
-            <i class="fas fa-shopping-cart"></i>
-          
-   <span class="cart-badge" id="cartCountDisplay"></span>
+   <button class="icon-btn" onclick="window.location.href='/cart'">
+  <i class="fas fa-shopping-cart"></i>
 
-          </button>
+  <% if (user) { %>
+    <span class="cart-badge" id="cartCountDisplay" style="display:none;"></span>
+  <% } %>
+</button>
+
+
         </div>
       </div>
 
       <script>
-        let cartCountDisplay = document.getElementById("cartCountDisplay");
+  const currentPath = window.location.pathname;
 
-        async function fetchCount() {
-          fetch("/cartCount")
-          .then((res)=> res.json())
-          .then((data)=>{
-            console.log(data);
-            if(data.cartCount)
-          {
-            
-            cartCountDisplay.innerHTML = data.cartCount;
-          }
-          })
-        } 
+  // Desktop nav links
+  document.querySelectorAll("nav a").forEach(link => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+    }
+  });
 
-        fetchCount()
+  // Mobile nav links
+  document.querySelectorAll(".mobile-nav-links a").forEach(link => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+    }
+  });
+</script>
+
+
+      <script>
+        const cartCountDisplay = document.getElementById("cartCountDisplay");
+  const isUserLoggedIn = <%= user ? 'true' : 'false' %>;
+
+  // Hide badge by default
+  if (cartCountDisplay) {
+    cartCountDisplay.style.display = "none";
+  }
+
+  async function fetchCount() {
+    // 🚫 Do nothing if user not logged in
+    if (!isUserLoggedIn) return;
+
+    try {
+      const res = await fetch("/cartCount");
+      const data = await res.json();
+
+      if (data.cartCount && data.cartCount > 0) {
+        cartCountDisplay.textContent = data.cartCount;
+        cartCountDisplay.style.display = "inline-block";
+      } else {
+        cartCountDisplay.style.display = "none";
+      }
+    } catch (err) {
+      console.error("Cart count error:", err);
+    }
+  }
+
+  fetchCount();
+
       </script>
     </header>
 

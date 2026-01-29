@@ -340,11 +340,14 @@
             font-size: 12px;
             font-weight: 700;
         }
+.item-actions {
+  display: flex;
+  gap: 10px;
+}
 
-        .item-actions {
-            display: flex;
-            gap: 10px;
-        }
+.item-actions button {
+  flex: 1;
+}
 
         .btn-add-to-cart {
             flex: 1;
@@ -419,6 +422,88 @@
             font-size: 16px;
             color: #8B7355;
         }
+
+
+
+        .variant-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.variant-modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 400px;
+  border-radius: 8px;
+}
+
+.variant-option {
+  padding: 12px 14px;
+  border: 2px solid #E8DCC4;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variant-option:hover {
+  border-color: #8B7355;
+  background: #f9f6f1;
+}
+
+.variant-modal-content {
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  animation: scaleIn 0.25s ease;
+}
+
+.confirm-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  background: linear-gradient(135deg, #8B7355, #6D5A43);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.variant-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.variant-modal-header h4 {
+  margin: 0;
+  color: #6D5A43;
+  font-weight: 800;
+}
+
+.variant-modal-header button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #999;
+}
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -593,9 +678,15 @@
                             </div>
                             <div class="item-actions">
                                 <% if (totalStock > 0) { %>
-                                    <button class="btn-add-to-cart" onclick="addToCart('<%= item.productId._id %>')">
-                                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                                    </button>
+<button class="btn-add-to-cart"
+  data-product-id="<%= item.productId._id %>"
+  data-variants="<%= encodeURIComponent(JSON.stringify(item.productId.variant)) %>"
+  onclick="handleVariantClick(this)">
+  <i class="fas fa-shopping-cart"></i> Add to Cart
+</button>
+
+
+
                                 <% } else { %>
                                     <button class="btn-add-to-cart" disabled>
                                         <i class="fas fa-bell"></i> Notify Me
@@ -626,6 +717,24 @@
             </a>
         </div>
     </div>
+
+
+    <!-- Variant Selection Modal -->
+<div id="variantModal" class="variant-modal">
+  <div class="variant-modal-content">
+    <div class="variant-modal-header">
+      <h4>Select Variant</h4>
+      <button onclick="closeVariantModal()">×</button>
+    </div>
+
+    <div id="variantList" class="variant-list"></div>
+
+    <button id="confirmVariantBtn" class="confirm-btn" disabled>
+      Add to Cart
+    </button>
+  </div>
+</div>
+
 
     <%- include('../partials/user/footer.ejs') %>
 
@@ -671,55 +780,6 @@ async function removeFromWishlist(productId) {
     });
 }
 
-async function addToCart(productId) {
-    try {
-        const response = await fetch(`/cart/add/${productId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const result = await response.json();
-        
-        if (result.success) {
-            // Remove the item from wishlist display automatically
-            const item = document.querySelector(`[data-id="${productId}"]`);
-            if (item) {
-                item.style.transform = 'scale(0)';
-                item.style.opacity = '0';
-                setTimeout(() => {
-                    item.remove();
-                    updateStats();
-                    checkEmptyWishlist();
-                }, 300);
-            }
-
-            swal({
-                title: "Added to Cart!",
-                text: "Item has been moved from wishlist to cart.",
-                icon: "success",
-                buttons: {
-                    viewCart: {
-                        text: "View Cart",
-                        value: "cart",
-                        className: "btn-primary"
-                    },
-                    continue: {
-                        text: "Continue Shopping",
-                        value: "continue"
-                    }
-                }
-            }).then((value) => {
-                if (value === "cart") {
-                    window.location.href = '/cart';
-                }
-            });
-        } else {
-            swal("Error!", result.message || "Failed to add item to cart.", "error");
-        }
-    } catch (error) {
-        console.error("Error adding to cart:", error);
-        swal("Error!", "Something went wrong. Please try again.", "error");
-    }
-}
 
 function viewProduct(productId) {
     window.location.href = `/product/details/${productId}`;
@@ -807,6 +867,77 @@ function checkEmptyWishlist() {
         document.querySelector('.wishlist-stats').style.display = 'none';
     }
 }
+
+let selectedVariantId = null;
+let selectedProductId = null;
+
+function openVariantModal(productId, variants) {
+  selectedProductId = productId;
+  selectedVariantId = null;
+
+  const variantList = document.getElementById("variantList");
+  variantList.innerHTML = "";
+
+  variants.forEach(variant => {
+    if (variant.stock > 0) {
+      const div = document.createElement("div");
+      div.className = "variant-option";
+      div.innerHTML = `
+  <label style="display:flex; justify-content:space-between; align-items:center; width:100%">
+    <span>
+      <input type="radio" name="variant" value="${variant._id}">
+      ${variant.weight} g
+    </span>
+    <strong>₹${variant.salePrice}</strong>
+  </label>
+`;
+
+      div.onclick = () => {
+        selectedVariantId = variant._id;
+        document.getElementById("confirmVariantBtn").disabled = false;
+      };
+      variantList.appendChild(div);
+    }
+  });
+
+  document.getElementById("confirmVariantBtn").disabled = true;
+  document.getElementById("variantModal").style.display = "flex";
+}
+
+
+function closeVariantModal() {
+  document.getElementById("variantModal").style.display = "none";
+}
+document.getElementById("confirmVariantBtn").addEventListener("click", async () => {
+  if (!selectedVariantId || !selectedProductId) return;
+
+  try {
+    const response = await fetch(`/cart/${selectedProductId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ variantId: selectedVariantId })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      window.location.href = "/cart"; // ✅ redirect to cart
+    } else {
+      swal("Error!", result.message, "error");
+    }
+  } catch (err) {
+    console.error(err);
+    swal("Error!", "Something went wrong", "error");
+  }
+});
+function handleVariantClick(button) {
+  const productId = button.dataset.productId;
+  const variants = JSON.parse(decodeURIComponent(button.dataset.variants));
+  openVariantModal(productId, variants);
+}
+
+
+
 </script>
 </body>
 </html>

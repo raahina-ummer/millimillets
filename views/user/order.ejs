@@ -594,7 +594,7 @@
                                 <div class="order-id">Order #<%= order.orderId %></div>
                                 <div class="order-date">
                                     <i class="far fa-calendar-alt"></i>
-                                    Placed on <%= new Date(order.createdOn).toLocaleDateString('en-US', { 
+                                    Placed on <%= new Date(order.createdAt).toLocaleDateString('en-US', { 
                                         month: 'long', 
                                         day: 'numeric', 
                                         year: 'numeric' 
@@ -615,21 +615,33 @@
                         <div class="order-summary">
                             <div class="summary-item">
                                 <div class="summary-label">Total Items</div>
-                                <div class="summary-value"><%= order.orderedProducts.length %> Items</div>
+                                <% 
+  const activeItemCount = order.orderedProducts.filter(
+    item => !['Cancelled', 'Returned'].includes(item.status)
+  ).length; 
+%>
+<%= activeItemCount %> Items
+
                             </div>
                             <div class="summary-item">
                                 <div class="summary-label">Total Price</div>
-                                <div class="summary-value">₹<%= order.totalPrice.toFixed(2) %></div>
+                                <div class="summary-value">₹<%= order.currentAmount.toFixed(2) %></div>
                             </div>
-                            <% if (order.discount > 0) { %>
+                            <% if (order.couponApplied && order.currentAmount < order.finalAmount) { %>
                             <div class="summary-item">
                                 <div class="summary-label">Discount</div>
                                 <div class="summary-value" style="color: #28a745;">-₹<%= order.discount.toFixed(2) %></div>
                             </div>
                             <% } %>
                             <div class="summary-item" style="border-left: 4px solid #28a745;">
-                                <div class="summary-label">Final Amount</div>
-                                <div class="summary-value" style="color: #28a745;">₹<%= order.finalAmount.toFixed(2) %></div>
+                               <div class="summary-label">Current Amount</div>
+<div class="summary-value" style="color: #28a745;">
+  ₹<%= order.currentAmount.toFixed(2) %>
+</div>
+<small class="text-muted">
+  Paid: ₹<%= order.finalAmount.toFixed(2) %>
+</small>
+
                             </div>
                         </div>
 
@@ -654,7 +666,10 @@
             </div>
         </div>
         <div class="product-price">
-            ₹<%= (item.price * item.quantity).toFixed(2) %>
+            <div class="product-price <%= ['Cancelled','Returned'].includes(item.status) ? 'text-muted' : '' %>">
+  ₹<%= (item.price * item.quantity).toFixed(2) %>
+</div>
+
         </div>
     </div>
     <% }) %>
@@ -857,7 +872,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    swal("Success!", "Order cancelled successfully. Stock has been restored.", "success")
+                    swal("Success!", "Order cancelled successfully.", "success")
                         .then(() => location.reload());
                 } else {
                     swal("Error!", data.message || "Failed to cancel order", "error");

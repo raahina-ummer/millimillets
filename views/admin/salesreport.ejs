@@ -569,7 +569,8 @@
                     <input type="date" name="startDate" value="<%= startDate || '' %>" />
                 </div>
 
-                <div class="form-group" id="endDateGroup" style="display:"<%= period === 'custom' ? 'flex' : 'none' %>">
+                <div class="form-group" id="endDateGroup" style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
+
                     <label>End Date</label>
                     <input type="date" name="endDate" value="<%= endDate || '' %>" />
                 </div>
@@ -589,7 +590,7 @@
                     </div>
                 </div>
 
-
+<!-- 
                     <div class="form-group">
   <label>Payment Method</label>
   <select name="paymentMethod">
@@ -599,9 +600,9 @@
     <option value="Card">Card</option>
     <option value="UPI">UPI</option>
   </select>
-</div>
+</div> -->
 
-<div class="form-group">
+<!-- <div class="form-group">
   <label>Order Status</label>
   <select name="status">
     <option value="all">All Status</option>
@@ -611,7 +612,7 @@
     <option value="cancelled">Cancelled</option>
     <option value="returned">Returned</option>
   </select>
-</div>
+</div> -->
 
 
 
@@ -656,7 +657,7 @@
                 </div>
                 <div class="stat-info">
                     <h6>Total Discounts</h6>
-                    <p class="stat-value">₹<%= (statistics.totalDiscount || 0).toFixed(0) %></p>
+                    <p class="stat-value">₹<%= (statistics.totalItemDiscount || 0).toFixed(0) %></p>
                 </div>
             </div>
         </div>
@@ -740,15 +741,19 @@
                                     <td>
                                         <span class="order-id"><%= order.orderId %></span>
                                     </td>
-                                    <td><%= new Date(order.createdOn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+                                    <td><%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                                     <td><strong><%= order.userId?.name || 'N/A' %></strong></td>
                                     <td class="amount-positive">₹<%= (order.totalPrice || 0).toFixed(0) %></td>
                                     <td class="amount-negative">
-                                        <% if ((order.itemDiscount || 0) + (order.discount || 0) > 0) { %>
-                                            -₹<%= ((order.itemDiscount || 0) + (order.discount || 0)).toFixed(0) %>
-                                        <% } else { %>
-                                            -
-                                        <% } %>
+                                       <% const totalDiscount =
+  (order.couponDiscount || 0) + (order.itemDiscount || 0); %>
+
+<% if (totalDiscount > 0) { %>
+  -₹<%= totalDiscount.toFixed(0) %>
+<% } else { %>
+  -
+<% } %>
+
                                     </td>
                                     <td class="amount-positive">₹<%= (order.tax || 0).toFixed(0) %></td>
                                     <td>
@@ -760,8 +765,8 @@
                                     </td>
                                     <td class="amount-positive"><strong>₹<%= (order.finalAmount || 0).toFixed(0) %></strong></td>
                                     <td>
-                                        <span class="status-badge status-<%= order.status || 'pending' %>">
-                                            <%= order.status || 'pending' %>
+                                       <%= (order.status || 'pending').toLowerCase() %>
+
                                         </span>
                                     </td>
                                 </tr>
@@ -774,7 +779,14 @@
                 <% if (totalPages > 1) { %>
                     <div class="pagination-wrapper">
                         <% for (let i = 1; i <= totalPages; i++) { %>
-                            <a href="/admin/sales-report?page=<%= i %>&period=<%= period %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>">
+                           <a href="/admin/sales-report
+?page=<%= i %>
+&period=<%= period %>
+&startDate=<%= startDate || '' %>
+&endDate=<%= endDate || '' %>
+&paymentMethod=<%= paymentMethod || 'all' %>
+&status=<%= status || 'all' %>">
+
                                 <button class="<%= i === currentPage ? 'active' : '' %>"><%= i %></button>
                             </a>
                         <% } %>

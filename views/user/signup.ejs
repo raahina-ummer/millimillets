@@ -415,7 +415,7 @@
         <h2 class="text-center">CREATE ACCOUNT</h2>
         <p class="text-center form-subtitle">Join us for a healthier lifestyle</p>
 
-        <form id="signForm" action="/signup" method="POST" onsubmit="return submitForm()">
+        <form id="signForm">
         
           <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>
@@ -447,15 +447,19 @@
 
           <div class="mb-3">
             <label for="phone" class="form-label">Mobile Number</label>
-            <input
-              type="tel"
-              class="form-control"
-              id="phone"
-              name="phone"
-              placeholder="10-digit mobile number"
-              onblur="validatePhone()" 
-              required
-            />
+         <input
+  type="tel"
+  class="form-control"
+  id="phone"
+  name="phone"
+  placeholder="10-digit mobile number"
+  maxlength="10"
+  pattern="[6-9][0-9]{9}"
+  oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+  onblur="validatePhone()"
+  required
+/>
+
             <span id="phoneError" class="error-message"></span>
           </div>
 
@@ -497,7 +501,7 @@
                 type="text"
                 class="form-control"
                 id="referralCode"
-                name="referralCode"
+                name="referralcode"
                 placeholder="Enter referral code"
                 style="text-transform: uppercase;"
               />
@@ -508,9 +512,10 @@
           </div>
 
           <div class="d-grid">
-            <button type="submit" class="btn submit-btn">
-              Create Account
-            </button>
+          <button type="submit" class="btn submit-btn">
+  Create Account
+</button>
+
           </div>
         </form>
 
@@ -559,7 +564,72 @@
 
    <%- include('../partials/user/footer.ejs') %>
 
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+
+document.getElementById("signForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  // frontend validation first
+  if (
+    !validateName() ||
+    !validateEmail() ||
+    !validatePhone() ||
+    !validatePassword() ||
+    !validateConfirmPassword()
+  ) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Form",
+      text: "Please fix the highlighted errors",
+    });
+    return;
+  }
+
+  const formData = new URLSearchParams(new FormData(this));
+
+  try {
+    const response = await fetch("/signup", {
+      method: "POST",
+      headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+  },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      Swal.fire({
+        icon: "error",
+        title: "Signup Failed",
+        text: data.message,
+      });
+      return;
+    }
+
+    // success → go to OTP page
+    Swal.fire({
+      icon: "success",
+      title: "OTP Sent",
+      text: "Please verify the OTP sent to your email",
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => {
+      window.location.href = "/verifyOtp";
+    });
+
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Something went wrong. Please try again.",
+    });
+  }
+});
+
+
       function togglePasswordVisibility(inputId) {
         const passwordInput = document.getElementById(inputId);
         if (passwordInput.type === 'password') {
@@ -609,22 +679,24 @@
         }
       }
 
-      function validatePhone() {
-        const phone = document.getElementById("phone").value.trim();
-        const phonePattern = /^\d{10}$/; 
-        const isValid = phonePattern.test(phone);
-        
-        if (phone === "") {
-          displayError("phoneError", "Phone number is required");
-          return false;
-        } else if (!isValid) {
-          displayError("phoneError", "Enter a valid 10-digit phone number");
-          return false;
-        } else {
-          displayError("phoneError", "");
-          return true;
-        }
-      }
+  function validatePhone() {
+  const phone = document.getElementById("phone").value.trim();
+  const phonePattern = /^[6-9]\d{9}$/;
+
+  if (phone === "") {
+    displayError("phoneError", "Phone number is required");
+    return false;
+  } else if (!phonePattern.test(phone)) {
+    displayError(
+      "phoneError",
+      "Enter a valid 10-digit mobile number starting with 6–9"
+    );
+    return false;
+  } else {
+    displayError("phoneError", "");
+    return true;
+  }
+}
 
       function validatePassword() {
         const password = document.getElementById("password").value;
@@ -671,24 +743,7 @@
         }
       }
 
-      function submitForm() {
-        const isValidName = validateName();
-        const isValidEmail = validateEmail();
-        const isValidPhone = validatePhone();
-        const isValidPassword = validatePassword();
-        const isValidConfirmPassword = validateConfirmPassword();
-        
-        if (isValidName && isValidEmail && isValidPhone && isValidPassword && isValidConfirmPassword) {
-          return true; 
-        } else {
-          const firstError = document.querySelector('.error-message.show');
-          if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          alert("Please fix the errors in the form before submitting.");
-          return false;
-        }
-      }
+      
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>

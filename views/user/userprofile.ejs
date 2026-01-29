@@ -518,7 +518,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="stats-grid">
+    <!-- <div class="stats-grid">
       <div class="stat-card">
         <i class="fas fa-shopping-bag"></i>
         <h3>
@@ -542,7 +542,7 @@
       </div>
 
  
-    </div>
+    </div> -->
 
     <!-- Profile Card -->
     <div class="profile-card">
@@ -551,10 +551,14 @@
 
           <div class="profile-photo-container">
   <label for="profileImageInput" class="upload-label">
-    <img id="profileImagePreview" 
-         src="<%= user.profileImage || '/images/default-avatar.png' %>" 
-         alt="Profile Photo" 
-         class="profile-photo">
+ <img 
+  id="profileImagePreview"
+  src="<%= user.profileImage || '/millimillets-img/default-profile.webp' %>"
+  onerror="this.src=' /default-profile.png'"
+  alt="Profile Photo"
+  class="profile-photo"
+/>
+
     <div class="overlay">Change</div>
   </label>
   <input type="file" id="profileImageInput" onchange="previewImage(event)" accept="image/*" hidden>
@@ -564,19 +568,6 @@
 
 
 
-
-        <!-- <div class="profile-image-section">
-          <div class="profile-image-preview" id="imageContainer">
-            <% if (user.profileImage) { %>
-              <img src="<%= user.profileImage %>" alt="Profile Picture" id="profileImagePreview">
-              <% } else { %>
-                <div class="default-avatar" id="defaultAvatar">
-                  <i class="fas fa-user"></i>
-                </div>
-                <img src="" alt="Profile Picture" id="profileImagePreview" style="display: none;">
-                <% } %>
-          </div>
-        </div> -->
 
 
 
@@ -612,18 +603,6 @@
             </div>
 
 
-            <div class="info-item">
-              <div class="info-icon">
-                <i class="fas fa-birthday-cake"></i>
-              </div>
-              <div class="info-content">
-                <div class="info-label">Date of Birth</div>
-                <div class="info-value">
-                  <%= user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
-                    day: 'numeric' }) : 'Not provided' %>
-                </div>
-              </div>
-            </div>
 
 
 

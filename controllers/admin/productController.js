@@ -1,6 +1,5 @@
 import Product from "../../models/ProductSchema.js";
 import Category from "../../models/CategorySchema.js";
-import User from "../../models/userSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import fs from "fs";
@@ -9,7 +8,78 @@ import sharp from "sharp";
 import mongoose from "mongoose";
 import { MongoExpiredSessionError } from "mongodb";
 import { adminAuth } from "../../middleware/auth.js";
-import logger from '../../utils/logger.js';
+import logger from "../../utils/logger.js";
+
+const getAllProducts = async (req, res) => {
+  try {
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+
+    const productData = await Product.find({
+      productName: { $regex: new RegExp(search, "i") },
+    })
+      .populate("category")
+      .sort({ createdAt: -1 });
+
+    const now = new Date();
+
+    const productList = [];
+
+    productData.forEach((product) => {
+      const offer = product.productOffer;
+
+      const hasOffer =
+        offer &&
+        offer.offerActive &&
+        (!offer.offerStartDate || new Date(offer.offerStartDate) <= now) &&
+        (!offer.offerEndDate || new Date(offer.offerEndDate) >= now);
+
+      product.variant.forEach((variant) => {
+        productList.push({
+          _id: product._id,
+          productName: product.productName,
+          description: product.description,
+          category: product.category,
+          gst: product.gst,
+          productImage: product.productImage,
+
+          status: product.status || "Available",
+          isBlocked: product.isBlocked || false,
+          isListed: !product.isBlocked,
+
+          variant: [variant],
+
+          hasOffer,
+          activeOffer: hasOffer ? offer : null,
+
+          finalPrice: variant.salePrice,
+        });
+      });
+    });
+
+    const totalCount = productList.length;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const startIndex = (page - 1) * limit;
+    const paginatedProducts = productList.slice(startIndex, startIndex + limit);
+
+    const category = await Category.find({ isListed: true });
+
+    res.render("product", {
+      data: paginatedProducts,
+      currentPage: page,
+      totalCategories: totalCount,
+      totalPages,
+      cat: category,
+      search,
+      adminProfile: "",
+    });
+  } catch (error) {
+    console.log(error);
+    res.render("500");
+  }
+};
 
 const getProductAddPage = async (req, res) => {
   try {
@@ -17,103 +87,67 @@ const getProductAddPage = async (req, res) => {
     res.render("add-product", { cat: category });
   } catch (error) {
     console.log("Error: " + error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-// 
+//
 
 const addProducts = async (req, res) => {
   try {
     console.log("Add Product invoked");
-    const {
-      productName,
-      description,
-      category,
-      weight,
-      gst,
-      stock,
-      regularPrice,
-      salePrice,
-      unit,
-      date
-    } = req.body;
+    const { productName, description, category, gst, variants } = req.body;
     const images = req.files;
 
     // Validation - Required fields
-    if (!productName || !description || !category || !weight || !gst || !stock || !regularPrice) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Missing required fields" 
+    if (!productName || !description || !category || !gst) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.MISSING_REQUIRED_FIELDS,
       });
     }
 
-    // Validation - Numeric values
-    if (parseFloat(weight) <= 0) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Weight must be positive" 
-      });
-    }
-    if (parseFloat(regularPrice) <= 0) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Regular price must be positive" 
-      });
-    }
-    if (parseInt(stock) < 0) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Stock must be non-negative" 
-      });
-    }
     if (parseFloat(gst) < 0 || parseFloat(gst) > 100) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "GST must be between 0 and 100" 
-      });
-    }
-
-    // Validation - Sale price
-    if (salePrice && parseFloat(salePrice) > parseFloat(regularPrice)) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Sale price cannot be greater than regular price" 
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.INVALID_GST,
       });
     }
 
     // Category validation
     const categoryDoc = await Category.findOne({ name: category });
     if (!categoryDoc) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Invalid category name" 
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.INVALID_CATEGORY,
       });
     }
 
     // Check for duplicate product
     const existingProduct = await Product.findOne({
-      productName: productName.trim()
+      productName: productName.trim(),
     });
     if (existingProduct) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Product already exists" 
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.ALREADY_EXISTS,
       });
     }
 
     // Image validation
-    if (!images || images.length === 0) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "At least one product image is required" 
+    if (!images || images.length < 3) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.IMAGE_REQUIRED,
       });
     }
 
     if (images.length > 4) {
-      return res.status(Status.BAD_REQUEST).json({ 
-        success: false, 
-        message: "Maximum 4 images allowed" 
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.IMAGE_MAX_LIMIT,
       });
     }
 
@@ -128,88 +162,97 @@ const addProducts = async (req, res) => {
     const imageFilenames = [];
     for (let file of images) {
       if (!validImageTypes.includes(file.mimetype)) {
-        return res.status(Status.BAD_REQUEST).json({ 
-          success: false, 
-          message: "Only image files (PNG, JPEG, JPG, WEBP) are allowed" 
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: message.PRODUCT.IMAGE_TYPE_INVALID,
         });
       }
       imageFilenames.push(file.filename);
+
+      let parsedVariants = variants;
+
+      if (variants && !Array.isArray(variants)) {
+        parsedVariants = Object.values(variants);
+      }
     }
 
     // Create variant array
-    const variantData = [
-      {
-        unitType: `${weight} ${unit || "grm"}`,
-        stock: parseInt(stock),
-        regularPrice: parseFloat(regularPrice),
-        salePrice: salePrice ? parseFloat(salePrice) : parseFloat(regularPrice)
+
+    if (!variants || !Array.isArray(variants) || variants.length === 0) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.VARIANT_REQUIRED,
+      });
+    }
+
+    let parsedVariants = variants;
+
+    // Convert object → array (FormData case)
+    if (variants && !Array.isArray(variants)) {
+      parsedVariants = Object.values(variants);
+    }
+
+    if (
+      !parsedVariants ||
+      !Array.isArray(parsedVariants) ||
+      parsedVariants.length === 0
+    ) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PRODUCT.VARIANT_REQUIRED,
+      });
+    }
+
+    const variantData = parsedVariants.map((v, index) => {
+      if (!v.weight || parseFloat(v.weight) <= 0) {
+        throw new Error(`Variant ${index + 1}: Invalid weight`);
       }
-    ];
+
+      if (!v.regularPrice || parseFloat(v.regularPrice) <= 0) {
+        throw new Error(`Variant ${index + 1}: Invalid regular price`);
+      }
+
+      if (v.salePrice && parseFloat(v.salePrice) > parseFloat(v.regularPrice)) {
+        throw new Error(
+          `Variant ${index + 1}: Sale price cannot exceed regular price`,
+        );
+      }
+
+      if (!v.stock || parseInt(v.stock) < 0) {
+        throw new Error(`Variant ${index + 1}: Invalid stock`);
+      }
+
+      return {
+        unitType: `${v.weight} ${v.unit || "grm"}`,
+        stock: parseInt(v.stock),
+        regularPrice: parseFloat(v.regularPrice),
+        salePrice: v.salePrice
+          ? parseFloat(v.salePrice)
+          : parseFloat(v.regularPrice),
+      };
+    });
 
     // Create new product
     const newProduct = new Product({
       productName: productName.trim(),
       description: description.trim(),
       category: categoryDoc._id,
-      date: date ? new Date(date) : new Date(),
       gst: parseFloat(gst),
       productImage: imageFilenames,
       variant: variantData,
-      status: "Available"
+      status: "Available",
     });
 
     await newProduct.save();
 
-  return res.redirect("/admin/products");
-
+    return res
+      .status(Status.OK)
+      .json({ success: true, message: message.PRODUCT.CREATED_SUCCESS });
   } catch (error) {
     console.error("Add product error:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, 
-      message: message.SERVER_ERROR,
-  });
-  }
-};
-
-const getAllProducts = async (req, res) => {
-  try {
-    const search = req.query.search || "";
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
-
-    const productData = await Product.find({
-      $or: [
-        { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
-      ],
-    })
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .populate("category")
-      .sort({ createdAt: -1 });
-
-    const count = await Product.countDocuments({
-      $or: [
-        { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
-      ],
-    });
-
-    const category = await Category.find({ isListed: true });
-
-    if (category) {
-      res.render("product", {
-        data: productData,
-        currentPage: page,
-        totalCategories: count,
-        totalPages: Math.ceil(count / limit),
-        cat: category,
-        search,
-        adminProfile: "",
-      });
-    } else {
-      res.render("pageerror");
-    }
-  } catch (error) {
-    console.log(error);
-    res.redirect("/admin/pageerror");
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -219,7 +262,9 @@ const blockProduct = async (req, res) => {
     await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/products");
   } catch (error) {
-   res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -229,7 +274,9 @@ const unblockProduct = async (req, res) => {
     await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
     res.redirect("/admin/products");
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -243,44 +290,51 @@ const getEditProduct = async (req, res) => {
       cat: category,
     });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
-
-
 
 const editProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    const {
-      productName,
-      description,
-      category,
-      gst,
-      variants // This will be an object like: { '0': {weight, unit, regularPrice, salePrice, stock}, '1': {...} }
-    } = req.body;
+    const { productName, description, category, gst, variants } = req.body;
     const images = req.files;
 
     const product = await Product.findById(id);
-    
-    // Parse variants from request body
-    const variantsArray = [];
-    if (variants) {
-      for (let key in variants) {
-        const v = variants[key];
-        if (v.weight && v.unit && v.regularPrice && v.stock) {
-          variantsArray.push({
-            unitType: `${v.weight} ${v.unit}`,
-            regularPrice: parseFloat(v.regularPrice),
-            salePrice: v.salePrice ? parseFloat(v.salePrice) : 0,
-            stock: parseInt(v.stock)
-          });
-        }
-      }
+    if (!product) {
+      throw new Error("Product not found");
     }
 
-    // Validation
+    // Parse variants from request body
+    const variantsArray = [];
+
+    if (!variants || Object.keys(variants).length === 0) {
+      throw new Error("At least one variant is required");
+    }
+
+    for (let key in variants) {
+      const v = variants[key];
+
+      if (
+        v.weight === undefined ||
+        v.unit === undefined ||
+        v.regularPrice === undefined ||
+        v.stock === undefined
+      ) {
+        throw new Error("Invalid variant data");
+      }
+
+      variantsArray.push({
+        _id: v._id || new mongoose.Types.ObjectId(),
+        unitType: `${v.weight} ${v.unit}`,
+        regularPrice: Number(v.regularPrice),
+        salePrice: v.salePrice ? Number(v.salePrice) : 0,
+        stock: Number(v.stock),
+      });
+    }
+
     if (!productName || !description || !category || !gst) {
       throw new Error("Missing required fields");
     }
@@ -292,8 +346,8 @@ const editProduct = async (req, res) => {
     // Validate each variant
     for (let i = 0; i < variantsArray.length; i++) {
       const v = variantsArray[i];
-      const weight = parseFloat(v.unitType.split(' ')[0]);
-      
+      const weight = parseFloat(v.unitType.split(" ")[0]);
+
       if (weight <= 0) {
         throw new Error(`Variant ${i + 1}: Weight must be positive`);
       }
@@ -304,17 +358,15 @@ const editProduct = async (req, res) => {
         throw new Error(`Variant ${i + 1}: Stock must be non-negative`);
       }
       if (v.salePrice && v.salePrice >= v.regularPrice) {
-        throw new Error(`Variant ${i + 1}: Sale price must be less than regular price`);
+        throw new Error(
+          `Variant ${i + 1}: Sale price must be less than regular price`,
+        );
       }
     }
 
-    const gstValue = parseFloat(gst.toString().replace('%', ''));
-    if (gstValue < 0 || gstValue > 100) {
-      throw new Error("GST must be between 0% and 100%");
-    }
-
-    if (!product) {
-      throw new Error("Product not found");
+    const gstValue = Number(gst);
+    if (isNaN(gstValue) || gstValue < 0 || gstValue > 100) {
+      throw new Error("GST must be between 0 and 100");
     }
 
     const categoryDoc = await Category.findOne({ name: category });
@@ -327,9 +379,10 @@ const editProduct = async (req, res) => {
       throw new Error("Product name already exists");
     }
 
-    const hasExistingImages = product.productImage && product.productImage.length > 0;
+    const hasExistingImages =
+      product.productImage && product.productImage.length > 0;
     const hasNewImages = images && images.length > 0;
-    
+
     if (!hasExistingImages && !hasNewImages) {
       throw new Error("At least one product image is required");
     }
@@ -343,31 +396,31 @@ const editProduct = async (req, res) => {
       productName,
       description,
       category: categoryDoc._id,
-      gst: gstValue.toString() + '%',
-      variant: variantsArray // Replace entire variant array
+      gst: gstValue,
+      variant: variantsArray,
     };
 
     // Add new images if any
     if (images && images.length > 0) {
-      const newImages = images.map(f => f.filename);
+      const newImages = images.map((f) => f.filename);
       updateData.productImage = [...(product.productImage || []), ...newImages];
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id, 
-      updateData, 
-      { new: true, runValidators: true }
-    );
-
-    res.status(Status.OK).json({ 
-      success: true, 
-      message: "Product updated successfully", 
-      product: updatedProduct 
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
     });
 
+    res.status(Status.OK).json({
+      success: true,
+      message: message.PRODUCT.UPDATED_SUCCESS,
+      product: updatedProduct,
+    });
   } catch (error) {
     console.error("Edit product error:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -379,15 +432,18 @@ const deleteSingleImage = async (req, res) => {
     if (!productIdToServer || !productIdToServer.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(Status.BAD_REQUEST).json({
         status: false,
-        error: "Invalid product ID"
+        error: "Invalid product ID",
       });
     }
 
-   
-    if (!imageNameToServer || imageNameToServer.includes('/') || imageNameToServer.includes('..')) {
+    if (
+      !imageNameToServer ||
+      imageNameToServer.includes("/") ||
+      imageNameToServer.includes("..")
+    ) {
       return res.status(Status.BAD_REQUEST).json({
         status: false,
-        error: "Invalid image name"
+        error: "Invalid image name",
       });
     }
 
@@ -396,31 +452,28 @@ const deleteSingleImage = async (req, res) => {
     if (!product) {
       return res.status(Status.BAD_REQUEST).json({
         status: false,
-        error: "Product not found"
+        error: message.PRODUCT.NOT_FOUND,
       });
     }
 
-    // Check if image exists in product's image 
+    // Check if image exists in product's image
     if (!product.productImage.includes(imageNameToServer)) {
       return res.status(Status.BAD_REQUEST).json({
         status: false,
-        error: "Image not found in product"
+        error: message.PRODUCT.IMAGE_NOT_FOUND,
       });
     }
 
-    
     if (product.productImage.length === 1) {
       return res.status(Status.BAD_REQUEST).json({
         status: false,
-        error: "Cannot delete the last image. A product must have at least one image."
+        error: message.PRODUCT.IMAGE_DELETE_LAST_NOT_ALLOWED,
       });
     }
 
-   
-
     // Remove from database
     await Product.findByIdAndUpdate(productIdToServer, {
-      $pull: { productImage: imageNameToServer }
+      $pull: { productImage: imageNameToServer },
     });
 
     // Delete file from filesystem
@@ -428,7 +481,7 @@ const deleteSingleImage = async (req, res) => {
       "public",
       "upload",
       "product-images",
-      imageNameToServer
+      imageNameToServer,
     );
 
     //  fs.promises for proper async handling
@@ -438,20 +491,19 @@ const deleteSingleImage = async (req, res) => {
       }
     } catch (fileError) {
       console.error("File deletion error:", fileError);
-      
     }
 
     return res.status(Status.OK).json({
       status: true,
-      message: "Image deleted successfully"
+      message: "Image deleted successfully",
     });
-
   } catch (error) {
     console.error("Delete image error:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 
 // Get product offer
 export const getProductOffer = async (req, res) => {
@@ -460,23 +512,26 @@ export const getProductOffer = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.Status(Status.BAD_REQUEST).json({ success: false, message:message.PRODUCT_NOT_FOUND  });
+      return res
+        .Status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.PRODUCT_NOT_FOUND });
     }
 
     res.Status(Status.OK).json({
       success: true,
-      offer: product.productOffer || {}
+      offer: product.productOffer || {},
     });
   } catch (error) {
-    console.error('Error fetching offer:', error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    console.error("Error fetching offer:", error);
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 // Update/Create product offer
 const updateProductOffer = async (req, res) => {
   try {
-
     const { productId } = req.params;
     const {
       discountPercentage,
@@ -484,21 +539,25 @@ const updateProductOffer = async (req, res) => {
       offerDescription,
       offerActive,
       offerStartDate,
-      offerEndDate
+      offerEndDate,
     } = req.body;
 
     // Validation
     if (discountPercentage < 0 || discountPercentage > 100) {
       return res.Status(Status.BAD_REQUEST).json({
         success: false,
-        message: 'Discount must be between 0 and 100'
+        message: "Discount must be between 0 and 100",
       });
     }
 
-    if (offerStartDate && offerEndDate && new Date(offerStartDate) > new Date(offerEndDate)) {
+    if (
+      offerStartDate &&
+      offerEndDate &&
+      new Date(offerStartDate) > new Date(offerEndDate)
+    ) {
       return res.Status(Status.BAD_REQUEST).json({
         success: false,
-        message: 'Start date cannot be after end date'
+        message: "Start date cannot be after end date",
       });
     }
 
@@ -507,36 +566,36 @@ const updateProductOffer = async (req, res) => {
       {
         productOffer: {
           discountPercentage: parseInt(discountPercentage) || 0,
-          maxDiscountAmount: maxDiscountAmount ? parseInt(maxDiscountAmount) : null,
+          maxDiscountAmount: maxDiscountAmount
+            ? parseInt(maxDiscountAmount)
+            : null,
           offerDescription,
-          offerActive: offerActive === true || offerActive === 'true',
+          offerActive: offerActive === true || offerActive === "true",
           offerStartDate: offerStartDate ? new Date(offerStartDate) : null,
-          offerEndDate: offerEndDate ? new Date(offerEndDate) : null
-        }
+          offerEndDate: offerEndDate ? new Date(offerEndDate) : null,
+        },
       },
-      { new: true }
+      { new: true },
     );
 
-
     if (!product) throw new Error("Product not found");
 
     if (!product) throw new Error("Product not found");
-    product.salePrice = product.regularPrice - ((product.regularPrice * offerData.discountPercentage) / 100);
 
     await product.save();
 
-
     res.Status(Status.OK).json({
       success: true,
-      message: 'Offer updated successfully',
-      product
+      message: "Offer updated successfully",
+      product,
     });
   } catch (error) {
-    console.error('Error updating offer:', error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    console.error("Error updating offer:", error);
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 
 const loadProductOffer = async (req, res) => {
   try {
@@ -544,19 +603,22 @@ const loadProductOffer = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.Status(Status.BAD_REQUEST).json({ success: false, message: 'Product not found' });
+      return res
+        .Status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.PRODUCT.NOT_FOUND });
     }
 
     res.Status(Status.OK).json({
       success: true,
-      offer: product.productOffer || {}
+      offer: product.productOffer || {},
     });
   } catch (error) {
-    console.error('Error fetching offer:', error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    console.error("Error fetching offer:", error);
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 
 export {
   getProductAddPage,

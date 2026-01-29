@@ -59,7 +59,7 @@
 
     <div class="main-container">
         <div class="header-section">
-            <img src="/milli millets img/logo.jpg" alt="Logo" class="brand-logo" />
+           
             <h1 class="brand-name">MILLIMILLET</h1>
         </div>
 
@@ -107,6 +107,10 @@
                 const seconds = timer % 60;
                 document.getElementById("timerValue").textContent =
                     `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                    if (timer === 0) {
+  document.getElementById("verifyBtn").disabled = true;
+}
+
                 if(timer <= 0){
                     clearInterval(timerInterval);
                       document.getElementById("resent-otp").disabled = false;
@@ -199,48 +203,69 @@
             return false;
         }
 
-        async function resendOTP(){
-            timer = 60;
-            document.getElementById("resent-otp").disabled = true;
-            document.getElementById("timerValue").classList.remove("expired");
-            document.querySelectorAll(".otp-input").forEach(input=>{
-                input.disabled = false;
-                input.value = '';
-            });
-            document.getElementById("otp1").focus();
-            startTimer();
+       async function resendOTP() {
+  timer = 60;
+  document.getElementById("resent-otp").disabled = true;
+  document.getElementById("timerValue").classList.remove("expired");
 
-            try {
-                const response = await fetch("/resendOtp", { method: "POST" });
-                const data = await response.json();
-                console.log("Response Data is :",data)
+  document.querySelectorAll(".otp-input").forEach(input => {
+    input.disabled = false;
+    input.value = "";
+  });
 
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "OTP Resent",
-                        text: "Please check your email",
-                        showConfirmButton: false,
-                        timer: 2000,
-                        position: "center",
-                        toast: true
-                    });
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: "An error occurred while resending OTP. Please try again."
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Network Error",
-                    text: "Failed to resend OTP. Please try again later."
-                });
-            }
-            return false;
-        }
+  document.getElementById("otp1").focus();
+  startTimer();
+
+  const OTPTYPE = "<%= otpType %>";
+  let PATH;
+  let METHOD = "POST";
+
+  switch (OTPTYPE) {
+    case "SIGNUP_OTP":
+      PATH = "/resendSignupOtp";
+      break;
+
+    case "FORGET_PASSWORD":
+      PATH = "/resendForgotOtp";
+      break;
+
+    case "CHANGE_EMAIL":
+      PATH = "/resendOtpEmail";
+      METHOD = "GET";
+      break;
+
+    default:
+      console.error("Unknown OTP type");
+      return;
+  }
+
+  try {
+    const response = await fetch(PATH, {
+      method: METHOD,
+      credentials: "include",
+    });
+
+    const data = await response.json();
+    console.log("Resend OTP:", data);
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "OTP Resent",
+        text: "Please check your email",
+        showConfirmButton: false,
+        timer: 2000,
+        toast: true,
+        position: "center",
+      });
+    } else {
+      Swal.fire("Error", data.message || "Failed to resend OTP", "error");
+    }
+  } catch (error) {
+    Swal.fire("Network Error", "Please try again later", "error");
+  }
+}
+
     </script>
 </body>
 </html>

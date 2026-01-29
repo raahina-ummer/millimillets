@@ -16,31 +16,37 @@
     }
 
     .page-header {
-      background: linear-gradient(135deg, #6D5A43 0%, #8B7355 50%, #A0826D 100%);
-      color: white;
-      padding: 30px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 20px rgba(117, 94, 69, 0.25);
-    }
+  background: linear-gradient(135deg, #6D5A43 0%, #8B7355 50%, #A0826D 100%);
+  color: white;
+  padding: 20px 28px;              /* reduce vertical height */
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(117, 94, 69, 0.25);
 
-    .page-header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+  display: flex;                   /* KEY FIX */
+  align-items: center;             /* vertical centering */
+  gap: 20px;
+}
 
-    .order-id-badge {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 16px;
-      font-weight: 600;
-      backdrop-filter: blur(10px);
-    }
+
+  .page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;                       /* IMPORTANT */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+   .order-id-badge {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 
     .back-btn {
       background: rgba(255, 255, 255, 0.15);
@@ -88,12 +94,14 @@
       color: #8B7355;
     }
 
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid #f9f6f1;
-    }
+ .info-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f2ede6;
+}
 
     .info-row:last-child {
       border-bottom: none;
@@ -108,8 +116,11 @@
     .info-value {
       color: #4a403a;
       font-size: 14px;
-      text-align: right;
+      text-align: left;
     }
+.container {
+  max-width: 1200px;
+}
 
     .status-badge {
       padding: 6px 14px;
@@ -140,7 +151,7 @@
       color: #059669;
     }
 
-    .status-badge.cancelled, .status-badge.canceled {
+    .status-badge.cancelled, .status-badge.cancelled {
       background: #fee2e2;
       color: #dc2626;
     }
@@ -589,6 +600,8 @@
     text-decoration: underline;
 }
 
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .address-card,
@@ -629,10 +642,9 @@
       }
 
       .info-row {
-        flex-direction: column;
-        gap: 5px;
-      }
-
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
       .info-value {
         text-align: left;
       }
@@ -679,7 +691,7 @@
           </div>
           <div class="info-row">
             <span class="info-label">Order Date</span>
-            <span class="info-value"><%= new Date(order.createdOn).toLocaleString('en-US', { 
+            <span class="info-value"><%= new Date(order.createdAt).toLocaleString('en-US', { 
               month: 'short', day: 'numeric', year: 'numeric', 
               hour: '2-digit', minute: '2-digit' 
             }) %></span>
@@ -740,44 +752,7 @@
           </div>
         </div>
 
-        <!-- Shipping Address
-        <div class="info-card">
-          <h3 class="card-title">
-            <i class="fas fa-map-marker-alt"></i>
-            Shipping Address
-          </h3>
-          <div class="info-row">
-            <span class="info-label">Recipient</span>
-            <span class="info-value"><%= order.address.name %> </span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Phone</span>
-            <span class="info-value"><%= order.address.phone %></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Address</span>
-            <span class="info-value"><%= order.address.address %></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">City</span>
-            <span class="info-value"><%= order.address.city %></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">State</span>
-            <span class="info-value"><%= order.address.state %></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">PIN Code</span>
-            <span class="info-value"><%= order.address.pinCode %></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Country</span>
-            <span class="info-value"><%= order.address.country %></span>
-          </div>
-        </div> -->
-
-
-
+      
 
         <div class="detail-section shipping-address">
     <div class="section-header">
@@ -834,14 +809,21 @@
   </h3>
   <% if (order.orderedProducts && order.orderedProducts.length > 0) { %>
     <% order.orderedProducts.forEach(item => { %>
-      <div class="product-item">
-        <% if (item.product?.productImage?.[0]?.path) { %>
-          <img src="/<%= item.product.productImage[0].path %>" alt="<%= item.product.productName %>" class="product-image" />
-        <% } else { %>
-          <div class="product-image" style="background: #E8DCC4; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-image" style="color: #8B7355; font-size: 24px;"></i>
-          </div>
-        <% } %>
+     <div class="product-item">
+  <% if (item.product?.productImage?.[0]) { %>
+    <img
+      src="/uploads/images/<%= item.product.productImage[0] %>"
+      alt="<%= item.product.productName %>"
+      class="product-image"
+    />
+  <% } else { %>
+    <div class="product-image"
+      style="background:#E8DCC4;display:flex;align-items:center;justify-content:center;">
+      <i class="fas fa-image" style="color:#8B7355;font-size:24px;"></i>
+    </div>
+  <% } %>
+
+
         
         <div class="product-details">
           <div class="product-name"><%= item.product?.productName || 'Product' %></div>
@@ -855,6 +837,36 @@
               <%= item.status || 'Active' %>
             </span>
           </div>
+     <% if (item.status === 'Return Requested') { %>
+  <div class="mt-3" style="display:flex; gap:10px;">
+    <button
+      class="btn btn-success btn-sm"
+      onclick="handleReturnAction(
+        '<%= order.orderId %>',
+        '<%= item.product._id %>',
+        '<%= item.variantId %>',
+        'approve'
+      )">
+      ✔ Approve Return
+    </button>
+
+    <button
+      class="btn btn-danger btn-sm"
+      onclick="handleReturnAction(
+        '<%= order.orderId %>',
+        '<%= item.product._id %>',
+        '<%= item.variantId %>',
+        'reject'
+      )">
+      ✖ Reject Return
+    </button>
+  </div>
+<% } else if (item.status === 'Returned') { %>
+  <small class="text-muted">Return processed</small>
+<% } %>
+
+
+
           <% if (item.cancelReason) { %>
             <div style="font-size: 12px; color: #dc2626; margin-top: 8px;">
               <i class="fas fa-exclamation-circle"></i> Reason: <%= item.cancelReason %>
@@ -876,7 +888,7 @@
           <div class="amount-summary">
             <div class="amount-row">
               <span>Subtotal</span>
-              <span>₹<%= order.totalPrice?.toFixed(2) || '0.00' %></span>
+              ₹<%= order.adminSummary.subtotal.toFixed(2) %>
             </div>
             <% if (order.discount > 0) { %>
             <div class="amount-row discount">
@@ -887,14 +899,23 @@
             <% if (order.couponApplied && order.couponDiscount > 0) { %>
             <div class="amount-row discount">
               <span>Coupon Discount</span>
-              <span>-₹<%= order.couponDiscount.toFixed(2) %></span>
+           
+-₹<%= order.adminSummary.couponDiscount.toFixed(2) %>
             </div>
             <% } %>
             <div class="amount-row total">
               <span>Final Amount</span>
-              <span>₹<%= order.finalAmount?.toFixed(2) || '0.00' %></span>
+             
+₹<%= order.adminSummary.finalAmount.toFixed(2) %>
             </div>
           </div>
+          <% if (order.refundAmount > 0) { %>
+  <div class="amount-row discount">
+    <span>Refunded</span>
+    <span>₹<%= order.refundAmount.toFixed(2) %> (Wallet)</span>
+  </div>
+<% } %>
+
         </div>
 
         <!-- Order Timeline -->
@@ -908,7 +929,7 @@
               <div class="timeline-content active">
                 <div class="timeline-title">Order Placed</div>
                 <div class="timeline-date">
-                  <%= new Date(order.createdOn).toLocaleString() %>
+                  <%= new Date(order.createdAt).toLocaleString() %>
                 </div>
               </div>
             </div>
@@ -933,13 +954,29 @@
               </div>
             </div>
             <% } %>
-            <% if (order.status === 'Canceled') { %>
+            <% if (order.status === 'Cancelled') { %>
             <div class="timeline-item">
               <div class="timeline-content" style="border-left-color: #dc2626;">
                 <div class="timeline-title" style="color: #dc2626;">Cancelled</div>
               </div>
             </div>
             <% } %>
+            <% if (order.status === 'Return Requested') { %>
+<div class="timeline-item active">
+  <div class="timeline-content active">
+    <div class="timeline-title">Return Requested</div>
+  </div>
+</div>
+<% } %>
+
+<% if (order.status === 'Returned') { %>
+<div class="timeline-item active">
+  <div class="timeline-content active">
+    <div class="timeline-title">Returned</div>
+  </div>
+</div>
+<% } %>
+
           </div>
         </div>
       </div>
@@ -948,56 +985,52 @@
 
   <script src="/js/admin/adminNav.js"></script>
   <script>
- function updateItemStatus(orderId, itemIndex, newStatus) {
-  if (!newStatus) return;
+// 
+async function handleReturnAction(orderId, productId, variantId, action) {
+  // disable all return buttons immediately
+  document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
 
-  Swal.fire({
-    title: 'Update Item Status',
-    text: `Change item status to ${newStatus}?`,
-    icon: 'question',
+  const { value: notes } = await Swal.fire({
+    title: action === 'approve' ? 'Approve Return?' : 'Reject Return?',
+    input: 'textarea',
+    inputPlaceholder: 'Admin notes (optional)',
     showCancelButton: true,
-    confirmButtonColor: '#8B7355',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Yes, Update',
-    reverseButtons: true
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Send PATCH request to update order item
-      fetch(`/admin/adminorder/${orderId}/status`, {
+    confirmButtonText: 'Confirm',
+    confirmButtonColor: '#8B7355'
+  });
+
+  if (notes === undefined) {
+    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `/admin/adminorder/${orderId}/return/${productId}/${variantId}`,
+      {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itemIndex, newStatus })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire({
-            title: 'Updated!',
-            text: 'Item status has been updated.',
-            icon: 'success',
-            confirmButtonColor: '#8B7355'
-          }).then(() => location.reload());
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: data.message || 'Failed to update item status.',
-            icon: 'error',
-            confirmButtonColor: '#8B7355'
-          });
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        Swal.fire({
-          title: 'Error!',
-          text: 'Something went wrong.',
-          icon: 'error',
-          confirmButtonColor: '#8B7355'
-        });
-      });
+        body: JSON.stringify({ action, notes })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire('Success', data.message, 'success')
+        .then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+      document.querySelectorAll('button').forEach(btn => btn.disabled = false);
     }
-  });
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Something went wrong', 'error');
+    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+  }
 }
+
+
 
 </script>
 </body>

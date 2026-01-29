@@ -617,7 +617,7 @@
                     <div class="order-detail-row">
                         <span class="order-detail-label">Order Date:</span>
                         <span class="order-detail-value">
-                            <%= new Date(order.orderDate).toLocaleDateString('en-IN', { 
+                            <%= new Date(order.createdAt).toLocaleDateString('en-IN', { 
                                 weekday: 'long',
                                 year: 'numeric', 
                                 month: 'long', 
@@ -712,23 +712,36 @@
             </div>
             
             <!-- Action Buttons -->
-            <div class="action-buttons">
-                <% if (order) { %>
-  <button onclick="retryPayment('<%= order.orderId %>', '<%= order.finalAmount %>')" class="btn-danger-custom">
-    <i class="fas fa-redo"></i>
-    Retry Payment
+           <div class="action-buttons">
+
+   <% if (
+      order &&
+      order.paymentMethod === 'Razorpay' &&
+      order.paymentStatus !== 'Completed'
+   ) { %>
+
+   <button type="button" class="btn-primary-custom"
+    onclick="retryPayment('<%= order.orderId %>')">
+    <i class="fas fa-redo"></i> Retry Payment
 </button>
-                <a href="/orders/<%= order.orderId %>" class="btn-outline-custom">
-                    <i class="fas fa-receipt"></i>
-                    View Order Details
-                </a>
-                <% } %>
-                <a href="/shop" class="btn-primary-custom">
-                    <i class="fas fa-shopping-cart"></i>
-                    Continue Shopping
-                </a>
-            </div>
-            
+
+
+   <% } %>
+
+   <% if (order) { %>
+     <a href="/orders/<%= order.orderId %>" class="btn-outline-custom">
+        <i class="fas fa-receipt"></i>
+        View Order Details
+     </a>
+   <% } %>
+
+   <a href="/shop" class="btn-primary-custom">
+      <i class="fas fa-shopping-cart"></i>
+      Continue Shopping
+   </a>
+
+</div>
+
             <!-- Support Section -->
             <div class="support-section">
                 <h3 class="support-title">Need Help? We're Here for You!</h3>

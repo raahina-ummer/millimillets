@@ -731,16 +731,13 @@
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <button class="action-btn btn-edit" 
-                                                        onclick="editCategoryOffer('<%= category._id %>', '<%= category.name %>')">
-                                                    <i class="fas fa-edit"></i>
-                                                    Edit
-                                                </button>
+                                              
                                                 <button class="action-btn btn-toggle <%= category.categoryOffer.offerActive ? '' : 'inactive' %>" 
-                                                        onclick="toggleCategoryOffer('<%= category._id %>', <%= category.categoryOffer.offerActive %>)">
-                                                    <i class="fas <%= category.categoryOffer.offerActive ? 'fa-pause' : 'fa-play' %>"></i>
-                                                    <%= category.categoryOffer.offerActive ? 'Deactivate' : 'Activate' %>
-                                                </button>
+    onclick="toggleCategoryOffer('<%= category._id %>', <%= category.categoryOffer.offerActive %>)">
+    <i class="fas <%= category.categoryOffer.offerActive ? 'fa-pause' : 'fa-play' %>"></i>
+    <%= category.categoryOffer.offerActive ? 'Deactivate' : 'Activate' %>
+</button>
+
                                                 <button class="action-btn btn-remove" 
                                                         onclick="removeCategoryOffer('<%= category._id %>')">
                                                     <i class="fas fa-trash"></i>
@@ -846,11 +843,7 @@
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <button class="action-btn btn-edit" 
-                                                        onclick="editProductOffer('<%= product._id %>', '<%= product.productName %>')">
-                                                    <i class="fas fa-edit"></i>
-                                                    Edit
-                                                </button>
+                                                
                                                 <button class="action-btn btn-toggle <%= product.productOffer.offerActive ? '' : 'inactive' %>" 
                                                         onclick="toggleProductOffer('<%= product._id %>', <%= product.productOffer.offerActive %>)">
                                                     <i class="fas <%= product.productOffer.offerActive ? 'fa-pause' : 'fa-play' %>"></i>
@@ -887,111 +880,7 @@
         
 <!-- </div> Closing main-content div -->
 
-<!-- Category Offer Modal -->
-<div id="offerModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeCategoryOfferModal()">&times;</span>
-        <h2>Edit Category Offer</h2>
-        <form id="offerForm">
-            <input type="hidden" id="categoryId" name="categoryId" />
-            <div class="form-group full">
-                <label for="categoryTitle">Category Name</label>
-                <input type="text" id="categoryTitle" disabled style="background-color: #f5f5f5; cursor: not-allowed;" />
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="discountPercentage">Discount %</label>
-                    <input type="number" id="discountPercentage" name="discountPercentage" min="0" max="100" placeholder="0" />
-                    <div id="discountError" class="error-message">Discount must be between 0 and 100</div>
-                </div>
-                <div class="form-group">
-                    <label for="maxDiscountAmount">Max Discount (₹)</label>
-                    <input type="number" id="maxDiscountAmount" name="maxDiscountAmount" min="0" placeholder="0" />
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="offerDescription">Description</label>
-                    <input type="text" id="offerDescription" name="offerDescription" placeholder="e.g., Festival Sale" />
-                </div>
-                <div class="form-group">
-                    <label for="offerActive">Status</label>
-                    <select id="offerActive" name="offerActive">
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="offerStartDate">Start Date</label>
-                    <input type="date" id="offerStartDate" name="offerStartDate" />
-                </div>
-                <div class="form-group">
-                    <label for="offerEndDate">End Date</label>
-                    <input type="date" id="offerEndDate" name="offerEndDate" />
-                </div>
-            </div>
-            <div class="btn-group">
-                <button type="submit" class="btn btn-primary">Save Offer</button>
-                <button type="button" class="btn btn-secondary" onclick="closeCategoryOfferModal()">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
 
-<!-- Product Offer Modal -->
-<div id="productOfferModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeProductOfferModal()">&times;</span>
-        <h2>Edit Product Offer</h2>
-        <form id="productOfferForm">
-            <input type="hidden" id="productId" name="productId" />
-            <div class="form-group full">
-                <label for="productTitle">Product Name</label>
-                <input type="text" id="productTitle" disabled style="background-color: #f5f5f5; cursor: not-allowed;" />
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="productDiscountPercentage">Discount %</label>
-                    <input type="number" id="productDiscountPercentage" name="discountPercentage" min="0" max="100" placeholder="0" />
-                    <div id="productDiscountError" class="error-message">Discount must be between 0 and 100</div>
-                </div>
-                <div class="form-group">
-                    <label for="productMaxDiscountAmount">Max Discount (₹)</label>
-                    <input type="number" id="productMaxDiscountAmount" name="maxDiscountAmount" min="0" placeholder="0" />
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="productOfferDescription">Description</label>
-                    <input type="text" id="productOfferDescription" name="offerDescription" placeholder="e.g., Festival Sale" />
-                </div>
-                <div class="form-group">
-                    <label for="productOfferActive">Status</label>
-                    <select id="productOfferActive" name="offerActive">
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="productOfferStartDate">Start Date</label>
-                    <input type="date" id="productOfferStartDate" name="offerStartDate" />
-                </div>
-                <div class="form-group">
-                    <label for="productOfferEndDate">End Date</label>
-                    <input type="date" id="productOfferEndDate" name="offerEndDate" />
-                </div>
-            </div>
-            <div class="btn-group">
-                <button type="submit" class="btn btn-primary">Save Offer</button>
-                <button type="button" class="btn btn-secondary" onclick="closeProductOfferModal()">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
 
 
 
@@ -1018,13 +907,7 @@
     const productForm = document.getElementById('productOfferForm');
 
     // ============ CATEGORY OFFER FUNCTIONS ============
-    function editCategoryOffer(categoryId, categoryName) {
-        document.getElementById('categoryId').value = categoryId;
-        document.getElementById('categoryTitle').value = categoryName;
-        categoryModal.style.display = 'block';
-        fetchCategoryOfferData(categoryId);
-    }
-
+  
     function closeCategoryOfferModal() {
         categoryModal.style.display = 'none';
         categoryForm.reset();
@@ -1112,13 +995,7 @@
         }
     });
 
-    // ============ PRODUCT OFFER FUNCTIONS ============
-    function editProductOffer(productId, productName) {
-        document.getElementById('productId').value = productId;
-        document.getElementById('productTitle').value = productName;
-        productModal.style.display = 'block';
-        fetchProductOfferData(productId);
-    }
+
 
     function closeProductOfferModal() {
         productModal.style.display = 'none';
@@ -1210,27 +1087,55 @@
  
 
     // ============ ACTION FUNCTIONS ============
-    function toggleCategoryOffer(categoryId, isActive) {
-        const action = isActive ? 'deactivate' : 'activate';
-        Swal.fire({
-            title: `${isActive ? 'Deactivate' : 'Activate'} Category Offer`,
-            text: `Are you sure you want to ${action} this category offer?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#8b7355',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: `Yes, ${action} it!`
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Implement toggle functionality
-                fetch(`/admin/category-offer/toggle`, {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ categoryId, offerActive: !isActive })
-                }).then(() => location.reload());
+   function toggleCategoryOffer(categoryId, isActive) {
+    const action = isActive ? 'deactivate' : 'activate';
+
+    Swal.fire({
+        title: `${isActive ? 'Deactivate' : 'Activate'} Category Offer`,
+        text: `Are you sure you want to ${action} this category offer?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#8b7355',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: `Yes, ${action} it!`
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        try {
+            const res = await fetch('/admin/category-offer/toggle', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    categoryId,
+                    offerActive: !isActive
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Toggle failed');
             }
-        });
-    }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: data.message,
+                confirmButtonColor: '#8b7355'
+            }).then(() => location.reload());
+
+        } catch (error) {
+            console.error('Toggle category error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Category offer could not be updated',
+                confirmButtonColor: '#8b7355'
+            });
+        }
+    });
+}
+
 
     function removeCategoryOffer(categoryId) {
         Swal.fire({

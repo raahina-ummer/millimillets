@@ -2,8 +2,9 @@ import Order from "../../models/OrderSchema.js";
 import Product from "../../models/ProductSchema.js";
 import Category from "../../models/CategorySchema.js";
 import User from "../../models/userSchema.js";
-import logger from '../../utils/logger.js';
-
+import logger from "../../utils/logger.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
 
 const loadDashboard = async (req, res) => {
   if (!req.session.admin) {
@@ -11,12 +12,36 @@ const loadDashboard = async (req, res) => {
   }
 
   try {
+    const { fromDate, toDate } = req.query;
 
-    const totalOrders = await Order.countDocuments();
+    let dateFilter = {};
+
+    if (fromDate && toDate) {
+      dateFilter.createdAt = {
+        $gte: new Date(fromDate),
+        $lte: new Date(toDate + "T23:59:59.999Z"),
+      };
+    }
+
+const totalOrders = await Order.countDocuments({
+  status: { $nin: ["Cancelled", "Returned"] },
+  ...dateFilter,
+});
+
 
     const totalRevenueAgg = await Order.aggregate([
-      { $match: { status: "Delivered" } },
-      { $group: { _id: null, total: { $sum: "$finalAmount" } } }
+      {$match: {
+  status: "Delivered",
+  ...(dateFilter.createdAt && { createdAt: dateFilter.createdAt }),
+}
+
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$finalAmount" },
+        },
+      },
     ]);
     const totalRevenue = totalRevenueAgg[0]?.total || 0;
 
@@ -25,15 +50,28 @@ const loadDashboard = async (req, res) => {
 
     // status metrics
     const liveOrders = await Order.countDocuments({
-      status: { $in: ["Pending", "Processing"] }
+  status: { $in: ["Pending", "Processing"] },
+  ...dateFilter
+
     });
 
-    const pendingOrders = await Order.countDocuments({ status: "Pending" });
-    const deliveredOrders = await Order.countDocuments({ status: "Delivered" });
+    const pendingOrders = await Order.countDocuments({
+      status: "Pending",
+      ...dateFilter,
+    });
+    const deliveredOrders = await Order.countDocuments({
+      status: "Delivered",
+      ...dateFilter,
+    });
 
     // best selling products
     const bestProducts = await Order.aggregate([
-      { $match: { status: "Delivered" } },
+      {
+        $match: {
+          status: "Delivered",
+          ...dateFilter,
+        },
+      },
       { $unwind: "$orderedProducts" },
       {
         $group: {
@@ -43,11 +81,11 @@ const loadDashboard = async (req, res) => {
             $sum: {
               $multiply: [
                 "$orderedProducts.quantity",
-                { $ifNull: ["$orderedProducts.price", 0] }
-              ]
-            }
-          }
-        }
+                { $ifNull: ["$orderedProducts.price", 0] },
+              ],
+            },
+          },
+        },
       },
       { $sort: { totalSold: -1 } },
       { $limit: 10 },
@@ -56,30 +94,30 @@ const loadDashboard = async (req, res) => {
           from: "products",
           localField: "_id",
           foreignField: "_id",
-          as: "product"
-        }
+          as: "product",
+        },
       },
-      { $unwind: "$product" }
+      { $unwind: "$product" },
     ]);
 
     // best selling categories
     const bestCategories = await Order.aggregate([
-      { $match: { status: "Delivered" } },
+      { $match: { status: "Delivered", ...dateFilter } },
       { $unwind: "$orderedProducts" },
       {
         $lookup: {
           from: "products",
           localField: "orderedProducts.product",
           foreignField: "_id",
-          as: "product"
-        }
+          as: "product",
+        },
       },
       { $unwind: "$product" },
       {
         $group: {
           _id: "$product.category",
-          totalSold: { $sum: "$orderedProducts.quantity" }
-        }
+          totalSold: { $sum: "$orderedProducts.quantity" },
+        },
       },
       { $sort: { totalSold: -1 } },
       { $limit: 10 },
@@ -88,34 +126,36 @@ const loadDashboard = async (req, res) => {
           from: "categories",
           localField: "_id",
           foreignField: "_id",
-          as: "category"
-        }
+          as: "category",
+        },
       },
-      { $unwind: "$category" }
+      { $unwind: "$category" },
     ]);
 
     // customer insight(circle)
     const totalCustomers = totalUsers;
 
     const customerStats = await Order.aggregate([
-      { $match: { status: "Delivered" } },
+      { $match: { status: "Delivered", ...dateFilter } },
       {
         $group: {
           _id: "$userId",
           orderCount: { $sum: 1 },
-          lastOrderDate: { $max: "$createdOn" }
-        }
-      }
+          lastOrderDate: { $max: "$createdAt" },
+        },
+      },
     ]);
 
-    const newCustomers = customerStats.filter(c => c.orderCount === 1).length;
-    const returningCustomers = customerStats.filter(c => c.orderCount > 1).length;
+    const newCustomers = customerStats.filter((c) => c.orderCount === 1).length;
+    const returningCustomers = customerStats.filter(
+      (c) => c.orderCount > 1,
+    ).length;
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const currentCustomers = customerStats.filter(
-      c => c.lastOrderDate >= thirtyDaysAgo
+      (c) => c.lastOrderDate >= thirtyDaysAgo,
     ).length;
 
     const currentCustomerPercent = totalCustomers
@@ -130,9 +170,10 @@ const loadDashboard = async (req, res) => {
       ? Math.round((returningCustomers / totalCustomers) * 100)
       : 0;
 
-    // Business target 
+    // Business target
     const targetCustomerPercent = 90;
 
+    console.log("BEST PRODUCTS ", bestProducts);
 
     res.render("dashboard", {
       totalOrders,
@@ -147,34 +188,28 @@ const loadDashboard = async (req, res) => {
       currentCustomerPercent,
       newCustomerPercent,
       returningCustomerPercent,
-      targetCustomerPercent
+      targetCustomerPercent,
+      fromDate,
+      toDate,
     });
-
   } catch (error) {
     console.error("Dashboard Error:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-
 const bestSellingProducts = async (req, res) => {
   try {
-    const products = await Order.aggregate([
+    const bestProducts = await Order.aggregate([
       { $unwind: "$orderedProducts" },
 
       {
         $group: {
           _id: "$orderedProducts.product",
           totalSold: { $sum: "$orderedProducts.quantity" },
-          totalRevenue: {
-            $sum: {
-              $multiply: [
-                "$orderedProducts.quantity",
-                "$orderedProducts.price"
-              ]
-            }
-          }
-        }
+        },
       },
 
       { $sort: { totalSold: -1 } },
@@ -185,20 +220,29 @@ const bestSellingProducts = async (req, res) => {
           from: "products",
           localField: "_id",
           foreignField: "_id",
-          as: "product"
-        }
+          as: "product",
+        },
       },
-      { $unwind: "$product" }
+
+      { $unwind: "$product" },
+
+      {
+        $project: {
+          _id: 0,
+          productName: "$product.productName",
+          totalSold: 1,
+        },
+      },
     ]);
 
-    res.render("admin/bestProducts", { products });
-
+    res.render("admin/bestProducts", { bestProducts });
   } catch (error) {
     console.error("Best Selling Products Error:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 
 const bestSellingCategories = async (req, res) => {
   try {
@@ -210,8 +254,8 @@ const bestSellingCategories = async (req, res) => {
           from: "products",
           localField: "orderedProducts.product",
           foreignField: "_id",
-          as: "product"
-        }
+          as: "product",
+        },
       },
       { $unwind: "$product" },
 
@@ -223,11 +267,11 @@ const bestSellingCategories = async (req, res) => {
             $sum: {
               $multiply: [
                 "$orderedProducts.quantity",
-                "$orderedProducts.price"
-              ]
-            }
-          }
-        }
+                "$orderedProducts.price",
+              ],
+            },
+          },
+        },
       },
 
       { $sort: { totalSold: -1 } },
@@ -238,75 +282,86 @@ const bestSellingCategories = async (req, res) => {
           from: "categories",
           localField: "_id",
           foreignField: "_id",
-          as: "category"
-        }
+          as: "category",
+        },
       },
-      { $unwind: "$category" }
+      { $unwind: "$category" },
     ]);
 
     res.render("admin/bestCategories", { categories });
-
   } catch (error) {
     console.error("Best Selling Categories Error:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 const getSalesChartData = async (req, res) => {
   try {
-    const { filter = "monthly" } = req.query;
+    const { filter = "monthly", fromDate, toDate } = req.query;
 
     let groupId = {};
     let sortStage = {};
 
+    let matchStage = { status: "Delivered" };
+
+    if (fromDate && toDate) {
+      matchStage.createdAt = {
+        $gte: new Date(fromDate),
+        $lte: new Date(toDate + "T23:59:59.999Z"),
+      };
+    }
+
     if (filter === "daily") {
       groupId = {
-        year: { $year: "$createdOn" },
-        month: { $month: "$createdOn" },
-        day: { $dayOfMonth: "$createdOn" }
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
+        day: { $dayOfMonth: "$createdAt" },
       };
       sortStage = { "_id.year": 1, "_id.month": 1, "_id.day": 1 };
     }
 
     if (filter === "weekly") {
       groupId = {
-        year: { $year: "$createdOn" },
-        week: { $week: "$createdOn" }
+        year: { $year: "$createdAt" },
+        week: { $week: "$createdAt" },
       };
       sortStage = { "_id.year": 1, "_id.week": 1 };
     }
 
     if (filter === "monthly") {
       groupId = {
-        year: { $year: "$createdOn" },
-        month: { $month: "$createdOn" }
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
       };
       sortStage = { "_id.year": 1, "_id.month": 1 };
     }
 
     if (filter === "yearly") {
       groupId = {
-        year: { $year: "$createdOn" }
+        year: { $year: "$createdAt" },
       };
       sortStage = { "_id.year": 1 };
     }
 
     const sales = await Order.aggregate([
-      { $match: { status: "Delivered" } },
+      { $match: matchStage },
       {
         $group: {
           _id: groupId,
           totalOrders: { $sum: 1 },
-          totalRevenue: { $sum: "$finalAmount" }
-        }
+          totalRevenue: { $sum: "$finalAmount" },
+        },
       },
-      { $sort: sortStage }
+      { $sort: sortStage },
     ]);
 
     res.json({ success: true, data: sales });
-
   } catch (error) {
     console.error("Chart API Error:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -319,19 +374,18 @@ const searchDashboard = async (req, res) => {
     }
 
     const results = await Order.find({
-      $or: [
-        { orderId: { $regex: q, $options: "i" } }
-      ]
+      $or: [{ orderId: { $regex: q, $options: "i" } }],
     })
       .limit(10)
-      .select("orderId status finalAmount createdOn")
+      .select("orderId status finalAmount createdAt")
       .lean();
 
     res.json({ success: true, results });
-
   } catch (error) {
     console.error("Dashboard search error:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -341,4 +395,4 @@ export {
   bestSellingProducts,
   getSalesChartData,
   searchDashboard,
-}
+};

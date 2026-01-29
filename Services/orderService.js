@@ -6,10 +6,13 @@ import crypto from "crypto";
 import { razorpay } from "../utils/razorpay.js";
 import { calculateTotals } from "../utils/calculateTotals.js";
 import { v4 as uuidv4 } from "uuid";
+import {isValidCartItem, resolveVariant } from "../Helpers/cartHelper.js"
+import { calculateOrderTotals } from "../Helpers/orderTotal.js";
+
+
 
 export const placeCodOrderService = async ({ userId, addressId }) => {
 
-  //  Address validation
   const userAddress = await Address.findOne({ userId });
   if (!userAddress) throw new Error("Address not found");
 
@@ -18,7 +21,6 @@ export const placeCodOrderService = async ({ userId, addressId }) => {
   );
   if (!selectedAddress) throw new Error("Invalid address");
 
-  //  Cart validation
   const cart = await Cart.findOne({ userId }).populate({
     path: "products.productId",
     populate: "category"
@@ -28,66 +30,66 @@ export const placeCodOrderService = async ({ userId, addressId }) => {
     throw new Error("Cart is empty");
   }
 
-  //  Validate products
-  const validItems = cart.products.filter(item => {
-    const product = item.productId;
-    const variant = product.variant?.[0];
-    return (
-      product &&
-      variant &&
-      !product.isBlocked &&
-      product.category?.isListed &&
-      variant.stock >= item.quantity
-    );
-  });
-
+  const validItems = cart.products.filter(isValidCartItem);
   if (validItems.length === 0) {
     throw new Error("No valid items in cart");
   }
 
-  //  calculate totals
+  // 🔒 SOURCE OF TRUTH
   const {
-  subtotal,
-  productDiscount,
-  saleTotal,
-  finalAmount,
-  shipping
-} = calculateTotals(validItems, cart.couponDiscount || 0);
+    saleTotal,
+    couponDiscount,
+    shipping,
+    finalAmount
+  } = calculateOrderTotals(validItems, cart.couponDiscount || 0);
 
-
-  //cod not allowed above 1000rs
- if (finalAmount > 1000) {
-  const err = new Error("COD_LIMIT_EXCEEDED");
-  err.isBusinessError = true;
-  throw err;
-}
-
-  //  Reduce stock (COD → immediate)
-  for (const item of validItems) {
-    await Product.findByIdAndUpdate(item.productId._id, {
-      $inc: { "variant.0.stock": -item.quantity }
-    });
+  // COD LIMIT
+  if (finalAmount > 1000) {
+    const err = new Error("COD_LIMIT_EXCEEDED");
+    err.isBusinessError = true;
+    throw err;
   }
 
+  // ================= COUPON SHARE FREEZE =================
+  let remainingCoupon = couponDiscount;
 
-  // create order
+  const orderedProducts = validItems.map((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    let couponShare = 0;
+
+    if (couponDiscount > 0 && saleTotal > 0) {
+      if (index === validItems.length - 1) {
+        couponShare = remainingCoupon;
+      } else {
+        couponShare = Math.round(
+          (itemTotal / saleTotal) * couponDiscount
+        );
+        remainingCoupon -= couponShare;
+      }
+    }
+
+    return {
+      product: item.productId._id,
+      productNameSnapshot: item.productId.productName,
+      productImageSnapshot: item.productId.productImage?.[0],
+      variantId: item.variantId,
+      variantName: resolveVariant(item.productId, item.variantId)?.unitType,
+      price: item.price,
+      quantity: item.quantity,
+      couponShare,
+      status: "Processing"
+    };
+  });
+  // =======================================================
+
   const order = new Order({
     orderId: "ORD" + Date.now() + uuidv4().slice(0, 6),
     userId,
 
-    orderedProducts: validItems.map(item => ({
-      product: item.productId._id,
-      productNameSnapshot: item.productId.productName,
-      productImageSnapshot: item.productId.productImage?.[0],
-      variantName: item.productId.variant?.[0]?.unitType || "Default",
-      quantity: item.quantity,
-      price: item.productId.variant?.[0]?.salePrice,
-      status: "Processing"
-    })),
+    orderedProducts,
 
-    totalPrice: subtotal,
-    discount: productDiscount,
-    couponDiscount: cart.couponDiscount || 0,
+    totalPrice: saleTotal,
+    couponDiscount,
     shippingCost: shipping,
     finalAmount,
 
@@ -95,41 +97,61 @@ export const placeCodOrderService = async ({ userId, addressId }) => {
     paymentStatus: "Pending",
     status: "Processing",
     amountPaid: 0,
-address: {
-  addressType: selectedAddress.addressType,
 
-  
-  name: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
-  mobile: Number(selectedAddress.phone),
-
- 
-  addressLine1: selectedAddress.address,
-  addressLine2: "",
-
-  city: selectedAddress.city,
-  state: selectedAddress.state,
-  country: selectedAddress.country,
-  pincode: selectedAddress.pinCode
-},
-
-
+    address: {
+      addressType: selectedAddress.addressType,
+      name: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
+      mobile: Number(selectedAddress.phone),
+      addressLine1: selectedAddress.address,
+      addressLine2: "",
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      country: selectedAddress.country,
+      pincode: selectedAddress.pinCode
+    },
 
     couponApplied: cart.couponApplied || false,
     couponCode: cart.couponCode || null
   });
 
+  // 🧾 INVOICE SNAPSHOT (TRUSTED)
+  order.invoiceSnapshot = {
+    items: validItems.map(item => ({
+      name: item.productId.productName,
+      quantity: item.quantity,
+      price: item.price,
+      total: item.price * item.quantity
+    })),
+    subtotal: saleTotal,
+    couponDiscount,
+    shipping,
+    finalAmount
+  };
+
+  order.invoiceNumber = order.orderId;
+
   await order.save();
 
-  //  Clear cart
+  // 📉 REDUCE STOCK ONCE
+  for (const item of validItems) {
+    await Product.updateOne(
+      {
+        _id: item.productId._id,
+        "variant._id": item.variantId,
+        "variant.stock": { $gte: item.quantity }
+      },
+      { $inc: { "variant.$.stock": -item.quantity } }
+    );
+  }
+
+  // 🧹 CLEAR CART
   await Cart.findOneAndUpdate(
     { userId },
     {
-      $set: {
-        products: [],
-        couponApplied: false,
-        couponCode: null,
-        couponDiscount: 0
-      }
+      products: [],
+      couponApplied: false,
+      couponCode: null,
+      couponDiscount: 0
     }
   );
 
@@ -137,11 +159,8 @@ address: {
 };
 
 
-
-
 export const createRazorpayOrderService = async ({ userId, addressId }) => {
 
-  // Validate address
   const userAddress = await Address.findOne({ userId });
   if (!userAddress) throw new Error("Address not found");
 
@@ -150,60 +169,33 @@ export const createRazorpayOrderService = async ({ userId, addressId }) => {
   );
   if (!selectedAddress) throw new Error("Invalid address");
 
-  //  Validate cart
   const cart = await Cart.findOne({ userId }).populate({
-  path: "products.productId",
-  populate: { path: "category" }
-});
+    path: "products.productId",
+    populate: "category"
+  });
 
   if (!cart || cart.products.length === 0) {
     throw new Error("Cart is empty");
   }
 
-  //  Validate products
-const validItems = cart.products.filter(item => {
-  const product = item.productId;
-  const variant = product?.variant?.[0];
+  const validItems = cart.products.filter(isValidCartItem);
+  if (validItems.length === 0) {
+    throw new Error("No valid items in cart");
+  }
 
-  return (
-    product &&
-    variant &&
-    !product.isBlocked &&
-    product.status === "Available" &&
-    variant.stock >= item.quantity
-  );
-});
+  const couponDiscount = cart.couponApplied ? cart.couponDiscount : 0;
 
-const couponDiscount =
-  cart.couponApplied ? cart.couponDiscount : 0;
-  //  Calculate final amount DIRECTLY from cart items
-const {
-  subtotal,
-  productDiscount,
-  saleTotal,
-  shipping,
-  finalAmount
-} = calculateTotals(validItems, couponDiscount || 0);
+  const {
+    saleTotal,
+    couponDiscount: finalCouponDiscount,
+    shipping,
+    finalAmount
+  } = calculateOrderTotals(validItems, couponDiscount);
 
+  if (!finalAmount || finalAmount < 1) {
+    throw new Error("Invalid order amount");
+  }
 
-// const couponDiscount = cart.couponApplied ? cart.couponDiscount : 0;
-// const shipping = subtotal >= 1000 ? 0 : 50;
-// const finalAmount = subtotal - couponDiscount + shipping;
-
-console.log("RAZORPAY TOTAL DEBUG:", {
-  subtotal,
-  productDiscount,
-  couponDiscount,
-  shipping,
-  finalAmount
-});
-
-
-if (!finalAmount || finalAmount < 1) {
-  throw new Error("Invalid order amount");
-}
-
-  //  Create Razorpay order
   const receiptId = "ORD" + Date.now() + uuidv4().slice(0, 6);
 
   const razorpayOrder = await razorpay.orders.create({
@@ -213,24 +205,47 @@ if (!finalAmount || finalAmount < 1) {
     payment_capture: 1
   });
 
-  // Save order in DB (Pending Payment)
+  // ================= COUPON SHARE FREEZE =================
+  let remainingCoupon = finalCouponDiscount;
+
+  const orderedProducts = validItems.map((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    let couponShare = 0;
+
+    if (finalCouponDiscount > 0 && saleTotal > 0) {
+      if (index === validItems.length - 1) {
+        couponShare = remainingCoupon;
+      } else {
+        couponShare = Math.round(
+          (itemTotal / saleTotal) * finalCouponDiscount
+        );
+        remainingCoupon -= couponShare;
+      }
+    }
+
+    return {
+      product: item.productId._id,
+      productNameSnapshot: item.productId.productName,
+      productImageSnapshot: item.productId.productImage?.[0],
+      variantId: item.variantId,
+      variantName: resolveVariant(item.productId, item.variantId)?.unitType,
+      price: item.price,
+      quantity: item.quantity,
+      couponShare,
+      status: "Pending"
+    };
+  });
+  // =======================================================
+
+  // ✅ NOW create Order properly
   const order = new Order({
     orderId: receiptId,
     userId,
 
-    orderedProducts: validItems.map(item => ({
-      product: item.productId._id,
-      productNameSnapshot: item.productId.productName,
-      productImageSnapshot: item.productId.productImage?.[0],
-      variantName: item.productId.variant?.[0]?.unitType || "Default",
-      quantity: item.quantity,
-      price: item.productId.variant?.[0]?.salePrice,
-      status: "Pending"
-    })),
+    orderedProducts,               // ✅ FIXED
 
-    totalPrice: subtotal,
-    discount: productDiscount,
-    couponDiscount: couponDiscount,
+    totalPrice: saleTotal,
+    couponDiscount: finalCouponDiscount,
     shippingCost: shipping,
     finalAmount,
 
@@ -241,27 +256,36 @@ if (!finalAmount || finalAmount < 1) {
 
     razorpayOrderId: razorpayOrder.id,
 
- address: {
-  addressType: selectedAddress.addressType,
-
- 
-  name: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
-  mobile: Number(selectedAddress.phone),
-
-  addressLine1: selectedAddress.address,
-  addressLine2: "",
-
-  city: selectedAddress.city,
-  state: selectedAddress.state,
-  country: selectedAddress.country,
-  pincode: selectedAddress.pinCode
-},
-
-
+    address: {
+      addressType: selectedAddress.addressType,
+      name: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
+      mobile: Number(selectedAddress.phone),
+      addressLine1: selectedAddress.address,
+      addressLine2: "",
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      country: selectedAddress.country,
+      pincode: selectedAddress.pinCode
+    },
 
     couponApplied: cart.couponApplied || false,
     couponCode: cart.couponCode || null
   });
+
+  order.invoiceSnapshot = {
+    items: validItems.map(item => ({
+      name: item.productId.productName,
+      quantity: item.quantity,
+      price: item.price,
+      total: item.price * item.quantity
+    })),
+    subtotal: saleTotal,
+    couponDiscount: finalCouponDiscount,
+    shipping,
+    finalAmount
+  };
+
+  order.invoiceNumber = order.orderId;
 
   await order.save();
 
@@ -271,6 +295,7 @@ if (!finalAmount || finalAmount < 1) {
     amount: finalAmount
   };
 };
+
 
 export const verifyRazorpayPaymentService = async ({
   paymentResponse,
@@ -285,7 +310,12 @@ export const verifyRazorpayPaymentService = async ({
     throw new Error("Order not found");
   }
 
-  //Verify Razorpay signature
+  //  Prevent double verification
+  if (order.paymentStatus === "Completed") {
+    return order;
+  }
+
+  // Verify Razorpay signature
   const generatedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
     .update(
@@ -293,14 +323,6 @@ export const verifyRazorpayPaymentService = async ({
       paymentResponse.razorpay_payment_id
     )
     .digest("hex");
-
-    console.log("VERIFY DEBUG:", {
-  dbRazorpayOrderId: order.razorpayOrderId,
-  frontendRazorpayOrderId: paymentResponse.razorpay_order_id,
-  paymentId: paymentResponse.razorpay_payment_id,
-  receivedSignature: paymentResponse.razorpay_signature
-});
-
 
   if (generatedSignature !== paymentResponse.razorpay_signature) {
     order.paymentStatus = "Failed";
@@ -312,9 +334,7 @@ export const verifyRazorpayPaymentService = async ({
   // Lock amount
   order.amountPaid = order.finalAmount;
 
-
-
-  //Payment success
+  // Payment success
   order.paymentStatus = "Completed";
   order.status = "Processing";
   order.razorpayPaymentId = paymentResponse.razorpay_payment_id;
@@ -326,11 +346,17 @@ export const verifyRazorpayPaymentService = async ({
 
   await order.save();
 
-  // Reduce stock
+  // Reduce stock ONCE
   for (const item of order.orderedProducts) {
-    await Product.findByIdAndUpdate(item.product, {
-      $inc: { "variant.0.stock": -item.quantity }
-    });
+    await Product.updateOne(
+  {
+    _id: item.product,
+    "variant._id": item.variantId,
+    "variant.stock": { $gte: item.quantity }
+  },
+  { $inc: { "variant.$.stock": -item.quantity } }
+);
+
   }
 
   // Clear cart
@@ -346,6 +372,7 @@ export const verifyRazorpayPaymentService = async ({
 
   return order;
 };
+
 
 export const retryRazorpayOrderService = async ({ userId, orderId }) => {
 

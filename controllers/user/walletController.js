@@ -7,8 +7,13 @@ import Cart from "../../models/CartSchema.js";
 import Product from "../../models/ProductSchema.js";
 import Order from "../../models/OrderSchema.js";
 import { getPendingReturns } from "./orderController.js";
-import { calculateTotals } from "../../utils/calculateTotals.js";
-import logger from '../../utils/logger.js';
+import { calculateOrderTotals } from "../../Helpers/orderTotal.js";
+import logger from "../../utils/logger.js";
+import { isValidCartItem ,resolveVariant} from "../../Helpers/cartHelper.js";
+import { v4 as uuidv4 } from "uuid";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 const loadWallet = async (req, res) => {
   try {
@@ -72,44 +77,48 @@ const loadWallet = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching wallet page:", error.message);
-    res.status(Status.INTERNAL_SERVER_ERROR).json("error", { message: message.SOMETHING_WENT_WRONG });
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json("error", { message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 const walletPayment = async (req, res) => {
   try {
     const userId = req.session.user?.id;
-     const { addressId } = req.body;
+    const { addressId } = req.body;
+
     if (!userId) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "User not authenticated",
+        message: message.AUTH.USER_NOT_LOGGED_IN,
       });
     }
 
-
-        // Fetch address
+    /* ================= ADDRESS ================= */
     const userAddress = await Address.findOne({ userId });
     if (!userAddress) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Address not found",
+        message: message.ADDRESS.NOT_FOUND,
       });
     }
 
     const selectedAddress = userAddress.addresses.find(
       addr => addr._id.toString() === addressId
     );
-
     if (!selectedAddress) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Invalid address",
+        message: message.ADDRESS.NOT_FOUND,
       });
     }
 
-    // Get cart
-    const cart = await Cart.findOne({ userId }).populate("products.productId");
+    /* ================= CART ================= */
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "products.productId",
+      populate: "category",
+    });
+
     if (!cart || cart.products.length === 0) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -117,34 +126,26 @@ const walletPayment = async (req, res) => {
       });
     }
 
-    //Filter valid cart items 
-    const validCartItems = cart.products.filter(item => {
-      const product = item.productId;
-      const variant = product?.variant?.[0];
-      return (
-        product &&
-        !product.isBlocked &&
-        variant &&
-        variant.stock >= item.quantity
-      );
-    });
-
-    if (!validCartItems.length) {
+    const validItems = cart.products.filter(isValidCartItem);
+    if (validItems.length === 0) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
         message: "No valid items in cart",
       });
     }
 
-    
+    /* ================= TOTALS (SOURCE OF TRUTH) ================= */
     const {
-      subtotal,          
-      productDiscount,   
+      saleTotal,
+      couponDiscount,
       shipping,
-      finalAmount
-    } = calculateTotals(validCartItems, cart.couponDiscount || 0);
+      finalAmount,
+    } = calculateOrderTotals(
+      validItems,
+      cart.couponApplied ? cart.couponDiscount : 0
+    );
 
-    //Wallet check
+    /* ================= WALLET CHECK ================= */
     const wallet = await Wallet.findOne({ userId });
     if (!wallet || wallet.balance < finalAmount) {
       return res.status(Status.BAD_REQUEST).json({
@@ -153,32 +154,49 @@ const walletPayment = async (req, res) => {
       });
     }
 
-    // Create order 
-    const orderedProducts = validCartItems.map(item => {
-      const product = item.productId;
-      const variant = product.variant[0];
+    /* ================= COUPON SHARE FREEZE ================= */
+    let remainingCoupon = couponDiscount;
+
+    const orderedProducts = validItems.map((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      let couponShare = 0;
+
+      if (couponDiscount > 0 && saleTotal > 0) {
+        if (index === validItems.length - 1) {
+          couponShare = remainingCoupon; // absorb rounding diff
+        } else {
+          couponShare = Math.round(
+            (itemTotal / saleTotal) * couponDiscount
+          );
+          remainingCoupon -= couponShare;
+        }
+      }
 
       return {
-        product: product._id,
-        productNameSnapshot: product.productName,
-        productImageSnapshot: product.productImage?.[0] || null,
-        variantName: variant.unitType || "Default",
+        product: item.productId._id,
+        productNameSnapshot: item.productId.productName,
+        productImageSnapshot: item.productId.productImage?.[0],
+        variantId: item.variantId,
+        variantName: resolveVariant(item.productId, item.variantId)?.unitType,
+        price: item.price,
         quantity: item.quantity,
-        price: variant.salePrice,
-        status: "Pending",
+        couponShare,
+        status: "Processing",
       };
     });
+    /* ============================================================ */
 
-    /*  Create order */
-    const newOrder = new Order({
+    /* ================= CREATE ORDER ================= */
+    const order = new Order({
+      orderId: "ORD" + Date.now() + uuidv4().slice(0, 6),
       userId,
+
       orderedProducts,
 
-      totalPrice: subtotal,                 
-      discount: productDiscount,            
-      couponDiscount: cart.couponDiscount || 0, 
-      shippingCost: shipping,                
-      finalAmount,                           
+      totalPrice: saleTotal,
+      couponDiscount,
+      shippingCost: shipping,
+      finalAmount,
 
       walletUsed: finalAmount,
       amountPaid: finalAmount,
@@ -188,67 +206,89 @@ const walletPayment = async (req, res) => {
       paymentStatus: "Completed",
       status: "Processing",
 
-       address: {
-  addressType: selectedAddress.addressType,
+      couponApplied: cart.couponApplied || false,
+      couponCode: cart.couponCode || null,
 
-  name: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
-  mobile: Number(selectedAddress.phone),
-
-  addressLine1: selectedAddress.address,
-  addressLine2: "",
-
-  city: selectedAddress.city,
-  state: selectedAddress.state,
-  country: selectedAddress.country,
-  pincode: selectedAddress.pinCode
-},
-
-
+      address: {
+        addressType: selectedAddress.addressType,
+        name: `${selectedAddress.firstName} ${selectedAddress.lastName}`,
+        mobile: Number(selectedAddress.phone),
+        addressLine1: selectedAddress.address,
+        addressLine2: "",
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        country: selectedAddress.country,
+        pincode: selectedAddress.pinCode,
+      },
     });
 
-    await newOrder.save();
+    /* ================= INVOICE SNAPSHOT ================= */
+    order.invoiceSnapshot = {
+      items: validItems.map(item => ({
+        name: item.productId.productName,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.price * item.quantity,
+      })),
+      subtotal: saleTotal,
+      couponDiscount,
+      shipping,
+      finalAmount,
+    };
 
-   
+    order.invoiceNumber = order.orderId;
+
+    await order.save();
+
+    /* ================= WALLET DEDUCTION ================= */
     wallet.balance -= finalAmount;
     wallet.transactions.push({
       type: "debit",
       amount: finalAmount,
       reason: "Order Payment",
-      description: `Order Payment (${newOrder.orderId})`,
+      orderId: order.orderId,
+      date: new Date(),
     });
     await wallet.save();
 
-    
-    for (const item of validCartItems) {
-      await Product.findByIdAndUpdate(item.productId._id, {
-        $inc: { "variant.0.stock": -item.quantity },
-      });
+    /* ================= STOCK REDUCTION ================= */
+    for (const item of validItems) {
+      await Product.updateOne(
+        {
+          _id: item.productId._id,
+          "variant._id": item.variantId,
+          "variant.stock": { $gte: item.quantity },
+        },
+        { $inc: { "variant.$.stock": -item.quantity } }
+      );
     }
 
-    
-    cart.products = [];
-    cart.couponApplied = false;
-    cart.couponCode = null;
-    cart.couponDiscount = 0;
-    await cart.save();
+    /* ================= CLEAR CART ================= */
+    await Cart.findOneAndUpdate(
+      { userId },
+      {
+        products: [],
+        couponApplied: false,
+        couponCode: null,
+        couponDiscount: 0,
+      }
+    );
 
-   
     return res.status(Status.OK).json({
       success: true,
       message: "Order placed successfully",
-      orderId: newOrder.orderId,
-       walletUsed: finalAmount,         
-  newWalletBalance: wallet.balance
+      orderId: order.orderId,
+      walletUsed: finalAmount,
+      newWalletBalance: wallet.balance,
     });
 
   } catch (error) {
-    console.log("Wallet Payment Error:", error);
+    console.error("Wallet Payment Error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: message.SERVER_ERROR
+      message: message.GENERAL.SERVER_ERROR,
     });
   }
 };
 
-
-export { loadWallet, walletPayment }
+export { loadWallet, walletPayment };

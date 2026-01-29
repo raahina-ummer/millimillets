@@ -72,7 +72,7 @@ const loadCoupon = async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching coupons:', error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 
@@ -88,13 +88,13 @@ const applyCoupon = async (req, res) => {
     if (!userId) {
       return res
         .status(Status.BAD_REQUEST)
-        .json({ success: false, message: "User not authenticated" });
+        .json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN});
     }
 
     if (!couponCode) {
       return res
         .status(Status.BAD_REQUEST)
-        .json({ success: false, message: "Coupon code required" });
+        .json({ success: false, message: message.COUPON.INVALID });
     }
 
     const cart = await Cart.findOne({ userId }).populate("products.productId");
@@ -106,23 +106,44 @@ const applyCoupon = async (req, res) => {
     }
 
     // Filter valid items
-    const validItems = cart.products.filter(p => {
-      const item = p.productId;
-      const variant = item?.variant?.[0];
-      return item && variant && !item.isBlocked && variant.stock > 0;
-    });
+const validItems = cart.products.filter(p => {
+  const item = p.productId;
+  if (!item || item.isBlocked || !Array.isArray(item.variant)) return false;
+
+  if (!p.variantId) return false;
+
+  const variant = item.variant.find(
+    v => v._id.toString() === p.variantId.toString()
+  );
+
+  return variant && variant.stock > 0;
+});
 
     if (!validItems.length) {
       return res
         .status(Status.BAD_REQUEST)
-        .json({ success: false, message: "No valid items in your cart" });
+        .json({ success: false, message: message.COUPON.NO_VALID_ITEMS });
     }
 
     // SALE TOTAL (already includes product discount)
-    const saleTotal = validItems.reduce((total, p) => {
-      const variant = p.productId.variant?.[0];
-      return total + (variant.salePrice * p.quantity);
-    }, 0);
+  const saleTotal = validItems.reduce((total, p) => {
+  const item = p.productId;
+
+  let variant = null;
+
+  if (p.variantId) {
+    variant = item.variant.find(
+      v => v._id.toString() === p.variantId.toString()
+    );
+  }
+
+ if (!variant || variant.stock <= 0) return total;
+
+
+  const price = Number(variant.salePrice || variant.regularPrice || 0);
+  return total + price * p.quantity;
+}, 0);
+
 
     console.log("Sale Total:", saleTotal);
 
@@ -142,16 +163,19 @@ const applyCoupon = async (req, res) => {
     if (coupon.minAmount && saleTotal < coupon.minAmount) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: `Minimum order ₹${coupon.minAmount} required`,
+        message: message.COUPON.MIN_AMOUNT_NOT_MET,
       });
     }
 
-    //  Prevent re-applying same coupon
-    if (cart.couponApplied && cart.couponCode === coupon.code) {
-      return res
-        .status(Status.BAD_REQUEST)
-        .json({ success: false, message: message.COUPON_ALREADY_USED });
-    }
+    if (coupon.usedBy?.includes(userId)) {
+  return res.status(Status.BAD_REQUEST).json({
+    success: false,
+    message: message.COUPON_ALREADY_USED
+  });
+}
+
+
+
 
     //  Coupon discount (ONLY on sale total)
     let couponDiscount = (saleTotal * coupon.discountPercent) / 100;
@@ -162,8 +186,6 @@ const applyCoupon = async (req, res) => {
         coupon.maxDiscountAmount
       );
     }
-
-    console.log("Coupon Discount:", couponDiscount);
 
     
     const shipping = saleTotal >= 1000 ? 0 : 50;
@@ -180,9 +202,9 @@ const applyCoupon = async (req, res) => {
     cart.couponDiscount = couponDiscount;
     cart.total = newTotal;
 
-    await cart.save();
 
-    console.log("Coupon applied successfully");
+
+    await cart.save();
 
     return res.status(Status.OK).json({
       success: true,
@@ -199,47 +221,55 @@ const applyCoupon = async (req, res) => {
     console.error("Error in applyCoupon:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: message.SERVER_ERROR });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 
 
+
 const removeCoupon = async (req, res) => {
   try {
-    console.log(" removeCoupon controller called");
+   
 
     const userId = req.session.user?.id;
-
     if (!userId) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "User not authenticated" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN });
     }
 
     const cart = await Cart.findOne({ userId }).populate("products.productId");
-
-    if (!cart) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Cart is empty" });
+    if (!cart || !cart.products.length) {
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.COUPON.CART_EMPTY });
     }
 
-    //  RECALCULATE WITHOUT COUPON
-    const cartSubtotal = cart.products.reduce((total, p) => {
-      const variant = p.productId.variant?.[0];
-      const salePrice = variant?.salePrice || variant?.regularPrice || 0;
-      return total + (salePrice * p.quantity);
-    }, 0);
+  
+    let saleTotal = 0;
 
-    const productDiscount = cart.products.reduce((total, p) => {
-      const variant = p.productId.variant?.[0];
-      const regularPrice = variant?.regularPrice || 0;
-      const salePrice = variant?.salePrice || regularPrice;
-      const itemDiscount = (regularPrice - salePrice) * p.quantity;
-      return total + itemDiscount;
-    }, 0);
+    cart.products.forEach(p => {
+      const item = p.productId;
+      if (!item || !Array.isArray(item.variant)) return;
 
-    const shipping = cartSubtotal >= 1000 ? 0 : 50;
-    const newTotal = cartSubtotal - productDiscount + shipping;
+      let variant = null;
 
-    // Remove coupon
+      if (p.variantId) {
+        variant = item.variant.find(v =>
+          v._id.toString() === p.variantId.toString()
+        );
+      }
+
+      if (!variant || variant.stock <= 0) return false;
+
+
+      if (!variant) return;
+
+      const price = Number(variant.salePrice || variant.regularPrice || 0);
+      saleTotal += price * p.quantity;
+    });
+
+    const shipping = saleTotal === 0 ? 0 : saleTotal >= 1000 ? 0 : 50;
+    const newTotal = Math.max(saleTotal + shipping, 0);
+
+    // REMOVE COUPON
     cart.couponApplied = false;
     cart.couponCode = null;
     cart.couponDiscount = 0;
@@ -247,19 +277,26 @@ const removeCoupon = async (req, res) => {
 
     await cart.save();
 
-    console.log(" Coupon removed successfully");
-
-    res.status(Status.OK).json({
+    return res.status(200).json({
       success: true,
       message: message.COUPON_REMOVED,
-      newTotal: newTotal
+      newTotal: newTotal,
     });
 
   } catch (error) {
-    console.error(" Error in removeCoupon:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    console.error("Error in removeCoupon:", error);
+    return res.status(500).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR,
+    });
   }
 };
+
+
+
+
+
+
 export {
   loadCoupon,
   applyCoupon,

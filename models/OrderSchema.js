@@ -19,20 +19,25 @@ const orderSchema = new Schema({
 orderedProducts: [
   {
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    variantId: { type: Schema.Types.ObjectId, required: true },
     productNameSnapshot: String,
     productImageSnapshot: String,
+    
     price: Number,
     quantity: Number,
     variantName: String,
     status: { 
       type: String, 
-      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"],
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned","Return Requested"],
       default: "Pending" 
     },
     cancelReason: String,
     cancelledAt: Date,
+    cancelledBy:String,
     returnReason: String,
     returnedAt: Date,
+    couponShare: {type: Number,default: 0}
+
   },
 ],
 
@@ -46,7 +51,7 @@ orderedProducts: [
 
   couponApplied: { type: Boolean, default: false },
   couponCode: { type: String, default: null },
-  
+  couponDiscount: { type: Number, default: 0 },
 
   paymentMethod: {
     type: String,
@@ -78,7 +83,7 @@ orderedProducts: [
       "Shipped",
       "Delivered",
       "Cancelled",
-      "Return Request",
+      "Return Requested",
       "Returned",
       "Pending Payment",
       "Payment Failed"
@@ -88,7 +93,7 @@ orderedProducts: [
   },
   
 
-  createdOn: { type: Date, default: Date.now },
+ 
   processedAt: Date,
   shippedAt: Date,
   deliveredAt: Date,
@@ -146,6 +151,23 @@ amountPaid: {
 },
   InvoiceDate: Date,
   invoiceNumber: String,
+  invoiceSnapshot: {
+  items: [
+    {
+      name: String,
+      quantity: Number,
+      price: Number,
+      couponShare: Number,
+      total: Number
+    }
+  ],
+  subtotal: Number,
+  discount: Number,
+  couponDiscount: Number,
+  shipping: Number,
+  finalAmount: Number
+}
+
 },{ timestamps: true });
 
 

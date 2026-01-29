@@ -1,33 +1,26 @@
 export const calculateTotals = (items, couponDiscount = 0) => {
-  let subtotal = 0;
-  let productDiscount = 0;
+  let saletotal = 0;
 
   for (const item of items) {
-    const variant = item.productId?.variant?.[0];
-    if (!variant) continue;
-
-    subtotal += variant.regularPrice * item.quantity;
-    productDiscount +=
-      (variant.regularPrice - variant.salePrice) * item.quantity;
+    saletotal += item.price * item.quantity;
   }
 
-  // Actual amount user is paying for products
-  const saleTotal = subtotal - productDiscount;
+  couponDiscount = Math.min(couponDiscount, saletotal);
 
-  // Shipping based on sale price
-  const shipping = saleTotal >= 1000 ? 0 : 50;
+  const shipping = saletotal === 0 ? 0 : saletotal >= 1000 ? 0 : 50;
+  const tax = 0;
 
-  // Final payable amount
   const finalAmount = Math.max(
-    saleTotal - couponDiscount + shipping,
+    saletotal - couponDiscount + shipping + tax,
     0
   );
 
   return {
-    subtotal,            
-    productDiscount,     
-    saleTotal,           
+    saletotal, 
+         
+    couponDiscount,  
     shipping,
-    finalAmount
+    tax,
+    finalAmount      
   };
 };

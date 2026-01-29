@@ -39,10 +39,12 @@ router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked);
 router.get("/category", adminAuth, categoryController.categoryInfo);
 router.get("/addCategory", adminAuth, categoryController.loadAddCategory);
 router.post("/addCategory", adminAuth, categoryController.addCategory);
-router.get("/editCategory", adminAuth, categoryController.getEditCategory);
+router.get("/editCategory/:id", adminAuth, categoryController.getEditCategory);
 router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
 router.get("/listCategory", adminAuth, categoryController.getListCategory);
 router.get("/unlistCategory", adminAuth, categoryController.getUnlistCategory);
+
+
 
 // Product management
 router.get("/addProduct", adminAuth, productController.getProductAddPage);
@@ -59,7 +61,7 @@ router.post("/deleteImage", adminAuth, productController.deleteSingleImage);
 router.get("/adminorder", adminAuth, orderController.loadOrders);
 router.get("/adminorder/:orderId", adminAuth, orderController.loadOrderDetails);
 router.patch("/adminorderStatus/:orderId", adminAuth, orderController.updateOrderStatus);
-router.patch("/adminorderReturn/:orderId", adminAuth, orderController.approveOrRejectReturnRequest);
+router.patch("/adminorder/:orderId/return/:productId/:variantId", adminAuth, orderController.approveOrRejectReturnRequest);
 
 //stock management
 router.get("/stock",adminAuth,stockController.getStockManagement);
@@ -94,9 +96,13 @@ router.delete("/product-offer/remove", adminAuth,  offerManagement.removeProduct
 router.get("/category-offers", adminAuth, offerManagement.getCategoryOffers);
 router.get("/category-offer/:categoryId", adminAuth, offerManagement.getSingleCategoryOffer);
 router.post("/category-offer/add", adminAuth, offerManagement.addCategoryOffer);
-router.put("/category-offer/:categoryId", adminAuth, offerManagement.updateCategoryOffer);
+
 router.put("/category-offer/toggle", adminAuth, offerManagement.toggleCategoryOffer);
 router.delete("/category-offer/remove", adminAuth, offerManagement.removeCategoryOffer);
+router.put("/category-offer/:categoryId", adminAuth, offerManagement.updateCategoryOffer);
+
+
+
 
 // Referral Offer Routes
 router.get("/referral-offers", adminAuth, offerManagement.getReferralOffers);

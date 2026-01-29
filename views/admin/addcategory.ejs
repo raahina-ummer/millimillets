@@ -396,64 +396,48 @@
 
             console.log("name,description", name, description);
 
-            fetch('/admin/addCategory', {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: 'include',
-                body: JSON.stringify({ name, description })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.error);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: "Category has been created successfully",
-                    toast: true,
-                    position: "top-end",
-                    timer: 50000,
-                    showConfirmButton: false,
-                    background: '#d4c4a8',
-                    color: "#2d2d2d"
-                }).then(() => {
-                    window.location.href = '/admin/category';
-                });
-            })
-            .catch(error => {
-                if (error.message === "Category already exists") {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops",
-                        text: "Category already exists",
-                        toast: true,
-                        position: "top-end",
-                        timer: 2000,
-                        showConfirmButton: false,
-                        background: '#8b7355',
-                        color: "#fff"
-                    });
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops",
-                        text: "An error occurred while adding category",
-                        toast: true,
-                        position: "top-end",
-                        timer: 2000,
-                        showConfirmButton: false,
-                        background: '#8b7355',
-                        color: "#fff"
-                    });
-                }
-            });
+       fetch('/admin/addCategory', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'include',
+  body: JSON.stringify({ name, description })
+})
+.then(async (response) => {
+  const data = await response.json();
+
+  // 🔥 THIS LINE DECIDES EVERYTHING
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Success',
+    text: data.message,
+    toast: true,
+    position: 'top-end',
+    timer: 2000,
+    showConfirmButton: false,
+  });
+
+  setTimeout(() => {
+    window.location.href = '/admin/category';
+  }, 2000);
+})
+.catch((error) => {
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops',
+    text: error.message || 'Something went wrong',
+    toast: true,
+    position: 'top-end',
+    timer: 2000,
+    showConfirmButton: false,
+  });
+});
+
         }
 
         // Function to capitalize the first letter of every word

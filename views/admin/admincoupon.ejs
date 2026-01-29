@@ -1,29 +1,16 @@
 <%- include('../partials/admin/header.ejs') %>
 
 <style>
-    body {
-        background-color: #2c2c2c;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 0;
-    }
+  body {
+  background-color: #d4c4a8;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    .admin-container {
-        display: flex;
-        min-height: 100vh;
-    }
+.main-content {
+  padding: 20px;
+  margin-left: 140px;
+}
 
-    .content-main {
-        margin-left: 0px;
-        background-color: #E8DCC4;
-        min-height: 100vh;
-        padding: 0;
-        width: 100%;
-    }
-
-    .page-container {
-        padding: 30px;
-    }
 
     .page-header-row {
         display: flex;
@@ -118,12 +105,12 @@
         background-color: #6d5a47;
     }
 
-    .table-card {
-        background-color: #d4c4a8;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
+  .table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
 
     .table-responsive {
         overflow-x: auto;
@@ -238,58 +225,44 @@
         align-items: center;
         flex-wrap: wrap;
     }
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+}
 
-    .icon-btn {
-        width: auto;
-        padding: 6px 10px;
-        border-radius: 6px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s;
-        border: none;
-        background-color: transparent;
-        font-size: 13px;
-        font-weight: 500;
-        gap: 4px;
-    }
 
     .edit-btn {
-        color: #fff;
-        background-color: #f39c12;
-    }
+  background-color: #f39c12;
+  color: #fff;
+}
 
-    .edit-btn:hover {
-        background-color: #e67e22;
-    }
+.activate-btn {
+  background-color: #27ae60;
+  color: #fff;
+}
 
-    .activate-btn {
-        color: #fff;
-        background-color: #27ae60;
-    }
+.deactivate-btn {
+  background-color: #e74c3c;
+  color: #fff;
+}
 
-    .activate-btn:hover {
-        background-color: #229954;
-    }
+.delete-btn {
+  background-color: #34495e;
+  color: #fff;
+}
 
-    .deactivate-btn {
-        color: #fff;
-        background-color: #e74c3c;
-    }
-
-    .deactivate-btn:hover {
-        background-color: #c0392b;
-    }
-
-    .delete-btn {
-        color: #fff;
-        background-color: #2c3e50;
-    }
-
-    .delete-btn:hover {
-        background-color: #1a252f;
-    }
+.icon-btn:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
 
     .no-data {
         text-align: center;
@@ -484,6 +457,70 @@
         cursor: not-allowed;
     }
 
+    .page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title-search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Search */
+.coupon-search-form {
+  display: flex;
+  gap: 6px;
+}
+
+.coupon-search-input {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  min-width: 220px;
+}
+
+.btn-search {
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: #8b7355;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* Buttons */
+.btn-add-coupon {
+  background-color: #8b7355;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.refresh-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+
     @media (max-width: 992px) {
         .search-container {
             flex-direction: column;
@@ -510,38 +547,51 @@
 </style>
 
 <div class="admin-container">
-    <div class="content-main">
+    <div class="main-content">
+
         <div class="page-container">
             <!-- Page Header -->
-            <div class="page-header-row">
-                <h1 class="page-title">Coupon Management</h1>
-                <button class="btn-add-coupon" id="addCouponBtn">
-                    <i class="fas fa-plus"></i> ADD COUPON
-                </button>
-            </div>
+            <div class="page-header">
+  <div class="page-header-row">
 
-            <button class="refresh-btn" onclick="location.reload()">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
+    <div class="header-left">
+      <div class="title-search">
+        <h1 class="page-title">Coupon Management</h1>
 
-            <!-- Search Bar -->
-            <div class="search-container">
-                <form method="GET" action="/admin/coupon" class="search-box">
-                    <input
-                        type="text"
-                        id="searchInput"
-                        name="search"
-                        value="<%= search || '' %>"
-                        placeholder="Search coupon codes..."
-                    />
-                    <button type="submit" class="btn-search">
-                        <i class="fas fa-search"></i> Search
-                    </button>
-                    <a href="/admin/coupon">
-                        <button type="button" class="btn-reset">Reset</button>
-                    </a>
-                </form>
-            </div>
+        <form method="GET" action="/admin/coupon" class="coupon-search-form">
+          <input
+            type="text"
+            name="search"
+            value="<%= search || '' %>"
+            placeholder="Search coupon codes..."
+            class="coupon-search-input"
+          />
+          <button type="submit" class="btn-search">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+      </div>
+
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="/admin/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Coupons</li>
+        </ol>
+      </nav>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn-add-coupon" id="addCouponBtn">
+        <i class="fas fa-plus"></i> Add Coupon
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
 
             <!-- Table -->
             <div class="table-card">

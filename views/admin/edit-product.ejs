@@ -921,7 +921,7 @@
                                     <div class="existing-images-grid">
                                         <% product.productImage.forEach((image, index) => { %>
                                             <div class="existing-image-item" id="existing-image-<%= index %>">
-                                                <input type="hidden" name="existingImages" value="<%= image %>" id="imageDatas-<%= index %>">
+                                                <input type="hidden" name="existingImages[]" value="<%= image %>" id="imageDatas-<%= index %>">
                                                 <img src="/uploads/images/<%= image %>" alt="Product Image <%= index + 1 %>">
                                                 <button type="button" class="delete-image-btn" onclick="deleteSingleImage('<%= image %>', '<%= product._id %>', '<%= index %>')">
                                                     <i class="fas fa-times"></i>
@@ -931,67 +931,69 @@
                                     </div>
                                 </div>
                             <% } %>
+<% const existingCount = product.productImage ? product.productImage.length : 0; %>
+<% const remainingSlots = 4 - existingCount; %>
 
-                            <!-- Main Image Upload -->
-                            <div class="main-image-upload">
-                                <input type="file" id="input1" name="images" accept="image/*" hidden>
-                                <label for="input1" class="image-upload-label">
-                                    <img id="imgView1" src="" alt="" style="display: none;">
-                                    <div class="upload-placeholder">
-                                        <p class="upload-text">Add New Image</p>
-                                        <p class="upload-subtext">Click to upload new product image</p>
-                                    </div>
-                                </label>
-                            </div>
-                            <div id="images-error-1" class="error-message"></div>
+<% if (remainingSlots > 0) { %>
 
-                            <!-- Cropper for Image 1 -->
-                            <div class="image-cropper" id="cropperContainer1">
-                                <img src="" id="croppedImg1" alt="Cropped Image 1">
-                                <button type="button" id="saveButton1" class="btn btn-primary mt-3">Save Crop</button>
-                            </div>
+  <!-- Image Upload Slots -->
+  <div class="additional-images-grid">
 
-                            <!-- Additional Images Grid -->
-                            <div class="additional-images-grid">
-                                <div class="additional-image-upload">
-                                    <input type="file" id="input2" name="images" accept="image/*" hidden>
-                                    <label for="input2" class="image-upload-label-small">
-                                        <img id="imgView2" src="" alt="" style="display: none;">
-                                        <span class="browse-text">Add Image</span>
-                                    </label>
-                                </div>
-                                <div class="additional-image-upload">
-                                    <input type="file" id="input3" name="images" accept="image/*" hidden>
-                                    <label for="input3" class="image-upload-label-small">
-                                        <img id="imgView3" src="" alt="" style="display: none;">
-                                        <span class="browse-text">Add Image</span>
-                                    </label>
-                                </div>
-                                <div class="additional-image-upload">
-                                    <input type="file" id="input4" name="images" accept="image/*" hidden>
-                                    <label for="input4" class="image-upload-label-small">
-                                        <img id="imgView4" src="" alt="" style="display: none;">
-                                        <span class="browse-text">Add Image</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div id="images-error-2" class="error-message"></div>
-                            <div id="images-error-3" class="error-message"></div>
-                            <div id="images-error-4" class="error-message"></div>
+    <% for (let i = existingCount + 1; i <= 4; i++) { %>
 
-                            <!-- Cropper for Images 2, 3, 4 -->
-                            <div class="image-cropper" id="cropperContainer2">
-                                <img src="" id="croppedImg2" alt="Cropped Image 2">
-                                <button type="button" id="saveButton2" class="btn btn-primary mt-3">Save Crop</button>
-                            </div>
-                            <div class="image-cropper" id="cropperContainer3">
-                                <img src="" id="croppedImg3" alt="Cropped Image 3">
-                                <button type="button" id="saveButton3" class="btn btn-primary mt-3">Save Crop</button>
-                            </div>
-                            <div class="image-cropper" id="cropperContainer4">
-                                <img src="" id="croppedImg4" alt="Cropped Image 4">
-                                <button type="button" id="saveButton4" class="btn btn-primary mt-3">Save Crop</button>
-                            </div>
+      <div class="additional-image-upload">
+
+        <input
+          type="file"
+          id="input<%= i %>"
+          name="images"
+          accept="image/*"
+          hidden
+        >
+
+        <label for="input<%= i %>" class="image-upload-label-small">
+          <img id="imgView<%= i %>" src="" alt="" style="display:none;">
+          <span class="browse-text">Add Image</span>
+        </label>
+
+        <div id="images-error-<%= i %>" class="error-message"></div>
+
+        <!-- Cropper -->
+        <div class="image-cropper" id="cropperContainer<%= i %>">
+  <img src="" id="croppedImg<%= i %>">
+
+  <div class="cropper-actions">
+    <button
+      type="button"
+      id="saveButton<%= i %>"
+      class="btn btn-primary"
+    >
+      Save Crop
+    </button>
+
+    <button
+      type="button"
+      id="cancelCrop<%= i %>"
+      class="btn btn-outline-secondary"
+    >
+      Cancel
+    </button>
+  </div>
+</div>
+
+
+      </div>
+    <% } %>
+
+  </div>
+
+<% } else { %>
+
+  <p class="text-muted">
+    Maximum of 4 images already added.
+  </p>
+
+<% } %>
 
                             <!-- Description -->
                             <div class="form-group-description">
@@ -1034,118 +1036,202 @@
                                     <div id="date-error" class="error-message"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label>GST</label>
-                                    <input type="text" name="gst" id="gst" class="form-control" placeholder="18%" value="<%= product.gst || '18%' %>">
-                                    <div id="gst-error" class="error-message"></div>
-                                </div>
+  <label>GST (%)</label>
+  <input
+    type="number"
+    name="gst"
+    id="gst"
+    class="form-control"
+    placeholder="18"
+    min="0"
+    max="100"
+    step="0.01"
+    value="<%= typeof product.gst === 'number' ? product.gst : 18 %>"
+    required
+  >
+  <div id="gst-error" class="error-message"></div>
+</div>
+
                             </div>
 
-                            <!-- VARIANTS SECTION -->
-                            <div class="variant-section">
-                                <div class="variant-header">
-                                    <h4 class="variant-title">Product Variants</h4>
-                                    <button type="button" class="btn-add-variant" onclick="addVariant()">
-                                        <i class="fas fa-plus"></i> Add Variant
-                                    </button>
-                                </div>
+                       <!-- VARIANTS SECTION -->
+<div class="variant-section">
+  <div class="variant-header">
+    <h4 class="variant-title">Product Variants</h4>
+    <button type="button" class="btn-add-variant" onclick="addVariant()">
+      <i class="fas fa-plus"></i> Add Variant
+    </button>
+  </div>
 
-                                <div id="variants-container">
-                                    <% if(product.variant && product.variant.length > 0) { %>
-                                        <% product.variant.forEach((variant, index) => { 
-                                            const weight = variant.unitType.split(' ')[0];
-                                            const unit = variant.unitType.split(' ')[1];
-                                        %>
-                                            <div class="variant-item" data-variant-index="<%= index %>">
-                                                <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                                
-                                                <div class="variant-label">Variant <%= index + 1 %></div>
-                                                
-                                                <div class="form-row-3">
-                                                    <div class="form-group">
-                                                        <label>Weight</label>
-                                                        <input type="text" name="variants[<%= index %>][weight]" class="form-control variant-weight" placeholder="500" value="<%= weight %>">
-                                                        <div class="error-message"></div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Unit</label>
-                                                        <select class="form-select variant-unit" name="variants[<%= index %>][unit]">
-                                                            <option value="grm" <%= unit === 'grm' ? 'selected' : '' %>>grm</option>
-                                                            <option value="kg" <%= unit === 'kg' ? 'selected' : '' %>>kg</option>
-                                                            <option value="ml" <%= unit === 'ml' ? 'selected' : '' %>>ml</option>
-                                                            <option value="ltr" <%= unit === 'ltr' ? 'selected' : '' %>>ltr</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Regular Price</label>
-                                                        <input type="text" name="variants[<%= index %>][regularPrice]" class="form-control variant-regular-price" placeholder="₹" value="<%= variant.regularPrice %>">
-                                                        <div class="error-message"></div>
-                                                    </div>
-                                                </div>
+  <div id="variants-container">
+    <% if (product.variant && product.variant.length > 0) { %>
+      <% product.variant.forEach((variant, index) => { 
+        const [weight, unit] = variant.unitType.split(' ');
+      %>
+        <div class="variant-item" data-variant-index="<%= index %>">
+          <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
+            <i class="fas fa-times"></i>
+          </button>
 
-                                                <div class="form-row-3">
-                                                    <div class="form-group">
-                                                        <label>Sale Price</label>
-                                                        <input type="text" name="variants[<%= index %>][salePrice]" class="form-control variant-sale-price" placeholder="₹" value="<%= variant.salePrice %>">
-                                                        <div class="error-message"></div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Stock</label>
-                                                        <input type="text" name="variants[<%= index %>][stock]" class="form-control variant-stock" placeholder="Available" value="<%= variant.stock %>">
-                                                        <div class="error-message"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <% }); %>
-                                    <% } else { %>
-                                        <!-- Default single variant if none exist -->
-                                        <div class="variant-item" data-variant-index="0">
-                                            <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                            
-                                            <div class="variant-label">Variant 1</div>
-                                            
-                                            <div class="form-row-3">
-                                                <div class="form-group">
-                                                    <label>Weight</label>
-                                                    <input type="text" name="variants[0][weight]" class="form-control variant-weight" placeholder="500">
-                                                    <div class="error-message"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Unit</label>
-                                                    <select class="form-select variant-unit" name="variants[0][unit]">
-                                                        <option value="grm">grm</option>
-                                                        <option value="kg">kg</option>
-                                                        <option value="ml">ml</option>
-                                                        <option value="ltr">ltr</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Regular Price</label>
-                                                    <input type="text" name="variants[0][regularPrice]" class="form-control variant-regular-price" placeholder="₹">
-                                                    <div class="error-message"></div>
-                                                </div>
-                                            </div>
+          <div class="variant-label">Variant <%= index + 1 %></div>
 
-                                            <div class="form-row-3">
-                                                <div class="form-group">
-                                                    <label>Sale Price</label>
-                                                    <input type="text" name="variants[0][salePrice]" class="form-control variant-sale-price" placeholder="₹">
-                                                    <div class="error-message"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Stock</label>
-                                                    <input type="text" name="variants[0][stock]" class="form-control variant-stock" placeholder="Available">
-                                                    <div class="error-message"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <% } %>
-                                </div>
-                                <div id="variants-error" class="error-message"></div>
-                            </div>
+          <!-- 🔒 Preserve variant _id -->
+          <input type="hidden" name="variants[<%= index %>][_id]" value="<%= variant._id %>">
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Weight</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                name="variants[<%= index %>][weight]"
+                class="form-control variant-weight"
+                value="<%= weight %>"
+                required
+              >
+              <div class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+              <label>Unit</label>
+              <select
+                class="form-select"
+                name="variants[<%= index %>][unit]"
+                required
+              >
+                <option value="grm" <%= unit === 'grm' ? 'selected' : '' %>>grm</option>
+                <option value="kg"  <%= unit === 'kg'  ? 'selected' : '' %>>kg</option>
+                <option value="ml"  <%= unit === 'ml'  ? 'selected' : '' %>>ml</option>
+                <option value="ltr" <%= unit === 'ltr' ? 'selected' : '' %>>ltr</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Regular Price</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                name="variants[<%= index %>][regularPrice]"
+                class="form-control variant-regular-price"
+                value="<%= variant.regularPrice %>"
+                required
+              >
+              <div class="error-message"></div>
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Sale Price</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                name="variants[<%= index %>][salePrice]"
+                class="form-control variant-sale-price"
+                value="<%= variant.salePrice %>"
+              >
+              <div class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+              <label>Stock</label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                name="variants[<%= index %>][stock]"
+                class="form-control variant-stock"
+                value="<%= variant.stock %>"
+                required
+              >
+              <div class="error-message"></div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+
+      <!-- Default variant -->
+      <div class="variant-item" data-variant-index="0">
+        <div class="variant-label">Variant 1</div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Weight</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              name="variants[0][weight]"
+              class="form-control variant-weight"
+              required
+            >
+            <div class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Unit</label>
+            <select name="variants[0][unit]" class="form-select" required>
+              <option value="grm">grm</option>
+              <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="ltr">ltr</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Regular Price</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              name="variants[0][regularPrice]"
+              class="form-control variant-regular-price"
+              required
+            >
+            <div class="error-message"></div>
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Sale Price</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="variants[0][salePrice]"
+              class="form-control variant-sale-price"
+            >
+            <div class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Stock</label>
+            <input
+              type="number"
+              step="1"
+              min="0"
+              name="variants[0][stock]"
+              class="form-control variant-stock"
+              required
+            >
+            <div class="error-message"></div>
+          </div>
+        </div>
+      </div>
+
+    <% } %>
+  </div>
+
+  <div id="variants-error" class="error-message"></div>
+</div>
+
+          
+
 
                             <!-- Submit Error -->
                             <div id="submit-error" class="error-message"></div>
@@ -1379,96 +1465,147 @@ async function deleteSingleImageFetch(imageId, productId, index) {
 }
 
 // Image preview and cropper initialization
+let selectedImages = {};
+
 function viewImage(event, index) {
-    let input = event.target;
-    const file = input.files[0];
-    if (!file) return;
-    
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-        displayErrorMessage(`images-error-${index}`, 'Please select a valid image file (JPG, PNG, or WEBP).');
-        input.value = '';
-        return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) {
-        displayErrorMessage(`images-error-${index}`, 'Image size should not exceed 5MB.');
-        input.value = '';
-        return;
-    }
-    
-    let reader = new FileReader();
-    reader.onload = function () {
-        let dataURL = reader.result;
-        let image = document.getElementById('imgView' + index);
-        image.src = dataURL;
-        image.style.display = 'block';
+  const input = event.target;
+  const file = input.files[0];
+  if (!file) return;
 
-        let placeholder = image.parentElement.querySelector('.upload-placeholder, .browse-text');
-        if (placeholder) {
-            placeholder.style.display = 'none';
-        }
+  const existingImageInputs = document.querySelectorAll(
+  'input[name="existingImages[]"], input[name="existingImages"]'
+);
 
-        let cropperContainer = document.getElementById('cropperContainer' + index);
-        let croppedImage = document.getElementById('croppedImg' + index);
-        croppedImage.src = dataURL;
-        cropperContainer.classList.add('active');
 
-        if (croppers[index]) {
-            croppers[index].destroy();
-        }
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (!validTypes.includes(file.type)) {
+    displayErrorMessage(`images-error-${index}`, 'Invalid image type');
+    input.value = '';
+    return;
+  }
 
-        croppers[index] = new Cropper(croppedImage, {
-            aspectRatio: 1,
-            viewMode: 1,
-            guides: true,
-            background: false,
-            autoCropArea: 1,
-            zoomable: true,
-            scalable: true,
-            rotatable: true
-        });
+  if (file.size > 5 * 1024 * 1024) {
+    displayErrorMessage(`images-error-${index}`, 'Image must be under 5MB');
+    input.value = '';
+    return;
+  }
 
-        let saveButton = document.querySelector('#saveButton' + index);
-        saveButton.onclick = async function () {
-            let croppedCanvas = croppers[index].getCroppedCanvas({
-                width: 800,
-                height: 800,
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high'
-            });
-            
-            image.src = croppedCanvas.toDataURL('image/jpeg', 0.9);
 
-            await croppedCanvas.toBlob(blob => {
-                let imageFile = new File([blob], `cropped-img-${Date.now()}-${index}.jpg`, { type: "image/jpeg" });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(imageFile);
-                input.files = dataTransfer.files;
-                
-                displayErrorMessage(`images-error-${index}`, '');
-            }, 'image/jpeg', 0.9);
+  const image = document.getElementById(`imgView${index}`);
+  const cropperContainer = document.getElementById(`cropperContainer${index}`);
+  const croppedImage = document.getElementById(`croppedImg${index}`);
+  const saveBtn = document.getElementById(`saveButton${index}`);
+  const cancelBtn = document.getElementById(`cancelCrop${index}`);
 
-            cropperContainer.classList.remove('active');
-            croppers[index].destroy();
-        };
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    image.src = reader.result;
+    image.style.display = 'block';
+
+    const placeholder = image.parentElement.querySelector(
+      '.upload-placeholder, .browse-text'
+    );
+    if (placeholder) placeholder.style.display = 'none';
+
+    croppedImage.src = reader.result;
+    cropperContainer.classList.add('active');
+
+    selectedImages[index] = true;
+
+    if (croppers[index]) croppers[index].destroy();
+
+    // ✅ SAME PROFESSIONAL CROPPER AS ADD PRODUCT
+    croppers[index] = new Cropper(croppedImage, {
+      viewMode: 1,
+      autoCropArea: 0.9,
+      responsive: true,
+      background: false,
+      movable: true,
+      zoomable: true,
+      cropBoxResizable: true,
+      cropBoxMovable: true
+    });
+
+    // SAVE
+    saveBtn.onclick = () => {
+      const canvas = croppers[index].getCroppedCanvas({
+        width: 800,
+        height: 800,
+        imageSmoothingQuality: 'high'
+      });
+
+      image.src = canvas.toDataURL('image/jpeg', 0.9);
+
+      canvas.toBlob(blob => {
+        const file = new File(
+          [blob],
+          `product-${Date.now()}-${index}.jpg`,
+          { type: 'image/jpeg' }
+        );
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+
+        cleanupCropper(index);
+        displayErrorMessage(`images-error-${index}`, '');
+      });
     };
-    reader.readAsDataURL(file);
+
+    // CANCEL
+    cancelBtn.onclick = () => cancelCrop(index);
+  };
+
+  reader.readAsDataURL(file);
 }
 
-// Setup image inputs
-document.getElementById('input1').addEventListener('change', function(e) { viewImage(e, 1); });
-document.getElementById('input2').addEventListener('change', function(e) { viewImage(e, 2); });
-document.getElementById('input3').addEventListener('change', function(e) { viewImage(e, 3); });
-document.getElementById('input4').addEventListener('change', function(e) { viewImage(e, 4); });
 
-// GST input formatting
-document.getElementById('gst').addEventListener('blur', function(e) {
-    let value = e.target.value.trim();
-    if (value && !value.endsWith('%')) {
-        e.target.value = value + '%';
-    }
+// 🔥 BIND IMAGE INPUTS (EDIT PRODUCT)
+document.querySelectorAll('input[type="file"][id^="input"]').forEach(input => {
+  input.addEventListener('change', e => {
+    const index = input.id.replace('input', '');
+    viewImage(e, index);
+  });
 });
+
+
+function cancelCrop(index) {
+  const input = document.getElementById(`input${index}`);
+  const image = document.getElementById(`imgView${index}`);
+  const croppedImage = document.getElementById(`croppedImg${index}`);
+  const cropperContainer = document.getElementById(`cropperContainer${index}`);
+
+  if (croppers[index]) {
+    croppers[index].destroy();
+    delete croppers[index];
+  }
+
+  input.value = '';
+  image.src = '';
+  image.style.display = 'none';
+  croppedImage.src = '';
+
+  delete selectedImages[index];
+  cropperContainer.classList.remove('active');
+
+  const placeholder = image.parentElement.querySelector(
+    '.upload-placeholder, .browse-text'
+  );
+  if (placeholder) placeholder.style.display = 'block';
+}
+
+function cleanupCropper(index) {
+  const cropperContainer = document.getElementById(`cropperContainer${index}`);
+
+  if (croppers[index]) {
+    croppers[index].destroy();
+    delete croppers[index];
+  }
+
+  cropperContainer.classList.remove('active');
+}
+
 
 // Form validation with variants
 function validateForm() {
@@ -1601,22 +1738,28 @@ function validateForm() {
         });
     }
 
-    // Image validation
-    const existingImageInputs = document.querySelectorAll('[id^="imageDatas-"]');
-    const newImageInputs = [
-        document.getElementById('input1'),
-        document.getElementById('input2'),
-        document.getElementById('input3'),
-        document.getElementById('input4')
-    ];
+   // ---------- IMAGE VALIDATION (EDIT PRODUCT SAFE) ----------
+const existingImageInputs = document.querySelectorAll(
+  'input[name="existingImages[]"], input[name="existingImages"]'
+);
 
-    const hasExistingImages = existingImageInputs.length > 0;
-    const hasNewImages = newImageInputs.some(input => input.files.length > 0);
+const newImageInputs = document.querySelectorAll(
+  'input[type="file"][id^="input"]'
+);
 
-    if (!hasExistingImages && !hasNewImages) {
-        displayErrorMessage("images-error-1", 'At least one product image is required.');
-        isValid = false;
-    }
+const hasExistingImages = existingImageInputs.length > 0;
+
+const hasNewImages = Array.from(newImageInputs).some(
+  input => input.files && input.files.length > 0
+);
+
+if (!hasExistingImages && !hasNewImages) {
+  const firstImageError = document.querySelector('[id^="images-error-"]');
+  if (firstImageError) {
+    firstImageError.innerText = 'At least one product image is required.';
+  }
+  isValid = false;
+}
 
     const submitError = document.getElementById('submit-error');
     if (!isValid) {
@@ -1811,6 +1954,18 @@ window.addEventListener('beforeunload', function(e) {
         return '';
     }
 });
+ const gstInput = document.getElementById("gst");
+gstInput.addEventListener("input", () => {
+  const value = parseFloat(gstInput.value);
+  const error = document.getElementById("gst-error");
+
+  if (isNaN(value) || value < 0 || value > 100) {
+    error.innerText = "GST must be between 0 and 100";
+  } else {
+    error.innerText = "";
+  }
+});
+
 
 console.log('Edit Product form with variants initialized');
 console.log('Form validation: Active');

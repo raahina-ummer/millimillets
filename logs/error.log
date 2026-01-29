@@ -1,0 +1,30 @@
+2026-01-22 15:06:21 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:26 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:31 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:39 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:57 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:08:02 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

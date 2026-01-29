@@ -266,6 +266,25 @@
       color: #2d2d2d;
       font-size: 12px;
     }
+    .status-badge.return-requested {
+  background: rgba(230, 126, 34, 0.1);
+  color: #e67e22;
+}
+
+.status-badge.returned {
+  background: rgba(155, 89, 182, 0.1);
+  color: #8e44ad;
+}
+.item-status.return-requested {
+  background: rgba(230, 126, 34, 0.1);
+  color: #e67e22;
+}
+
+.item-status.returned {
+  background: rgba(155, 89, 182, 0.1);
+  color: #8e44ad;
+}
+
 
     .item-status {
       font-size: 11px;
@@ -296,12 +315,12 @@
       color: #27ae60;
     }
 
-    .item-status.cancelled, .item-status.canceled {
+    .item-status.cancelled, .item-status.cancelled {
       background: rgba(231, 76, 60, 0.1);
       color: #e74c3c;
     }
 
-    .item-status.return-request {
+    .item-status.return-requested {
       background: rgba(230, 126, 34, 0.1);
       color: #e67e22;
     }
@@ -352,7 +371,7 @@
       color: #27ae60;
     }
 
-    .status-badge.cancelled, .status-badge.canceled {
+    .status-badge.cancelled, .status-badge.cancelled {
       background: rgba(231, 76, 60, 0.1);
       color: #e74c3c;
     }
@@ -534,7 +553,10 @@
             <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
             <option value="Shipped" <%= status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
             <option value="Delivered" <%= status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-            <option value="Canceled" <%= status === 'Canceled' ? 'selected' : '' %>>Cancelled</option>
+            <option value="Cancelled" <%= status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+            <option value="Return Requested" <%= status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+            <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned </option>
+
           </select>
         </div>
         
@@ -583,8 +605,8 @@
                   </td>
                   <td>
                     <div class="date-info">
-                      <span class="date"><%= new Date(order.createdOn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
-                      <span class="time"><%= new Date(order.createdOn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %></span>
+                      <span class="date"><%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                      <span class="time"><%= new Date(order.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %></span>
                     </div>
                   </td>
                   <td>
@@ -597,23 +619,11 @@
                   <td>
                     <div class="items-info">
                       <span class="items-count"><%= order.orderedProducts?.length || 0 %> item(s)</span>
-                      <% if (order.orderedProducts && order.orderedProducts.length > 0) { %>
-                        <% order.orderedProducts.slice(0, 2).forEach(item => { %>
-                          <div class="item-detail">
-                            <span class="product-name"><%= item.product?.productName || 'Product' %></span>
-                            <span class="item-status <%= (item.status || order.status || '').toLowerCase().replace(/\s+/g, '-') %>">
-                              <%= item.status || order.status || 'Pending' %>
-                            </span>
-                          </div>
-                        <% }) %>
-                        <% if (order.orderedProducts.length > 2) { %>
-                          <small style="color: #999; font-size: 11px;">+<%= order.orderedProducts.length - 2 %> more</small>
-                        <% } %>
-                      <% } %>
-                    </div>
-                  </td>
+                  
                   <td>
-                    <div class="amount">₹<%= order.finalAmount?.toFixed(2) || '0.00' %></div>
+                    <div class="amount">₹<%= order.currentAmount?.toFixed(2) || '0.00' %></div>
+                    <small>Paid: ₹<%= order.finalAmount.toFixed(2) %></small>
+
                     <% if (order.discount > 0) { %>
                       <div class="discount">-₹<%= order.discount.toFixed(2) %></div>
                     <% } %>
@@ -632,24 +642,22 @@
                         View Details
                       </a>
 
-                      <% if (!['Delivered', 'Canceled', 'delivered', 'canceled'].includes(order.status)) { %>
+                      <% if (!['Delivered', 'Cancelled', 'delivered', 'cancelled'].includes(order.status)) { %>
                         <select class="status-select" 
-                      onchange="updateOrderStatus('<%= order.orderId %>', this.value, '<%= order.status %>', <%= JSON.stringify((order.userId && order.userId._id) || 'N/A') %>)">
+                      onchange="updateOrderStatus('<%= order.orderId %>', this.value, '<%= order.status %>', '<%= JSON.stringify((order.userId && order.userId._id) ) %>')">
 
 
 
                           <option value="">Update</option>
                           <% if (order.status === 'Pending') { %>
                             <option value="Processing">→ Processing</option>
-                            <option value="Canceled">✕ Cancel</option>
+                            <option value="Cancelled">✕ Cancel</option>
                           <% } else if (order.status === 'Processing') { %>
                             <option value="Shipped">→ Shipped</option>
-                            <option value="Canceled">✕ Cancel</option>
+                            <option value="Cancelled">✕ Cancel</option>
                           <% } else if (order.status === 'Shipped') { %>
                             <option value="Delivered">✓ Delivered</option>
-                          <% } else if (order.status === 'Return Request') { %>
-                            <option value="Returned">✔ Approve Return</option>
-                          <% } %>
+                          <%  } %>
                         </select>
                       <% } %>
                     </div>
@@ -706,12 +714,12 @@
       }
 
       const validTransitions = {
-        'Pending': ['Processing', 'Canceled'],
-        'Processing': ['Shipped', 'Canceled'],
+        'Pending': ['Processing', 'Cancelled'],
+        'Processing': ['Shipped', 'Cancelled'],
         'Shipped': ['Delivered'],
-        'Return Request': ['Returned'],
+        'Return Requested': ['Returned'],
         'Delivered': [],
-        'Canceled': [],
+        'Cancelled': [],
         'Returned': []
       };
 
@@ -738,7 +746,7 @@
       let confirmText = `Change order status to ${status}?`;
       let warningText = '';
 
-      if (status === 'Canceled') {
+      if (status === 'Cancelled') {
         warningText = 'This will cancel the order and restore product stock.';
       } else if (status === 'Returned') {
         warningText = 'This will process the return and refund to customer wallet.';
@@ -776,7 +784,7 @@
               },
               body: JSON.stringify({ 
                 status: status,
-                userId: userId 
+                
               }),
             });
 

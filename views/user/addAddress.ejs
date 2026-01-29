@@ -143,12 +143,8 @@
 
   <div class="container">
      <h2>Add New Address</h2>
-      <form id="addAddressForm" method="POST" action="/addAddress">
-  <input type="hidden" name="redirect" value="<%= redirectPage %>">
-  <!-- rest of your input fields -->
- 
-
-
+      <form method="POST" action="/addAddress">
+  <input type="hidden" name="redirect" value="<%= redirect %>">
       <div class="grid-2">
         <div>
           <label for="firstName">First Name</label>

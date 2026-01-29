@@ -667,7 +667,7 @@
         </div>
         <div class="stock-number"><%= criticalCount %></div>
         <div class="stock-description">Less than 10 units</div>
-        <a href="/admin/stock?filter=critical" class="view-btn">View</a>
+        <!-- <a href="/admin/stock?filter=critical" class="view-btn">View</a> -->
       </div>
 
       <div class="stock-card low">
@@ -677,7 +677,7 @@
         </div>
         <div class="stock-number"><%= lowCount %></div>
         <div class="stock-description">10-49 units</div>
-        <a href="/admin/stock?filter=low" class="view-btn">View</a>
+        <!-- <a href="/admin/stock?filter=low" class="view-btn">View</a> -->
       </div>
 
       <div class="stock-card good">
@@ -687,7 +687,7 @@
         </div>
         <div class="stock-number"><%= goodCount %></div>
         <div class="stock-description">50+ units</div>
-        <a href="/admin/stock?filter=good" class="view-btn">View</a>
+        <!-- <a href="/admin/stock?filter=good" class="view-btn">View</a> -->
       </div>
 
       <div class="stock-card out">
@@ -697,7 +697,7 @@
         </div>
         <div class="stock-number"><%= outOfStockCount %></div>
         <div class="stock-description">0 units</div>
-        <a href="/admin/stock?filter=out" class="view-btn">View</a>
+        <!-- <a href="/admin/stock?filter=out" class="view-btn">View</a> -->
       </div>
     </div>
 
@@ -753,7 +753,7 @@
             <th>Regular Price</th>
             <th>Sale Price</th>
             <th>Image</th>
-            <th>Actions</th>
+            <!-- <th>Actions</th> -->
           </tr>
         </thead>
         <tbody>
@@ -803,11 +803,11 @@
                 </td>
 
                 <td>
-                  <button
+                  <!-- <button
                     class="btn-sm btn-success"
                     onclick="quickRestock('<%= product._id %>', '<%= v._id %>', '<%= product.productName %> - <%= v.unitType %>', <%= v.stock %>)">
                     Restock
-                  </button>
+                  </button> -->
                 </td>
               </tr>
 

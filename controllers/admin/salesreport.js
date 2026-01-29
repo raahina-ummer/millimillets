@@ -30,7 +30,7 @@ const loadSalesReport = async (req, res) => {
     // Fetch orders with pagination
     const orders = await Order.find(query)
       .populate("userId", "name email")
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
@@ -61,7 +61,7 @@ const loadSalesReport = async (req, res) => {
     });
   } catch (error) {
     console.error("Error generating sales report:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 
@@ -85,11 +85,11 @@ const downloadSalesReport = async (req, res) => {
 
     const orders = await Order.find(query)
       .populate("userId", "name email")
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .lean();
 
     if (!orders || orders.length === 0) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         success: false,
         message: "No orders found for the selected filters",
       });
@@ -102,11 +102,11 @@ const downloadSalesReport = async (req, res) => {
     } else if (format === "excel") {
       await generateExcel(res, orders, statistics, period, startDate, endDate);
     } else {
-      return res.status(400).json({ success: false, message: "Invalid format" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Invalid format" });
     }
   } catch (error) {
     console.error("Error downloading sales report:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 
@@ -197,7 +197,8 @@ const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
       doc.fillColor(colors.primary).rect(40, yPos, 515, 25).fill();
       doc.fillColor("#ffffff").fontSize(9).font("Helvetica-Bold");
       
-      const headers = ["#", "Order ID", "Date", "Customer", "Amount", "Discount", "Tax", "Status"];
+      const headers = ["#", "Order ID", "Date", "Customer", "Amount", "Coupon Discount", "Tax","Status"];
+
       const colWidths = [25, 70, 75, 100, 70, 70, 60, 65];
       let xPos = 50;
 
@@ -220,17 +221,20 @@ const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
         }
 
         doc.fillColor(colors.dark).fontSize(8).font("Helvetica");
-        const discount = order.discount || 0;
-        const rowData = [
-          (index + 1).toString(),
-          order.orderId || order._id.toString().slice(-8),
-          new Date(order.createdOn).toLocaleDateString(),
-          order.userId?.name || "N/A",
-          `₹${(order.totalPrice || 0).toFixed(0)}`,
-          `₹${discount.toFixed(0)}`,
-          `₹${(order.tax || 0).toFixed(0)}`,
-          order.status || "N/A",
-        ];
+        const couponDiscount = order.couponDiscount || 0;
+const itemDiscount = order.itemDiscount || 0;
+const discount = couponDiscount + itemDiscount;
+
+const rowData = [
+  (index + 1).toString(),
+  order.orderId || order._id.toString().slice(-8),
+  new Date(order.createdAt).toLocaleDateString(),
+  order.userId?.name || "N/A",
+  `₹${(order.totalPrice || 0).toFixed(0)}`,
+  `₹${discount.toFixed(0)}`,
+  `₹${(order.tax || 0).toFixed(0)}`,
+  order.status || "N/A",
+];
 
         xPos = 50;
         rowData.forEach((data, i) => {
@@ -288,45 +292,51 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
 
     // Order Details
     worksheet.addRow(["ORDER DETAILS"]);
-    const headerRow = worksheet.addRow([
-      "S.No",
-      "Order ID",
-      "Date",
-      "Customer",
-      "Email",
-      "Amount",
-      "Item Discount",
-      "Coupon Discount",
-      "Total Discount",
-      "Tax",
-      "Shipping",
-      "Final Amount",
-      "Payment Method",
-      "Status",
-    ]);
+const headerRow = worksheet.addRow([
+  "S.No",
+  "Order ID",
+  "Date",
+  "Customer",
+  "Email",
+  "Order Amount",
+  "Item Discount",
+  "Coupon Discount",
+  "Total Discount",
+  "Tax",
+  "Shipping",
+  "Final Amount",
+  "Payment Method",
+  "Status",
+]);
+
 
     headerRow.font = { bold: true };
     headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF8b7355" } };
     headerRow.font.color = { argb: "FFFFFFFF" };
 
     orders.forEach((order, index) => {
-      const discount = order.discount || 0;
+     const couponDiscount = order.couponDiscount || 0;
+  const itemDiscount = order.itemDiscount || 0;
+  const totalDiscount = couponDiscount + itemDiscount;
+
       worksheet.addRow([
-        index + 1,
-        order.orderId.toString(),
-        new Date(order.createdOn).toLocaleDateString(),
-        order.userId?.name || "N/A",
-        order.userId?.email || "N/A",
-        order.totalPrice || 0,
-        order.itemDiscount || 0,
-        order.discount || 0,
-        discount,
-        order.tax || 0,
-        0,
-        order.finalAmount || 0,
-        order.paymentMethod || "N/A",
-        order.status || "N/A",
-      ]);
+  index + 1,
+  order.orderId?.toString() || "N/A",
+  new Date(order.createdAt).toLocaleDateString(),
+  order.userId?.name || "N/A",
+  order.userId?.email || "N/A",
+
+  order.totalPrice || 0,        
+ itemDiscount,                                    
+  couponDiscount,               
+  totalDiscount,               
+  order.tax||0,                           
+  order.shippingCost || 0,      
+  order.finalAmount || 0,       
+  order.paymentMethod || "N/A",
+  order.status || "N/A",
+]);
+
     });
 
     // Auto-fit columns
@@ -340,7 +350,7 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
     res.send(buffer);
   } catch (error) {
     console.error("Error generating Excel:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.SERVER_ERROR});
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 

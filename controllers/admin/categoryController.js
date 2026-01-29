@@ -3,8 +3,7 @@ import Category from "../../models/CategorySchema.js";
 import Product from "../../models/ProductSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
-import logger from '../../utils/logger.js';
-
+import logger from "../../utils/logger.js";
 
 const categoryInfo = async (req, res) => {
   try {
@@ -21,7 +20,23 @@ const categoryInfo = async (req, res) => {
     const categoryData = await Category.find(searchQuery)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
+
+    const now = new Date();
+
+    categoryData.forEach((category) => {
+      const offer = category.categoryOffer;
+
+      category.hasOffer =
+        offer &&
+        offer.offerActive === true &&
+        offer.discountPercentage > 0 &&
+        (!offer.offerStartDate || offer.offerStartDate <= now) &&
+        (!offer.offerEndDate || offer.offerEndDate >= now);
+
+      category.activeOffer = category.hasOffer ? offer : null;
+    });
 
     const totalCategories = await Category.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalCategories / limit);
@@ -35,7 +50,7 @@ const categoryInfo = async (req, res) => {
     });
   } catch (error) {
     logger.error("Category info error", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
   }
 };
 
@@ -43,7 +58,7 @@ const loadAddCategory = (req, res) => {
   try {
     return res.render("addcategory");
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
   }
 };
 
@@ -55,12 +70,13 @@ const addCategory = async (req, res) => {
   try {
     // Convert name to lowercase for comparison
     const existingCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
+      name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
     });
 
     if (existingCategory) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.CATEGORY_ALREADY_EXISTS });
-
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.CATEGORY.ALREADY_EXISTS });
     }
 
     const newCategory = new Category({
@@ -71,18 +87,23 @@ const addCategory = async (req, res) => {
     await newCategory.save();
     return res.status(Status.CREATED).json({
       success: true,
-      message: message.CATEGORY_CREATED_SUCCESS,
+      message: message.CATEGORY.CREATED_SUCCESS,
     });
-
   } catch (error) {
     logger.error("Add category error", error);
+    if (error.code === 11000) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Category name already exists",
+      });
+    }
+
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: message.SERVER_ERROR,
+      message: message.GENERAL.SERVER_ERROR,
     });
   }
 };
-
 
 const getListCategory = async (req, res) => {
   try {
@@ -100,52 +121,73 @@ const getUnlistCategory = async (req, res) => {
     await Category.updateOne({ _id: id }, { $set: { isListed: true } });
     res.redirect("/admin/category");
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
   }
 };
 
 const getEditCategory = async (req, res) => {
   try {
-    const id = req.query.id;
+    const id = req.params.id;
+
     const category = await Category.findOne({ _id: id });
     res.render("edit-category", { category });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
   }
 };
 
 const editCategory = async (req, res) => {
   try {
     const id = req.params.id;
-    const { categoryName, description } = req.body;
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Name and description are required",
+      });
+    }
 
     const existingCategory = await Category.findOne({
-      name: categoryName,
+      name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
       _id: { $ne: id },
     });
 
     if (existingCategory) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.CATEGORY_ALREADY_EXISTS });
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.CATEGORY.ALREADY_EXISTS,
+      });
     }
 
-    const updateCategory = await Category.findByIdAndUpdate(
+    const updated = await Category.findByIdAndUpdate(
       id,
       {
-        name: categoryName,
-        description,
+        name: name.trim(),
+        description: description.trim(),
       },
-      { new: true }
+      { new: true },
     );
 
-    if (updateCategory) {
-      res.status(Status.OK).json({ success: true, message: message.CATEGORY_UPDATED_SUCCESS });
-    } else {
-      res.status(Status.NOT_FOUND).json({ success: false, message: message.CATEGORY_NOT_FOUND });
+    if (!updated) {
+      return res.status(Status.NOT_FOUND).json({
+        success: false,
+        message: message.CATEGORY_NOT_FOUND,
+      });
     }
+
+    return res.status(Status.OK).json({
+      success: true,
+      message: message.CATEGORY.UPDATED_SUCCESS,
+    });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.SERVER_ERROR);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR,
+    });
   }
 };
+
 const loadCategoryOffer = async (req, res) => {
   try {
     const { categoryId } = req.params;
@@ -153,14 +195,19 @@ const loadCategoryOffer = async (req, res) => {
     const category = await Category.findById(categoryId);
 
     if (!category) {
-      return res.status(Status.NOT_FOUND).json({ success: false, message: message.CATEGORY_NOT_FOUND });
+      return res
+        .status(Status.NOT_FOUND)
+        .json({ success: false, message: message.CATEGORY_NOT_FOUND });
     }
 
-    res.status(Status.OK).json({ success: true, offer: category.categoryOffer || {} });
+    res
+      .status(Status.OK)
+      .json({ success: true, offer: category.categoryOffer || {} });
   } catch (error) {
-
     logger.error("Error fetching category offer", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -174,11 +221,15 @@ const updateCategoryOffer = async (req, res) => {
       offerDescription,
       offerActive,
       offerStartDate,
-      offerEndDate
+      offerEndDate,
     } = req.body;
 
     // Validation
-    if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+    if (
+      isNaN(discountPercentage) ||
+      discountPercentage < 0 ||
+      discountPercentage > 100
+    ) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
         message: message.DISCOUNT_PERCENTAGE_INVALID,
@@ -190,7 +241,6 @@ const updateCategoryOffer = async (req, res) => {
         success: false,
         message: message.MAX_DISCOUNT_NEGATIVE,
       });
-
     }
 
     if (offerStartDate && offerEndDate) {
@@ -202,7 +252,6 @@ const updateCategoryOffer = async (req, res) => {
           success: false,
           message: message.OFFER_DATE_INVALID,
         });
-
       }
     }
 
@@ -210,15 +259,17 @@ const updateCategoryOffer = async (req, res) => {
       categoryId,
       {
         categoryOffer: {
-          discountPercentage: parseInt(discountPercentage) || 0,
-          maxDiscountAmount: maxDiscountAmount ? parseInt(maxDiscountAmount) : null,
+          discountPercentage: Number(discountPercentage) || 0,
+          maxDiscountAmount: maxDiscountAmount
+            ? Number(maxDiscountAmount)
+            : null,
           offerDescription: offerDescription || null,
           offerActive: offerActive === true || offerActive === "true",
           offerStartDate: offerStartDate ? new Date(offerStartDate) : null,
-          offerEndDate: offerEndDate ? new Date(offerEndDate) : null
-        }
+          offerEndDate: offerEndDate ? new Date(offerEndDate) : null,
+        },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!category) {
@@ -232,11 +283,11 @@ const updateCategoryOffer = async (req, res) => {
       message: message.CATEGORY_OFFER_UPDATED_SUCCESS,
       category,
     });
-
-
   } catch (error) {
     logger.error("Error updating category offer", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -254,10 +305,10 @@ const deleteCategoryOffer = async (req, res) => {
           offerDescription: null,
           offerActive: false,
           offerStartDate: null,
-          offerEndDate: null
-        }
+          offerEndDate: null,
+        },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!category) {
@@ -267,16 +318,16 @@ const deleteCategoryOffer = async (req, res) => {
       });
     }
 
-
     return res.status(Status.OK).json({
       success: true,
       message: message.CATEGORY_OFFER_DELETED_SUCCESS,
       category,
     });
-
   } catch (error) {
     logger.error("Error deleting category offer", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.SERVER_ERROR });
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 

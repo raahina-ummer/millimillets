@@ -17,16 +17,15 @@
         }
 
         body {
-            background-color: #E8DCC4;
-            margin: 0;
-            padding: 0;
+            background-color: #f8f9fa;
+            /* light neutral */
         }
 
         .checkout-wrapper {
-            background-color: #E8DCC4;
-            min-height: 100vh;
-            padding: 50px 0;
+            background-color: #f8f9fa;
+            padding: 40px 0;
         }
+
 
         .page-title {
             color: #8B7355;
@@ -57,15 +56,17 @@
         }
 
         /* Section Cards */
-        .checkout-section {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 25px rgba(139, 115, 85, 0.08);
-            margin-bottom: 30px;
-            overflow: hidden;
-            border: 1px solid rgba(139, 115, 85, 0.05);
-            transition: box-shadow 0.3s ease;
+        .section-header {
+            background: #ffffff;
+            padding: 18px 24px;
+            border-bottom: 1px solid #e5e7eb;
         }
+
+        .section-header h3 {
+            color: #111827;
+            font-size: 1.1rem;
+        }
+
 
         .checkout-section:hover {
             box-shadow: 0 6px 35px rgba(139, 115, 85, 0.12);
@@ -212,18 +213,7 @@
         }
 
         /* Payment Methods */
-        .payment-method {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-            padding: 22px 24px;
-            border: 2px solid #d4c5b0;
-            border-radius: 14px;
-            margin-bottom: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #fafaf8;
-        }
+       
 
         .payment-method:hover {
             border-color: #8B7355;
@@ -232,12 +222,7 @@
             background: white;
         }
 
-        .payment-method.selected {
-            border-color: #8B7355;
-            background: white;
-            box-shadow: 0 6px 25px rgba(139, 115, 85, 0.15);
-        }
-
+       
         .payment-icon {
             width: 56px;
             height: 56px;
@@ -342,26 +327,22 @@
 
         /* Order Summary Sidebar */
         .order-summary {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 25px rgba(139, 115, 85, 0.08);
-            padding: 30px;
-            height: fit-content;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
             position: sticky;
             top: 20px;
-            border: 1px solid rgba(139, 115, 85, 0.05);
         }
 
         .summary-title {
-            margin: 0 0 28px;
-            color: #8B7355;
-            font-weight: 800;
-            font-size: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            padding-bottom: 15px;
+            font-size: 1.25rem;
+            color: #111827;
+            text-transform: none;
+            letter-spacing: 0;
         }
+
+
 
         .summary-title::after {
             content: '';
@@ -419,26 +400,22 @@
         }
 
         /* Place Order Button */
-        .place-order-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #8B7355, #755e45);
-            color: white;
-            border: none;
-            padding: 16px 25px;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 28px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.2);
-        }
+       .place-order-btn {
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 20px;
+}
+
+.place-order-btn:hover {
+    background: #1d4ed8;
+}
+
 
         .place-order-btn:hover:not(:disabled) {
             background: linear-gradient(135deg, #755e45, #6b5139);
@@ -456,6 +433,13 @@
         .place-order-btn i {
             font-size: 1.1rem;
         }
+
+        #applyCouponBtn {
+    background: #ffffff;
+    color: #2563eb;
+    border: 1px dashed #2563eb;
+}
+
 
         /* Security Info */
         .security-info {
@@ -582,6 +566,44 @@
             color: #8B7355;
             opacity: 0.5;
         }
+
+
+        .payment-section {
+    margin-top: 25px;
+}
+
+.payment-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #111827;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+.payment-method i {
+    color: #6b7280;
+}
+
+.payment-method.selected {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.payment-method.selected i {
+    color: #2563eb;
+}
+
 
         /* Responsive Design */
         @media (max-width: 1024px) {
@@ -712,50 +734,7 @@
                             </div>
                         </div>
 
-                        <!-- Payment Method Section -->
-                        <div class="checkout-section">
-                            <div class="section-header">
-                                <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
-                            </div>
-
-                            <!-- Wallet Payment Option -->
-                            <div class="payment-method" onclick="selectPayment('wallet')" data-payment="wallet">
-                                <div class="payment-icon">
-                                    <i class="fas fa-wallet"></i>
-                                </div>
-                                <div class="payment-info">
-                                    <h4>Wallet Payment</h4>
-                                    <p>Available Balance: ₹<%= walletBalance ? walletBalance.toFixed(2) : '0.00' %>
-                                    </p>
-                                    <% if (!walletBalance || walletBalance < total) { %>
-                                        <small style="color: #dc3545;">Insufficient wallet balance</small>
-                                        <% } %>
-                                </div>
-                            </div>
-
-                            <div class="section-content">
-                                <div class="payment-method selected" onclick="selectPayment('cod')" data-payment="cod">
-                                    <div class="payment-icon">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div class="payment-info">
-                                        <h4>Cash on Delivery</h4>
-                                        <p>Pay with cash when your order is delivered</p>
-                                    </div>
-                                </div>
-
-                                <div class="payment-method" onclick="selectPayment('razorpay')" data-payment="razorpay">
-                                    <div class="payment-icon">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div class="payment-info">
-                                        <h4>Online Payment</h4>
-                                        <p>Pay securely with Razorpay (UPI, Cards, Net Banking)</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                      
                         <!-- Order Items Section -->
                         <div class="checkout-section">
                             <div class="section-header">
@@ -774,17 +753,16 @@
                                             <h4 class="item-name">
                                                 <%= product.productId ? product.productId.productName : 'Unknown' %>
                                             </h4>
+                                            <div class="item-variant">
+  <small><%= product.variantName %></small>
+</div>
+
                                             <div class="item-quantity">Quantity: <%= product.quantity %>
                                             </div>
-                                            <div class="item-price">
-                                                ₹<%= ( ((product.productId.variant && product.productId.variant.length>
-                                                    0)
-                                                    ? (product.productId.variant[0].salePrice ||
-                                                    product.productId.variant[0].regularPrice)
-                                                    : 0
-                                                    ) * product.quantity
-                                                    ).toFixed(2) %>
-                                            </div>
+                                          <div class="item-price">
+  ₹<%= (product.price * product.quantity).toFixed(2) %>
+</div>
+
 
                                         </div>
                                     </div>
@@ -827,17 +805,34 @@
 
                                 <!-- Apply / Remove Coupon -->
                                 <div style="margin-bottom:15px; margin-top:15px;">
-                                    <button id="applyCouponBtn" class="place-order-btn"
-                                        style="background:#f9f6f1; color:#8B7355; border:2px solid #8B7355; width:100%;"
-                                        onclick="openCouponModal()">
-                                        <i class="fas fa-ticket-alt"></i> Apply Coupon
-                                    </button>
+                                    <% if (!appliedCoupon) { %>
+                                        <button id="applyCouponBtn" class="place-order-btn"
+                                            style="background:#f9f6f1; color:#8B7355; border:2px solid #8B7355; width:100%;"
+                                            onclick="openCouponModal()">
+                                            <i class="fas fa-ticket-alt"></i> Apply Coupon
+                                        </button>
+                                        <% } else { %>
+                                            <div class="applied-coupon-box">
+                                                <div>
+                                                    <strong>Coupon Applied:</strong>
+                                                    <span class="coupon-code">
+                                                        <%= appliedCoupon %>
+                                                    </span>
+                                                </div>
+                                                <button id="removeCouponBtn" class="place-order-btn"
+                                                    style="background:#dc3545; color:white; width:100%; margin-top:10px;"
+                                                    onclick="removeCoupon()">
+                                                    <i class="fas fa-times"></i> Remove Coupon
+                                                </button>
+                                            </div>
+                                            <% } %>
 
-                                    <button id="removeCouponBtn" class="place-order-btn"
-                                        style="display:none; background:#dc3545; color:white; width:100%; margin-top:10px;"
-                                        onclick="removeCoupon()">
-                                        <i class="fas fa-times"></i> Remove Coupon
-                                    </button>
+
+                                                <button id="removeCouponBtn" class="place-order-btn"
+                                                    style="display:none; background:#dc3545; color:white; width:100%; margin-top:10px;"
+                                                    onclick="removeCoupon()">
+                                                    <i class="fas fa-times"></i> Remove Coupon
+                                                </button>
                                 </div>
 
                                 <!-- Coupon Discount -->
@@ -870,19 +865,32 @@
                                             <span>₹<%= total.toFixed(2) %></span>
                                         </div>
 
-                                        <!-- Place Order Buttons -->
+                                        <!-- PAYMENT OPTIONS -->
+                                        <div class="payment-section">
+                                            <h4 class="payment-title">Choose Payment Method</h4>
+
+                                            <div class="payment-method selected" onclick="selectPayment('cod')"
+                                                data-payment="cod">
+                                                <i class="fas fa-money-bill-wave"></i>
+                                                <span>Cash on Delivery</span>
+                                            </div>
+
+                                            <div class="payment-method" onclick="selectPayment('razorpay')"
+                                                data-payment="razorpay">
+                                                <i class="fas fa-credit-card"></i>
+                                                <span>Online Payment</span>
+                                            </div>
+
+                                            <div class="payment-method" onclick="selectPayment('wallet')"
+                                                data-payment="wallet">
+                                                <i class="fas fa-wallet"></i>
+                                                <span>Wallet (₹<%= walletBalance.toFixed(2) %>)</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- PLACE ORDER BUTTON -->
                                         <button class="place-order-btn" id="placeOrderBtn">
-                                            <i class="fas fa-money-bill"></i> Place Order (COD)
-                                        </button>
-
-                                        <button class="place-order-btn" style="background:#0d6efd; margin-top:10px;"
-                                            id="razorpayBtn">
-                                            <i class="fas fa-credit-card"></i> Pay With Razorpay
-                                        </button>
-
-                                        <button class="place-order-btn" style="background:#28a745; margin-top:10px;"
-                                            id="walletBtn">
-                                            <i class="fas fa-wallet"></i> Pay With Wallet
+                                            Place Order
                                         </button>
 
                                         <!-- Security Info -->
@@ -891,7 +899,7 @@
                                             <span>Your payment information is secure and encrypted</span>
                                         </div>
                     </div>
-
+                </div>
 
                     <%- include('../partials/user/footer.ejs') %>
 
@@ -905,29 +913,51 @@
                                 if (selectedCard) selectedCard.classList.add('selected');
                                 selectedAddressId = addressId;
                             }
+function selectPayment(paymentMethod) {
+  document.querySelectorAll('.payment-method')
+    .forEach(method => method.classList.remove('selected'));
 
-                            function selectPayment(paymentMethod) {
-                                document.querySelectorAll('.payment-method').forEach(method => method.classList.remove('selected'));
-                                document.querySelector(`[data-payment="${paymentMethod}"]`).classList.add('selected');
-                                selectedPaymentMethod = paymentMethod;
+  const selected = document.querySelector(`[data-payment="${paymentMethod}"]`);
+  if (selected) selected.classList.add('selected');
 
-                                // Show/hide buttons based on payment method
-                                const codBtn = document.getElementById("placeOrderBtn");
-                                const razorpayBtn = document.getElementById("razorpayBtn");
-                                const walletBtn = document.getElementById("walletBtn");
+  selectedPaymentMethod = paymentMethod;
 
-                                codBtn.style.display = "none";
-                                razorpayBtn.style.display = "none";
-                                walletBtn.style.display = "none";
+  const btn = document.getElementById('placeOrderBtn');
+  if (!btn) return;
 
-                                if (paymentMethod === "cod") {
-                                    codBtn.style.display = "block";
-                                } else if (paymentMethod === "razorpay") {
-                                    razorpayBtn.style.display = "block";
-                                } else if (paymentMethod === "wallet") {
-                                    walletBtn.style.display = "block";
-                                }
-                            }
+  switch (paymentMethod) {
+    case 'cod':
+      btn.innerText = 'Place Order (COD)';
+      break;
+    case 'razorpay':
+      btn.innerText = 'Pay Securely';
+      break;
+    case 'wallet':
+      btn.innerText = 'Pay with Wallet';
+      break;
+    default:
+      btn.innerText = 'Place Order';
+  }
+}
+
+
+
+async function placeOrderHandler() {
+  if (!selectedAddressId) {
+    return swal("Error!", "Please select a shipping address", "error");
+  }
+
+  if (selectedPaymentMethod === "cod") {
+    placeCODOrder();
+  } 
+  else if (selectedPaymentMethod === "razorpay") {
+    initiateRazorpayPayment();
+  } 
+  else if (selectedPaymentMethod === "wallet") {
+    initiateWalletPayment();
+  }
+}
+
 
                             function openAddressModal() {
                                 window.location.href = "/addAddress?redirect=checkout";
@@ -961,7 +991,7 @@
                             }
 
                             /* ========== COD Place Order ========== */
-                            async function placeOrder() {
+                            async function placeCODOrder() {
                                 if (!selectedAddressId) {
                                     return swal("Error!", "Please select a shipping address", "error");
                                 }
@@ -986,7 +1016,7 @@
 
                                     if (data.success) {
                                         window.location.href = `/ordersuccess?orderId=${data.orderId}`;
-                                    } 
+                                    }
                                     else {
                                         swal("Error!", data.message, "error");
                                         btn.innerHTML = originalHTML;
@@ -1006,7 +1036,8 @@
                                     return swal("Error!", "Please select a shipping address", "error");
                                 }
 
-                                const btn = document.getElementById('razorpayBtn');
+                                const btn = document.getElementById('placeOrderBtn');
+
                                 const originalHTML = btn.innerHTML;
                                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
                                 btn.disabled = true;
@@ -1170,7 +1201,8 @@
                                     });
                                 }
 
-                                const btn = document.getElementById('walletBtn');
+                                const btn = document.getElementById('placeOrderBtn');
+
                                 const originalHTML = btn.innerHTML;
                                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
                                 btn.disabled = true;
@@ -1321,25 +1353,15 @@
                             }
 
                             /* ========== Event Listeners ========== */
-                            /* ========== Event Listeners ========== */
-                            document.addEventListener('DOMContentLoaded', function () {
-                                const placeOrderBtn = document.getElementById('placeOrderBtn');
-                                const razorpayBtn = document.getElementById('razorpayBtn');
-                                const walletBtn = document.getElementById('walletBtn');
+                           document.addEventListener('DOMContentLoaded', function () {
+  const placeOrderBtn = document.getElementById('placeOrderBtn');
 
-                                if (placeOrderBtn) {
-                                    placeOrderBtn.addEventListener('click', placeOrder);
-                                }
+  if (placeOrderBtn) {
+    placeOrderBtn.addEventListener('click', placeOrderHandler);
+  }
+});
 
-                                if (razorpayBtn) {
-                                    razorpayBtn.addEventListener('click', initiateRazorpayPayment);
-                                }
-
-                                if (walletBtn) {
-                                    walletBtn.addEventListener('click', initiateWalletPayment);
-                                }
-                            });
-
+                                
 
 
 

@@ -14,9 +14,10 @@ const userSchema = new Schema({
   },
 
   phone: {
-    type: Number,
+    type: String,
     sparse: true,
     default: null,
+    match: [/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian phone number"],
   },
 
   dateOfBirth: String,

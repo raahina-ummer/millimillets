@@ -1,0 +1,48 @@
+2026-01-10 11:27:14 [[32minfo[39m]: Add category invoked
+2026-01-12 09:14:32 [[32minfo[39m]: Add category invoked
+2026-01-12 09:15:02 [[32minfo[39m]: Add category invoked
+2026-01-19 10:04:17 [[32minfo[39m]: Add category invoked
+2026-01-19 10:05:04 [[32minfo[39m]: Add category invoked
+2026-01-20 10:59:56 [[32minfo[39m]: Add category invoked
+2026-01-20 11:31:43 [[32minfo[39m]: Add category invoked
+2026-01-22 15:06:21 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:26 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:31 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:39 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:57 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:08:02 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 17:42:39 [[32minfo[39m]: Add category invoked
+2026-01-24 13:12:27 [[32minfo[39m]: Add category invoked
+2026-01-26 12:42:32 [[32minfo[39m]: Add category invoked
+2026-01-26 12:46:28 [[32minfo[39m]: Add category invoked
+2026-01-26 12:48:16 [[32minfo[39m]: Add category invoked
+2026-01-26 12:48:27 [[32minfo[39m]: Add category invoked
+2026-01-26 12:48:28 [[32minfo[39m]: Add category invoked
+2026-01-26 12:51:14 [[32minfo[39m]: Add category invoked
+2026-01-26 12:51:15 [[32minfo[39m]: Add category invoked
+2026-01-26 12:53:09 [[32minfo[39m]: Add category invoked
+2026-01-27 15:48:24 [[32minfo[39m]: Add category invoked

@@ -20,22 +20,21 @@ const getStockManagement = async (req, res) => {
         { description: { $regex: search, $options: "i" } }
       ];
     }
+          const stockFilters = {
+        critical: { totalStock: { $lt: 10, $gt: 0 } },
+        low: { totalStock: { $gte: 10, $lt: 50 } },
+        good: { totalStock: { $gte: 50 } },
+        out: { totalStock: 0 }
+          }
 
     let aggregationPipeline = [
       { $match: query },
       { $addFields: { totalStock: { $sum: "$variant.stock" } } }
     ];
 
-    if (filter) {
-      const stockFilters = {
-        critical: { totalStock: { $lt: 10, $gt: 0 } },
-        low: { totalStock: { $gte: 10, $lt: 50 } },
-        good: { totalStock: { $gte: 50 } },
-        out: { totalStock: 0 }
-      };
 
       if (stockFilters[filter]) aggregationPipeline.push({ $match: stockFilters[filter] });
-    }
+    
 
     aggregationPipeline.push(
       { $skip: (page - 1) * limit },
@@ -87,7 +86,7 @@ const getStockManagement = async (req, res) => {
     console.error(error.message);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message:message.SERVER_ERROR,
+      message:message.GENERAL.SERVER_ERROR,
     });
   }
 };
@@ -101,7 +100,7 @@ const updateVariantStock = async (req, res) => {
     if (!productId || !variantId || !quantity) {
       return res.json({ 
         success: false, 
-        message: "Missing required fields" 
+        message: message.STOCK.MISSING_FIELDS 
       });
     }
 
@@ -109,9 +108,9 @@ const updateVariantStock = async (req, res) => {
     if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
       return res.json({ 
         success: false, 
-        message: "Invalid quantity. Must be a positive number." 
-      });
-    }
+        message: message.STOCK.INVALID_QUANTITY
+    })
+  }
 
     // Convert to ObjectId if needed
     const productObjectId = mongoose.Types.ObjectId.isValid(productId) 
@@ -124,16 +123,10 @@ const updateVariantStock = async (req, res) => {
     if (!product) {
       return res.json({ 
         success: false, 
-        message: "Product not found" 
+        message: message.STOCK.PRODUCT_NOT_FOUND
       });
     }
 
-    // console.log('✓ Product found:', product.productName);
-    // console.log('Available variants:', product.variant.map(v => ({
-    //   id: v._id.toString(),
-    //   unitType: v.unitType,
-    //   stock: v.stock
-    // })));
 
     // Find the variant using Mongoose subdocument id() method
     const variant = product.variant.id(variantId);
@@ -142,7 +135,7 @@ const updateVariantStock = async (req, res) => {
       
       return res.json({ 
         success: false, 
-        message: "Variant not found in this product" 
+        message: message.STOCK.VARIANT_NOT_FOUND
       });
     }
 
@@ -163,9 +156,9 @@ const updateVariantStock = async (req, res) => {
       console.log('Warning: Stock mismatch after save');
     }
 
-    res.Status(Status.OK).json({ 
+    res.status(Status.OK).json({ 
       success: true, 
-      message: `Stock updated: ${product.productName} - ${variant.unitType}`,
+      message: message.STOCK.UPDATED_SUCCESS,
       data: {
         productName: product.productName,
         variantName: variant.unitType,
@@ -177,9 +170,9 @@ const updateVariantStock = async (req, res) => {
 
   } catch (err) {
     console.error('Error updating stock:', err);
-    res.Status(Status.INTERNAL_SERVER_ERROR).json({ 
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ 
       success: false, 
-      message: message.SERVER_ERROR
+      message: message.GENERAL.SERVER_ERROR
     });
   }
 };
