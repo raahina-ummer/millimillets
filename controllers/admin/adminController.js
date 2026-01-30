@@ -21,52 +21,46 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !email.trim()) {
-      return res.render("adminlogin", {
-        message: message.EMAIL_REQUIRED,
-      });
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    if (!emailRegex.test(email.trim())) {
-      return res.render("adminlogin", {
-        message: message.EMAIL_INVALID,
-      });
-    }
-
-    if (!password) {
-      return res.render("adminlogin", {
-        message: message.PASSWORD_REQUIRED,
-      });
-    }
-
-    const admin = await User.findOne({
-      email: email.trim(),
-      isAdmin: true,
-    });
+    const admin = await User.findOne({ email, isAdmin: true });
 
     if (!admin) {
-      return res.render("adminlogin", {
-        message: message.INVALID_CREDENTIALS,
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.USER_NOT_FOUND,
       });
     }
 
     const passwordMatch = await bcrypt.compare(password, admin.password);
+
     if (!passwordMatch) {
-      return res.render("adminlogin", {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
         message: message.INVALID_CREDENTIALS,
       });
     }
 
     req.session.admin = true;
-    req.session.adminId = admin._id;
+    return res.status(Status.OK).json({ success: true ,});
 
-    return res.redirect("/admin/dashboard");
   } catch (error) {
-    console.error("Admin login error:", error);
-    return res.render("adminlogin", {
-      message: message.GENERAL.SERVER_ERROR,
+    console.log("Login error:", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:message.SERVER_ERROR
     });
+  }
+};
+
+
+const loadDashboard = async (req, res) => {
+  if (req.session.admin) {
+    try {
+      res.render("dashboard");
+    } catch (error) {
+      res.redirect("/admin/pageNotFound");
+    }
+  } else {
+    return res.redirect("/admin/login");
   }
 };
 
