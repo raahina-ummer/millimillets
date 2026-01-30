@@ -19,6 +19,8 @@ export const loadOffer = async (req, res) => {
     const products = await getProductsWithOffers();
 
     res.render("offer", {
+      title: "Offers",
+currentRoute: "offer",
       currentRoute: "offer",
       title: "Offers Management - MILLIMILLET",
       categories: categories || [],

@@ -35,6 +35,8 @@ const customerInfo = async (req, res) => {
     const count = await User.countDocuments(query);
 
     res.render("customers", {
+      title: "Customers",
+  currentRoute: "users",
       data: userData,
       currentPage: page,
       totalCustomers: count,

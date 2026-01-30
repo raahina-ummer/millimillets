@@ -26,7 +26,7 @@ const login = async (req, res) => {
     if (!admin) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.USER_NOT_FOUND,
+        message: message.AUTH.USER_NOT_FOUND
       });
     }
 
@@ -35,12 +35,12 @@ const login = async (req, res) => {
     if (!passwordMatch) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.INVALID_CREDENTIALS,
+        message: message.AUTH.INVALID_CREDENTIALS
       });
     }
 
     req.session.admin = true;
-    return res.status(Status.OK).json({ success: true ,});
+    return res.status(Status.OK).json({ success: true ,message:"Login Successfully"});
 
   } catch (error) {
     console.log("Login error:", error);
@@ -51,18 +51,6 @@ const login = async (req, res) => {
   }
 };
 
-
-const loadDashboard = async (req, res) => {
-  if (req.session.admin) {
-    try {
-      res.render("dashboard");
-    } catch (error) {
-      res.redirect("/admin/pageNotFound");
-    }
-  } else {
-    return res.redirect("/admin/login");
-  }
-};
 
 const logout = async (req, res) => {
   try {
@@ -81,4 +69,4 @@ const logout = async (req, res) => {
   }
 };
 
-export { loadLogin, login, pageerror, logout };
+export { loadLogin, login, pageerror, logout, };

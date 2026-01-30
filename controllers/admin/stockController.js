@@ -73,6 +73,8 @@ const getStockManagement = async (req, res) => {
     }));
 
     res.render("stockalert", {
+        title: "Stock Management",
+      currentRoute: "stock",
       products: productsWithStock,
       search,
       filter,

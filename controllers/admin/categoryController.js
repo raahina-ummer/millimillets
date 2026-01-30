@@ -42,6 +42,8 @@ const categoryInfo = async (req, res) => {
     const totalPages = Math.ceil(totalCategories / limit);
 
     res.render("category", {
+      title: "Category Management",
+  currentRoute: "category",
       cat: categoryData,
       currentPage: page,
       totalPages: totalPages,

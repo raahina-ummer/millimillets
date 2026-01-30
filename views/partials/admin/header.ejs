@@ -252,9 +252,12 @@
                 </a>
             </li>
             <li class = "nav-item">
-                <a href="/admin/sales-report" class="nav-link">
-  <i class="fas fa-chart-line"></i> Sales Report
+               <a href="/admin/sales-report"
+   class="nav-link <%= currentRoute === 'sales-report' ? 'active' : '' %>">
+  <i class="fas fa-chart-line"></i>
+  <span>Sales Report</span>
 </a>
+
 
             </li>
             <li class="nav-item">

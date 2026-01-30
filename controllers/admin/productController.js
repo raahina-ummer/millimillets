@@ -67,6 +67,8 @@ const getAllProducts = async (req, res) => {
     const category = await Category.find({ isListed: true });
 
     res.render("product", {
+      title: "Products",
+currentRoute: "products",
       data: paginatedProducts,
       currentPage: page,
       totalCategories: totalCount,

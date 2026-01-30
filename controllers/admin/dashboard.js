@@ -176,6 +176,8 @@ const totalOrders = await Order.countDocuments({
     console.log("BEST PRODUCTS ", bestProducts);
 
     res.render("dashboard", {
+      title: "Admin Dashboard",
+      currentRoute: "dashboard",
       totalOrders,
       totalRevenue,
       totalUsers,

@@ -47,7 +47,8 @@ const loadSalesReport = async (req, res) => {
     const statistics = calculateStatistics(allOrders);
 
     res.render("salesreport", {
-      title: "Sales Report",
+        title: "Sales Report",
+      currentRoute: "sales-report",
       orders,
       statistics,
       currentPage: parseInt(page),

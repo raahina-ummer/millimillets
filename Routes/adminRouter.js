@@ -101,22 +101,7 @@ router.put("/category-offer/toggle", adminAuth, offerManagement.toggleCategoryOf
 router.delete("/category-offer/remove", adminAuth, offerManagement.removeCategoryOffer);
 router.put("/category-offer/:categoryId", adminAuth, offerManagement.updateCategoryOffer);
 
-
-
-
-// Referral Offer Routes
-router.get("/referral-offers", adminAuth, offerManagement.getReferralOffers);
-router.post("/referral-offer/create", adminAuth, offerManagement.createReferralOffer);
-router.post("/referral-coupon/generate", adminAuth,offerManagement. generateReferralCoupon);
-router.put("/referral-offer/toggle", adminAuth, offerManagement.toggleReferralOffer); 
-router.delete("/referral-offer/remove", adminAuth, offerManagement.removeReferralOffer);
-router.post("/referral-code/validate", offerManagement.validateReferralCode); // Public - for signup
-router.get("/referral-token/validate/:token", offerManagement.validateReferralToken); // Public - for signup link
-
-
-
 //sales report
-
 router.get('/sales-report',adminAuth,salesreport.loadSalesReport);
 router.get('/sales-report/download',adminAuth,salesreport.downloadSalesReport);
 

@@ -39,6 +39,8 @@ const loadCoupon = async (req, res) => {
       .limit(limit);
 
     res.render("admincoupon", {
+      title: "Coupons",
+currentRoute: "coupon",
       coupons,
       currentPage: page,
       totalPages,

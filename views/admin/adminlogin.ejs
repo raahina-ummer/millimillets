@@ -665,23 +665,9 @@
     return false;
   }
 
-
-
-
-
-
-
-      function togglePasswordVisibility(inputId) {
-        const passwordInput = document.getElementById(inputId);
-        const toggleBtn = event.target;
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          toggleBtn.textContent = '🙈';
-        } else {
-          passwordInput.type = 'password';
-          toggleBtn.textContent = '👁️';
-        }
-      }
+function togglePasswordVisibility(inputId, button) {
+  const passwordInput = document.getElementById(inputId);
+  const icon = button.querySelector("i");
 
   if (passwordInput.type === "password") {
     passwordInput.type = "text";
@@ -691,6 +677,8 @@
     icon.classList.replace("bi-eye-slash", "bi-eye");
   }
 }
+
+
 
 
 function displayError(elementId, message) {

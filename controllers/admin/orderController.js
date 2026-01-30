@@ -109,6 +109,8 @@ const loadOrders = async (req, res) => {
     const totalPages = Math.ceil(totalOrders / limit);
 
     return res.render("adminorder", {
+      title: "Orders",
+currentRoute: "orders",
       orders,
       currentPage: page,
       totalPages,
