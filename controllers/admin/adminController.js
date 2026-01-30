@@ -19,25 +19,37 @@ const loadLogin = (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admin = await User.findOne({ email: email, isAdmin: true });
 
-    if (admin) {
-      const passwordMatch = await bcrypt.compare(password, admin.password);
-      if (passwordMatch) {
-        req.session.admin = true;
-        console.log("Admin session set:", req.session.admin);
-        return res.redirect("/admin/dashboard");
-      } else {
-        return res.render("adminlogin",{message:message.INVALID_CREDENTIALS});
-      }
-    } else {
-      return res.render("adminlogin",{message:message.USER_NOT_FOUND});
+    const admin = await User.findOne({ email, isAdmin: true });
+
+    if (!admin) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.USER_NOT_FOUND,
+      });
     }
+
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+
+    if (!passwordMatch) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.INVALID_CREDENTIALS,
+      });
+    }
+
+    req.session.admin = true;
+    return res.status(Status.OK).json({ success: true ,});
+
   } catch (error) {
     console.log("Login error:", error);
-    return res.redirect("/pageerror");
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:message.SERVER_ERROR
+    });
   }
 };
+
 
 const loadDashboard = async (req, res) => {
   if (req.session.admin) {

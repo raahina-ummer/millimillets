@@ -480,7 +480,8 @@
         <h2 class="text-center">ADMIN LOGIN</h2>
         <p class="text-center form-subtitle">Secure access to your administration panel</p>
 
-        <form id="loginForm" action="/admin/login" method="POST" onsubmit="return validateLoginForm()">
+       <form id="loginForm" action="/admin/login" method="POST" onsubmit="return handleAdminLogin(event)">
+
           <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
             <input
@@ -589,8 +590,64 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
+
+   
+<script>
+  async function handleAdminLogin(event) {
+    event.preventDefault();
+
+    if (!validateLoginForm()) return false;
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await fetch("/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful",
+          text: "Redirecting to dashboard...",
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = "/admin/dashboard";
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: data.message || "Invalid credentials",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong. Please try again.",
+      });
+    }
+
+    return false;
+  }
+
+
+
+
+
+
+
       function togglePasswordVisibility(inputId) {
         const passwordInput = document.getElementById(inputId);
         const toggleBtn = event.target;

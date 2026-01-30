@@ -1,5 +1,6 @@
 
-// import * as    from "../../Services/referralService.js";
+
+
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import Product from "../../models/ProductSchema.js";
@@ -7,21 +8,21 @@ import Category from "../../models/CategorySchema.js";
  import * as offerService from "../../Services/offerService.js"
 import { calculateBestOffer,getCategoriesWithOffers,getProductsWithOffers } from "../../Services/offerService.js";
 import * as referalService from "../../Services/refferralService.js"
-// import { getReferralOffers } from "../../Services/refferralService.js";
 
-// ============ MAIN OFFER PAGE ============
+
+
+
+
 export const loadOffer = async (req, res) => {
   try {
     const categories = await getCategoriesWithOffers();
     const products = await getProductsWithOffers();
-    const referralOffers = await referalService.getReferralOffers();
 
     res.render("offer", {
       currentRoute: "offer",
       title: "Offers Management - MILLIMILLET",
       categories: categories || [],
       products: products || [],
-      referralOffers: referralOffers || []
     });
   } catch (error) {
     console.error("Error loading offer page:", error);
@@ -32,7 +33,7 @@ export const loadOffer = async (req, res) => {
   }
 };
 
-// ============ PRODUCT OFFER CONTROLLERS ============
+
 export const getProductOffers = async (req, res) => {
   try {
     const products = await offerService.getProductsWithOffers();
@@ -93,7 +94,7 @@ export const removeProductOffer = async (req, res) => {
   }
 };
 
-// ============ CATEGORY OFFER CONTROLLERS ============
+
 export const getCategoryOffers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -101,7 +102,7 @@ export const getCategoryOffers = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const categories = await offerService.getCategoriesWithOffers();
-    const paginatedCategories = categories.slice(skip, skip + limit);
+    const paginatedCategories = categories.slice(skip, skip + limit)
     const totalCategories = categories.length;
 
     // Calculate stats
@@ -179,89 +180,6 @@ export const removeCategoryOffer = async (req, res) => {
   }
 };
 
-// ============ REFERRAL OFFER CONTROLLERS ============
-export const getReferralOffers = async (req, res) => {
-  try {
-    const referralOffers = await referralService.getReferralOffers();
-    res.render("admin/referralOffer", { referralOffers, currentRoute: "offer" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const createReferralOffer = async (req, res) => {
-  try {
-    const referralOffer = await referralService.createReferralOffer(req.body.referrerId, req.body);
-    res.status(201).json({
-      message: "Referral offer created successfully",
-      referralCode: referralOffer.referralCode,
-      referralToken: referralOffer.referralToken,
-      referralOffer,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const generateReferralCoupon = async (req, res) => {
-  try {
-    const coupon = await referralService.generateReferralCoupon(req.body.referralOfferId, req.body.expiryDays);
-    res.status(200).json({
-      message: "Coupon generated successfully",
-      coupon,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const toggleReferralOffer = async (req, res) => {
-  try {
-    await referralService.toggleReferralOfferStatus(req.body.offerId, req.body.isActive);
-    res.status(200).json({ 
-      success: true, 
-      message: `Referral offer ${req.body.isActive ? 'activated' : 'deactivated'} successfully` 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-export const removeReferralOffer = async (req, res) => {
-  try {
-    await referralService.removeReferralOffer(req.body.offerId);
-    res.status(200).json({ 
-      success: true, 
-      message: "Referral offer removed successfully" 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-export const validateReferralCode = async (req, res) => {
-  try {
-    const referralOffer = await referralService.validateReferralCode(req.body.referralCode);
-    res.status(200).json({
-      message: "Valid referral code",
-      referralOffer,
-    });
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-};
-
-export const validateReferralToken = async (req, res) => {
-  try {
-    const referralOffer = await referralService.validateReferralToken(req.params.token);
-    res.status(200).json({
-      message: "Valid referral token",
-      referralOffer,
-    });
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-};
 
 // ============ OFFER CALCULATION CONTROLLERS ============
 export const calculateProductOffer = async (req, res) => {
