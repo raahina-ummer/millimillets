@@ -428,7 +428,8 @@
             <div class="panel-header">
                 <h2 class="panel-title">Customers List</h2>
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search by name or email..." />
+                   <input type="text" id="searchInput" placeholder="Search by name or email…" />
+
                     <i class="fas fa-search"></i>
                 </div>
             </div>
@@ -520,26 +521,24 @@
 
   <div class="pagination-container">
     <div class="pagination-info">
-      Showing
-      <strong><%= startIndex %></strong> -
-      <strong><%= endIndex %></strong>
-      of <strong><%= totalCustomers %></strong>
-    </div>
+     Showing
+<strong><%= ((currentPage - 1) * 10) + 1 %></strong> -
+<strong><%= Math.min(currentPage * 10, filteredCustomers) %></strong>
+of <strong><%= filteredCustomers %></strong>
+</div>
 
     <nav>
-      <ul class="pagination">
-        <% for (let i = 1; i <= totalPages; i++) { %>
-          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-           <a
-  class="page-link"
-  href="/admin/users?page=<%= i %>&search=<%= search || '' %>"
->
-  <%= i < 10 ? '0' + i : i %>
-</a>
-            </a>
-          </li>
-        <% } %>
-      </ul>
+    <ul class="pagination">
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+      <a class="page-link"
+         href="/admin/users?page=<%= i %>&search=<%= search || '' %>">
+        <%= i < 10 ? '0' + i : i %>
+      </a>
+    </li>
+  <% } %>
+</ul>
+
     </nav>
   </div>
 <% } %>
@@ -548,145 +547,182 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
     <script>
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('.customers-table tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm) || searchTerm === '') {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
+/* =========================
+   GLOBAL STATE
+========================= */
+let currentPage = 1;
+let debounceTimer = null;
 
-        // Confirmation dialogs
-        // document.querySelectorAll('.update-btn').forEach(btn => {
-        //     btn.addEventListener('click', function(e) {
-        //         const action = this.textContent.trim();
-        //         const confirmMsg = action === 'Block' 
-        //             ? 'Are you sure you want to block this customer?' 
-        //             : 'Are you sure you want to activate this customer?';
-                
-        //         if (!confirm(confirmMsg)) {
-        //             e.preventDefault();
-        //         }
-        //     });
-        // });
+/* =========================
+   EVENT DELEGATION (BLOCK / UNBLOCK)
+========================= */
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
 
+  if (btn.classList.contains("block-customer-btn")) {
+    await toggleUser(btn.dataset.customerId, true);
+  }
 
-            // Block Customer Handler
-document.addEventListener('DOMContentLoaded', function() {
-    // Block customer buttons
-    const blockButtons = document.querySelectorAll('.block-customer-btn');
-    blockButtons.forEach(button => {
-        button.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const customerId = this.getAttribute('data-customer-id');
-            
-            const result = await Swal.fire({
-                title: 'Block Customer?',
-                text: "This customer will be blocked from accessing their account.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, block',
-                cancelButtonText: 'Cancel'
-            });
+  if (btn.classList.contains("unblock-customer-btn")) {
+    await toggleUser(btn.dataset.customerId, false);
+  }
+});
 
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`/admin/blockCustomer?id=${customerId}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
+/* =========================
+   TOGGLE USER (BLOCK / UNBLOCK)
+========================= */
+async function toggleUser(userId, block) {
+  const action = block ? "Block" : "Activate";
 
-                    if (response.ok) {
-                        await Swal.fire({
-                            title: 'Blocked!',
-                            text: 'Customer has been blocked successfully.',
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        window.location.reload();
-                    } else {
-                        throw new Error('Failed to block customer');
-                    }
-                } catch (error) {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to block customer. Please try again.',
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
-            }
-        });
-    });
+  const result = await Swal.fire({
+    title: `${action} Customer?`,
+    text: block
+      ? "This customer will be blocked from accessing their account."
+      : "This customer will regain access to their account.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: `Yes, ${action}`,
+    cancelButtonText: "Cancel"
+  });
 
-    // Unblock customer buttons
-    const unblockButtons = document.querySelectorAll('.unblock-customer-btn');
-    unblockButtons.forEach(button => {
-        button.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const customerId = this.getAttribute('data-customer-id');
-            
-            const result = await Swal.fire({
-                title: 'Activate Customer?',
-                text: "This customer will be able to access their account again.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, activate',
-                cancelButtonText: 'Cancel'
-            });
+  if (!result.isConfirmed) return;
 
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`/admin/unBlockCustomer?id=${customerId}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
+  try {
+    const res = await fetch(
+      block
+        ? `/admin/blockCustomer?id=${userId}`
+        : `/admin/unblockCustomer?id=${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json"
+        }
+      }
+    );
 
-                    if (response.ok) {
-                        await Swal.fire({
-                            title: 'Activated!',
-                            text: 'Customer has been activated successfully.',
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        window.location.reload();
-                    } else {
-                        throw new Error('Failed to activate customer');
-                    }
-                } catch (error) {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to activate customer. Please try again.',
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
-            }
-        });
-    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Action failed");
+    }
+
+    Swal.fire("Success", `Customer ${action}d successfully`, "success");
+
+    // reload same page + same search
+     window.location.reload();
+
+  } catch (err) {
+    Swal.fire("Error", err.message || "Something went wrong", "error");
+  }
+}
+
+/* =========================
+   SEARCH WITH DEBOUNCE
+========================= */
+let searchTimer;
+
+document.getElementById("searchInput").addEventListener("input", function () {
+  clearTimeout(searchTimer);
+
+  const value = this.value.trim();
+
+  searchTimer = setTimeout(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    params.set("search", value);
+    params.set("page", 1); // reset to first page on search
+
+    window.location.href = `/admin/users?${params.toString()}`;
+  }, 400);
 });
 
 
+/* =========================
+   LOAD CUSTOMERS (FETCH)
+========================= */
+function loadCustomers(page = 1) {
+  currentPage = page;
 
-    </script>
+  const search = document.getElementById("searchInput").value.trim();
+
+  fetch(`/admin/users?page=${page}&search=${encodeURIComponent(search)}`, {
+    headers: { Accept: "application/json" }
+  })
+    .then(res => res.json())
+    .then(data => {
+      renderTable(data.users || []);
+      renderPagination(data.totalPages || 1, page);
+    })
+    .catch(() => {
+      Swal.fire("Error", "Failed to load customers", "error");
+    });
+}
+
+/* =========================
+   RENDER TABLE
+========================= */
+function renderTable(users) {
+  const tbody = document.querySelector(".customers-table tbody");
+  tbody.innerHTML = "";
+
+  if (!users.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="no-data">
+          <h3>No Customers Found</h3>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  users.forEach(user => {
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${user.name || "Unknown"}</td>
+        <td>${user.email || "-"}</td>
+        <td>
+          ${
+            user.isBlocked
+              ? '<span class="status-badge status-blocked">Blocked</span>'
+              : '<span class="status-badge status-active">Active</span>'
+          }
+        </td>
+        <td>
+          ${
+            user.isBlocked
+              ? `<button class="unblock-customer-btn" data-customer-id="${user._id}">Activate</button>`
+              : `<button class="block-customer-btn" data-customer-id="${user._id}">Block</button>`
+          }
+        </td>
+      </tr>
+    `);
+  });
+}
+
+/* =========================
+   RENDER PAGINATION
+========================= */
+function renderPagination(totalPages, page) {
+  const pagination = document.querySelector(".pagination");
+  pagination.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  for (let i = 1; i <= totalPages; i++) {
+    pagination.insertAdjacentHTML("beforeend", `
+      <li class="page-item ${i === page ? "active" : ""}">
+        <a href="#" onclick="event.preventDefault(); loadCustomers(${i})">
+          ${i < 10 ? "0" + i : i}
+        </a>
+      </li>
+    `);
+  }
+}
+</script>
+
 
     <%- include('../partials/admin/footer.ejs') %>
 </body>

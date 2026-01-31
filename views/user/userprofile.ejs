@@ -623,19 +623,16 @@
       </div>
 
       <!-- Referral Code -->
-      <% if (user.referralCode) { %>
-        <div class="referral-section">
-          <div class="referral-title">Your Referral Code</div>
-          <div class="referral-code-display">
-            <span class="referral-code">
-              <%= user.referralCode %>
-            </span>
-            <button class="copy-btn" onclick="copyReferralCode('<%= user.referralCode %>')">
-              <i class="fas fa-copy"></i> Copy
-            </button>
-          </div>
-        </div>
-        <% } %>
+
+<div class="referral-box">
+  <span class="referral-code" id="referralCode"><%= user.referralCode %></span>
+
+  <button class="copy-btn"
+          onclick="copyReferralCode('<%= user.referralCode %>', event)">
+    <i class="fas fa-copy"></i> Copy
+  </button>
+</div>
+
 
           <!-- Action Buttons -->
           <div class="action-buttons">
@@ -648,17 +645,18 @@
           </div>
     </div>
 
-    <!-- Referral Note
-     <% if (user.referralCode) { %> -->
-      <div class="note-box">
-        <span class="note-icon">💡</span>
-        <p>
-          <strong>Earn Rewards!</strong><br>
-          <span>Share your referral code with friends and earn wallet credits when they make their first
-            purchase.</span>
-        </p>
-      </div>
-      <% } %>
+    <!-- Referral Note-->
+        <% if (user.referralCode) { %>
+  <div class="note-box">
+    <span class="note-icon">💡</span>
+    <p>
+      <strong>Earn Rewards!</strong><br>
+      <span>
+        Share your referral code with friends and earn wallet credits when they make their first purchase.
+      </span>
+    </p>
+  </div>
+<% } %>
 
     <!-- Quick Links -->
     <div class="quick-links-section">
@@ -691,8 +689,9 @@
 
   </div> 
 
-  <script>
-   function copyReferralCode(code, event) {
+
+   <script>
+function copyReferralCode(code, event) {
   navigator.clipboard.writeText(code)
     .then(() => {
       const btn = event.target.closest('.copy-btn');
@@ -704,11 +703,11 @@
         btn.innerHTML = originalHTML;
       }, 2000);
     })
-    .catch(err => {
-      console.error(err);
-      alert('Failed to copy code');
+    .catch(() => {
+      alert('Failed to copy referral code');
     });
 }
+
 
     function confirmLogout(event) {
       event.preventDefault();

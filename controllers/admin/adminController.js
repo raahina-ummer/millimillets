@@ -1,18 +1,19 @@
 import User from "../../models/userSchema.js";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
-import Order from "../../models/OrderSchema.js";
 import logger from "../../utils/logger.js";
 
-const pageerror = async (req, res) => {
-  res.render("pagerror");
+const pageerror = (req, res) => {
+  res.status(500).render("500", {
+    currentRoute: null
+  });
 };
+
 
 const loadLogin = (req, res) => {
   if (req.session.admin) {
-    return res.redirect("/admin/dashboard");
+    return res.redirect("/dashboard");
   }
   res.render("adminlogin", { message: null });
 };
@@ -40,13 +41,15 @@ const login = async (req, res) => {
     }
 
     req.session.admin = true;
-    return res.status(Status.OK).json({ success: true ,message:"Login Successfully"});
+    return res.status(Status.OK).json({
+       success: true ,message:message.AUTH.LOGIN_SUCCESS
+      });
 
   } catch (error) {
     console.log("Login error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message:message.SERVER_ERROR
+      message:message.GENERAL.SERVER_ERROR
     });
   }
 };
@@ -57,15 +60,15 @@ const logout = async (req, res) => {
     req.session.destroy((error) => {
       if (error) {
         console.log("Error destroying session:", error);
-        return res.redirect("/pageError");
+        return res.redirect("/pageerror");
       }
       res.redirect("/admin/login");
     });
   } catch (error) {
     console.log("Unexpected error during logout:", error);
-    res
-      .Status(Status.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
+   return res.status(Status.INTERNAL_SERVER_ERROR).json({
+     success: false, message: message.GENERAL.SERVER_ERROR
+     });
   }
 };
 

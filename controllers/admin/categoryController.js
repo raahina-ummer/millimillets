@@ -1,6 +1,5 @@
-import mongoose from "mongoose";
+
 import Category from "../../models/CategorySchema.js";
-import Product from "../../models/ProductSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import logger from "../../utils/logger.js";
@@ -12,7 +11,6 @@ const categoryInfo = async (req, res) => {
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
 
-    // Build search query
     const searchQuery = search
       ? { name: { $regex: search, $options: "i" } }
       : {};
@@ -43,7 +41,7 @@ const categoryInfo = async (req, res) => {
 
     res.render("category", {
       title: "Category Management",
-  currentRoute: "category",
+      currentRoute: "category",
       cat: categoryData,
       currentPage: page,
       totalPages: totalPages,
@@ -58,15 +56,17 @@ const categoryInfo = async (req, res) => {
 
 const loadAddCategory = (req, res) => {
   try {
-    return res.render("addcategory");
+    return res.render("addcategory",{
+            currentRoute: "category",
+    });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
+    res.redirect("/pageerror")
   }
 };
 
 const addCategory = async (req, res) => {
   logger.info("Add category invoked");
-  logger.debug("Add category request body", req.body);
+
   let { name, description } = req.body;
 
   try {
@@ -96,7 +96,7 @@ const addCategory = async (req, res) => {
     if (error.code === 11000) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Category name already exists",
+        message:message.CATEGORY.ALREADY_EXISTS ,
       });
     }
 
@@ -110,31 +110,39 @@ const addCategory = async (req, res) => {
 const getListCategory = async (req, res) => {
   try {
     const id = req.query.id;
-    await Category.updateOne({ _id: id }, { $set: { isListed: false } });
-    res.redirect("/admin/category");
+    await Category.updateOne(
+      { _id: id },
+      { $set: { isListed: true} }
+    );
+   res.redirect(req.baseUrl + "/category");
   } catch (error) {
-    res.redirect("/pageerror");
+    return res.redirect(req.baseUrl +"/pageerror");
   }
 };
 
 const getUnlistCategory = async (req, res) => {
   try {
     const id = req.query.id;
-    await Category.updateOne({ _id: id }, { $set: { isListed: true } });
-    res.redirect("/admin/category");
+    await Category.updateOne(
+      { _id: id },
+      { $set: { isListed: false} }
+    );
+    res.redirect(req.baseUrl + "/category");
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
+    return res.redirect("/pageerror");
   }
 };
+
 
 const getEditCategory = async (req, res) => {
   try {
     const id = req.params.id;
 
     const category = await Category.findOne({ _id: id });
-    res.render("edit-category", { category });
+    res.render("edit-category", { category,    currentRoute: "category",
+ });
   } catch (error) {
-    res.status(Status.INTERNAL_SERVER_ERROR).send(message.GENERAL.SERVER_ERROR);
+    res.redirect("/pageerror");
   }
 };
 
@@ -146,7 +154,7 @@ const editCategory = async (req, res) => {
     if (!name || !description) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Name and description are required",
+        message:message.GENERAL.INVALID_INPUT ,
       });
     }
 
@@ -174,7 +182,7 @@ const editCategory = async (req, res) => {
     if (!updated) {
       return res.status(Status.NOT_FOUND).json({
         success: false,
-        message: message.CATEGORY_NOT_FOUND,
+        message: message.CATEGORY.NOT_FOUND,
       });
     }
 
@@ -199,12 +207,10 @@ const loadCategoryOffer = async (req, res) => {
     if (!category) {
       return res
         .status(Status.NOT_FOUND)
-        .json({ success: false, message: message.CATEGORY_NOT_FOUND });
+        .json({ success: false, message: message.CATEGORY.NOT_FOUND });
     }
 
-    res
-      .status(Status.OK)
-      .json({ success: true, offer: category.categoryOffer || {} });
+   return res.status(Status.OK).json({ success: true, offer: category.categoryOffer || {} });
   } catch (error) {
     logger.error("Error fetching category offer", error);
     res
@@ -213,7 +219,7 @@ const loadCategoryOffer = async (req, res) => {
   }
 };
 
-// Create/Update category offer
+
 const updateCategoryOffer = async (req, res) => {
   try {
     const { categoryId } = req.params;
@@ -226,33 +232,33 @@ const updateCategoryOffer = async (req, res) => {
       offerEndDate,
     } = req.body;
 
-    // Validation
-    if (
-      isNaN(discountPercentage) ||
-      discountPercentage < 0 ||
-      discountPercentage > 100
-    ) {
+    const discount = Number(discountPercentage);
+    const maxDiscount =
+      maxDiscountAmount !== null && maxDiscountAmount !== ""
+        ? Number(maxDiscountAmount)
+        : null;
+
+    if (Number.isNaN(discount) || discount <= 0 || discount > 100) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.DISCOUNT_PERCENTAGE_INVALID,
+        message: message.CATEGORY.DISCOUNT_PERCENTAGE_INVALID,
       });
     }
 
-    if (maxDiscountAmount && maxDiscountAmount < 0) {
+    if (maxDiscount === null || Number.isNaN(maxDiscount) || maxDiscount <= 0) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.MAX_DISCOUNT_NEGATIVE,
+        message: message.CATEGORY.MAX_DISCOUNT_REQUIRED,
       });
     }
 
     if (offerStartDate && offerEndDate) {
       const startDate = new Date(offerStartDate);
       const endDate = new Date(offerEndDate);
-
       if (startDate > endDate) {
         return res.status(Status.BAD_REQUEST).json({
           success: false,
-          message: message.OFFER_DATE_INVALID,
+          message: message.CATEGORY.OFFER_DATE_INVALID,
         });
       }
     }
@@ -261,39 +267,32 @@ const updateCategoryOffer = async (req, res) => {
       categoryId,
       {
         categoryOffer: {
-          discountPercentage: Number(discountPercentage) || 0,
-          maxDiscountAmount: maxDiscountAmount
-            ? Number(maxDiscountAmount)
-            : null,
+          discountPercentage: discount,
+          maxDiscountAmount: maxDiscount,
           offerDescription: offerDescription || null,
           offerActive: offerActive === true || offerActive === "true",
           offerStartDate: offerStartDate ? new Date(offerStartDate) : null,
           offerEndDate: offerEndDate ? new Date(offerEndDate) : null,
         },
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
-    if (!category) {
-      return res.status(Status.NOT_FOUND).json({
-        success: false,
-        message: message.CATEGORY_NOT_FOUND,
-      });
-    }
     return res.status(Status.OK).json({
       success: true,
-      message: message.CATEGORY_OFFER_UPDATED_SUCCESS,
+      message: message.CATEGORY.UPDATED_SUCCESS,
       category,
     });
   } catch (error) {
     logger.error("Error updating category offer", error);
-    res
+    return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-// Delete category offer
+
+
 const deleteCategoryOffer = async (req, res) => {
   try {
     const { categoryId } = req.params;
@@ -316,13 +315,13 @@ const deleteCategoryOffer = async (req, res) => {
     if (!category) {
       return res.status(Status.NOT_FOUND).json({
         success: false,
-        message: message.CATEGORY_NOT_FOUND,
+        message: message.CATEGORY.NOT_FOUND,
       });
     }
 
     return res.status(Status.OK).json({
       success: true,
-      message: message.CATEGORY_OFFER_DELETED_SUCCESS,
+      message: message.CATEGORY.OFFER_DELETED_SUCCESS,
       category,
     });
   } catch (error) {

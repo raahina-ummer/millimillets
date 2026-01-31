@@ -10,6 +10,7 @@ import Wallet from "../../models/WalletSchema.js";
 import logger from '../../utils/logger.js';
 import Coupon from "../../models/CouponSchema.js";
 import { isValidCartItem } from "../../Helpers/cartHelper.js";
+import { calculateTotals } from "../../utils/calculateTotals.js";
 
 
 
@@ -17,11 +18,11 @@ import { isValidCartItem } from "../../Helpers/cartHelper.js";
 
 const loadCheckOut = async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.session.user?.id;
+    if (!userId) return res.redirect("/login");
+
     const wallet = await Wallet.findOne({ userId });
-const walletBalance = wallet ? wallet.balance : 0;
-
-
+    const walletBalance = wallet ? Number(wallet.balance) : 0;
 
     const cart = await Cart.findOne({ userId }).populate({
       path: "products.productId",
@@ -29,181 +30,144 @@ const walletBalance = wallet ? wallet.balance : 0;
       populate: {
         path: "category",
         select: "name isListed",
-      }, 
+      },
     });
 
-        if (!cart || cart.products.length === 0) {
+    if (!cart || !Array.isArray(cart.products) || cart.products.length === 0) {
       return res.redirect("/cart");
     }
 
     let address = await Address.findOne({ userId });
-
     if (!address) {
-      address = new Address({ userId, addresses: [] });
-      await address.save();
+      address = await Address.create({ userId, addresses: [] });
     }
 
     const user = await User.findById(userId);
 
-    if (!cart || !cart.products || cart.products.length === 0) {
-      return res.render("checkout", {
-        user,
-        cart: { products: [] },
-        addresses: address.addresses,
-        subtotal: 0,
-        saletotal: 0,
-        discount: 0,
-        couponDiscount: 0,
-        tax: 0,
-        shipping: 0,
-        total: 0,
-        itemCount: 0,
-        availableCoupons: [],
-        appliedCoupon: null,
-        walletBalance: walletBalance
-      });
+    const filteredProducts = cart.products.filter(item => {
+      const product = item.productId;
+      if (!product) return false;
+      if (product.isBlocked) return false;
+      if (!product.category?.isListed) return false;
+      if (!Array.isArray(product.variant)) return false;
+
+      const variant =
+        product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
+        product.variant[0];
+
+      if (!variant) return false;
+      if (Number(variant.stock) <= 0) return false;
+
+      return true;
+    });
+
+    if (filteredProducts.length === 0) {
+      return res.redirect("/cart");
     }
 
-    //  Filter available products
-    const filterCart = cart.products.filter(product => {
-  const item = product.productId;
-  if (!item || item.isBlocked) return false;
+    filteredProducts.forEach(item => {
+      const product = item.productId;
 
-  if (!Array.isArray(item.variant)) return false;
+      const variant =
+        product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
+        product.variant[0];
 
-  let variant = null;
+      item.variantId = item.variantId || variant._id;
+      item.unitType = item.unitType || variant.unitType;
 
-  if (product.variantId) {
-    variant = item.variant.find(
-      v => v._id?.toString() === product.variantId.toString()
-    );
-  }
+      item.quantity = Number(item.quantity) || 1;
+      item.price = Number(item.price) || 0;
 
- 
-  if (!variant && item.variant.length > 0) {
-    variant = item.variant[0];
-  }
+      item.selectedVariant = variant;
+      item.variantName = variant.unitType;
+    });
 
-  if (!variant) return false;
-
-  return (
-      item.category?.isListed &&
-  variant.stock > 0 &&
-  !item.isBlocked
-  
-  );
-});
-
-    let subtotal = 0;
-    let saletotal = 0;
-    let discount = 0;
-
-    filterCart.forEach(product => {
-  const item = product.productId;
-  if (!item || !Array.isArray(item.variant)) return;
-
-  let variant = null;
-
-  if (product.variantId) {
-    variant = item.variant.find(
-      v => v._id?.toString() === product.variantId.toString()
-    );
-  }
-
-  if (!variant && item.variant.length > 0) {
-    variant = item.variant[0];
-  }
-
-  if (!variant) return;
-
-  // auto-fix old cart items
-  if (!product.variantId) {
-    product.variantId = variant._id;
-    product.unitType = variant.unitType;
-  }
-
- const quantity = Number(product.quantity) || 1;
-
-// USE STORED CART PRICE (OFFER-LOCKED)
-const price = Number(product.price) || 0;
-
-saletotal += price * quantity;
-const regularPrice = Number(variant.regularPrice) || price;
-
-subtotal += regularPrice * quantity;
-discount += Math.max(regularPrice - price, 0) * quantity;
-
-
-
-  product.selectedVariant = variant;
-  product.variantName = variant.unitType;
-
-});
-
-
-    cart.products = filterCart;
+    cart.products = filteredProducts;
     await cart.save();
 
-//Apply Coupon if exists
+    const initialTotals = calculateTotals(filteredProducts, 0);
+    const saletotal = Number(initialTotals.saletotal) || 0;
 
-let couponDiscount = 0;
+
+    let couponDiscount = 0;
 
 if (cart.couponApplied && cart.couponCode) {
   const coupon = await Coupon.findOne({ code: cart.couponCode });
 
-  const isInvalid =
+  const invalidCoupon =
     !coupon ||
     !coupon.isActive ||
     (coupon.expiresAt && coupon.expiresAt < new Date()) ||
-    (coupon.minAmount && saletotal < coupon.minAmount);
+    (coupon.minPurchaseAmount && saletotal < coupon.minPurchaseAmount);
 
-  if (isInvalid) {
-
+  if (invalidCoupon) {
     cart.couponApplied = false;
     cart.couponCode = null;
     cart.couponDiscount = 0;
     await cart.save();
   } else {
-    couponDiscount = Math.min(cart.couponDiscount, saletotal);
+    couponDiscount = (saletotal * coupon.discountPercent) / 100;
+
+    if (coupon.maxDiscountAmount !== null) {
+      couponDiscount = Math.min(
+        couponDiscount,
+        coupon.maxDiscountAmount
+      );
+    }
+
+    couponDiscount = Math.min(couponDiscount, saletotal);
+
+    cart.couponDiscount = couponDiscount;
+    await cart.save();
   }
 }
 
 
-const tax = 0;
-const shipping = saletotal === 0 ? 0 : saletotal >= 1000 ? 0 : 50;
+    const finalTotals = calculateTotals(filteredProducts, couponDiscount);
+    const shipping = Number(finalTotals.shipping) || 0;
+    const tax = Number(finalTotals.tax) || 0;
+    const finalAmount = Number(finalTotals.finalAmount) || 0;
 
-const total = Math.max(
-  saletotal - couponDiscount + shipping + tax,
-  0
-);
+    let subtotal = 0;
+    let discount = 0;
 
+    filteredProducts.forEach(item => {
+      const regularPrice =
+        Number(item.selectedVariant?.regularPrice) || item.price;
 
-   return res.render("checkout", {
-  user,
-  cart: { products: filterCart },
-  addresses: address.addresses,
-  subtotal,
+      subtotal += regularPrice * item.quantity;
+      discount += Math.max(regularPrice - item.price, 0) * item.quantity;
+    });console.log({
   saletotal,
-  discount,
   couponDiscount,
-  tax,
   shipping,
-  total,
-  itemCount: filterCart.length,
-  availableCoupons: [],
-  appliedCoupon: cart.couponApplied ? cart.couponCode : null,
-   walletBalance: walletBalance,
+  tax,
+  finalAmount
 });
 
+    return res.render("checkout", {
+      user,
+      cart: { products: filteredProducts },
+      addresses: address.addresses,
+      subtotal,
+      saletotal,
+      discount,
+      couponDiscount,
+      tax,
+      shipping,
+      total: finalAmount,
+      itemCount: filteredProducts.length,
+      availableCoupons: [],
+      appliedCoupon: cart.couponApplied ? cart.couponCode : null,
+      walletBalance,
+    });
   } catch (error) {
     console.error("Error loading checkout page:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
-
-
-
 
 
 const loadOrderSuccess = async (req, res) => {

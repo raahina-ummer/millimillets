@@ -2,6 +2,7 @@ const message = {
 
   /* ================= AUTH & USER ================= */
   AUTH: {
+    LOGIN_SUCCESS: "Successfully logged in",
     USER_NOT_LOGGED_IN: "Please login to continue.",
     USER_ALREADY_EXISTS: "User already exists with this email or phone.",
     USER_NOT_FOUND: "User not found.",
@@ -53,6 +54,11 @@ CATEGORY: {
 
   LISTED_SUCCESS: "Category listed successfully.",
   UNLISTED_SUCCESS: "Category unlisted successfully.",
+
+
+    DISCOUNT_PERCENTAGE_INVALID: "Discount must be between 1 and 100.",
+  MAX_DISCOUNT_REQUIRED: "Maximum discount amount must be greater than 0.",
+  OFFER_DATE_INVALID: "Offer end date must be after start date.",
 },
 
 
@@ -195,7 +201,7 @@ ORDER: {
 
   },
 
-  /* ================= COUPON ================= */
+
 
 /* ================= COUPON ================= */
 COUPON: {
@@ -214,7 +220,14 @@ COUPON: {
 
   // Success
   APPLIED_SUCCESS: "Coupon applied successfully.",
-  REMOVED: "Coupon removed from order."
+  REMOVED: "Coupon removed from order.",
+
+    /* ===== ADMIN ===== */
+  CREATED_SUCCESS: "Coupon created successfully.",
+  UPDATED_SUCCESS: "Coupon updated successfully.",
+  NOT_FOUND: "Coupon not found.",
+  INVALID_ELIGIBILITY: "Invalid coupon eligibility type.",
+  DEACTIVATED_SUCCESS:"Coupon deactivated Succesfully",
 },
 
   CUSTOMER: {

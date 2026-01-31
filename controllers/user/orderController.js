@@ -537,12 +537,6 @@ const returnOrderItem = async (req, res) => {
       });
     }
 
-    if (order.status !== "Delivered") {
-      return res.status(Status.BAD_REQUEST).json({
-        success: false,
-        message: "Return is only allowed for delivered orders"
-      });
-    }
 
     if (!reason || reason.trim() === "") {
       return res.status(Status.BAD_REQUEST).json({
@@ -565,35 +559,37 @@ const returnOrderItem = async (req, res) => {
       });
     }
 
-    // Check if product is already returned or return requested
-    if (order.orderedProducts[productIndex].status === "Returned" ||
-      order.orderedProducts[productIndex].status === "Return Requested") {
-      return res.status(Status.BAD_REQUEST).json({
-        success: false,
-        message: "Return request already submitted for this product"
-      });
-    }
+    const productItem = order.orderedProducts[productIndex];
+if (productItem.status !== "Delivered") {
+  return res.status(Status.BAD_REQUEST).json({
+    success: false,
+    message: "Return is only allowed for delivered products"
+  });
+}
+
+
+    if (
+  productItem.status === "Returned" ||
+  productItem.status === "Return Requested"
+) {
+  return res.status(Status.BAD_REQUEST).json({
+    success: false,
+    message: "Return request already submitted for this product"
+  });
+}
+
     
 
-    // Calculate refund amount for this product
-    const product = order.orderedProducts[productIndex];
-   const refundAmount = Math.max(
-  product.price * product.quantity - (product.couponShare || 0),
-  0
+productItem.status = "Return Requested";
+productItem.returnReason = reason;
+productItem.returnRequestedAt = new Date();
+
+const allReturned = order.orderedProducts.every(
+  item => item.status === "Returned"
 );
 
+order.status = allReturned ? "Returned" : "Partially Returned";
 
-   
-order.orderedProducts[productIndex].status = "Return Requested";
-order.orderedProducts[productIndex].returnReason = reason;
-order.orderedProducts[productIndex].returnRequestedAt = new Date();
-
-order.status = "Return Requested";      
-order.returnStatus = "Requested";
-order.returnRequestDate = new Date();
-
-
-   
 
     await order.save({ validateModifiedOnly: true });
 

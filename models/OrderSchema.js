@@ -84,6 +84,7 @@ orderedProducts: [
       "Delivered",
       "Cancelled",
       "Return Requested",
+      "Partially Returned",
       "Returned",
       "Pending Payment",
       "Payment Failed"

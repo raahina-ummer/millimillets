@@ -748,19 +748,19 @@
 
 
         /* Category Offer Tag (Price Section) */
-.category-offer-tag {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 4px 10px;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
-}
+        .category-offer-tag {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
 
 
         /* Responsive */
@@ -865,13 +865,12 @@
             <% if (search) { %>
                 <div class="search-results-header">
                     <p class="search-query">Showing results for "<%= search %>"</p>
-             <a href="/shop?<%= new URLSearchParams({
+                    <a href="/shop?<%= new URLSearchParams({
   category: cat._id.toString(),
   ...(currentSort && currentSort !== 'newest' ? {sort: currentSort} : {}),
   ...(currentPriceRange.min ? {minPrice: currentPriceRange.min, maxPrice: currentPriceRange.max} : {}),
   ...(search ? {search: search} : {})
-}).toString() %>"
- class="clear-search">
+}).toString() %>" class="clear-search">
                         <i class="fas fa-times"></i> Clear Search
                     </a>
                 </div>
@@ -1108,104 +1107,112 @@
                                     </div>
                                     <% } else { %>
                                         <div class="product-grid">
-  <% products.forEach(function (product) { %>
+                                            <% products.forEach(function (product) { %>
 
-    <%
-      const variant = product.variant && product.variant[0] ? product.variant[0] : null;
-      const stock = variant ? variant.stock : 0;
+                                                <% const variant=product.variant && product.variant[0] ?
+                                                    product.variant[0] : null; const stock=variant ? variant.stock : 0;
+                                                    const basePrice=product.basePrice ?? (variant ? variant.regularPrice
+                                                    : 0); const finalPrice=product.finalPrice ?? basePrice; const
+                                                    discount=product.discountPercentage ?? 0; const
+                                                    isOutOfStock=stock===0; const isLowStock=stock> 0 && stock <= 10; %>
 
-      const basePrice = product.basePrice ?? (variant ? variant.regularPrice : 0);
-      const finalPrice = product.finalPrice ?? basePrice;
-      const discount = product.discountPercentage ?? 0;
+                                                        <div class="product-card">
+                                                            <!-- Product Image -->
+                                                            <div class="product-image-wrapper">
+                                                                <a href="/product/details/<%= product._id %>">
+                                                                    <img src="/uploads/images/<%= product.productImage[0] %>"
+                                                                        alt="<%= product.productName %>"
+                                                                        class="product-image" />
+                                                                </a>
 
-      const isOutOfStock = stock === 0;
-      const isLowStock = stock > 0 && stock <= 10;
-    %>
+                                                                <!-- Badges -->
+                                                                <div class="product-badges">
+                                                                    <% if (discount> 0) { %>
+                                                                        <span class="badge badge-sale">
+                                                                            <%= discount %>% OFF
+                                                                        </span>
+                                                                        <% } %>
 
-    <div class="product-card">
-      <!-- Product Image -->
-      <div class="product-image-wrapper">
-        <a href="/product/details/<%= product._id %>">
-          <img
-            src="/uploads/images/<%= product.productImage[0] %>"
-            alt="<%= product.productName %>"
-            class="product-image"
-          />
-        </a>
+                                                                            <% if (isLowStock) { %>
+                                                                                <span class="badge badge-hot">Limited
+                                                                                    Stock</span>
+                                                                                <% } %>
 
-        <!-- Badges -->
-        <div class="product-badges">
-          <% if (discount > 0) { %>
-            <span class="badge badge-sale"><%= discount %>% OFF</span>
-          <% } %>
+                                                                                    <% if (product.createdAt && (new
+                                                                                        Date() - new
+                                                                                        Date(product.createdAt)) < 30 *
+                                                                                        24 * 60 * 60 * 1000) { %>
+                                                                                        <span
+                                                                                            class="badge badge-new">New</span>
+                                                                                        <% } %>
+                                                                </div>
 
-          <% if (isLowStock) { %>
-            <span class="badge badge-hot">Limited Stock</span>
-          <% } %>
+                                                                <!-- Wishlist -->
+                                                                <div class="product-actions">
+                                                                    <button class="action-btn add-to-wishlist"
+                                                                        data-product-id="<%= product._id %>">
+                                                                        <i class="fas fa-heart"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
 
-          <% if (product.createdAt && (new Date() - new Date(product.createdAt)) < 30 * 24 * 60 * 60 * 1000) { %>
-            <span class="badge badge-new">New</span>
-          <% } %>
-        </div>
+                                                            <!-- Product Info -->
+                                                            <div class="product-info">
+                                                                <div class="product-category">
+                                                                    <%= product.category ? product.category.name
+                                                                        : "Uncategorized" %>
+                                                                </div>
 
-        <!-- Wishlist -->
-        <div class="product-actions">
-          <button class="action-btn add-to-wishlist" data-product-id="<%= product._id %>">
-            <i class="fas fa-heart"></i>
-          </button>
-        </div>
-      </div>
+                                                                <h3 class="product-name">
+                                                                    <a href="/product/details/<%= product._id %>">
+                                                                        <%= product.productName %>
+                                                                    </a>
+                                                                </h3>
 
-      <!-- Product Info -->
-      <div class="product-info">
-        <div class="product-category">
-          <%= product.category ? product.category.name : "Uncategorized" %>
-        </div>
+                                                                <!-- Price -->
+                                                                <div class="product-price">
+                                                                    <span class="current-price">₹<%= finalPrice %>
+                                                                            </span>
 
-        <h3 class="product-name">
-          <a href="/product/details/<%= product._id %>"><%= product.productName %></a>
-        </h3>
+                                                                    <% if (discount> 0) { %>
+                                                                        <span class="original-price">₹<%= basePrice %>
+                                                                                </span>
+                                                                        <span class="discount-badge">-<%= discount %>
+                                                                                %</span>
+                                                                        <% } %>
+                                                                </div>
 
-        <!-- Price -->
-        <div class="product-price">
-          <span class="current-price">₹<%= finalPrice %></span>
+                                                                <!-- Stock -->
+                                                                <div
+                                                                    class="stock-status <%= isOutOfStock ? 'out-of-stock' : isLowStock ? 'low-stock' : 'in-stock' %>">
+                                                                    <% if (isOutOfStock) { %>
+                                                                        <i class="fas fa-times-circle"></i> Out of Stock
+                                                                        <% } else if (isLowStock) { %>
+                                                                            <i class="fas fa-exclamation-triangle"></i>
+                                                                            Only <%= stock %> left
+                                                                                <% } else { %>
+                                                                                    <i class="fas fa-check-circle"></i>
+                                                                                    In Stock (<%= stock %>)
+                                                                                        <% } %>
+                                                                </div>
 
-          <% if (discount > 0) { %>
-            <span class="original-price">₹<%= basePrice %></span>
-            <span class="discount-badge">-<%= discount %>%</span>
-          <% } %>
-        </div>
+                                                                <!-- Cart -->
+                                                                <% if (!isOutOfStock) { %>
+                                                                    <button class="addToCartButton"
+                                                                        data-product-id="<%= product._id %>"
+                                                                        data-variant-id="<%= product.variant[0]._id %>">
+                                                                        Add to Cart
+                                                                    </button>
+                                                                    <% } else { %>
+                                                                        <button class="add-to-cart-btn" disabled>
+                                                                            <i class="fas fa-ban"></i> Out of Stock
+                                                                        </button>
+                                                                        <% } %>
+                                                            </div>
+                                                        </div>
 
-        <!-- Stock -->
-        <div class="stock-status <%= isOutOfStock ? 'out-of-stock' : isLowStock ? 'low-stock' : 'in-stock' %>">
-          <% if (isOutOfStock) { %>
-            <i class="fas fa-times-circle"></i> Out of Stock
-          <% } else if (isLowStock) { %>
-            <i class="fas fa-exclamation-triangle"></i> Only <%= stock %> left
-          <% } else { %>
-            <i class="fas fa-check-circle"></i> In Stock (<%= stock %>)
-          <% } %>
-        </div>
-
-        <!-- Cart -->
-        <% if (!isOutOfStock) { %>
-          <button
-            class="addToCartButton"
-            data-product-id="<%= product._id %>"
-            data-variant-id="<%= product.variant[0]._id %>"
-          >
-            Add to Cart
-          </button>
-        <% } else { %>
-          <button class="add-to-cart-btn" disabled>
-            <i class="fas fa-ban"></i> Out of Stock
-          </button>
-        <% } %>
-      </div>
-    </div>
-
-  <% }); %>
-</div>
+                                                        <% }); %>
+                                        </div>
 
                                         <!-- Pagination -->
                                         <% if (currentPage || products.length>= 9) { %>
@@ -1324,14 +1331,15 @@
                             });
 
                             // Update cart count
-                            if (!data.isExisting) {
-                                const cartCountElements = document.querySelectorAll(
-                                    "#cartCountDisplay, .cart-count"
-                                );
-                                cartCountElements.forEach((element) => {
-                                    element.textContent = data.cartCount;
-                                });
-                            }
+                       const cartCountElements = document.querySelectorAll(
+  "#cartCountDisplay, .cart-count"
+);
+
+cartCountElements.forEach((element) => {
+  element.textContent = data.cartCount;
+  element.style.display = data.cartCount > 0 ? "inline-block" : "none";
+});
+
 
                             // Update stock display
                             if (data.remainingStock !== undefined) {

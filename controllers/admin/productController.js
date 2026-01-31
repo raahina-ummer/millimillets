@@ -86,7 +86,7 @@ currentRoute: "products",
 const getProductAddPage = async (req, res) => {
   try {
     const category = await Category.find({ isListed: true });
-    res.render("add-product", { cat: category });
+    res.render("add-product", { cat: category,currentRoute: "products", });
   } catch (error) {
     console.log("Error: " + error);
     res
@@ -290,6 +290,7 @@ const getEditProduct = async (req, res) => {
     res.render("edit-product", {
       product,
       cat: category,
+      currentRoute: "products",
     });
   } catch (error) {
     res

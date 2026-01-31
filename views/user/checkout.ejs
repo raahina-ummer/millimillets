@@ -814,16 +814,24 @@
                                         <% } else { %>
                                             <div class="applied-coupon-box">
                                                 <div>
-                                                    <strong>Coupon Applied:</strong>
-                                                    <span class="coupon-code">
-                                                        <%= appliedCoupon %>
-                                                    </span>
+                                                   <div class="applied-coupon-box" style="
+  background:#f0f7f2;
+  border:1px dashed #2e7d32;
+  padding:12px;
+  border-radius:6px;
+">
+  <div style="color:#2e7d32; font-weight:600;">
+    <i class="fas fa-check-circle"></i>
+    Coupon Applied:
+    <span class="coupon-code"><%= appliedCoupon %></span>
+  </div>
+
                                                 </div>
-                                                <button id="removeCouponBtn" class="place-order-btn"
+                                                <!-- <button id="removeCouponBtn" class="place-order-btn"
                                                     style="background:#dc3545; color:white; width:100%; margin-top:10px;"
                                                     onclick="removeCoupon()">
                                                     <i class="fas fa-times"></i> Remove Coupon
-                                                </button>
+                                                </button> -->
                                             </div>
                                             <% } %>
 
@@ -1254,103 +1262,49 @@ async function placeOrderHandler() {
                                 });
                             }
 
-                            async function applyCoupon(couponCode) {
-                                const response = await fetch('/applyCoupon', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    credentials: "include",
-                                    body: JSON.stringify({ couponCode })
-                                });
+                       async function applyCoupon(couponCode) {
+  const response = await fetch('/applyCoupon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ couponCode })
+  });
 
-                                const data = await response.json();
+  const data = await response.json();
 
-                                if (!data.success) {
-                                    return swal("Invalid!", data.message, "error");
-                                }
+  if (!data.success) {
+        if (data.reason === "MIN_PURCHASE") {
+      return swal({
+        title: "Coupon Not Applied",
+        text: `${data.message}\n\nYour cart total: ₹${data.currentAmount}`,
+        icon: "warning",
+        button: "OK"
+      });
 
-                                swal("Success!", "Coupon applied successfully!", "success");
+    return swal("Invalid!", data.message, "error");
+  }
 
-                                // Update total
-                                const totalElement = document.querySelector(".summary-row.total span:last-child");
-                                if (totalElement) {
-                                    totalElement.innerText = `₹${data.newTotal.toFixed(2)}`;
-                                }
+  swal("Success!", "Coupon applied successfully!", "success")
+    .then(() => location.reload());
+}
 
-                                // Show discount row
-                                let discountRow = document.getElementById("couponDiscountRow");
-                                if (!discountRow) {
-                                    discountRow = document.createElement("div");
-                                    discountRow.id = "couponDiscountRow";
-                                    discountRow.classList.add("summary-row");
-                                    discountRow.innerHTML = `
-            <span class="summary-label">Coupon Discount</span>
-            <span class="summary-value discount">-₹${data.discount.toFixed(2)}</span>
-        `;
-                                    const totalRow = document.querySelector(".summary-row.total");
-                                    totalRow.parentNode.insertBefore(discountRow, totalRow);
-                                } else {
-                                    discountRow.querySelector('.summary-value').innerText = `-₹${data.discount.toFixed(2)}`;
-                                    discountRow.style.display = "flex";
-                                }
+                           async function removeCoupon() {
+  const response = await fetch('/removeCoupon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  });
 
-                                // Update Apply button
-                                const applyBtn = document.querySelector('#applyCouponBtn');
-                                if (applyBtn) {
-                                    applyBtn.innerHTML = '✔ Applied';
-                                    applyBtn.disabled = true;
-                                    applyBtn.style.background = "#C3E6CB";
-                                    applyBtn.style.color = "#155724";
-                                }
+  const data = await response.json();
 
-                                // Show Remove button
-                                const removeBtn = document.getElementById("removeCouponBtn");
-                                if (removeBtn) {
-                                    removeBtn.style.display = "block";
-                                }
-                            }
+  if (!data.success) {
+    return swal("Error!", data.message, "error");
+  }
 
-                            async function removeCoupon() {
-                                const response = await fetch('/removeCoupon', {
-                                    method: 'POST',
-                                    headers: { "Content-Type": "application/json" },
-                                    credentials: "include"
-                                });
+  swal("Removed!", "Coupon removed", "success")
+    .then(() => location.reload());
+}
 
-                                const data = await response.json();
-
-                                if (!data.success) {
-                                    return swal("Error!", data.message, "error");
-                                }
-
-                                swal("Removed!", "Coupon removed", "success");
-
-                                // Hide discount row
-                                const discountRow = document.querySelector("#couponDiscountRow");
-                                if (discountRow) {
-                                    discountRow.style.display = "none";
-                                }
-
-                                // Reset Apply button
-                                const applyBtn = document.querySelector('#applyCouponBtn');
-                                if (applyBtn) {
-                                    applyBtn.innerHTML = 'Apply Coupon';
-                                    applyBtn.disabled = false;
-                                    applyBtn.style.background = "";
-                                    applyBtn.style.color = "";
-                                }
-
-                                // Hide Remove button
-                                const removeBtn = document.getElementById("removeCouponBtn");
-                                if (removeBtn) {
-                                    removeBtn.style.display = "none";
-                                }
-
-                                // Update total
-                                const totalElement = document.querySelector(".summary-row.total span:last-child");
-                                if (totalElement && data.newTotal) {
-                                    totalElement.innerText = `₹${data.newTotal.toFixed(2)}`;
-                                }
-                            }
 
                             /* ========== Event Listeners ========== */
                            document.addEventListener('DOMContentLoaded', function () {

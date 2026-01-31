@@ -32,8 +32,8 @@ router.get("/logout", adminController.logout);
 
 // Customer management
 router.get("/users", adminAuth, customerController.customerInfo);
-router.get("/blockCustomer", adminAuth, customerController.customerBlocked);
-router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked);
+router.patch("/blockCustomer", adminAuth, customerController.customerBlocked);
+router.patch("/unblockCustomer", adminAuth, customerController.customerunBlocked);
 
 // Category management
 router.get("/category", adminAuth, categoryController.categoryInfo);

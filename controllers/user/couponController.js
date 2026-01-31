@@ -7,7 +7,6 @@ import logger from '../../utils/logger.js';
 
 
 
-
 const loadCoupon = async (req, res) => {
   try {
     console.log("COupon page");
@@ -295,28 +294,8 @@ const removeCoupon = async (req, res) => {
 
 
 
-
-
-export {
+export{
   loadCoupon,
   applyCoupon,
-  removeCoupon,
+  removeCoupon
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

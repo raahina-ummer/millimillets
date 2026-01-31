@@ -40,7 +40,7 @@ const loadCoupon = async (req, res) => {
 
     res.render("admincoupon", {
       title: "Coupons",
-currentRoute: "coupon",
+      currentRoute: "coupon",
       coupons,
       currentPage: page,
       totalPages,
@@ -53,10 +53,8 @@ currentRoute: "coupon",
       user: null,
     });
   } catch (error) {
-    console.error(error);
-    return res
-      .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
+    logger.error("Coupon load error", error);
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -76,7 +74,7 @@ const createCoupon = async (req, res) => {
     if (!code || !code.trim()) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Coupon code is required.",
+        message: message.COUPON.CODE_REQUIRED,
       });
     }
 
@@ -98,7 +96,6 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    // normalize/parse
     const couponCode = code.trim().toUpperCase();
     const discount = Number.parseInt(discountPercent, 10);
     const minPurchase = minPurchaseAmount
@@ -121,7 +118,6 @@ const createCoupon = async (req, res) => {
         : null;
     const expiryDate = new Date(expiresAt);
 
-    // numeric validations
     if (Number.isNaN(discount) || discount <= 0) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -239,7 +235,6 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    // create and save
     const newCoupon = new Coupon({
       code: couponCode,
       discountPercent: discount,
@@ -257,7 +252,7 @@ const createCoupon = async (req, res) => {
 
     return res.status(Status.CREATED).json({
       success: true,
-      message: "Coupon created successfully.",
+      message: message.COUPON.CREATED_SUCCESS,
       coupon: {
         id: newCoupon._id,
         code: newCoupon.code,
@@ -266,7 +261,7 @@ const createCoupon = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error adding coupon:", error);
+    logger.error("Error adding coupon", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -286,12 +281,11 @@ const loadEditCoupon = async (req, res) => {
     return res.render("editcoupon", {
       coupon,
       user: null,
+      currentRoute: "coupon",
     });
   } catch (error) {
-    console.error(error);
-    return res
-      .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
+    logger.error("Load edit coupon error", error);
+    return res.redirect("/pageNotFound");
   }
 };
 
@@ -421,12 +415,12 @@ const editCoupon = async (req, res) => {
 
     await Coupon.findByIdAndUpdate(id, updateData);
 
-    return res.status(Status.ACCEPTED).json({
+    return res.status(Status.OK).json({
       success: true,
-      message: "Coupon updated successfully.",
+      message: message.COUPON.UPDATED_SUCCESS,
     });
   } catch (error) {
-    console.error("Error updating coupon:", error);
+    logger.error("Error updating coupon", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -442,7 +436,7 @@ const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res.json({
         success: false,
-        message: "Coupon not found",
+        message: message.COUPON.NOT_FOUND,
       });
     }
 
@@ -457,10 +451,10 @@ const deleteCoupon = async (req, res) => {
     await Coupon.findByIdAndDelete(id);
     res.status(Status.OK).json({
       success: true,
-      message: message.COUPON_REMOVED,
+      message: message.COUPON.REMOVED,
     });
   } catch (error) {
-    console.error("Error deleting coupon:", error);
+    logger.error("Error deleting coupon", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -473,7 +467,7 @@ const activateCoupon = async (req, res) => {
     await Coupon.findByIdAndUpdate(id, { isActive: true });
     res.json({ success: true, message: message.COUPON.APPLIED_SUCCESS });
   } catch (error) {
-    console.error("Error activating coupon:", error);
+    logger.error("Error activating coupon", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -486,9 +480,9 @@ const deactivateCoupon = async (req, res) => {
     await Coupon.findByIdAndUpdate(id, { isActive: false });
     res
       .status(Status.OK)
-      .json({ success: true, message: message.COUPON.INVALID });
+      .json({ success: true, message: message.COUPON.DEACTIVATED_SUCCESS });
   } catch (error) {
-    console.error("Error deactivating coupon:", error);
+    logger.error("Error deactivating coupon", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });

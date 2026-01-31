@@ -15,6 +15,7 @@ const OrderStatus = {
   CANCELLED: "Cancelled",
   RETURN_REQUEST: "Return Requested",
   RETURNED: "Returned",
+  PARTIALLY_RETURNED : "Partially Returned",
 };
 
 const loadOrders = async (req, res) => {
@@ -365,6 +366,7 @@ order.adminSummary = {
 
     return res.render(isAdmin ? "adminorderdetails" : "orderdetails", {
       order,
+       currentRoute: isAdmin ? "orders" : null
     });
   } catch (error) {
     console.error("Error loading order details:", error);

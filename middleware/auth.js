@@ -14,20 +14,22 @@ import User from "../models/userSchema.js";
 
     req.user = user;
 
-    next();
+    return next();
   } catch (error) {
-    console.log(error);
-  }
-};
+  console.error("User auth error:", error);
+  return res.redirect("/pageerror");
+}
+ }
 
 const adminAuth = (req, res, next) => {
   try {
     if (!req.session?.admin) {
       return res.redirect("/admin/login");
     }
-    next();
+    return next();
   } catch (error) {
-    console.log(error);
+  console.error("Admin auth error:", error);
+  return res.redirect("/pageerror");
   }
 };
 
