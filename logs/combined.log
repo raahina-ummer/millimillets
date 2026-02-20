@@ -90,3 +90,10 @@
 2026-01-31 22:52:19 [[31merror[39m]: ReferenceError: totalPages is not defined
     at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-02-06 22:51:05 [[32minfo[39m]: Add category invoked
+2026-02-06 22:51:05 [[32minfo[39m]: Add category invoked
+2026-02-06 22:51:11 [[32minfo[39m]: Add category invoked
+2026-02-06 22:51:17 [[32minfo[39m]: Add category invoked
+2026-02-06 22:51:25 [[32minfo[39m]: Add category invoked
+2026-02-06 22:52:18 [[32minfo[39m]: Add category invoked
+2026-02-08 15:36:55 [[32minfo[39m]: Add category invoked

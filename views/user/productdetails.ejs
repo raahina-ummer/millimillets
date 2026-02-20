@@ -808,23 +808,19 @@
                 </div> -->
 
                     <!-- Price Section -->
-                   <div class="price-section">
-  <div class="price-wrapper">
-    <span class="current-price" id="currentPrice">
+   <span class="current-price" id="currentPrice">
   ₹<%= finalPrice.toFixed(2) %>
 </span>
 
-<% if (discountPercentage > 0) { %>
+<% if (strikePrice > finalPrice) { %>
   <span class="original-price" id="originalPrice">
-    ₹<%= basePrice.toFixed(2) %>
+    ₹<%= strikePrice.toFixed(2) %>
   </span>
+
   <span class="discount-percent" id="discountPercent">
     -<%= discountPercentage %>%
   </span>
 <% } %>
-  </div>
-  <p class="price-note">Inclusive of all taxes</p>
-</div>
 
 
                     <!-- Product Description -->
@@ -887,13 +883,14 @@
                                
 
                                 <!-- Action Buttons -->
-                               <button
+ <button
   type="button"
   class="btn-add-cart"
   id="addToCartBtn"
   <%= totalStock === 0 ? 'disabled' : '' %>>
   <i class="bi bi-cart-plus"></i> Add to Cart
 </button>
+
 
                                 </div>
 
@@ -1015,7 +1012,8 @@
                                         <%= relProduct.productName %>
                                     </h6>
                                     <div class="related-product-price">
-                                        ₹<%= relProduct.variant[0].salePrice.toFixed(2) %>
+                                        ₹<%= (relProduct.variant?.[0]?.salePrice || relProduct.variant?.[0]?.regularPrice || 0).toFixed(2) %>
+
                                     </div>
                                     <a href="/product/details/<%= relProduct._id %>" class="btn-view-product">
                                         View Product
@@ -1324,7 +1322,7 @@ async function toggleWishlist(productId) {
         originalEl.style.display = "inline";
         discountEl.style.display = "inline";
 
-        originalEl.innerText = `₹${data.basePrice.toFixed(2)}`;
+        originalEl.innerText = `₹${data.strikePrice.toFixed(2)}`;
         discountEl.innerText = `-${data.discountPercentage}%`;
       } else {
         originalEl.style.display = "none";

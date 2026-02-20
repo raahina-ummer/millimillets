@@ -715,6 +715,14 @@
             <h1 class="page-title">Your cart</h1>
         </div>
 
+        <% if (cartWarning) { %>
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i>
+    <%= cartWarning %>
+  </div>
+<% } %>
+
+
         <% if (cart && cart.products && cart.products.length> 0) { %>
             <div class="cart-layout">
                 <!-- Cart Items -->

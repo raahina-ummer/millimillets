@@ -16,6 +16,8 @@ const message = {
 
     UNAUTHORIZED_ACCESS: "Unauthorized access. Please login again.",
     SESSION_EXPIRED: "Session expired. Please signup again.",
+
+    ACCOUNT_BLOCKED: "Your account has been blocked by the administrator. Please contact support.",
   },
 
   /* ================= OTP ================= */
@@ -25,6 +27,7 @@ const message = {
     EXPIRED: "OTP has expired. Please request a new one.",
     PASSWORD_RESET_SUCCESS: "Password has been reset successfully.",
     PASSWORD_MISMATCH: "Passwords do not match.",
+    SEND_FAILED: "Unable to send OTP. Please try again.",
   },
 
   /* ================= USER PROFILE ================= */

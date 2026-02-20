@@ -862,19 +862,25 @@
             </div>
 
             <!-- Search Results Header -->
-            <% if (search) { %>
-                <div class="search-results-header">
-                    <p class="search-query">Showing results for "<%= search %>"</p>
-                    <a href="/shop?<%= new URLSearchParams({
-  category: cat._id.toString(),
-  ...(currentSort && currentSort !== 'newest' ? {sort: currentSort} : {}),
-  ...(currentPriceRange.min ? {minPrice: currentPriceRange.min, maxPrice: currentPriceRange.max} : {}),
-  ...(search ? {search: search} : {})
-}).toString() %>" class="clear-search">
-                        <i class="fas fa-times"></i> Clear Search
-                    </a>
-                </div>
-                <% } %>
+            <!-- Search Results Header -->
+<% if (search) { %>
+<div class="search-results-header">
+    <p class="search-query">Showing results for "<%= search %>"</p>
+
+    <a href="/shop?<%= new URLSearchParams({
+      ...(currentCategory ? { category: currentCategory } : {}),
+      ...(currentSort && currentSort !== 'newest' ? { sort: currentSort } : {}),
+      ...(currentPriceRange.min ? {
+            minPrice: currentPriceRange.min,
+            maxPrice: currentPriceRange.max
+      } : {})
+    }).toString() %>" class="clear-search">
+
+        <i class="fas fa-times"></i> Clear Search
+    </a>
+</div>
+<% } %>
+
 
                     <div class="row">
                         <!-- Sidebar Filters -->
@@ -912,7 +918,7 @@
                                     }).toString() %>" class="remove-filter">&times;</a>
                                                     </span>
                                                     <% } %>
-                                                        <% if (currentPriceRange.min !==undefined) { %>
+                                                        <% if (currentPriceRange.min != null && currentPriceRange.max != null) { %>
                                                             <span class="filter-tag">
                                                                 Price: ₹<%= currentPriceRange.min %>-<%=
                                                                         currentPriceRange.max===Infinity ? '+' : '₹' +
@@ -1277,122 +1283,121 @@
         }, true);
 
 
-        // Add to Cart Functionality
-        document.addEventListener("DOMContentLoaded", () => {
-            document.addEventListener("click", async (e) => {
-                if (e.target && e.target.closest(".addToCartButton")) {
-                    e.preventDefault();
+    // Add to Cart Functionality
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("click", async (e) => {
 
-                    const button = e.target.closest(".addToCartButton");
-                    const productId = button.dataset.productId;
-                    const variantId = button.dataset.variantId;
-                    const quantity = 1;
+    if (e.target && e.target.closest(".addToCartButton")) {
+      e.preventDefault();
 
-                    // Disable button during request
-                    button.disabled = true;
-                    const originalHTML = button.innerHTML;
-                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+      const button = e.target.closest(".addToCartButton");
+      const productId = button.dataset.productId;
+      const variantId = button.dataset.variantId;
+      const quantity = 1;
 
-                    try {
-                        const response = await fetch(`/cart/${productId}`, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ productId, variantId, quantity }),
-                        });
+      button.disabled = true;
+      const originalHTML = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
-                        const data = await response.json();
-
-                        if (response.status === 401) {
-                            Swal.fire({
-                                title: "Login Required!",
-                                text: "Please login to add items to your cart.",
-                                icon: "info",
-                                confirmButtonText: "Login Now",
-                                showCancelButton: true,
-                                confirmButtonColor: "#8b7355",
-                                cancelButtonColor: "#6c757d",
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = "/login";
-                                }
-                            });
-                        } else if (data.success) {
-                            Swal.fire({
-                                text: data.message,
-                                icon: data.isExisting ? "info" : "success",
-                                timer: 2000,
-                                showConfirmButton: false,
-                                toast: true,
-                                position: "top-end",
-                                background: "#8b7355",
-                                color: "#fff",
-                            });
-
-                            // Update cart count
-                       const cartCountElements = document.querySelectorAll(
-  "#cartCountDisplay, .cart-count"
-);
-
-cartCountElements.forEach((element) => {
-  element.textContent = data.cartCount;
-  element.style.display = data.cartCount > 0 ? "inline-block" : "none";
-});
-
-
-                            // Update stock display
-                            if (data.remainingStock !== undefined) {
-                                const stockElement = button
-                                    .closest(".product-card")
-                                    .querySelector(".stock-status");
-                                if (stockElement) {
-                                    if (data.remainingStock === 0) {
-                                        stockElement.className = "stock-status out-of-stock";
-                                        stockElement.innerHTML =
-                                            '<i class="fas fa-times-circle"></i> Out of Stock';
-                                        button.disabled = true;
-                                        button.innerHTML = '<i class="fas fa-ban"></i> Out of Stock';
-                                    } else if (data.remainingStock <= 10) {
-                                        stockElement.className = "stock-status low-stock";
-                                        stockElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Only ${data.remainingStock} left`;
-                                    } else {
-                                        stockElement.innerHTML = `<i class="fas fa-check-circle"></i> In Stock (${data.remainingStock})`;
-                                    }
-                                }
-                            }
-                        } else {
-                            Swal.fire({
-                                text: data.message || "Unable to add item to cart.",
-                                icon: "error",
-                                toast: true,
-                                position: "top-end",
-                                timer: 2000,
-                                showConfirmButton: false,
-                                background: "#dc3545",
-                                color: "#fff",
-                            });
-                        }
-                    } catch (error) {
-                        console.error("Fetch error:", error);
-                        Swal.fire({
-                            title: "Network Error!",
-                            text: "Something went wrong. Please try again.",
-                            icon: "error",
-                            toast: true,
-                            position: "top-end",
-                            timer: 3000,
-                            showConfirmButton: false,
-                            background: "#dc3545",
-                            color: "#fff",
-                        });
-                    } finally {
-                        button.disabled = false;
-                        button.innerHTML = originalHTML;
-                    }
-                }
-            });
+      try {
+        const response = await fetch(`/cart/${productId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId, variantId, quantity }),
         });
+
+        // login check
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            text: data.message,
+            icon: data.isExisting ? "info" : "success",
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: "top-end",
+            background: "#8b7355",
+            color: "#fff",
+          });
+
+          const cartCountElements = document.querySelectorAll(
+            "#cartCountDisplay, .cart-count"
+          );
+
+          cartCountElements.forEach((element) => {
+            element.textContent = data.cartCount;
+            element.style.display =
+              data.cartCount > 0 ? "inline-block" : "none";
+          });
+
+          if (data.remainingStock !== undefined) {
+            const stockElement = button
+              .closest(".product-card")
+              .querySelector(".stock-status");
+
+            if (stockElement) {
+              if (data.remainingStock === 0) {
+                stockElement.className = "stock-status out-of-stock";
+                stockElement.innerHTML =
+                  '<i class="fas fa-times-circle"></i> Out of Stock';
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-ban"></i> Out of Stock';
+              } else if (data.remainingStock <= 10) {
+                stockElement.className = "stock-status low-stock";
+                stockElement.innerHTML =
+                  `<i class="fas fa-exclamation-triangle"></i> Only ${data.remainingStock} left`;
+              } else {
+                stockElement.innerHTML =
+                  `<i class="fas fa-check-circle"></i> In Stock (${data.remainingStock})`;
+              }
+            }
+          }
+
+        } else {
+          Swal.fire({
+            text: data.message || "Unable to add item to cart.",
+            icon: "error",
+            toast: true,
+            position: "top-end",
+            timer: 2000,
+            showConfirmButton: false,
+            background: "#dc3545",
+            color: "#fff",
+          });
+        }
+
+      } catch (error) {
+        console.error("Fetch error:", error);
+
+        Swal.fire({
+          title: "Network Error",
+          text: "Please try again.",
+          icon: "error",
+          toast: true,
+          position: "top-end",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+      }
+
+    }
+
+  }); 
+
+}); 
+
 
         // Add to Wishlist Functionality
         // Fixed frontend code - matches your backend route

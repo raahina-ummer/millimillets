@@ -7,7 +7,7 @@ import Product from "../../models/ProductSchema.js";
 import Category from "../../models/CategorySchema.js";
  import * as offerService from "../../Services/offerService.js"
 import { calculateBestOffer,getCategoriesWithOffers,getProductsWithOffers } from "../../Services/offerService.js";
-import * as referalService from "../../Services/refferralService.js"
+
 
 
 
@@ -62,7 +62,7 @@ export const getSingleProductOffer = async (req, res) => {
 export const addProductOffer = async (req, res) => {
   try {
     await offerService.addProductOffer(req.body.productId, req.body);
-    res.status(Status.OK).json({ message: "Product offer added successfully" });
+    res.status(Status.OK).json({ message: message.PRODUCT.CREATED_SUCCESS });
   } catch (error) {
     res.status(Status.BAD_REQUEST).json({
       success: false,
@@ -79,7 +79,7 @@ export const updateProductOffer = async (req, res) => {
     );
     res
       .status(Status.OK)
-      .json({ message: "Product offer updated successfully", product });
+      .json({ message: message.PRODUCT.OFFER_UPDATED_SUCCESS, product });
   } catch (error) {
     res.status(Status.BAD_REQUEST).json({
       success: false,
@@ -180,7 +180,7 @@ export const addCategoryOffer = async (req, res) => {
     await offerService.addCategoryOffer(req.body.categoryId, req.body);
     res
       .status(Status.OK)
-      .json({ message: "Category offer added successfully" });
+      .json({ message: message.CATEGORY.CREATED_SUCCESS });
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
@@ -201,7 +201,7 @@ export const updateCategoryOffer = async (req, res) => {
       .status(Status.OK)
       .json({
         success: true,
-        message: "Category offer updated successfully",
+        message: message.CATEGORY.OFFER_UPDATED_SUCCESS,
         category,
       });
   } catch (error) {
@@ -245,7 +245,7 @@ export const removeCategoryOffer = async (req, res) => {
     await offerService.removeCategoryOffer(req.body.categoryId);
     res
       .status(Status.OK)
-      .json({ message: "Category offer removed successfully" });
+      .json({ message:message.CATEGORY.OFFER_DELETED_SUCCESS  });
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)

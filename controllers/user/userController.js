@@ -30,7 +30,7 @@ const pageNotFound = async (req, res) => {
   }
 };
 
-// Controller - Homepage (Updated for your schema)
+
 const loadHomepage = async (req, res) => {
   try {
     const userId = req.session.user?.id;
@@ -40,8 +40,8 @@ const loadHomepage = async (req, res) => {
       user = await User.findById(userId);
     }
 
-    // Get best selling products (top 4)
-    //  e newest products
+    // Get best selling products 
+   
     const products = await Product.find({
       isBlocked: false,
       status: "Available"
@@ -50,18 +50,18 @@ const loadHomepage = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(3);
 
-    if (products.length > 0) {
-      console.log('First product:', products[0].productName);
-      console.log('Image path stored:', products[0].productImage);
-      console.log('First image:', products[0].productImage[0]);
-    }
+    // if (products.length > 0) {
+    //   console.log('First product:', products[0].productName);
+    //   console.log('Image path stored:', products[0].productImage);
+    //   console.log('First image:', products[0].productImage[0]);
+    // }
 
-    // Get active categories (top 3)
+   
     const categories = await Category.find({ isListed: true })
       .sort({ name: 1 })
       .limit(3);
 
-    // Get products with active offers for Summer Offer section
+   
     const currentDate = new Date();
     const offerProducts = await Product.find({
       isBlocked: false,
@@ -74,7 +74,7 @@ const loadHomepage = async (req, res) => {
       ]
     })
       .populate('category')
-      .sort({ 'productOffer.discountPercentage': -1 }) // Highest discount first
+      .sort({ 'productOffer.discountPercentage': -1 }) 
       .limit(4);
 
     // If less than 4 offer products, fill with regular products
@@ -99,8 +99,7 @@ const loadHomepage = async (req, res) => {
     });
   } catch (error) {
     console.error('Error loading homepage:', error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.G
-      .SERVER_ERROR });
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -180,7 +179,7 @@ const signup = async (req, res) => {
     if (!emailSent) {
       return res.status(400).json({
         success: false,
-        message: "Unable to send OTP. Please try again.",
+        message: message.OTP.SEND_FAILED,
       });
     }
 
@@ -199,22 +198,22 @@ const signup = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent successfully",
+      message: message.OTP.SENT,
       redirect: "/verifyOtp",
     });
 
   } catch (error) {
     console.error("Signup error:", error);
-    return res.status(500).json({
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal server error",
+      message: message.GENERAL.SERVER_ERROR,
     });
   }
 };
 
 const loadVerifyOtp = async (req, res) => {
   try {
-    // safety check
+    
     if (!req.session.email || !req.session.userOtp) {
       return res.redirect("/signup");
     }
@@ -235,7 +234,7 @@ const verifyOtp = async (req, res) => {
     if (!req.session.userOtp || !req.session.otpExpiry) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.OTP_EXPIRED,
+        message: message.OTP.EXPIRED,
       });
     }
 
@@ -245,14 +244,14 @@ const verifyOtp = async (req, res) => {
 
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.OTP_EXPIRED,
+        message: message.OTP.EXPIRED,
       });
     }
 
     if (String(otp) !== String(req.session.userOtp)) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.OTP_INVALID,
+        message: message.OTP.INVALID,
       });
     }
 
@@ -262,7 +261,7 @@ const verifyOtp = async (req, res) => {
     if (!sessionUser) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Session expired. Please signup again.",
+        message: message.OTP.EXPIRED,
       });
     }
 
@@ -348,7 +347,7 @@ const resendOtp = async (req, res) => {
   try {
     const email = req.session.email;
     if (!email) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Email not found in session" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: message.OTP.SEND_FAILED });
     }
     const otp = generateOtp();
     req.session.userOtp = otp;
@@ -357,7 +356,7 @@ const resendOtp = async (req, res) => {
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {
       console.log("Resend OTP", otp);
-      res.status(Status.OK).json({ success: true, message: message.OTP_SENT });
+      res.status(Status.OK).json({ success: true, message: message.OTP.SENT });
     } else {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -389,17 +388,18 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const findUser = await User.findOne({ isAdmin: 0, email });
+    const findUser = await User.findOne({ email, isAdmin: false }) 
+
 
     if (!findUser) {
       return res.render("login", {
-        message: "No account found with this email address"
+        message: message.AUTH.INVALID_CREDENTIALS
       });
     }
 
     if (findUser.isBlocked) {
       return res.render("login", {
-        message: "Your account has been blocked by the administrator. Please contact support."
+        message: message.AUTH.ACCOUNT_BLOCKED
       });
     }
 
@@ -407,7 +407,7 @@ const login = async (req, res) => {
 
     if (!passwordMatch) {
       return res.render("login", {
-        message: "Incorrect password. Please try again."
+        message: message.AUTH.INVALID_CREDENTIALS
       });
     }
 
@@ -426,19 +426,17 @@ const login = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
-  try {
-    req.session.destroy((error) => {
-      if (error) {
-        console.log("Session destruction error", error.message);
-        return res.redirect("/pageNotFound");
-      }
-      return res.redirect("/login");
-    });
-  } catch (error) {
-    console.log("Logout error", error);
-    res.redirect("/pageNotFound");
-  }
+
+
+const logout = (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.log("Logout error:", err);
+      return res.redirect("/pageNotFound");
+    }
+    res.clearCookie("connect.sid"); 
+    res.redirect("/login");
+  });
 };
 
 
@@ -448,7 +446,9 @@ const loadShop = async (req, res) => {
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    const userId = req.session.user?.id || null;
+    const userId = req.session?.user?.id || null;
+
+   
     const { category, sort = "newest", search = "", minPrice, maxPrice } = req.query;
 
     const now = new Date();
@@ -583,7 +583,7 @@ const loadShop = async (req, res) => {
                       { $divide: ["$appliedOffer.discountPercentage", 100] },
                     ],
                   },
-                  { $ifNull: ["$appliedOffer.maxDiscountAmount", Infinity] },
+                  { $ifNull: ["$appliedOffer.maxDiscountAmount", 999999] },
                 ],
               },
               0,
@@ -677,6 +677,7 @@ const loadShop = async (req, res) => {
       search,
       user: req.session.user || null,
       cartCount,
+    
     });
   } catch (error) {
     console.error("Error loading shop:", error);
@@ -691,7 +692,7 @@ const loadShop = async (req, res) => {
     res.render("about",{user});
   } catch (error) {
     console.error("Error loading about page:", error);
-    res.redirect("/page-notfound");
+    res.redirect("/pageNotFound");
   }
 };
 

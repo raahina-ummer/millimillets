@@ -97,15 +97,15 @@ const createCoupon = async (req, res) => {
     }
 
     const couponCode = code.trim().toUpperCase();
-    const discount = Number.parseInt(discountPercent, 10);
+    const discount = Number.parseInt(discountPercent,10);
     const minPurchase = minPurchaseAmount
-      ? Number.parseInt(minPurchaseAmount, 10)
+      ? Number.parseInt(minPurchaseAmount,10)
       : 0;
     const maxDiscount =
       maxDiscountAmount !== undefined &&
       maxDiscountAmount !== null &&
       maxDiscountAmount !== ""
-        ? Number.parseInt(maxDiscountAmount, 10)
+        ? Number.parseInt(maxDiscountAmount)
         : null;
     const perUserLimit = usageLimitPerUser
       ? Number.parseInt(usageLimitPerUser, 10)
@@ -117,6 +117,14 @@ const createCoupon = async (req, res) => {
         ? Number.parseInt(totalUsageLimit, 10)
         : null;
     const expiryDate = new Date(expiresAt);
+
+    if (!/^[A-Z0-9_]{4,20}$/.test(couponCode)) {
+  return res.status(Status.BAD_REQUEST).json({
+    success:false,
+    message: "Coupon code must be 4–20 chars (A–Z, 0–9, _)"
+  });
+}
+
 
     if (Number.isNaN(discount) || discount <= 0) {
       return res.status(Status.BAD_REQUEST).json({
@@ -163,12 +171,6 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    if (minPurchase < 800) {
-      return res.status(Status.BAD_REQUEST).json({
-        success: false,
-        message: "Minimum purchase amount must be at least ₹800.",
-      });
-    }
 
     if (maxDiscount !== null && maxDiscount > 10000) {
       return res.status(Status.BAD_REQUEST).json({
@@ -218,7 +220,7 @@ const createCoupon = async (req, res) => {
     }
 
     // eligibility types - extended to include vipUsers (matches frontend)
-    const allowedOnlyFor = ["all", "newUsers", "existingUsers", "vipUsers"];
+    const allowedOnlyFor =  ["all","newUsers","vipUsers","specificUsers"]
     if (onlyFor && !allowedOnlyFor.includes(onlyFor)) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -330,11 +332,10 @@ const editCoupon = async (req, res) => {
       });
     }
 
-    const discount = parseInt(discountPercent, 10);
-    const minPurchase = parseInt(minPurchaseAmount, 10);
-    const maxDiscount = maxDiscountAmount
-      ? parseInt(maxDiscountAmount, 10)
-      : null;
+  const discount = Number(discountPercent);
+const minPurchase = Number(minPurchaseAmount);
+const maxDiscount = maxDiscountAmount ? Number(maxDiscountAmount) : null;
+
     const perUserLimit = parseInt(usageLimitPerUser, 10) || 1;
     const totalLimit = totalUsageLimit ? parseInt(totalUsageLimit, 10) : null;
 
@@ -345,12 +346,7 @@ const editCoupon = async (req, res) => {
       });
     }
 
-    if (isNaN(minPurchase) || minPurchase < 800) {
-      return res.status(Status.BAD_REQUEST).json({
-        success: false,
-        message: "Minimum purchase amount must be at least ₹800.",
-      });
-    }
+   
 
     if (maxDiscount !== null && (isNaN(maxDiscount) || maxDiscount < 0)) {
       return res.status(Status.BAD_REQUEST).json({

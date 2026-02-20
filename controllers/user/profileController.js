@@ -326,7 +326,7 @@ const addPasswordForGoogle = async (req, res) => {
   } catch (error) {
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Internal Server Error" });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR});
   }
 };
 
@@ -346,7 +346,7 @@ const updateProfile = async (req, res) => {
     if (!name || !name.trim()) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.NAME_REQUIRED,
+        message: message.PROFILE.NAME_REQUIRED,
       });
     }
 
@@ -355,7 +355,7 @@ const updateProfile = async (req, res) => {
     if (!nameRegex.test(name.trim())) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.NAME_INVALID,
+        message: message.PROFILE.NAME_INVALID,
       });
     }
 
@@ -376,14 +376,14 @@ const updateProfile = async (req, res) => {
       if (!phoneRegex.test(phone)) {
         return res.status(Status.BAD_REQUEST).json({
           success: false,
-          message: message.PHONE_INVALID,
+          message: message.PROFILE.PHONE_INVALID,
         });
       }
 
       if (/^(\d)\1{9}$/.test(phone)) {
         return res.status(Status.BAD_REQUEST).json({
           success: false,
-          message: message.PHONE_ALL_SAME,
+          message: message.PROFILE.PHONE_INVALID,
         });
       }
     }
@@ -395,14 +395,14 @@ const updateProfile = async (req, res) => {
       if (!allowedTypes.includes(req.file.mimetype)) {
         return res.status(Status.BAD_REQUEST).json({
           success: false,
-          message: message.IMAGE_TYPE_INVALID,
+          message: message.PROFILE.IMAGE_TYPE_INVALID,
         });
       }
 
       if (req.file.size > 2 * 1024 * 1024) {
         return res.status(Status.BAD_REQUEST).json({
           success: false,
-          message: message.IMAGE_SIZE_EXCEEDED,
+          message: message.PROFILE.IMAGE_SIZE_EXCEEDED,
         });
       }
 
@@ -413,7 +413,7 @@ const updateProfile = async (req, res) => {
 
     return res
       .status(Status.OK)
-      .json({ success: true, message: message.PROFILE_UPDATED_SUCCESS });
+      .json({ success: true, message: message.PROFILE.UPDATED_SUCCESS });
   } catch (error) {
     console.error("Update profile error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
@@ -467,7 +467,7 @@ const updateChangePassword = async (req, res) => {
 
     return res
       .status(Status.OK)
-      .json({ success: true, message: "Password updated successfully" });
+      .json({ success: true, message: message.PROFILE.PHONE_REQUIRED });
   } catch (error) {
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
@@ -677,7 +677,8 @@ const addAddress = async (req, res) => {
       redirect,
     } = req.body;
 
-    const isDefaultFlag = req.body.isDefault === "on";
+    const isDefaultFlag = req.body.isDefault === true;
+
 
     if (
       !firstName ||
@@ -734,7 +735,8 @@ const addAddress = async (req, res) => {
 
     const redirectUrl = redirect === "checkout" ? "/checkout" : "/userProfile";
 
-    return res.redirect(redirectUrl);
+    return res.status(Status.OK).json({success:true,message: "Address saved successfully",
+  redirect: redirectUrl});
   } catch (error) {
     console.log("Error message:", error.message);
     return res

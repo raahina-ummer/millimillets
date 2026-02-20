@@ -44,43 +44,59 @@ const loadCheckOut = async (req, res) => {
 
     const user = await User.findById(userId);
 
-    const filteredProducts = cart.products.filter(item => {
-      const product = item.productId;
-      if (!product) return false;
-      if (product.isBlocked) return false;
-      if (!product.category?.isListed) return false;
-      if (!Array.isArray(product.variant)) return false;
+   // -------- validate cart items --------
 
-      const variant =
-        product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
-        product.variant[0];
+const removedItems = [];
 
-      if (!variant) return false;
-      if (Number(variant.stock) <= 0) return false;
+const filteredProducts = cart.products.filter(item => {
+  const product = item.productId;
+  let valid = true;
 
-      return true;
-    });
+  if (!product) valid = false;
+  else if (product.isBlocked) valid = false;
+  else if (!product.category?.isListed) valid = false;
+  else if (!Array.isArray(product.variant)) valid = false;
+  else {
+    const variant =
+      product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
+      product.variant[0];
 
-    if (filteredProducts.length === 0) {
-      return res.redirect("/cart");
-    }
+    if (!variant || Number(variant.stock) <= 0) valid = false;
+  }
 
-    filteredProducts.forEach(item => {
-      const product = item.productId;
+  if (!valid && product?.productName) {
+    removedItems.push(product.productName);
+  }
 
-      const variant =
-        product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
-        product.variant[0];
+  return valid;
+});
 
-      item.variantId = item.variantId || variant._id;
-      item.unitType = item.unitType || variant.unitType;
 
-      item.quantity = Number(item.quantity) || 1;
-      item.price = Number(item.price) || 0;
+// all invalid → go back to cart
+if (filteredProducts.length === 0) {
+  req.session.cartWarning =
+    "All items in your cart are unavailable or out of stock.";
+  return res.redirect("/cart");
+}
 
-      item.selectedVariant = variant;
-      item.variantName = variant.unitType;
-    });
+
+// some removed → show checkout warning
+if (removedItems.length > 0) {
+  req.session.checkoutWarning =
+    `Some items were removed because they are unavailable: ${removedItems.join(", ")}`;
+}
+
+
+// save only if changed
+if (filteredProducts.length !== cart.products.length) {
+  cart.products = filteredProducts;
+  await cart.save();
+}
+
+
+const checkoutWarning = req.session.checkoutWarning || null;
+req.session.checkoutWarning = null;
+
 
     cart.products = filteredProducts;
     await cart.save();
@@ -88,17 +104,17 @@ const loadCheckOut = async (req, res) => {
     const initialTotals = calculateTotals(filteredProducts, 0);
     const saletotal = Number(initialTotals.saletotal) || 0;
 
-
-    let couponDiscount = 0;
+    let coupon = null;
+let couponDiscount = 0;
 
 if (cart.couponApplied && cart.couponCode) {
-  const coupon = await Coupon.findOne({ code: cart.couponCode });
+  coupon = await Coupon.findOne({ code: cart.couponCode });
 
   const invalidCoupon =
     !coupon ||
     !coupon.isActive ||
     (coupon.expiresAt && coupon.expiresAt < new Date()) ||
-    (coupon.minPurchaseAmount && saletotal < coupon.minPurchaseAmount);
+    (coupon.minAmount && saletotal < coupon.minAmount);
 
   if (invalidCoupon) {
     cart.couponApplied = false;
@@ -106,15 +122,10 @@ if (cart.couponApplied && cart.couponCode) {
     cart.couponDiscount = 0;
     await cart.save();
   } else {
-    couponDiscount = (saletotal * coupon.discountPercent) / 100;
+    
+    couponDiscount = Number(cart.couponDiscount) || 0;
 
-    if (coupon.maxDiscountAmount !== null) {
-      couponDiscount = Math.min(
-        couponDiscount,
-        coupon.maxDiscountAmount
-      );
-    }
-
+    
     couponDiscount = Math.min(couponDiscount, saletotal);
 
     cart.couponDiscount = couponDiscount;
@@ -145,6 +156,13 @@ if (cart.couponApplied && cart.couponCode) {
   finalAmount
 });
 
+console.log("COUPON CHECK:", {
+  code: cart.couponCode,
+  minAmount: coupon?.minAmount,
+  saleTotal: saletotal
+});
+
+
     return res.render("checkout", {
       user,
       cart: { products: filteredProducts },
@@ -160,6 +178,7 @@ if (cart.couponApplied && cart.couponCode) {
       availableCoupons: [],
       appliedCoupon: cart.couponApplied ? cart.couponCode : null,
       walletBalance,
+      checkoutWarning,
     });
   } catch (error) {
     console.error("Error loading checkout page:", error);

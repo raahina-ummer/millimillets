@@ -62,6 +62,8 @@ router.get("/adminorder", adminAuth, orderController.loadOrders);
 router.get("/adminorder/:orderId", adminAuth, orderController.loadOrderDetails);
 router.patch("/adminorderStatus/:orderId", adminAuth, orderController.updateOrderStatus);
 router.patch("/adminorder/:orderId/return/:productId/:variantId", adminAuth, orderController.approveOrRejectReturnRequest);
+router.patch("/adminorderdetails/update-item-status", adminAuth,orderController.updateSingleItemStatus);
+
 
 //stock management
 router.get("/stock",adminAuth,stockController.getStockManagement);

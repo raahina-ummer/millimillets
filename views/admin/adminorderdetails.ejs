@@ -832,11 +832,42 @@
             <span><i class="fas fa-rupee-sign"></i> <%= item.price.toFixed(2) %></span>
             <span><strong>Total: ₹<%= (item.price * item.quantity).toFixed(2) %></strong></span>
           </div>
-          <div class="mt-2">
-            <span class="status-badge <%= (item.status || 'active').toLowerCase().replace(/\s+/g, '-') %>">
-              <%= item.status || 'Active' %>
-            </span>
-          </div>
+         <div class="mt-2">
+
+  <!-- Current Status Badge -->
+  <span class="status-badge <%= (item.status || 'pending').toLowerCase().replace(/\s+/g, '-') %>">
+    <%= item.status %>
+  </span>
+
+  <!-- 🔥 NEW — Per Item Status Update -->
+<div class="mt-2">
+
+<% if (!['Delivered','Cancelled','Returned','Partially Returned','Partially Delivered']
+      .includes(item.status)) { %>
+
+  <select class="status-select"
+    onchange="updateItemStatus('<%= order._id %>','<%= item._id %>',this.value)">
+
+    <option value="">Update</option>
+
+    <% if (item.status === 'Pending' || item.status === 'Processing') { %>
+        <option value="Shipped">→ Shipped</option>
+        <option value="Cancelled">✕ Cancel</option>
+
+    <% } else if (item.status === 'Shipped') { %>
+        <option value="Delivered">✓ Delivered</option>
+        <option value="Cancelled">✕ Cancel</option>
+    <% } %>
+
+  </select>
+
+<% } %>
+
+</div>
+
+
+</div>
+
      <% if (item.status === 'Return Requested') { %>
   <div class="mt-3" style="display:flex; gap:10px;">
     <button
@@ -1029,6 +1060,49 @@ async function handleReturnAction(orderId, productId, variantId, action) {
     document.querySelectorAll('button').forEach(btn => btn.disabled = false);
   }
 }
+
+
+async function updateItemStatus(orderId, itemId, status) {
+
+  const confirm = await Swal.fire({
+    title: "Update item status?",
+    text: "Change status to " + status + " ?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    confirmButtonColor: "#8B7355"
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await fetch("/admin/adminorderdetails/update-item-status", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        orderId,
+        itemId,
+        status
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      await Swal.fire("Updated", "Item status updated", "success");
+      location.reload();
+    } else {
+      Swal.fire("Error", data.message || "Update failed", "error");
+    }
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Server error", "error");
+  }
+}
+
 
 
 

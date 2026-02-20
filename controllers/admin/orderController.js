@@ -4,6 +4,8 @@ import Wallet from "../../models/WalletSchema.js";
 import Product from "../../models/ProductSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import { buildInvoiceSnapshot } from "../../utils/buildInvoice.js";
+import { resolveOrderStatus } from "../../Helpers/orderStatus.js";
 import logger from "../../utils/logger.js";
 
 // Order Status Constants
@@ -16,6 +18,8 @@ const OrderStatus = {
   RETURN_REQUEST: "Return Requested",
   RETURNED: "Returned",
   PARTIALLY_RETURNED : "Partially Returned",
+  PARTIALLY_DELIVERED: "Partially Delivered",
+
 };
 
 const loadOrders = async (req, res) => {
@@ -24,19 +28,24 @@ const loadOrders = async (req, res) => {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    // Filter parameters
+    
     const status = req.query.status || "";
     const sort = req.query.sort || "date_desc";
     const search = req.query.search || "";
 
-    // Build filter query
+    
     let filter = {};
 
-    if (status) {
-      filter.status = status;
-    }
+  if (status === "Delivered") {
+  filter.status = { $in: ["Delivered", "Partially Delivered"] };
+} else if (status === "Returned") {
+  filter.status = { $in: ["Returned", "Partially Returned"] };
+} else if (status) {
+  filter.status = status;
+}
 
-    // Search filter
+
+    
     if (search) {
       const users = await User.find({
         $or: [
@@ -54,7 +63,7 @@ const loadOrders = async (req, res) => {
       ];
     }
 
-    // Build sort query
+   
     let sortQuery = {};
     switch (sort) {
       case "date_asc":
@@ -85,6 +94,9 @@ const loadOrders = async (req, res) => {
       .lean();
 
       orders.forEach(order => {
+
+         order.displayStatus = resolveOrderStatus(order);
+
   const originalSubtotal = order.orderedProducts.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -129,7 +141,7 @@ currentRoute: "orders",
   }
 };
 
-// Update Order Status
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -143,6 +155,8 @@ const updateOrderStatus = async (req, res) => {
       "Cancelled",
       "Return Requested",
       "Returned",
+      "Partially Returned",
+      "Partially Delivered",
     ];
 
     if (!validStatuses.includes(status)) {
@@ -167,7 +181,9 @@ const updateOrderStatus = async (req, res) => {
       Pending: ["Processing", "Cancelled"],
       Processing: ["Shipped", "Cancelled"],
       Shipped: ["Delivered"],
-      "Return Requested": ["Returned"],
+      Delivered: ["Return Requested"],
+      "Return Requested": ["Returned","Partially Returned"],
+      'Partially Delivered': ['Delivered'],
     };
 
     if (
@@ -183,58 +199,21 @@ const updateOrderStatus = async (req, res) => {
     const now = new Date();
 
     if (status === "Delivered") {
-      order.status = "Delivered";
-      order.deliveredAt = now;
-      order.InvoiceDate ??= now;
+  order.status = "Delivered";
+  order.deliveredAt = now;
+  order.InvoiceDate ??= now;
 
-      if (!order.invoiceSnapshot) {
-  let items = [];
-  let subtotal = 0;
-  let couponTotal = 0;
-
+  // sync item status
   order.orderedProducts.forEach(item => {
-    if (item.status !== "Cancelled") {
-      const base = item.price * item.quantity;
-      const coupon = item.couponShare || 0;
-      const total = base - coupon;
-
-      items.push({
-        name: item.productNameSnapshot,
-        quantity: item.quantity,
-        price: item.price,
-        couponShare: coupon,
-        total
-      });
-
-      subtotal += base;
-      couponTotal += coupon;
-
-      // Sync item status
-      if (item.status !== "Returned") {
-        item.status = "Delivered";
-      }
-    }
-  });
-
-  order.invoiceSnapshot = {
-    items,
-    subtotal,
-    discount: order.discount,
-    couponDiscount: couponTotal,
-    shipping: order.shippingCost,
-    finalAmount: subtotal - couponTotal + order.shippingCost
-  };
-}
-      order.orderedProducts.forEach((item) => {
-    if (
-      item.status !== "Cancelled" &&
-      item.status !== "Returned" &&
-      item.status !== "Return Requested"
-    ) {
+    if (!["Cancelled", "Returned", "Return Requested"]
+        .includes(item.status)) {
       item.status = "Delivered";
     }
   });
-    }
+
+  order.invoiceSnapshot = buildInvoiceSnapshot(order);
+}
+
 
     
     else if (status === "Cancelled") {
@@ -242,11 +221,14 @@ const updateOrderStatus = async (req, res) => {
       order.cancelledAt = now;
       order.cancellationReason = "Cancelled by admin";
 
+
       for (const item of order.orderedProducts) {
         if (!item.product) continue;
 
+const productId = item.product._id || item.product;
+
       await Product.updateOne(
-  { _id: item.product._id, "variant._id": item.variantId },
+  { _id: productId, "variant._id": item.variantId },
   { $inc: { "variant.$.stock": item.quantity } }
 );
 
@@ -264,7 +246,14 @@ item.status = "Cancelled";
           });
         }
 
-        const refundAmount = order.finalAmount;
+         let refundAmount = 0;
+
+               order.orderedProducts.forEach(item => {
+          const base = item.price * item.quantity;
+          const coupon = item.couponShare || 0;
+          refundAmount += base - coupon;
+        });
+
 
         wallet.balance += refundAmount;
         wallet.transactions.push({
@@ -272,7 +261,7 @@ item.status = "Cancelled";
           amount: refundAmount,
           reason: `Admin cancelled order ${order.orderId}`,
           orderId: order.orderId,
-          date: new Date(),
+          date: now,
         });
 
         await wallet.save();
@@ -280,6 +269,7 @@ item.status = "Cancelled";
         order.refundAmount = refundAmount;
         order.refundMethod = "wallet";
         order.refundStatus = "Completed";
+         order.paymentStatus = "Refunded";
       }
 
     } else{
@@ -291,11 +281,10 @@ item.status = "Cancelled";
     
     
 
-   order.orderedProducts.forEach((item) => {
+   order.orderedProducts.forEach(item => {
         if (
-          item.status !== "Cancelled" &&
-          item.status !== "Returned" &&
-          item.status !== "Return Requested"
+          !["Cancelled", "Returned", "Return Requested"]
+            .includes(item.status)
         ) {
           item.status = status;
         }
@@ -313,6 +302,147 @@ item.status = "Cancelled";
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
+    });
+  }
+};
+
+
+const updateSingleItemStatus = async (req, res) => {
+  try {
+    console.log("STEP 1 — body:", req.body);
+
+    const { orderId, itemId, status } = req.body;
+
+   const allowed = [
+  "Processing",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+  "Returned",
+  "Return Requested",
+  "Partially Returned",
+  "Partially Delivered"
+];
+
+    if (!allowed.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status"
+      });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    const item = order.orderedProducts.find(
+      i => i._id.toString() === itemId
+    );
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found in order"
+      });
+    }
+
+   const transitions = {
+      Pending: ["Processing", "Cancelled"],
+      Processing: ["Shipped", "Cancelled"],
+      Shipped: ["Delivered"],
+      Delivered: ["Return Requested"],
+      "Return Requested": ["Returned","Partially Returned"],
+      'Partially Delivered': ['Delivered'],
+    };
+
+    if (!transitions[item.status]?.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid item transition"
+      });
+    }
+
+    const now = new Date();
+    item.status = status;
+
+    if (status === "Shipped") item.shippedAt = now;
+    if (status === "Delivered") item.deliveredAt = now;
+
+    if (status === "Cancelled") {
+      item.cancelledAt = now;
+
+      const productId = item.product._id || item.product;
+
+      await Product.updateOne(
+        { _id: productId, "variant._id": item.variantId },
+        { $inc: { "variant.$.stock": item.quantity } }
+      );
+    }
+
+    if (status === "Returned") {
+      item.returnedAt = now;
+    }
+  
+   
+if (status === "Cancelled" || status === "Returned") {
+
+  console.log("REFUND TRIGGERED");
+
+  if (!item.refundProcessed &&
+      ["Razorpay", "Wallet", "Card", "UPI"].includes(order.paymentMethod)) {
+
+    const base = item.price * item.quantity;
+    const coupon = item.couponShare || 0;
+    const refundAmount = base - coupon;
+
+    console.log("Refund amount:", refundAmount);
+
+    let wallet = await Wallet.findOne({ userId: order.userId });
+
+    if (!wallet) {
+      console.log("Creating wallet");
+      wallet = await Wallet.create({
+        userId: order.userId,
+        balance: 0,
+        transactions: [],
+      });
+    }
+
+    wallet.balance += refundAmount;
+
+    wallet.transactions.push({
+      type: "credit",
+      amount: refundAmount,
+      reason: `Item ${status}`,
+      orderId: order.orderId,
+      itemId: item._id,
+      date: new Date()
+    });
+
+    await wallet.save();
+    console.log("Wallet saved");
+
+    item.refundProcessed = true;
+  }
+
+}
+    
+    order.invoiceSnapshot = buildInvoiceSnapshot(order);
+    order.status = resolveOrderStatus(order);
+
+    await order.save({ validateModifiedOnly: true });
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error("Single item status crash:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message
     });
   }
 };
@@ -439,7 +569,7 @@ const approveOrRejectReturnRequest = async (req, res) => {
 
     //  APPROVE RETURN
     const itemSaleValue = item.price * item.quantity;
-    const orderSaleTotal = order.totalPrice - order.discount;
+    const orderSaleTotal = order.totalPrice ;
 
     let couponShare = 0;
     if (order.couponDiscount && orderSaleTotal > 0) {
@@ -475,11 +605,10 @@ const approveOrRejectReturnRequest = async (req, res) => {
       { $inc: { "variant.$.stock": item.quantity } },
     );
 
-    // Update item
     item.status = "Returned";
     item.returnedAt = new Date();
 
-    // Update order
+   
     order.refundAmount += refundAmount;
     order.refundMethod = "wallet";
     order.refundStatus = "Completed";
@@ -505,6 +634,9 @@ const approveOrRejectReturnRequest = async (req, res) => {
       order.finalAmount = 0;
     }
 
+    order.invoiceSnapshot = buildInvoiceSnapshot(order);
+
+
     await order.save({ validateModifiedOnly: true });
 
     return res.json({
@@ -520,9 +652,13 @@ const approveOrRejectReturnRequest = async (req, res) => {
   }
 };
 
+
+
+
 export {
   loadOrders,
   loadOrderDetails,
   updateOrderStatus,
   approveOrRejectReturnRequest,
+  updateSingleItemStatus,
 };

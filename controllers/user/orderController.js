@@ -1,8 +1,6 @@
-import Cart from "../../models/CartSchema.js";
+
 import Product from "../../models/ProductSchema.js";
-import Category from "../../models/CategorySchema.js";
 import User from "../../models/userSchema.js";
-import OrderHistory from "../../models/OrderHistorySchema.js";
 import Order from "../../models/OrderSchema.js";
 import Wallet from "../../models/WalletSchema.js";
 import PDFDocument from "pdfkit";
@@ -17,8 +15,14 @@ import { placeCodOrderService } from "../../Services/orderService.js";
 import { createRazorpayOrderService } from "../../Services/orderService.js";
 import { retryRazorpayOrderService } from "../../Services/orderService.js";
 import { verifyRazorpayPaymentService } from "../../Services/orderService.js";
-import { calculateOrderTotals } from "../../Helpers/orderTotal.js";
 import logger from '../../utils/logger.js';
+import path from "path";
+import { fileURLToPath } from "url";
+import { resolveOrderStatus } from "../../Helpers/orderStatus.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 dotenv.config();
 
@@ -33,7 +37,7 @@ const loadOrderDetails = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.session.user.id;
 
-   
+
     const user = await User.findById(userId);
     if (!user) {
       req.session.destroy();
@@ -48,7 +52,7 @@ const loadOrderDetails = async (req, res) => {
       })
       .lean();
 
-   
+
     if (!order) {
       return res.redirect("/p-404");
     }
@@ -58,7 +62,7 @@ const loadOrderDetails = async (req, res) => {
     order.paymentStatus = order.paymentStatus || 'Pending';
 
 
-   
+
     if (order.address) {
       order.address = {
         addressType: order.address.addressType || "home",
@@ -72,39 +76,39 @@ const loadOrderDetails = async (req, res) => {
         pincode: order.address.pincode || ""
       };
     }
-// Handle deleted + active products
-if (order.orderedProducts.length > 0) {
-  order.orderedProducts = order.orderedProducts.map(item => {
+    // Handle deleted + active products
+    if (order.orderedProducts.length > 0) {
+      order.orderedProducts = order.orderedProducts.map(item => {
 
-    // Deleted product
-    if (!item.product) {
-      return {
-        ...item,
-        product: {
-          productName: item.productNameSnapshot || "Product Unavailable",
-          productImage: item.productImageSnapshot || ["/default-product.jpg"],
-        },
-        unitTypeSnapshot: item.unitTypeSnapshot || "N/A",
-        productRefId: item.product,   
-      };
+        // Deleted product
+        if (!item.product) {
+          return {
+            ...item,
+            product: {
+              productName: item.productNameSnapshot || "Product Unavailable",
+              productImage: item.productImageSnapshot || ["/default-product.jpg"],
+            },
+            unitTypeSnapshot: item.unitTypeSnapshot || "N/A",
+            productRefId: item.product,
+          };
+        }
+
+        // Active product
+        return {
+          ...item,
+          product: {
+            _id: item.product._id,
+            productName: item.product.productName,
+            productImage: item.product.productImage,
+          },
+          unitTypeSnapshot: item.unitTypeSnapshot || "N/A",
+        };
+      });
     }
 
-    // Active product
-    return {
-      ...item,
-      product: {
-        _id: item.product._id,        
-        productName: item.product.productName,
-        productImage: item.product.productImage,
-      },
-      unitTypeSnapshot: item.unitTypeSnapshot || "N/A",
-    };
-  });
-}
-   
 
 
-// Format dates for display
+    // Format dates for display
     const formatDate = (date) => {
       return date ? new Date(date).toLocaleDateString('en-IN', {
         year: 'numeric',
@@ -123,48 +127,41 @@ if (order.orderedProducts.length > 0) {
       cancelled: formatDate(order.cancelledAt),
       returned: formatDate(order.returnedAt),
     };
-const originalSubtotal = order.orderedProducts.reduce(
-  (sum, item) => sum + (item.price * item.quantity),
-  0
-);
+    const originalSubtotal = order.orderedProducts.reduce(
+      (sum, item) => sum + (item.price * item.quantity),
+      0
+    );
 
-const activeItemsTotal = order.orderedProducts
-  .filter(item => !['Cancelled', 'Returned'].includes(item.status))
-  .reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const activeCouponUsed = order.couponApplied && originalSubtotal > 0
-  ? (activeItemsTotal / originalSubtotal) * order.couponDiscount
-  : 0;
+    const activeItemsTotal = order.orderedProducts
+      .filter(item => !['Cancelled', 'Returned'].includes(item.status))
+      .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const activeCouponUsed = order.couponApplied && originalSubtotal > 0
+      ? (activeItemsTotal / originalSubtotal) * order.couponDiscount
+      : 0;
 
- order.summary = {
-  subtotal: activeItemsTotal,
-  couponDiscount: Math.round(activeCouponUsed),
-  shipping: order.shippingCost || 0,
-  grandTotal: Math.max(
-    activeItemsTotal - activeCouponUsed + (order.shippingCost || 0),
-    0
-  )
-};
+    order.summary = {
+      subtotal: activeItemsTotal,
+      couponDiscount: Math.round(activeCouponUsed),
+      shipping: order.shippingCost || 0,
+      grandTotal: Math.max(
+        activeItemsTotal - activeCouponUsed + (order.shippingCost || 0),
+        0
+      )
+    };
 
-
-
-
-console.log({
-  couponApplied: order.couponApplied,
-  couponCode: order.couponCode,
-  couponDiscount: order.couponDiscount
-});
-
+     order.displayStatus = resolveOrderStatus(order);
 
     res.render("orderdetails", {
       order,
       user,
-      title: `Order Details - ${order.orderId}`
+      title: `Order Details - ${order.orderId}`,
+
     });
 
   } catch (error) {
     console.error("Error loading order details:", error);
 
-    
+
     if (res.headersSent) {
       return;
     }
@@ -190,21 +187,42 @@ const loadOrder = async (req, res) => {
     const status = req.query.status || "";
     const sort = req.query.sort || "date_desc";
 
-   
-    let searchQuery = { userId: userId };
+
+    let searchQuery = { userId };
+    let andConditions = [];
 
     if (status) {
-      searchQuery.status = status;
+
+      const itemLevelStatuses = [
+        "Returned",
+        "Return Requested",
+        "Partially Returned"
+      ];
+
+      if (itemLevelStatuses.includes(status)) {
+
+        andConditions.push({
+          "orderedProducts.status": status
+        });
+      } else {
+        andConditions.push({ status });
+      }
     }
+
 
     if (search) {
-      searchQuery.$or = [
-        { orderId: { $regex: search, $options: "i" } },
-        { status: { $regex: search, $options: "i" } },
-      ];
+      andConditions.push({
+        orderId: { $regex: search, $options: "i" }
+      });
     }
 
+    if (andConditions.length) {
+      searchQuery.$and = andConditions;
+    }
+
+
     let sortQuery = {};
+
     switch (sort) {
       case "date_desc":
         sortQuery = { createdAt: -1 };
@@ -222,16 +240,21 @@ const loadOrder = async (req, res) => {
         sortQuery = { createdAt: -1 };
     }
 
+
     const orders = await Order.find(searchQuery)
-      .populate({ path: "orderedProducts.product",
+      .populate({
+        path: "orderedProducts.product",
         select: "productName productImage",
-       })
+      })
       .sort(sortQuery)
       .skip(skip)
       .limit(limit)
       .lean();
 
-       orders.forEach(order => {
+    orders.forEach(order => {
+
+      order.displayStatus = resolveOrderStatus(order);
+
       const originalSubtotal = order.orderedProducts.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
@@ -277,7 +300,7 @@ const loadOrder = async (req, res) => {
     const totalOrders = await Order.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalOrders / limit);
 
-    
+
 
 
     res.render("order", {
@@ -321,22 +344,22 @@ const cancelEntireOrder = async (req, res) => {
       });
     }
 
-  for (const item of order.orderedProducts) {
-  if (!item.product || !item.variantId) continue;
+    for (const item of order.orderedProducts) {
+      if (!item.product || !item.variantId) continue;
 
-  await Product.updateOne(
-    {
-      _id: item.product._id,
-      "variant._id": item.variantId
-    },
-    {
-      $inc: { "variant.$.stock": item.quantity }
+      await Product.updateOne(
+        {
+          _id: item.product._id,
+          "variant._id": item.variantId
+        },
+        {
+          $inc: { "variant.$.stock": item.quantity }
+        }
+      );
     }
-  );
-}
 
 
-    //  Update order status to Cancelled
+
     order.status = "Cancelled";
     order.cancellationReason = reason || "Cancelled by user";
     await order.save();
@@ -344,12 +367,14 @@ const cancelEntireOrder = async (req, res) => {
 
 
     //  after cancellation, refund to wallet - online payment
+    let refundAmount = 0;
+
     if (order.paymentMethod === "Razorpay" || order.paymentMethod === "Online") {
-      const refundAmount = order.orderedProducts.reduce(
-  (sum, item) =>
-    sum + (item.price * item.quantity - (item.couponShare || 0)),
-  0
-);
+      refundAmount = order.orderedProducts.reduce(
+        (sum, item) =>
+          sum + (item.price * item.quantity - (item.couponShare || 0)),
+        0
+      );
 
 
       let wallet = await Wallet.findOne({ userId });
@@ -396,7 +421,7 @@ const cancelOrderItem = async (req, res) => {
       .populate("orderedProducts.product");
 
     if (!order) {
-      return res.status(Status.NOT_FOUND).json({ success: false, message:"Order not found" });
+      return res.status(Status.NOT_FOUND).json({ success: false, message: "Order not found" });
     }
 
     const item = order.orderedProducts.find(
@@ -409,7 +434,7 @@ const cancelOrderItem = async (req, res) => {
       return res.status(Status.NOT_FOUND).json({ success: false, message: "Product not found in order" });
     }
 
-    
+
     if (item.status === "Cancelled") {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -423,6 +448,37 @@ const cancelOrderItem = async (req, res) => {
         message: "Cannot cancel item after shipping or delivery"
       });
     }
+    // COUPON MIN PURCHASE PROTECTION
+    if (order.couponApplied && order.couponMinPurchase > 0) {
+
+      const NON_ACTIVE = ["Cancelled", "Returned", "Return Requested"];
+
+      const remainingValue = order.orderedProducts
+        .filter(i =>
+          !NON_ACTIVE.includes(i.status) &&
+          !(i.product &&
+            i.product._id.toString() === productId.toString() &&
+            i.variantId.toString() === variantId.toString())
+        )
+        .reduce((sum, i) => {
+          const basePrice =
+            i.originalPrice ??
+            i.priceBeforeDiscount ??
+            i.unitPrice ??
+            i.price;
+
+          return sum + (basePrice * i.quantity);
+        }, 0);
+
+      console.log("Remaining subtotal before discount:", remainingValue);
+
+      if (remainingValue < order.couponMinPurchase) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: `Cannot cancel this item — order must remain above ₹${order.couponMinPurchase} to keep the coupon.`
+        });
+      }
+    }
 
 
     const product = await Product.updateOne(
@@ -435,19 +491,19 @@ const cancelOrderItem = async (req, res) => {
     item.cancelReason = reason || "Cancelled by user";
     item.cancelledAt = new Date();
 
- const itemSaleValue = item.price * item.quantity;
-const refundAmount = Math.max(
-  itemSaleValue - (item.couponShare || 0),
-  0
-);
-
+    const itemSaleValue = item.price * item.quantity;
+    const refundAmount = Math.max(
+      itemSaleValue - (item.couponShare || 0),
+      0
+    );
+    order.refundAmount = (order.refundAmount || 0) + refundAmount;
 
 
     const allItemsCancelled = order.orderedProducts.every(
       (i) => i.status === "Cancelled"
     );
 
-    
+
     if (allItemsCancelled) {
       order.status = "Cancelled";
       order.cancelledAt = new Date();
@@ -455,11 +511,10 @@ const refundAmount = Math.max(
       order.finalAmount = 0;
     } else {
 
-     order.finalAmount = Math.max(
-  order.finalAmount - refundAmount,
-  0
-);
-
+      order.finalAmount = Math.max(
+        order.finalAmount - refundAmount,
+        0
+      );
 
     }
 
@@ -504,6 +559,14 @@ const refundAmount = Math.max(
       ? ` ₹${refundAmount} refunded to wallet.`
       : "";
 
+
+    console.log("CANCEL CHECK:", {
+      couponApplied: order.couponApplied,
+      couponMinPurchase: order.couponMinPurchase,
+      couponCode: order.couponCode
+    });
+
+
     res.status(Status.OK).json({
       success: true,
       message: message + refundMessage,
@@ -521,7 +584,7 @@ const refundAmount = Math.max(
 
 const returnOrderItem = async (req, res) => {
   try {
-    const { orderId, productId,variantId } = req.params;
+    const { orderId, productId, variantId } = req.params;
     const { reason } = req.body;
     const userId = req.session.user.id;
 
@@ -546,11 +609,11 @@ const returnOrderItem = async (req, res) => {
     }
 
     const productIndex = order.orderedProducts.findIndex(
-  item =>
-    item.product &&
-    item.product._id.toString() === productId.toString() &&
-    item.variantId?.toString() === variantId.toString()
-);
+      item =>
+        item.product &&
+        item.product._id.toString() === productId.toString() &&
+        item.variantId?.toString() === variantId.toString()
+    );
 
     if (productIndex === -1) {
       return res.status(Status.BAD_REQUEST).json({
@@ -560,35 +623,76 @@ const returnOrderItem = async (req, res) => {
     }
 
     const productItem = order.orderedProducts[productIndex];
-if (productItem.status !== "Delivered") {
-  return res.status(Status.BAD_REQUEST).json({
-    success: false,
-    message: "Return is only allowed for delivered products"
-  });
-}
+    if (productItem.status !== "Delivered") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return is only allowed for delivered products"
+      });
+    }
+    // COUPON MIN PURCHASE PROTECTION
+    if (order.couponApplied && order.couponMinPurchase > 0) {
+
+      const NON_ACTIVE = ["Cancelled", "Returned", "Return Requested"];
+
+      const remainingValue = order.orderedProducts
+        .filter(i =>
+          !NON_ACTIVE.includes(i.status) &&
+          !(i.product &&
+            i.product._id.toString() === productId.toString() &&
+            i.variantId.toString() === variantId.toString())
+        )
+        .reduce((sum, i) => {
+          const basePrice =
+            i.originalPrice ??
+            i.priceBeforeDiscount ??
+            i.unitPrice ??
+            i.price;
+
+          return sum + (basePrice * i.quantity);
+        }, 0);
+
+      console.log("Remaining subtotal before discount:", remainingValue);
+
+      if (remainingValue < order.couponMinPurchase) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: `Cannot return this item — order must remain above ₹${order.couponMinPurchase} to keep the coupon.`
+        });
+      }
+    }
+
 
 
     if (
-  productItem.status === "Returned" ||
-  productItem.status === "Return Requested"
-) {
-  return res.status(Status.BAD_REQUEST).json({
-    success: false,
-    message: "Return request already submitted for this product"
-  });
+      productItem.status === "Returned" ||
+      productItem.status === "Return Requested"
+    ) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return request already submitted for this product"
+      });
+    }
+
+
+
+    productItem.status = "Return Requested";
+    productItem.returnReason = reason;
+    productItem.returnRequestedAt = new Date();
+
+    const anyReturnRequested = order.orderedProducts.some(
+      item => item.status === "Return Requested"
+    );
+
+    const allReturned = order.orderedProducts.every(
+      item => item.status === "Returned"
+    );
+
+   if (allReturned) {
+  order.status = "Returned";
+} else if (anyReturnRequested) {
+  order.status = "Partially Returned";
 }
 
-    
-
-productItem.status = "Return Requested";
-productItem.returnReason = reason;
-productItem.returnRequestedAt = new Date();
-
-const allReturned = order.orderedProducts.every(
-  item => item.status === "Returned"
-);
-
-order.status = allReturned ? "Returned" : "Partially Returned";
 
 
     await order.save({ validateModifiedOnly: true });
@@ -602,6 +706,79 @@ order.status = allReturned ? "Returned" : "Partially Returned";
   } catch (error) {
     console.error("Error submitting return:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
+  }
+};
+
+
+const returnEntireOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { reason } = req.body;
+    const userId = req.session.user.id;
+
+    if (!reason || reason.trim() === "") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return reason is required"
+      });
+    }
+
+    const order = await Order.findOne({ orderId, userId })
+      .populate("orderedProducts.product");
+
+    if (!order) {
+      return res.status(Status.NOT_FOUND).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    if (order.status !== "Delivered") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return allowed only after delivery"
+      });
+    }
+
+    if (order.status === "Return Requested") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Return already requested for this order"
+      });
+    }
+
+    if (order.status === "Returned") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Order already returned"
+      });
+    }
+
+    // mark all items
+    for (const item of order.orderedProducts) {
+      if (item.status === "Delivered") {
+        item.status = "Return Requested";
+        item.returnReason = reason;
+        item.returnRequestedAt = new Date();
+      }
+    }
+
+    order.returnReason = reason;
+    order.returnRequestedAt = new Date();
+
+    await order.save({ validateModifiedOnly: true });
+
+    return res.status(Status.OK).json({
+      success: true,
+      message: "Return requested"
+    });
+
+  } catch (error) {
+    console.error("Return entire order error:", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR
+    });
   }
 };
 
@@ -630,32 +807,15 @@ const getPendingReturns = async (req, res) => {
   }
 };
 
+
 const downloadInvoice = async (req, res) => {
   try {
     const { orderId } = req.params;
     const userId = req.session.user.id;
 
     const order = await Order.findOne({ orderId, userId });
-
-    if (!order) {
-      return res.status(Status.NOT_FOUND).json({
-        success: false,
-        message: "Order not found"
-      });
-    }
-
-    if (order.status !== "Delivered") {
-      return res.status(Status.BAD_REQUEST).json({
-        success: false,
-        message: "Invoice is only available for delivered orders"
-      });
-    }
-
-    if (!order.invoiceSnapshot) {
-      return res.status(400).json({
-        success: false,
-        message: "Invoice not generated yet"
-      });
+    if (!order || !order.invoiceSnapshot) {
+      return res.status(404).send("Invoice not available");
     }
 
     const invoice = order.invoiceSnapshot;
@@ -666,92 +826,169 @@ const downloadInvoice = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=MilliMillet-Invoice-${order.orderId}.pdf`
+      `attachment; filename=Invoice-${order.orderId}.pdf`
     );
 
     doc.pipe(res);
 
-    /* HEADER */
-    doc.fontSize(24).text("MilliMillet", { align: "center" });
-    doc.fontSize(10).text("Tax Invoice", { align: "center" });
-    doc.moveDown(2);
+    /* ================= HEADER ================= */
 
-    doc.fontSize(12)
-      .text(`Invoice Date: ${new Date(order.InvoiceDate).toLocaleDateString()}`, { align: "right" })
-      .text(`Order ID: ${order.orderId}`, { align: "right" });
+    doc.font("Helvetica-Bold")
+      .fontSize(22)
+      .text("MilliMillet", 50, 50);
 
-    doc.moveDown();
+    doc.font("Helvetica")
+      .fontSize(11)
+      .text("Order Invoice", 50, 78);
 
-    /* BILL TO */
-    doc.fontSize(14).text("Bill To:", { underline: true });
-    doc.fontSize(11)
-      .text(`Name: ${user.name}`)
-      .text(`Email: ${user.email}`);
+    doc.font("Helvetica")
+      .fontSize(10)
+      .text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`, 380, 50, { width: 200, align: "right" })
+      .text(`Order ID: ${order.orderId}`, 380, 65, { width: 200, align: "right" })
+      .text(`Invoice Type : ${order.status}`, 380, 80, { width: 200, align: "right" });
+
+    doc.moveDown(3);
+
+    /* ================= BILL TO ================= */
+
+    doc.font("Helvetica-Bold").fontSize(13).text("Bill To");
+
+    doc.font("Helvetica").fontSize(11)
+      .text(user.name)
+      .text(user.email);
 
     if (order.address) {
-      doc.text(`Address: ${order.address.addressLine1}`);
-      if (order.address.addressLine2) {
-        doc.text(`         ${order.address.addressLine2}`);
-      }
-      doc.text(`         ${order.address.city}, ${order.address.state} - ${order.address.pincode}`);
+      doc.text(order.address.addressLine1);
+      if (order.address.addressLine2) doc.text(order.address.addressLine2);
+      doc.text(`${order.address.city}, ${order.address.state} - ${order.address.pincode}`);
       doc.text(`Phone: ${order.address.mobile}`);
     }
 
     doc.moveDown(2);
 
-    /* TABLE HEADER */
+    /* ================= TABLE HEADER ================= */
+
     const tableTop = doc.y;
-    doc.fontSize(10)
-      .text("Item", 50, tableTop, { width: 200 })
-      .text("Qty", 280, tableTop, { width: 50 })
-      .text("Price", 350, tableTop, { width: 80 })
-      .text("Amount", 450, tableTop, { width: 80 });
 
-    doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+    const col = {
+      item: 50,
+      qty: 260,
+      price: 310,
+      amount: 380,
+      coupon: 460,
+      status: 530
+    };
 
-    /* ITEMS */
+    doc.font("Helvetica-Bold").fontSize(10)
+      .text("Item", col.item, tableTop, { width: 200 })
+      .text("Qty", col.qty, tableTop, { width: 40, align: "center" })
+      .text("Price", col.price, tableTop, { width: 60, align: "right" })
+      .text("Amount", col.amount, tableTop, { width: 70, align: "right" })
+      .text("Coupon", col.coupon, tableTop, { width: 60, align: "right" })
+      .text("Status", col.status, tableTop, { width: 60 });
+
+    doc.moveTo(50, tableTop + 15)
+      .lineTo(590, tableTop + 15)
+      .stroke();
+
     let y = tableTop + 25;
 
-    invoice.items.forEach(item => {
-      doc.fontSize(10)
-        .text(item.name, 50, y, { width: 200 })
-        .text(item.quantity, 280, y)
-        .text(`₹${item.price.toFixed(2)}`, 350, y)
-        .text(`₹${item.total.toFixed(2)}`, 450, y);
+    /* ================= ITEMS ================= */
+
+    doc.font("Helvetica").fontSize(10);
+
+    invoice.items.forEach((item, idx) => {
+      const live = order.orderedProducts?.[idx];
+
+      const qty = item.quantity || live?.quantity || 1;
+      const couponShare = live?.couponShare || 0;
+      const status = live?.status || "N/A";
+
+      doc.text(item.name, col.item, y, { width: 200 })
+        .text(qty, col.qty, y, { width: 40, align: "center" })
+        .text(`Rs ${item.price.toFixed(2)}`, col.price, y, { width: 60, align: "right" })
+        .text(`Rs ${item.total.toFixed(2)}`, col.amount, y, { width: 70, align: "right" })
+        .text(`Rs ${couponShare.toFixed(2)}`, col.coupon, y, { width: 60, align: "right" })
+        .text(status, col.status, y, { width: 60 });
 
       y += 22;
+
+      doc.moveTo(50, y)
+        .lineTo(590, y)
+        .strokeOpacity(0.15)
+        .stroke()
+        .strokeOpacity(1);
     });
 
-    y += 10;
-    doc.moveTo(350, y).lineTo(550, y).stroke();
-    y += 10;
+    /* ================= TOTALS ================= */
 
-    /* TOTALS */
-    doc.fontSize(11)
-      .text("Subtotal:", 350, y)
-      .text(`₹${invoice.subtotal}`, 450, y, { align: "right" });
+    y += 20;
+
+    const shipping = invoice.shipping || 0;
+
+    const refunded = order.refundAmount || 0;
+
+    const originalPaid = invoice.subtotal + invoice.shipping - invoice.couponDiscount;
+
+    const netPaid = originalPaid - refunded;
+
+
+    const totalValueX = 470;
+    const totalWidth = 120;
+
+    doc.font("Helvetica").fontSize(11)
+      .text("Subtotal:", 360, y)
+      .text(`Rs ${invoice.subtotal.toFixed(2)}`, totalValueX, y, { width: totalWidth, align: "right" });
 
     y += 18;
 
+   
+
+doc.text("Shipping:", 360, y)
+  .text(`Rs ${shipping.toFixed(2)}`,
+        totalValueX, y,
+        { width: totalWidth, align: "right" });
+         y += 18;
+
+
     if (invoice.couponDiscount > 0) {
-      doc.text("Coupon Discount:", 350, y)
-        .text(`-₹${invoice.couponDiscount}`, 450, y, { align: "right" });
+      doc.text("Coupon Discount:", 360, y)
+        .text(`-Rs ${invoice.couponDiscount.toFixed(2)}`, totalValueX, y, { width: totalWidth, align: "right" });
       y += 18;
     }
 
-    doc.fontSize(13)
-      .text("Total Amount:", 350, y, { bold: true })
-      .text(`₹${invoice.finalAmount}`, 450, y, { align: "right", bold: true });
+    doc.text("Original Paid:", 360, y)
+      .text(`Rs ${originalPaid.toFixed(2)}`, totalValueX, y, { width: totalWidth, align: "right" });
 
-    doc.moveDown(2);
+    y += 18;
+
+    if (refunded > 0) {
+      doc.fillColor("red")
+        .text("Refunded:", 360, y)
+        .text(`-Rs ${refunded.toFixed(2)}`, totalValueX, y, { width: totalWidth, align: "right" });
+      doc.fillColor("black");
+      y += 18;
+    }
+
+    doc.font("Helvetica-Bold").fontSize(13)
+      .text("Net Paid:", 360, y)
+      .text(`Rs ${netPaid.toFixed(2)}`, totalValueX, y, { width: totalWidth, align: "right" });
+
+
+    /* ================= FOOTER ================= */
 
     doc.fontSize(9)
-      .text("Thank you for your order!", 50, doc.page.height - 100, { align: "center" });
+      .text("Thank you for shopping with MilliMillet",
+        50,
+        doc.page.height - 60,
+        { align: "center" }
+      );
 
     doc.end();
-  } catch (error) {
-    console.error("Invoice error:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).send("Error generating invoice");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Invoice generation failed");
   }
 };
 
@@ -774,7 +1011,7 @@ const placeCodOrder = async (req, res) => {
 
     return res.status(Status.OK).json({
       success: true,
-      message: message.ORDER_PLACED_SUCCESSFULLY,
+      message: message.ORDER.PLACED_SUCCESS,
       orderId: result.orderId
     });
 
@@ -785,6 +1022,14 @@ const placeCodOrder = async (req, res) => {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
         message: "Cash on Delivery is available only for orders up to ₹1000"
+      });
+    }
+
+    if (error.message === "No valid items in cart") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Some items became unavailable during checkout. Please review your cart.",
+        redirect: "/cart"
       });
     }
 
@@ -805,7 +1050,7 @@ const createRazorpayOrder = async (req, res) => {
     if (!userId || !addressId) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.NOT_FOUND
+        message: message.AUTH.INVALID_CREDENTIALS
       });
     }
 
@@ -821,6 +1066,15 @@ const createRazorpayOrder = async (req, res) => {
 
   } catch (error) {
     console.error("Create Razorpay Order Error:", error);
+
+
+    if (error.message === "No valid items in cart") {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Some items became unavailable during checkout. Please review your cart.",
+        redirect: "/cart"
+      });
+    }
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -905,11 +1159,12 @@ export {
   cancelEntireOrder,
   cancelOrderItem,
   returnOrderItem,
+  returnEntireOrder,
   getPendingReturns,
   downloadInvoice,
   verifyPayment,
   createRazorpayOrder,
   placeCodOrder,
   createRetryOrder,
-  
+
 };

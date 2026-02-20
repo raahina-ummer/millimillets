@@ -1,4 +1,3 @@
-// userRouter.js  (ESM version)
 
 import express from "express";
 import passport from "../config/passport.js";
@@ -48,7 +47,7 @@ router.post("/login", userController.login);
 // HomePage and Shopping page
 router.get("/", userController.loadHomepage);
 router.get("/logout", userController.logout);
-router.get("/shop", userAuth, userController.loadShop);
+router.get("/shop",  userController.loadShop);
 
 // Profile management
 router.get("/userProfile", userAuth, profileController.loadProfile);
@@ -106,6 +105,8 @@ router.get("/orders/:orderId", userAuth, orderController.loadOrderDetails);
 router.patch("/orders/:orderId/cancel", userAuth, orderController.cancelEntireOrder);
 router.post("/orders/:orderId/items/:productId/:variantId/cancel",userAuth,orderController.cancelOrderItem);
 router.post("/orders/:orderId/return/:productId/:variantId", userAuth, orderController.returnOrderItem);
+router.post("/orders/:orderId/return-all",userAuth,orderController. returnEntireOrder);
+
 router.get("/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
 router.post("/placeOrder",userAuth,orderController.placeCodOrder);
 router.post('/create-retry-order', userAuth,orderController.createRetryOrder);

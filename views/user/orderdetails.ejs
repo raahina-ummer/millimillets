@@ -220,6 +220,20 @@
             font-weight: 600;
         }
 
+            .order-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.product-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+
         /* ========== PRODUCT ITEMS ========== */
         .product-item {
             display: flex;
@@ -909,10 +923,14 @@
 
                 <div class="order-detail-container">
                     <!-- Left Column -->
-                    <div>
+                    <!-- Left Column -->
+<div class="order-main-column">
+
+
                         <!-- Order Details Header -->
                         <div class="detail-section">
                             <div class="section-header">
+
                                 <h3><i class="fas fa-receipt"></i> Order Details</h3>
                             </div>
                             <div class="section-content">
@@ -925,7 +943,7 @@
                                     <div class="info-item">
                                         <div class="info-label">Order Date</div>
                                         <div class="info-value">
- <%= order.formattedDates.created %>
+                                            <%= order.formattedDates.created %>
 
 
 
@@ -935,16 +953,16 @@
                                         <div class="info-label">Status</div>
                                         <div class="info-value">
                                             <span
-                                                class="order-status status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
-                                                <%= order.status %>
+                                                class="order-status status-<%= order.displayStatus.toLowerCase().replace(/\s+/g, '-') %>">
+                                                <%= order.displayStatus %>
                                             </span>
                                         </div>
                                     </div>
                                     <div class="info-item">
                                         <div class="info-label">Amount Paid</div>
-<div class="info-value">
-  ₹<%= order.finalAmount.toFixed(2) %>
-</div>
+                                        <div class="info-value">
+                                            ₹<%= order.finalAmount.toFixed(2) %>
+                                        </div>
 
                                     </div>
                                 </div>
@@ -957,20 +975,31 @@
                                 <h3><i class="fas fa-clock"></i> Order Timeline</h3>
                             </div>
 
-                            <div class="section-content">
-                                <div class="timeline">
+                           <%
+const flowStatuses = ['Pending','Processing','Shipped','Delivered'];
+const terminalStatuses = ['Cancelled','Returned','Return Requested'];
 
-                                    <% const flowStatuses=['Pending', 'Processing' , 'Shipped' , 'Delivered' ]; const
-                                        terminalStatuses=['Cancelled', 'Returned' , 'Return Requested' ]; const
-                                        isTerminal=terminalStatuses.includes(order.status); const
-                                        currentIndex=flowStatuses.indexOf(order.status); const timelineEvents=[ {
-                                        title: 'Order Confirmed' , desc: 'Your order has been placed successfully' }, {
-                                        title: 'Order Processing' , desc: 'Your order is being prepared' }, {
-                                        title: 'Order Shipped' , desc: 'Your order is on the way' }, {
-                                        title: 'Order Delivered' , desc: 'Your order has been successfully delivered' }
-                                        ]; %>
+//  normalize for timeline
+let flowStatus = order.status;
+
+if (order.displayStatus === 'Partially Delivered') flowStatus = 'Shipped';
+if (order.displayStatus === 'Partially Returned') flowStatus = 'Delivered';
+if (order.displayStatus === 'Partially Cancelled') flowStatus = 'Processing';
+if (order.displayStatus === 'Return Requested') flowStatus = 'Delivered';
+
+const isTerminal = terminalStatuses.includes(flowStatus);
+const currentIndex = flowStatuses.indexOf(flowStatus);
+
+const timelineEvents = [
+  { title: 'Order Confirmed', desc: 'Your order has been placed successfully' },
+  { title: 'Order Processing', desc: 'Your order is being prepared' },
+  { title: 'Order Shipped', desc: 'Your order is on the way' },
+  { title: 'Order Delivered', desc: 'Your order has been successfully delivered' }
+];
+%>
 
                                         <!-- Normal order flow -->
+                                         <div class="timeline">
                                         <% timelineEvents.forEach((event, index)=> {
                                             const isCompleted = !isTerminal && currentIndex >= index;
                                             %>
@@ -990,7 +1019,7 @@
                                             <% }) %>
 
                                                 <!-- Cancelled -->
-                                                <% if (order.status==='Cancelled' ) { %>
+                                                <% if (order.displayStatus==='Cancelled' ) { %>
                                                     <div class="timeline-item cancelled">
                                                         <div class="timeline-icon cancelled">
                                                             <i class="fas fa-times"></i>
@@ -1003,7 +1032,7 @@
                                                     <% } %>
 
                                                         <!-- Returned -->
-                                                        <% if (order.status==='Returned' ) { %>
+                                                        <% if (order.displayStatus==='Returned' ) { %>
                                                             <div class="timeline-item returned">
                                                                 <div class="timeline-icon returned">
                                                                     <i class="fas fa-undo"></i>
@@ -1016,7 +1045,7 @@
                                                             <% } %>
 
                                                                 <!-- Return Request -->
-                                                                <% if (order.status==='Return Requested' ) { %>
+                                                                <% if (order.displayStatus==='Return Requested' ) { %>
                                                                     <div class="timeline-item return-request">
                                                                         <div class="timeline-icon pending">
                                                                             <i class="fas fa-clock"></i>
@@ -1029,6 +1058,7 @@
                                                                     <% } %>
 
                                 </div>
+                            </div>
                             </div>
                         </div>
 
@@ -1046,9 +1076,9 @@
 
                                     <div class="product-details">
                                         <h4 class="product-name">
-                                            <%= item.productNameSnapshot %> - <%= item.unitTypeSnapshot %>
+  <%= item.product.productName %> - <%= item.unitTypeSnapshot %>
+</h4>
 
-                                        </h4>
                                         <div class="product-price">₹<%= item.price.toFixed(2) %>
                                         </div>
                                         <div class="product-quantity">Quantity: <%= item.quantity %>
@@ -1078,46 +1108,42 @@
                                                     <% } %>
 
                                                         <!-- Show Cancel button only if item is NOT already cancelled -->
-                                                        <% if ( (order.status==='Pending' || order.status==='Processing'
+                                                        <% if ( (order.displayStatus==='Pending' || order.displayStatus==='Processing'
                                                             ) && (item.status==='Pending' || item.status==='Processing'
                                                             ) ) { %>
-                                                          <button class="btn-action btn-cancel" onclick="cancelProduct(
+                                                            <button class="btn-action btn-cancel" onclick="cancelProduct(
   '<%= order.orderId %>',
   '<%= item.product ? item.product._id : "" %>',
   '<%= item.variantId %>'
 )">
-  Cancel
-</button>
+                                                                Cancel
+                                                            </button>
 
                                                             <% } %>
 
                                                                 <!-- Show Cancelled status if item is cancelled -->
-                                                                <% if (item.status==='Cancelled' ) { %>
+                                                                <!-- <% if (item.status==='Cancelled' ) { %>
                                                                     <button class="btn-product" disabled
                                                                         style="background: #6c757d; cursor: not-allowed; opacity: 0.6;">
                                                                         <i class="fas fa-ban"></i> Cancelled
                                                                     </button>
+                                                                    <% } %> -->
+
+                                                                <!-- Show Return button only if delivered and NOT cancelled -->
+                                                                <!-- Show Return button only if delivered -->
+                                                                <% if (item.status==='Delivered' ) { %>
+                                                                    <button class="btn-product return" onclick="returnProduct(
+                                                                                                    '<%= order.orderId %>',
+                                                                                                    '<%= item.product._id %>',
+                                                                                                    '<%= item.variantId %>'
+                                                                                                    )">
+                                                                        <i class="fas fa-undo"></i> Return</button>
                                                                     <% } %>
+                                                                 </div>
+                                                                </div>
+                                                            <% }); %>
+                                                        </div>
 
-                                                                        <!-- Show Return button only if delivered and NOT cancelled -->
-<!-- Show Return button only if delivered -->
-<% if (item.status === 'Delivered') { %>
-  <button class="btn-product return"
-    onclick="returnProduct(
-      '<%= order.orderId %>',
-      '<%= item.product._id %>',
-      '<%= item.variantId %>'
-    )">
-    <i class="fas fa-undo"></i> Return
-  </button>
-<% } %>
-
-
-                                    </div>
-                                </div>
-                                <% }); %>
-                        </div>
-                        <!---- Shipping Address - Modern Card Style -->
                         <!---- Shipping Address - Modern Card Style -->
                         <div class="detail-section shipping-address">
                             <div class="section-header">
@@ -1164,23 +1190,9 @@
 
                                                             <% if (order && order.address) { %>
 
-                                                                <h4>
-                                                                    <%= order.address.name ? order.address.name
-                                                                        : "Recipient" %>
-                                                                </h4>
+                                                               
 
-                                                                <% if (order.address.addressType) { %>
-                                                                    <span
-                                                                        class="badge badge-<%= order.address.addressType.toLowerCase() %>">
-                                                                        <%= order.address.addressType.toUpperCase() %>
-                                                                    </span>
-                                                                    <% } %>
-
-                                                                        <% if (order.address.mobile) { %>
-                                                                            <div>
-                                                                                <%= order.address.mobile %>
-                                                                            </div>
-                                                                            <% } %>
+                                                                
 
                                                                                 <% if (order.address.city ||
                                                                                     order.address.state) { %>
@@ -1248,81 +1260,81 @@
                     <!-- RIGHT COLUMN -->
                     <div class="order-summary-wrapper">
 
-                      <!-- ================= ORDER SUMMARY ================= -->
-<div class="order-summary">
-  <h3 class="summary-title">Order Summary</h3>
+                        <!-- ================= ORDER SUMMARY ================= -->
+                        <div class="order-summary">
+                            <h3 class="summary-title">Order Summary</h3>
 
-  <% 
-    const activeItems = order.orderedProducts.filter(
-      item => !['Cancelled', 'Returned'].includes(item.status)
-    );
-  %>
+                            <% const activeItems=order.orderedProducts.filter( item=> !['Cancelled',
+                                'Returned'].includes(item.status)
+                                );
+                                %>
 
-  <!-- Subtotal -->
-  <div class="summary-row">
-    <span class="summary-label">
-      Subtotal (<%= activeItems.length %> items)
-    </span>
-    <span class="summary-value">
-      ₹<%= order.summary.subtotal.toFixed(2) %>
-    </span>
-  </div>
+                                <!-- Subtotal -->
+                                <div class="summary-row">
+                                    <span class="summary-label">
+                                        Subtotal (<%= activeItems.length %> items)
+                                    </span>
+                                    <span class="summary-value">
+                                        ₹<%= order.summary.subtotal.toFixed(2) %>
+                                    </span>
+                                </div>
 
-  <!-- Coupon -->
-  <% if (order.summary.couponDiscount > 0) { %>
-    <div class="summary-row">
-      <span class="summary-label">
-        Coupon Discount
-        <% if (order.couponCode) { %>
-          (<%= order.couponCode %>)
-        <% } %>
-      </span>
-      <span class="summary-value discount">
-        -₹<%= order.summary.couponDiscount.toFixed(2) %>
-      </span>
-    </div>
-  <% } %>
+                                <!-- Coupon -->
+                                <% if (order.summary.couponDiscount> 0) { %>
+                                    <div class="summary-row">
+                                        <span class="summary-label">
+                                            Coupon Discount
+                                            <% if (order.couponCode) { %>
+                                                (<%= order.couponCode %>)
+                                                    <% } %>
+                                        </span>
+                                        <span class="summary-value discount">
+                                            -₹<%= order.summary.couponDiscount.toFixed(2) %>
+                                        </span>
+                                    </div>
+                                    <% } %>
 
-  <!-- Shipping -->
-  <div class="summary-row">
-    <span class="summary-label">Shipping</span>
-    <span class="summary-value">
-      <% if (order.shippingCost === 0) { %>
-        FREE
-      <% } else { %>
-        ₹<%= order.shippingCost.toFixed(2) %>
-      <% } %>
-    </span>
-  </div>
+                                        <!-- Shipping -->
+                                        <div class="summary-row">
+                                            <span class="summary-label">Shipping</span>
+                                            <span class="summary-value">
+                                                <% if (order.shippingCost===0) { %>
+                                                    FREE
+                                                    <% } else { %>
+                                                        ₹<%= order.shippingCost.toFixed(2) %>
+                                                            <% } %>
+                                            </span>
+                                        </div>
 
-  <!-- Wallet -->
-  <% if (order.walletUsed > 0) { %>
-    <div class="summary-row">
-      <span class="summary-label">Wallet Used</span>
-      <span class="summary-value discount">
-        -₹<%= order.walletUsed.toFixed(2) %>
-      </span>
-    </div>
-  <% } %>
+                                        <!-- Wallet -->
+                                        <% if (order.walletUsed> 0) { %>
+                                            <div class="summary-row">
+                                                <span class="summary-label">Wallet Used</span>
+                                                <span class="summary-value discount">
+                                                    -₹<%= order.walletUsed.toFixed(2) %>
+                                                </span>
+                                            </div>
+                                            <% } %>
 
-  <hr>
+                                                <hr>
 
-  <!-- Current Amount -->
-  <div class="summary-row final-paid">
-    <span class="summary-label"><strong>Current Order Value</strong></span>
-    <span class="summary-value">
-      <strong>₹<%= order.summary.grandTotal.toFixed(2) %></strong>
-    </span>
-  </div>
+                                                <!-- Current Amount -->
+                                                <div class="summary-row final-paid">
+                                                    <span class="summary-label"><strong>Current Order
+                                                            Value</strong></span>
+                                                    <span class="summary-value">
+                                                        <strong>₹<%= order.summary.grandTotal.toFixed(2) %></strong>
+                                                    </span>
+                                                </div>
 
-  <!-- Paid Amount (historical) -->
-  <div class="summary-row">
-    <span class="summary-label text-muted">Amount Paid</span>
-    <span class="summary-value text-muted">
-      ₹<%= order.finalAmount.toFixed(2) %>
-    </span>
-  </div>
-</div>
+                                                <!-- Paid Amount (historical) -->
+                                                <div class="summary-row">
+                                                    <span class="summary-label text-muted">Amount Paid</span>
+                                                    <span class="summary-value text-muted">
+                                                        ₹<%= order.finalAmount.toFixed(2) %>
+                                                    </span>
+                                                </div>
+                        </div>
 
 
                         <!-- ================= PAYMENT INFO ================= -->
@@ -1362,10 +1374,7 @@
                                 </a>
 
                                 <!-- Retry Razorpay Payment -->
-                               <% if (
-  order.paymentMethod === 'Razorpay' &&
-  order.paymentStatus !== 'Completed'
-) { %>
+                                <% if ( order.paymentMethod==='Razorpay' && order.paymentStatus !=='Completed' ) { %>
 
                                     <button type="button" class="btn-action btn-retry"
                                         onclick="retryPayment('<%= order.orderId %>')">
@@ -1374,13 +1383,14 @@
                                     <% } %>
 
 
-                                        <!-- Download Invoice -->
-                                        <% if (order.status==='Delivered' ) { %>
-                                            <button class="btn-action btn-invoice"
-                                                onclick="downloadInvoice('<%= order.orderId %>')">
-                                                <i class="fas fa-download"></i> Download Invoice
-                                            </button>
-                                            <% } %>
+                                    <!-- Download Invoice -->
+<% if (order.invoiceSnapshot) { %>
+  <button class="btn-action btn-invoice"
+      onclick="downloadInvoice('<%= order.orderId %>')">
+      <i class="fas fa-download"></i> Download Invoice
+  </button>
+<% } %>
+
 
                             </div>
                         </div>
@@ -1448,11 +1458,11 @@
                         </div>
                     </div>
 
- <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
                     <script>
 
-                       
+
                         /* =======================
                            SHARED STATE
                         ======================= */
@@ -1472,7 +1482,12 @@
                         };
 
                         function closeCancelProductModal() {
-                            document.getElementById("cancelProductModal").style.display = "none";
+                            const modal = document.getElementById("cancelProductModal");
+
+                            if (modal) modal.style.display = "none";
+
+                            document.body.style.overflow = "auto";
+
                             document.getElementById("cancelReason").value = "";
                             document.getElementById("cancelOtherReason").value = "";
                             document.getElementById("cancelOtherReason").style.display = "none";
@@ -1527,12 +1542,12 @@
                         /* =======================
                            RETURN PRODUCT
                         ======================= */
-                       window.returnProduct = function (orderId, productId, variantId) {
-  selectedOrderId = orderId;
-  selectedProductId = productId;
-  selectedVariantId = variantId;
-  document.getElementById("returnProductModal").style.display = "block";
-};
+                        window.returnProduct = function (orderId, productId, variantId) {
+                            selectedOrderId = orderId;
+                            selectedProductId = productId;
+                            selectedVariantId = variantId;
+                            document.getElementById("returnProductModal").style.display = "block";
+                        };
 
 
                         function closeReturnProductModal() {
@@ -1563,15 +1578,15 @@
 
                             const finalReason = reason === "Other" ? other.trim() : reason;
 
-                           fetch(
-  `/orders/${selectedOrderId}/return/${selectedProductId}/${selectedVariantId}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ reason: finalReason })
-  }
-)
+                            fetch(
+                                `/orders/${selectedOrderId}/return/${selectedProductId}/${selectedVariantId}`,
+                                {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    credentials: "include",
+                                    body: JSON.stringify({ reason: finalReason })
+                                }
+                            )
 
                                 .then(res => res.json())
                                 .then(data => {
@@ -1654,7 +1669,7 @@
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             credentials: "include",
-                                            body: JSON.stringify({ paymentResponse: response , orderId: data.orderId })
+                                            body: JSON.stringify({ paymentResponse: response, orderId: data.orderId })
                                         });
 
                                         const result = await verify.json();
@@ -1673,6 +1688,10 @@
                                 swal("Error!", "Retry payment failed", "error");
                             }
                         };
+
+
+
+
                     </script>
 
 

@@ -13,7 +13,7 @@ const pageerror = (req, res) => {
 
 const loadLogin = (req, res) => {
   if (req.session.admin) {
-    return res.redirect("/dashboard");
+    return res.redirect("/admin/dashboard");
   }
   res.render("adminlogin", { message: null });
 };
@@ -40,7 +40,11 @@ const login = async (req, res) => {
       });
     }
 
-    req.session.admin = true;
+    req.session.admin = {
+  id: admin._id,
+  email: admin.email
+}
+
     return res.status(Status.OK).json({
        success: true ,message:message.AUTH.LOGIN_SUCCESS
       });
@@ -55,21 +59,29 @@ const login = async (req, res) => {
 };
 
 
-const logout = async (req, res) => {
+const logout = (req, res) => {
   try {
-    req.session.destroy((error) => {
-      if (error) {
-        console.log("Error destroying session:", error);
-        return res.redirect("/pageerror");
+    req.session.destroy((err) => {
+      if (err) {
+        console.log("Admin logout error:", err);
+        return res.status(Status.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: message.GENERAL.SERVER_ERROR
+        });
       }
-      res.redirect("/admin/login");
+
+      res.clearCookie("connect.sid"); 
+      return res.redirect("/admin/login");
     });
+
   } catch (error) {
-    console.log("Unexpected error during logout:", error);
-   return res.status(Status.INTERNAL_SERVER_ERROR).json({
-     success: false, message: message.GENERAL.SERVER_ERROR
-     });
+    console.log("Unexpected error during admin logout:", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR
+    });
   }
 };
+
 
 export { loadLogin, login, pageerror, logout, };

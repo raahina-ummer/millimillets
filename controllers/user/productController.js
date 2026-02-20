@@ -13,9 +13,30 @@ const productDetails = async (req, res) => {
     if (!productId) return res.redirect("/pageNotFound");
 
     const product = await Product.findById(productId).populate("category");
-    if (!product || product.isBlocked) {
-      return res.redirect("/pageNotFound");
-    }
+   if (!product) {
+  return res.status(404).render("product-unavailable", {
+    message: "Product not found",
+    user: req.session.user || null
+  });
+}
+
+if (
+  product.isBlocked ||
+  product.status !== "Available" ||
+  !product.category?.isListed
+) {
+  return res.status(410).render("product-unavailable", {
+    message: "This item is currently unavailable",
+    user: req.session.user || null
+  });
+}
+if (!product.variant || product.variant.length === 0) {
+  return res.render("product-unavailable", {
+    message: "This item has no purchasable variants",
+    user: req.session.user || null
+  });
+}
+
 
     /* Wishlist */
     let isInWishlist = false;
@@ -53,14 +74,8 @@ const productDetails = async (req, res) => {
       ? product.category.categoryOffer
       : null;
 
-    const productDiscount = productOffer?.discountPercentage || 0;
-    const categoryDiscount = categoryOffer?.discountPercentage || 0;
-
-    const bestOffer =
-      productDiscount >= categoryDiscount ? productOffer : categoryOffer;
-
-    const discountPercentage = bestOffer?.discountPercentage || 0;
-    const maxDiscountAmount = bestOffer?.maxDiscountAmount || null;
+  
+    // const maxDiscountAmount = bestOffer?.maxDiscountAmount || null;
 
     //PRICE CALCULATION 
 const firstVariant =
@@ -78,46 +93,56 @@ const { basePrice, finalPrice, appliedOffer } =
       0
     );
 
-    res.render("productdetails", {
-      user: userId ? await User.findById(userId) : null,
-      product,
-      category: product.category,
-      relatedProducts,
-      isInWishlist,
-      basePrice,
-      finalPrice: Math.round(finalPrice),
-      discountPercentage,
-      totalStock
-    });
+   res.render("productdetails", {
+  user: userId ? await User.findById(userId) : null,
+  product,
+  finalPrice,
+  category: product.category,   
+  strikePrice: basePrice,
+  discountPercentage: appliedOffer.discountPercentage,
+  totalStock,
+  isInWishlist,      
+  relatedProducts, 
+});
+
 
   } catch (error) {
     console.error("Product details error:", error);
     res.redirect("/pageNotFound");
   }
 };
+
 export const getVariantPrice = async (req, res) => {
-  const { productId, variantId } = req.params;
+  try {
+    const { productId, variantId } = req.params;
 
-  const product = await Product.findById(productId).populate("category");
-  if (!product) return res.status(404).json({ success: false });
+    const product = await Product.findById(productId).populate("category");
+    if (!product) {
+      return res.json({ success: false });
+    }
 
-  const variant = product.variant.find(
-    v => v._id.toString() === variantId
-  );
-  if (!variant) return res.status(404).json({ success: false });
+    const variant = product.variant.id(variantId);
+    if (!variant) {
+      return res.json({ success: false });
+    }
 
-  const { basePrice, finalPrice, appliedOffer } =
-    calculateFinalPriceForVariant(
-      variant,
-      product,
-      product.category
-    );
+    const { basePrice, finalPrice, appliedOffer } =
+      calculateFinalPriceForVariant(
+        variant,
+        product,
+        product.category
+      );
+res.json({
+  success: true,
+  finalPrice,  
+  strikePrice: basePrice,
+  discountPercentage: appliedOffer.discountPercentage
+});
 
-  res.json({
-    success: true,
-    basePrice,
-    finalPrice,
-    discountPercentage: appliedOffer.discountPercentage || 0
-  });
+
+  } catch (err) {
+    res.json({ success: false });
+  }
 };
-export { productDetails };
+
+export { productDetails }

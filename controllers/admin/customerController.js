@@ -80,7 +80,7 @@ const customerBlocked = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
   return res.status(Status.BAD_REQUEST).json({
     success: false,
-    message: "Invalid user ID"
+    message: message.AUTH.INVALID_CREDENTIALS
   });
 }
 
@@ -107,7 +107,7 @@ const customerunBlocked = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
   return res.status(Status.BAD_REQUEST).json({
     success: false,
-    message: "Invalid user ID"
+    message: message.AUTH.INVALID_CREDENTIALS
   });
 }
 

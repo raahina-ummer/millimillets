@@ -1,4 +1,4 @@
-// app.js (ESM version)
+
 
 import express from "express";
 import path from "path";
@@ -12,6 +12,7 @@ import { router as adminRouter } from "./Routes/adminRouter.js";
 import { router as userRouter } from "./Routes/userRouter.js";
 
 import { fileURLToPath } from "url";
+
 
 
 
@@ -46,7 +47,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: false,
       httpOnly: true,

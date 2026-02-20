@@ -36,13 +36,21 @@ const loadCart = async (req, res) => {
         .json({ success: false, message: message.CART.LOGIN_REQUIRED });
     }
   let cartUpdated = false;
+  let removedUnavailable = false; 
+  const cartWarning = req.session.cartWarning || null;  
 
  const validItems = getValidCartItems(cart);
 
 if (validItems.length !== cart.products.length) {
       cart.products = validItems;
       cartUpdated = true;
+      removedUnavailable = true; 
     }
+    if (removedUnavailable) {
+  req.session.cartWarning =
+    "Some unavailable or blocked products were removed from your cart.";
+}
+
 
 
 for (const cartItem of cart.products) {
@@ -72,6 +80,8 @@ for (const cartItem of cart.products) {
       await cart.save();
     }
 
+    req.session.cartWarning = null; 
+
     res.render("cart", {
       user,
       cart,
@@ -81,6 +91,7 @@ for (const cartItem of cart.products) {
       shipping: totals.shipping,
       total: totals.finalAmount,
       productCount: cart.products.length,
+      cartWarning,
     });
   } catch (error) {
     console.error("Error loading cart page:", error);
@@ -94,6 +105,13 @@ const maxItemLimit = 10;
 
 const addToCart = async (req, res) => {
   try {
+
+      if (!req.session.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Login required",
+      });
+    }
     const productId = req.params.productId;
     const userId = req.session.user.id;
     const { variantId, quantity } = req.body;

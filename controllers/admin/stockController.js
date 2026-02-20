@@ -98,7 +98,7 @@ const updateVariantStock = async (req, res) => {
   try {
     const { productId, variantId, quantity } = req.body;
 
-    // Validate input
+ 
     if (!productId || !variantId || !quantity) {
       return res.json({ 
         success: false, 
@@ -119,7 +119,7 @@ const updateVariantStock = async (req, res) => {
       ? new mongoose.Types.ObjectId(productId) 
       : productId;
 
-    // Find the product
+   
     const product = await Product.findById(productObjectId);
     
     if (!product) {
@@ -142,11 +142,10 @@ const updateVariantStock = async (req, res) => {
     }
 
     const oldStock = Number(variant.stock) || 0;
-    
-    // Update the stock
+   
     variant.stock = oldStock + quantityToAdd;
 
-    // Mark the variant array as modified (important for Mongoose)
+    // Mark the variant array as modified 
     product.markModified('variant');
 
     

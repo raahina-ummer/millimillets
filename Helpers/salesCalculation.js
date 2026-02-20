@@ -48,50 +48,85 @@ export const getDateRange = (period, startDate, endDate) => {
   };
 };
 
-
-/**
- * Calculate sales statistics from orders
- */
+//Calculate sales statistics from orders
 export const calculateStatistics = (orders = []) => {
+
   const stats = {
     totalOrders: orders.length,
+
     totalOrderAmount: 0,
     totalItemDiscount: 0,
     totalCouponDiscount: 0,
     totalDiscount: 0,
+
     totalShipping: 0,
     totalTax: 0,
+
     totalRevenue: 0,
     averageOrderValue: 0,
+
     deliveredOrders: 0,
     cancelledOrders: 0,
     returnedOrders: 0,
+
+    cancelledAmount: 0,
+    returnedAmount: 0,
+    refundedAmount: 0,
   };
 
-  orders.forEach((order) => {
+  const REVENUE_STATUSES = [
+    "Delivered",
+    "Shipped",
+    "Processing"
+  ];
+
+  let revenueOrderCount = 0;
+
+  orders.forEach(order => {
+
     const itemDiscount = order.itemDiscount || 0;
     const couponDiscount = order.couponDiscount || 0;
+    const totalDiscount = itemDiscount + couponDiscount;
 
-    stats.totalOrderAmount += order.totalPrice || 0;
+    const orderAmount = order.totalPrice || 0;
+    const finalAmount = order.finalAmount || 0;
+    const refund = order.refundAmount || 0;
+
+    // ---- counts ----
+    if (order.status === "Delivered") stats.deliveredOrders++;
+
+    if (order.status === "Cancelled") {
+      stats.cancelledOrders++;
+      stats.cancelledAmount += finalAmount;
+    }
+
+    if (order.status === "Returned") {
+      stats.returnedOrders++;
+      stats.returnedAmount += finalAmount;
+    }
+
+    // ---- totals (all orders — for reporting only) ----
+    stats.totalOrderAmount += orderAmount;
     stats.totalItemDiscount += itemDiscount;
     stats.totalCouponDiscount += couponDiscount;
     stats.totalShipping += order.shippingCost || 0;
     stats.totalTax += order.tax || 0;
+    stats.refundedAmount += refund;
 
-    if (order.status === "Delivered") stats.deliveredOrders++;
-    if (order.status === "Cancelled") stats.cancelledOrders++;
-    if (order.status === "Returned") stats.returnedOrders++;
+    // ---- REAL REVENUE ----
+    if (REVENUE_STATUSES.includes(order.status)) {
+      stats.totalRevenue += (finalAmount - refund);
+      revenueOrderCount++;
+    }
+
   });
 
   stats.totalDiscount =
     stats.totalItemDiscount + stats.totalCouponDiscount;
 
-  stats.totalRevenue =
-    stats.totalOrderAmount - stats.totalDiscount;
-
   stats.averageOrderValue =
-    stats.totalOrders > 0
-      ? stats.totalRevenue / stats.totalOrders
+    revenueOrderCount > 0
+      ? stats.totalRevenue / revenueOrderCount
       : 0;
 
   return stats;

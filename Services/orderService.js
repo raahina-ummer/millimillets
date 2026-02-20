@@ -8,6 +8,7 @@ import { calculateTotals } from "../utils/calculateTotals.js";
 import { v4 as uuidv4 } from "uuid";
 import {isValidCartItem, resolveVariant } from "../Helpers/cartHelper.js"
 import { calculateOrderTotals } from "../Helpers/orderTotal.js";
+import Coupon from "../models/CouponSchema.js";
 
 
 
@@ -29,6 +30,16 @@ export const placeCodOrderService = async ({ userId, addressId }) => {
   if (!cart || cart.products.length === 0) {
     throw new Error("Cart is empty");
   }
+
+  let couponMeta = null;
+
+if (cart.couponApplied && cart.couponCode) {
+ couponMeta = await Coupon.findOne({
+  code: { $regex: `^${cart.couponCode.trim()}$`, $options: "i" }
+});
+
+}
+
 
   const validItems = cart.products.filter(isValidCartItem);
   if (validItems.length === 0) {
@@ -67,6 +78,9 @@ export const placeCodOrderService = async ({ userId, addressId }) => {
         remainingCoupon -= couponShare;
       }
     }
+
+    console.log("COUPON META FOUND:", couponMeta);
+
 
     return {
       product: item.productId._id,
@@ -109,9 +123,12 @@ export const placeCodOrderService = async ({ userId, addressId }) => {
       country: selectedAddress.country,
       pincode: selectedAddress.pinCode
     },
-
     couponApplied: cart.couponApplied || false,
-    couponCode: cart.couponCode || null
+couponCode: cart.couponCode || null,
+
+couponMinPurchase: couponMeta?.minPurchaseAmount || 0,
+couponPercent: couponMeta?.discountPercent || 0,
+couponMaxDiscount: couponMeta?.maxDiscountAmount || 0,
   });
 
   // 🧾 INVOICE SNAPSHOT (TRUSTED)
@@ -177,6 +194,15 @@ export const createRazorpayOrderService = async ({ userId, addressId }) => {
   if (!cart || cart.products.length === 0) {
     throw new Error("Cart is empty");
   }
+  let couponMeta = null;
+
+if (cart.couponApplied && cart.couponCode) {
+ couponMeta = await Coupon.findOne({
+  code: { $regex: `^${cart.couponCode.trim()}$`, $options: "i" }
+});
+
+}
+
 
   const validItems = cart.products.filter(isValidCartItem);
   if (validItems.length === 0) {
@@ -242,7 +268,7 @@ export const createRazorpayOrderService = async ({ userId, addressId }) => {
     orderId: receiptId,
     userId,
 
-    orderedProducts,               // ✅ FIXED
+    orderedProducts,              
 
     totalPrice: saleTotal,
     couponDiscount: finalCouponDiscount,
@@ -268,8 +294,13 @@ export const createRazorpayOrderService = async ({ userId, addressId }) => {
       pincode: selectedAddress.pinCode
     },
 
-    couponApplied: cart.couponApplied || false,
-    couponCode: cart.couponCode || null
+ couponApplied: cart.couponApplied || false,
+couponCode: cart.couponCode || null,
+
+couponMinPurchase: couponMeta?.minPurchaseAmount || 0,
+couponPercent: couponMeta?.discountPercent || 0,
+couponMaxDiscount: couponMeta?.maxDiscountAmount || 0,
+
   });
 
   order.invoiceSnapshot = {

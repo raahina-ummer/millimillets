@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -392,64 +393,64 @@
         }
 
         /* Pagination Styles */
-.pagination-wrapper {
-    display: flex;
-     justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-    padding: 25px;
-    background: #f9f9f9;
-    border-top: 2px solid #8b7355;
-    margin-top: 0;
-}
+        .pagination-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            padding: 25px;
+            background: #f9f9f9;
+            border-top: 2px solid #8b7355;
+            margin-top: 0;
+        }
 
-.pagination-wrapper .pagination {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+        .pagination-wrapper .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
 
-.pagination-wrapper a {
-    text-decoration: none;
-}
+        .pagination-wrapper a {
+            text-decoration: none;
+        }
 
-.pagination-wrapper button {
-    padding: 8px 12px;
-    border: 2px solid #e8e0d0;
-    background: white;
-    color: #6b6b6b;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    font-size: 13px;
-    font-weight: 700;
-    min-width: 36px;
-    text-align: center;
-}
+        .pagination-wrapper button {
+            padding: 8px 12px;
+            border: 2px solid #e8e0d0;
+            background: white;
+            color: #6b6b6b;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 700;
+            min-width: 36px;
+            text-align: center;
+        }
 
-.pagination-wrapper button:hover {
-    background: #f9f9f9;
-    border-color: #8b7355;
-    color: #8b7355;
-    transform: translateY(-2px);
-}
+        .pagination-wrapper button:hover {
+            background: #f9f9f9;
+            border-color: #8b7355;
+            color: #8b7355;
+            transform: translateY(-2px);
+        }
 
-.pagination-wrapper button.active {
-    background: #8b7355;
-    color: white;
-    border-color: #8b7355;
-}
+        .pagination-wrapper button.active {
+            background: #8b7355;
+            color: white;
+            border-color: #8b7355;
+        }
 
-.pagination-wrapper button:disabled {
-    border: none;
-    background: transparent;
-    cursor: default;
-    color: #999;
-}
+        .pagination-wrapper button:disabled {
+            border: none;
+            background: transparent;
+            cursor: default;
+            color: #999;
+        }
 
-.pagination-wrapper button:disabled:hover {
-    transform: none;
-}
+        .pagination-wrapper button:disabled:hover {
+            transform: none;
+        }
 
         /* Responsive */
         @media (max-width: 1400px) {
@@ -540,57 +541,60 @@
         }
     </style>
 </head>
+
 <body>
     <%- include('../partials/admin/header.ejs') %>
 
-    <div class="dashboard-container">
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1>Sales Report</h1>
-        </div>
+        <div class="dashboard-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Sales Report</h1>
+            </div>
 
-        <!-- Filter Section -->
-        <div class="filter-card">
-            <h3>🔍 Report Filters</h3>
-            <form method="GET" action="/admin/sales-report" class="filter-form">
-                <div class="form-group">
-                    <label>Report Period</label>
-                    <select name="period" id="periodSelect" onchange="toggleCustomDates()">
-                        <option value="daily" <%= period === 'daily' ? 'selected' : '' %>>Today</option>
-                        <option value="weekly" <%= period === 'weekly' ? 'selected' : '' %>>This Week</option>
-                        <option value="monthly" <%= period === 'monthly' ? 'selected' : '' %>>This Month</option>
-                        <option value="yearly" <%= period === 'yearly' ? 'selected' : '' %>>This Year</option>
-                        <option value="custom" <%= period === 'custom' ? 'selected' : '' %>>Custom Range</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="startDateGroup" style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
-                    <label>Start Date</label>
-                    <input type="date" name="startDate" value="<%= startDate || '' %>" />
-                </div>
-
-                <div class="form-group" id="endDateGroup" style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
-
-                    <label>End Date</label>
-                    <input type="date" name="endDate" value="<%= endDate || '' %>" />
-                </div>
-
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <div class="button-group">
-                        <button type="submit" class="btn btn-primary">
-                            🔄 Generate
-                        </button>
-                        <button type="button" onclick="downloadReport('pdf')" class="btn btn-success">
-                            📄 PDF
-                        </button>
-                        <button type="button" onclick="downloadReport('excel')" class="btn btn-info">
-                            📊 Excel
-                        </button>
+            <!-- Filter Section -->
+            <div class="filter-card">
+                <h3>🔍 Report Filters</h3>
+                <form method="GET" action="/admin/sales-report" class="filter-form">
+                    <div class="form-group">
+                        <label>Report Period</label>
+                        <select name="period" id="periodSelect" onchange="toggleCustomDates()">
+                            <option value="daily" <%=period==='daily' ? 'selected' : '' %>>Today</option>
+                            <option value="weekly" <%=period==='weekly' ? 'selected' : '' %>>This Week</option>
+                            <option value="monthly" <%=period==='monthly' ? 'selected' : '' %>>This Month</option>
+                            <option value="yearly" <%=period==='yearly' ? 'selected' : '' %>>This Year</option>
+                            <option value="custom" <%=period==='custom' ? 'selected' : '' %>>Custom Range</option>
+                        </select>
                     </div>
-                </div>
 
-<!-- 
+                    <div class="form-group" id="startDateGroup"
+                        style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate" value="<%= startDate || '' %>" />
+                    </div>
+
+                    <div class="form-group" id="endDateGroup"
+                        style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
+
+                        <label>End Date</label>
+                        <input type="date" name="endDate" value="<%= endDate || '' %>" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">
+                                🔄 Generate
+                            </button>
+                            <button type="button" onclick="downloadReport('pdf')" class="btn btn-success">
+                                📄 PDF
+                            </button>
+                            <button type="button" onclick="downloadReport('excel')" class="btn btn-info">
+                                📊 Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 
                     <div class="form-group">
   <label>Payment Method</label>
   <select name="paymentMethod">
@@ -602,7 +606,7 @@
   </select>
 </div> -->
 
-<!-- <div class="form-group">
+                    <!-- <div class="form-group">
   <label>Order Status</label>
   <select name="status">
     <option value="all">All Status</option>
@@ -616,363 +620,447 @@
 
 
 
-            </form>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Total Orders</h6>
-                    <p class="stat-value"><%= statistics.totalOrders || 0 %></p>
-                </div>
+                </form>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-money-bill"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Total Revenue</h6>
-                    <p class="stat-value">₹<%= (statistics.totalRevenue || 0).toFixed(0) %></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Avg Order Value</h6>
-                    <p class="stat-value">₹<%= (statistics.averageOrderValue || 0).toFixed(0) %></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-tag"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Total Discounts</h6>
-                    <p class="stat-value">₹<%= (statistics.totalItemDiscount || 0).toFixed(0) %></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Additional Stats -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-percent"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Product Discounts</h6>
-                    <p class="stat-value">₹<%= (statistics.totalDiscount || 0).toFixed(0) %></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Coupon Discounts</h6>
-                    <p class="stat-value">₹<%= (statistics.totalCouponDiscount || 0).toFixed(0) %></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-calculator"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Tax Collected</h6>
-                    <p class="stat-value">₹<%= (statistics.totalTax || 0).toFixed(0) %></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon brown">
-                    <i class="fas fa-truck"></i>
-                </div>
-                <div class="stat-info">
-                    <h6>Shipping Charges</h6>
-                    <p class="stat-value">₹<%= (statistics.totalShipping || 0).toFixed(0) %></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Orders Table -->
-        <div class="table-card">
-            <div class="card-header">
-                <h3 class="card-title">📋 Order Details (<%= totalOrders %> orders)</h3>
-            </div>
-
-            <% if (orders.length === 0) { %>
-                <div class="no-data">
-                    <div class="no-data-icon">📦</div>
-                    <h3>No orders found</h3>
-                    <p>Try adjusting your filters or date range to see results</p>
-                </div>
-            <% } else { %>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Amount</th>
-                                <th>Discount</th>
-                                <th>Tax</th>
-                                <th>Shipping</th>
-                                <th>Final</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% orders.forEach((order, index) => { %>
-                                <tr>
-                                    <td><strong><%= (currentPage - 1) * 10 + index + 1 %></strong></td>
-                                    <td>
-                                        <span class="order-id"><%= order.orderId %></span>
-                                    </td>
-                                    <td><%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
-                                    <td><strong><%= order.userId?.name || 'N/A' %></strong></td>
-                                    <td class="amount-positive">₹<%= (order.totalPrice || 0).toFixed(0) %></td>
-                                    <td class="amount-negative">
-                                       <% const totalDiscount =
-  (order.couponDiscount || 0) + (order.itemDiscount || 0); %>
-
-<% if (totalDiscount > 0) { %>
-  -₹<%= totalDiscount.toFixed(0) %>
-<% } else { %>
-  -
-<% } %>
-
-                                    </td>
-                                    <td class="amount-positive">₹<%= (order.tax || 0).toFixed(0) %></td>
-                                    <td>
-                                        <% if ((order.shippingCost || 0) > 0) { %>
-                                            ₹<%= (order.shippingCost || 0).toFixed(0) %>
-                                        <% } else { %>
-                                            <span class="coupon-badge">Free</span>
-                                        <% } %>
-                                    </td>
-                                    <td class="amount-positive"><strong>₹<%= (order.finalAmount || 0).toFixed(0) %></strong></td>
-                                    <td>
-                                       <%= (order.status || 'pending').toLowerCase() %>
-
-                                        </span>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <% if (totalPages > 1) { %>
-                    <div class="pagination-wrapper">
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                           <a href="/admin/sales-report
-?page=<%= i %>
-&period=<%= period %>
-&startDate=<%= startDate || '' %>
-&endDate=<%= endDate || '' %>
-&paymentMethod=<%= paymentMethod || 'all' %>
-&status=<%= status || 'all' %>">
-
-                                <button class="<%= i === currentPage ? 'active' : '' %>"><%= i %></button>
-                            </a>
-                        <% } %>
+            <!-- Statistics Cards -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-shopping-bag"></i>
                     </div>
-                <% } %>
-            <% } %>
+                    <div class="stat-info">
+                        <h6>Total Orders</h6>
+                        <p class="stat-value">
+                            <%= statistics.totalOrders || 0 %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-money-bill"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Total Revenue</h6>
+                        <p class="stat-value">₹<%= (statistics.totalRevenue || 0).toFixed(0) %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Avg Order Value</h6>
+                        <p class="stat-value">₹<%= (statistics.averageOrderValue || 0).toFixed(0) %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Total Discounts</h6>
+                        <p class="stat-value">₹<%= (statistics.totalDiscount || 0).toFixed(0) %></p>
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Delivered Orders</h6>
+                        <p class="stat-value">
+                            <%= statistics.deliveredOrders || 0 %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Cancelled Orders</h6>
+                        <p class="stat-value">
+                            <%= statistics.cancelledOrders || 0 %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Returned Orders</h6>
+                        <p class="stat-value">
+                            <%= statistics.returnedOrders || 0 %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Total Refunded</h6>
+                        <p class="stat-value">₹<%= (statistics.refundedAmount || 0).toFixed(0) %>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Additional Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Product Discounts</h6>
+                        <p class="stat-value">₹<%= (statistics.totalItemDiscount || 0).toFixed(0) %>
+
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Coupon Discounts</h6>
+                        <p class="stat-value">₹<%= (statistics.totalCouponDiscount || 0).toFixed(0) %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Tax Collected</h6>
+                        <p class="stat-value">₹<%= (statistics.totalTax || 0).toFixed(0) %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon brown">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h6>Shipping Charges</h6>
+                        <p class="stat-value">₹<%= (statistics.totalShipping || 0).toFixed(0) %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="table-card">
+                <div class="card-header">
+                    <h3 class="card-title">📋 Order Details (<%= totalOrders %> orders)</h3>
+                </div>
+
+                <% if (orders.length===0) { %>
+                    <div class="no-data">
+                        <div class="no-data-icon">📦</div>
+                        <h3>No orders found</h3>
+                        <p>Try adjusting your filters or date range to see results</p>
+                    </div>
+                    <% } else { %>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Discount</th>
+                                        <th>Tax</th>
+                                        <th>Shipping</th>
+                                        <th>Final</th>
+                                        <th>Refunded</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% orders.forEach((order, index)=> { %>
+                                        <tr>
+                                            <td><strong>
+                                                    <%= (currentPage - 1) * 10 + index + 1 %>
+                                                </strong></td>
+                                            <td>
+                                                <span class="order-id">
+                                                    <%= order.orderId %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-GB', {
+                                                    day: '2-digit' , month: 'short' , year: 'numeric' }) %>
+                                            </td>
+                                            <td><strong>
+                                                    <%= order.userId?.name || 'N/A' %>
+                                                </strong></td>
+                                            <td class="amount-positive">₹<%= (order.totalPrice || 0).toFixed(0) %>
+                                            </td>
+                                            <td class="amount-negative">
+                                                <% const totalDiscount=(order.couponDiscount || 0) + (order.itemDiscount
+                                                    || 0); %>
+
+                                                    <% if (totalDiscount> 0) { %>
+                                                        -₹<%= totalDiscount.toFixed(0) %>
+                                                            <% } else { %>
+                                                                -
+                                                                <% } %>
+
+                                            </td>
+                                            <td class="amount-positive">₹<%= (order.tax || 0).toFixed(0) %>
+                                            </td>
+                                            <td>
+                                                <% if ((order.shippingCost || 0)> 0) { %>
+                                                    ₹<%= (order.shippingCost || 0).toFixed(0) %>
+                                                        <% } else { %>
+                                                            <span class="coupon-badge">Free</span>
+                                                            <% } %>
+                                            </td>
+                                            <td class="amount-positive">
+                                                <strong>₹<%= (order.finalAmount || 0).toFixed(0) %></strong>
+                                            </td>
+
+                                            <td class="amount-negative">
+                                                <% if ((order.refundAmount || 0)> 0) { %>
+                                                    ₹<%= order.refundAmount.toFixed(0) %>
+                                                        <% } else { %>
+                                                            -
+                                                            <% } %>
+                                            </td>
+
+                                            <td>
+                                                <%= order.status || 'N/A' %>
+                                            </td>
+
+                                            <td>
+                                                <%= order.paymentMethod || 'N/A' %>
+                                            </td>
+
+
+                                            </span>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <% if (totalPages> 1) { %>
+                            <div class="pagination-wrapper">
+                                <% for (let i=1; i <=totalPages; i++) { %>
+                                   
+                                    <a href="/admin/sales-report?page=<%= i %>&period=<%= period %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>&paymentMethod=<%= paymentMethod || 'all' %>&status=<%= status || 'all' %>">
+  <button class="<%= i === currentPage ? 'active' : '' %>"><%= i %></button>
+</a>
+
+                                    <% } %>
+                            </div>
+                            <% } %>
+                  <% } %>          
+            </div>
         </div>
-    </div>
 
-    <%- include('../partials/admin/footer.ejs') %>
+        <%- include('../partials/admin/footer.ejs') %>
 
-    <script>
-        function toggleCustomDates() {
-  const period = document.getElementById('periodSelect').value;
-  const startDateGroup = document.getElementById('startDateGroup');
-  const endDateGroup = document.getElementById('endDateGroup');
+            <script>
+                function toggleCustomDates() {
+                    const period = document.getElementById('periodSelect').value;
+                    const startDateGroup = document.getElementById('startDateGroup');
+                    const endDateGroup = document.getElementById('endDateGroup');
 
-  if (period === 'custom') {
-    startDateGroup.style.display = 'flex';
-    endDateGroup.style.display = 'flex';
-  } else {
-    startDateGroup.style.display = 'none';
-    endDateGroup.style.display = 'none';
-  }
+                    if (period === 'custom') {
+                        startDateGroup.style.display = 'flex';
+                        endDateGroup.style.display = 'flex';
+                    } else {
+                        startDateGroup.style.display = 'none';
+                        endDateGroup.style.display = 'none';
+                    }
 
-  updateDateConstraints();
-}
+                    updateDateConstraints();
+                }
 
-function updateDateConstraints() {
-  const startDateInput = document.querySelector('input[name="startDate"]');
-  const endDateInput = document.querySelector('input[name="endDate"]');
+                function updateDateConstraints() {
+                    const startDateInput = document.querySelector('input[name="startDate"]');
+                    const endDateInput = document.querySelector('input[name="endDate"]');
 
-  if (startDateInput && endDateInput) {
-    startDateInput.addEventListener('change', () => {
-      if (startDateInput.value) {
-        endDateInput.min = startDateInput.value;
-      }
-    });
+                    if (startDateInput && endDateInput) {
+                        startDateInput.addEventListener('change', () => {
+                            if (startDateInput.value) {
+                                endDateInput.min = startDateInput.value;
+                            }
+                        });
 
-    endDateInput.addEventListener('change', () => {
-      if (endDateInput.value) {
-        startDateInput.max = endDateInput.value;
-      }
-    });
-  }
-}
+                        endDateInput.addEventListener('change', () => {
+                            if (endDateInput.value) {
+                                startDateInput.max = endDateInput.value;
+                            }
+                        });
+                    }
+                }
 
-async function downloadReport(format) {
-  try {
-    console.log('Download button clicked with format:', format);
-    
-    const form = document.querySelector('form');
-    if (!form) {
-      throw new Error('Form not found');
-    }
+                async function downloadReport(format) {
+                    try {
+                        console.log('Download button clicked with format:', format);
 
-    const formData = new FormData(form);
-    const params = new URLSearchParams();
+                        const form = document.querySelector('form');
+                        if (!form) {
+                            throw new Error('Form not found');
+                        }
 
-    // Add all form fields to params
-    for (let [key, value] of formData.entries()) {
-      if (value) {
-        params.append(key, value);
-      }
-    }
-    
-    // Add format parameter
-    params.append('format', format);
+                        const formData = new FormData(form);
+                        const params = new URLSearchParams();
 
-    // Build the URL correctly
-    const url = `/admin/sales-report/download?${params.toString()}`;
-    console.log('Fetch URL:', url);
-    console.log('Query Parameters:', params.toString());
+                        // Add all form fields to params
+                        for (let [key, value] of formData.entries()) {
+                            if (value) {
+                                params.append(key, value);
+                            }
+                        }
 
-    // Show loading message
-    Swal.fire({
-      title: 'Generating Report...',
-      text: `Preparing your ${format.toUpperCase()} download`,
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+                        // Add format parameter
+                        params.append('format', format);
 
-    // Make the fetch request
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': format === 'pdf' 
-          ? 'application/pdf' 
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Cache-Control': 'no-cache'
-      }
-    });
+                        // Build the URL correctly
+                        const url = `/admin/sales-report/download?${params.toString()}`;
+                        console.log('Fetch URL:', url);
+                        console.log('Query Parameters:', params.toString());
 
-    console.log('Response status:', response.status);
-    console.log('Response OK:', response.ok);
+                        // Show loading message
+                        Swal.fire({
+                            title: 'Generating Report...',
+                            text: `Preparing your ${format.toUpperCase()} download`,
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
 
-    if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      let errorMessage = `Server error: ${response.status}`;
-      
-      if (contentType && contentType.includes('application/json')) {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } else {
-        const errorText = await response.text();
-        console.error('Server error response:', errorText);
-      }
-      
-      throw new Error(errorMessage);
-    }
+                        // Make the fetch request
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': format === 'pdf'
+                                    ? 'application/pdf'
+                                    : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'Cache-Control': 'no-cache'
+                            }
+                        });
 
-    const blob = await response.blob();
-    console.log('Blob size:', blob.size);
-    console.log('Blob type:', blob.type);
+                        console.log('Response status:', response.status);
+                        console.log('Response OK:', response.ok);
 
-    if (blob.size === 0) {
-      throw new Error('Downloaded file is empty. Please ensure there are orders to export.');
-    }
+                        if (!response.ok) {
+                            const contentType = response.headers.get('content-type');
+                            let errorMessage = `Server error: ${response.status}`;
 
-    // Create download link
-    const blobUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = blobUrl;
+                            if (contentType && contentType.includes('application/json')) {
+                                const errorData = await response.json();
+                                errorMessage = errorData.message || errorMessage;
+                            } else {
+                                const errorText = await response.text();
+                                console.error('Server error response:', errorText);
+                            }
 
-    // Extract filename from content-disposition header or generate one
-    const disposition = response.headers.get('content-disposition');
-    let filename = '';
+                            throw new Error(errorMessage);
+                        }
 
-    if (disposition && disposition.includes('filename=')) {
-      filename = disposition
-        .split('filename=')[1]
-        .replace(/"/g, '')
-        .split(';')[0];
-    } else {
-      // Fallback filename
-      const now = new Date();
-      const dateStr = now.toISOString().split('T')[0];
-      const period = document.getElementById('periodSelect').value;
-      const ext = format === 'pdf' ? 'pdf' : 'xlsx';
-      filename = `sales-report-${period}-${dateStr}.${ext}`;
-    }
+                        const blob = await response.blob();
+                        console.log('Blob size:', blob.size);
+                        console.log('Blob type:', blob.type);
 
-    console.log('Download filename:', filename);
+                        if (blob.size === 0) {
+                            throw new Error('Downloaded file is empty. Please ensure there are orders to export.');
+                        }
 
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+                        // Create download link
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
 
-    // Cleanup
-    window.URL.revokeObjectURL(blobUrl);
+                        // Extract filename from content-disposition header or generate one
+                        const disposition = response.headers.get('content-disposition');
+                        let filename = '';
 
-    // Success message
-    Swal.fire({
-      icon: 'success',
-      title: 'Download Started!',
-      text: `Your ${format.toUpperCase()} report is ready`,
-      timer: 3000,
-      showConfirmButton: false
-    });
+                        if (disposition && disposition.includes('filename=')) {
+                            filename = disposition
+                                .split('filename=')[1]
+                                .replace(/"/g, '')
+                                .split(';')[0];
+                        } else {
+                            // Fallback filename
+                            const now = new Date();
+                            const dateStr = now.toISOString().split('T')[0];
+                            const period = document.getElementById('periodSelect').value;
+                            const ext = format === 'pdf' ? 'pdf' : 'xlsx';
+                            filename = `sales-report-${period}-${dateStr}.${ext}`;
+                        }
 
-  } catch (error) {
-    console.error('Download error:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Download Failed',
-      text: error.message || 'An error occurred while downloading the report',
-      confirmButtonText: 'OK'
-    });
-  }
-}
+                        console.log('Download filename:', filename);
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Sales Report page loaded');
-  toggleCustomDates();
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
 
-  // Add event listener for period select changes
-  const periodSelect = document.getElementById('periodSelect');
-  if (periodSelect) {
-    periodSelect.addEventListener('change', toggleCustomDates);
-  }
-});
-    </script>
+                        // Cleanup
+                        window.URL.revokeObjectURL(blobUrl);
+
+                        // Success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Download Started!',
+                            text: `Your ${format.toUpperCase()} report is ready`,
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+
+                    } catch (error) {
+                        console.error('Download error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Download Failed',
+                            text: error.message || 'An error occurred while downloading the report',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+
+                // Initialize on page load
+                document.addEventListener('DOMContentLoaded', function () {
+                    console.log('Sales Report page loaded');
+                    toggleCustomDates();
+
+                    // Add event listener for period select changes
+                    const periodSelect = document.getElementById('periodSelect');
+                    if (periodSelect) {
+                        periodSelect.addEventListener('change', toggleCustomDates);
+                    }
+                });
+            </script>
 </body>
+
 </html>

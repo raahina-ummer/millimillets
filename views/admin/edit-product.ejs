@@ -1,10 +1,17 @@
 <%- include('../partials/admin/header') %>
-
 <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
 </head>
 
+
+
 <style>
+
+    .additional-image-upload img {
+    display:block;
+}
+
 .product-management-container {
     min-height: 100vh;
     background: #E8DCC4;
@@ -193,67 +200,6 @@
     transform: scale(1.15);
 }
 
-.main-image-upload {
-    width: 100%;
-    height: 300px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    border: 2px dashed #dee2e6;
-    transition: all 0.3s ease;
-}
-
-.main-image-upload:hover {
-    border-color: #8b7355;
-    background: #ffffff;
-    box-shadow: 0 2px 10px rgba(139, 115, 85, 0.1);
-}
-
-.image-upload-label {
-    display: block;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    position: relative;
-}
-
-.image-upload-label img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.upload-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #5a4a3a;
-}
-
-.upload-placeholder::before {
-    content: "📷";
-    font-size: 42px;
-    margin-bottom: 12px;
-    opacity: 0.7;
-}
-
-.upload-text {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 0;
-    color: #2c2c2c;
-}
-
-.upload-subtext {
-    font-size: 12px;
-    margin: 6px 0 0;
-    color: #5a4a3a;
-    opacity: 0.8;
-}
-
 /* Additional Images Grid */
 .additional-images-grid {
     display: grid;
@@ -335,7 +281,7 @@
     border-radius: 8px;
 }
 
-.image-cropper button {
+.cropper-actions button {
     margin-top: 20px;
     padding: 13px 40px;
     background: #8b7355;
@@ -958,7 +904,24 @@
 
         <div id="images-error-<%= i %>" class="error-message"></div>
 
+      </div>
+    <% } %>
+
+  </div>
+
+<% } else { %>
+
+  <p class="text-muted">
+    Maximum of 4 images already added.
+  </p>
+
+<% } %>
+
+
+
         <!-- Cropper -->
+
+        <% for (let i = existingCount + 1; i <= 4; i++) { %>
         <div class="image-cropper" id="cropperContainer<%= i %>">
   <img src="" id="croppedImg<%= i %>">
 
@@ -980,20 +943,8 @@
     </button>
   </div>
 </div>
+ <% } %>
 
-
-      </div>
-    <% } %>
-
-  </div>
-
-<% } else { %>
-
-  <p class="text-muted">
-    Maximum of 4 images already added.
-  </p>
-
-<% } %>
 
                             <!-- Description -->
                             <div class="form-group-description">
@@ -1392,7 +1343,7 @@ addVariantInputValidation();
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 let croppers = {};
 
@@ -1548,6 +1499,7 @@ function viewImage(event, index) {
         dt.items.add(file);
         input.files = dt.files;
 
+        showRemoveIcon(index);
         cleanupCropper(index);
         displayErrorMessage(`images-error-${index}`, '');
       });
@@ -1561,11 +1513,12 @@ function viewImage(event, index) {
 }
 
 
-// 🔥 BIND IMAGE INPUTS (EDIT PRODUCT)
-document.querySelectorAll('input[type="file"][id^="input"]').forEach(input => {
-  input.addEventListener('change', e => {
-    const index = input.id.replace('input', '');
-    viewImage(e, index);
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('input[type="file"][id^="input"]').forEach(input => {
+    input.addEventListener('change', e => {
+      const index = input.id.replace('input', '');
+      viewImage(e, index);
+    });
   });
 });
 
@@ -1965,6 +1918,34 @@ gstInput.addEventListener("input", () => {
     error.innerText = "";
   }
 });
+
+function showRemoveIcon(index) {
+  let btn = document.getElementById(`removeImage${index}`);
+  if (btn) return;
+
+  const parent = document.getElementById('imgView'+index).parentElement;
+  parent.style.position = 'relative';
+
+  btn = document.createElement('span');
+  btn.id = `removeImage${index}`;
+  btn.innerHTML = '❌';
+
+  btn.style.cssText = `
+    position:absolute;
+    top:5px;
+    right:5px;
+    cursor:pointer;
+    font-size:18px;
+    z-index:2;
+  `;
+
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    removeImage(index);
+  };
+
+  parent.appendChild(btn);
+}
 
 
 console.log('Edit Product form with variants initialized');

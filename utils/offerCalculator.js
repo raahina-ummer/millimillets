@@ -57,33 +57,33 @@ export const getBestOfferForProduct = (product, category) => {
 
 export const calculateFinalPriceForVariant = (variant, product, category) => {
   const regularPrice = Number(variant.regularPrice) || 0;
+  const salePrice = Number(variant.salePrice) || 0;
 
-  const basePrice =
-    variant.salePrice > 0 && variant.salePrice < regularPrice
-      ? Number(variant.salePrice)
+ 
+  const priceBeforeOffer =
+    salePrice > 0 && salePrice < regularPrice
+      ? salePrice
       : regularPrice;
 
-  //  get best offer (product vs category)
   const bestOffer = getBestOfferForProduct(product, category);
 
   const finalPrice =
     bestOffer.discountPercentage > 0
       ? applyDiscount(
-          basePrice,
+          priceBeforeOffer,
           bestOffer.discountPercentage,
           bestOffer.maxDiscountAmount
         )
-      : basePrice;
+      : priceBeforeOffer;
 
   return {
-    basePrice,
+    regularPrice,
+    salePrice,
+    priceBeforeOffer,     
     finalPrice: Math.round(finalPrice),
     appliedOffer: bestOffer,
   };
 };
-
-
-
 
 
 

@@ -536,9 +536,12 @@
                     <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
                     <option value="Shipped" <%= status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                    <option value="Canceled" <%= status === 'Canceled' ? 'selected' : '' %>>Cancelled</option>
+                    <option value="Cancelled" <%= status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                     <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
                     <option value="Return Requested" <%= status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                    <option value="Partially Delivered">Partially Delivered</option>
+                    <option value="Partially Returned">Partially Returned</option>
+
                 </select>
             </div>
 
@@ -602,8 +605,8 @@
                                 </div>
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                <span class="order-status-badge status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
-                                    <%= order.status %>
+                                <span class="order-status-badge status-<%= order.displayStatus.toLowerCase().replace(/\s+/g, '-') %>">
+                                    <%= order.displayStatus %>
                                 </span>
                             </div>
                         </div>
@@ -627,12 +630,7 @@
                                 <div class="summary-label">Total Price</div>
                                 <div class="summary-value">₹<%= order.currentAmount.toFixed(2) %></div>
                             </div>
-                            <% if (order.couponApplied && order.currentAmount < order.finalAmount) { %>
-                            <div class="summary-item">
-                                <div class="summary-label">Discount</div>
-                                <div class="summary-value" style="color: #28a745;">-₹<%= order.discount.toFixed(2) %></div>
-                            </div>
-                            <% } %>
+                           
                             <div class="summary-item" style="border-left: 4px solid #28a745;">
                                <div class="summary-label">Current Amount</div>
 <div class="summary-value" style="color: #28a745;">
@@ -687,16 +685,19 @@
                                 <i class="fas fa-eye"></i> View Details
                             </a>
                             
-                            <% if (order.status === 'Delivered') { %>
-                            <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-action btn-invoice">
-                                <i class="fas fa-download"></i> Download Invoice
-                            </button>
-                            <!-- <button onclick="openReturnModal('<%= order.orderId %>')" class="btn-action btn-return">
+                             <!-- Invoice button — based on snapshot -->
+    <% if (order.invoiceSnapshot) { %>
+    <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-action btn-invoice">
+        <i class="fas fa-download"></i> Download Invoice
+    </button>
+    <% } %> 
+                             <% if (order.displayStatus === 'Delivered') { %>
+                            <button onclick="openReturnModal('<%= order.orderId %>')" class="btn-action btn-return">
                                 <i class="fas fa-undo"></i> Return Order
-                            </button> -->
+                            </button>
                             <% } %>
                             
-                            <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                            <% if (order.displayStatus === 'Pending' || order.displayStatus === 'Processing') { %>
                             <button onclick="openCancelModal('<%= order.orderId %>')" class="btn-action btn-cancel">
                                 <i class="fas fa-times-circle"></i> Cancel Order
                             </button>
@@ -884,6 +885,55 @@
             
             bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
         });
+
+
+        //return
+        function openReturnModal(orderId) {
+    document.getElementById('returnOrderId').value = orderId;
+    const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+    modal.show();
+}
+
+document.getElementById('returnForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const orderId = document.getElementById('returnOrderId').value;
+    const reason = document.getElementById('returnReason').value.trim();
+
+    if (!reason) {
+        swal("Error!", "Return reason is required", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/orders/${orderId}/return-all`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify({ reason })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.message || "Return request failed");
+        }
+
+        swal("Success!", data.message, "success")
+            .then(() => location.reload());
+
+    } catch (error) {
+        console.error("Return error:", error);
+        swal("Error!", error.message, "error");
+    }
+
+    bootstrap.Modal.getInstance(
+        document.getElementById('returnModal')
+    ).hide();
+});
+
 
         
 

@@ -1242,23 +1242,41 @@ function showRemoveIcon(index) {
         right:5px;
         font-size:18px;
     `;
+btn.onclick = (e) => {
+  e.stopPropagation();
+  removeImage(index);
+};
 
-    btn.onclick = () => removeImage(index);
     document.getElementById('imgView' + index).parentElement.appendChild(btn);
 }
 
 function removeImage(index) {
     const input = document.getElementById('input' + index);
     const image = document.getElementById('imgView' + index);
+    const cropperContainer = document.getElementById(`cropperContainer${index}`);
 
-    input.value = '';
-    image.src = '';
-    image.style.display = 'none';
+    if (input) input.value = '';
+
+    if (image) {
+        image.src = '';
+        image.style.display = 'none';
+
+        const placeholder = image.parentElement.querySelector('.browse-text');
+        if (placeholder) placeholder.style.display = 'block';
+    }
+
+    if (croppers[index]) {
+        croppers[index].destroy();
+        delete croppers[index];
+    }
+
+    if (cropperContainer) {
+        cropperContainer.classList.remove('active');
+    }
 
     delete selectedImages[index];
 
-    const btn = document.getElementById(`removeImage${index}`);
-    if (btn) btn.remove();
+    document.getElementById(`removeImage${index}`)?.remove();
 }
 
 ['1','2','3','4'].forEach(i => {
@@ -1346,7 +1364,6 @@ function removeVariant(btn) {
 function validateForm() {
     const productName = document.getElementById('productName');
     const description = document.getElementById('description');
-  
 
     let errors = [];
 
@@ -1361,21 +1378,32 @@ function validateForm() {
         errors.push('GST must be between 0 and 100');
 
     document.querySelectorAll('.variant-item').forEach((v, i) => {
-        const weight = v.querySelector('[name*="weight"]').value;
-        const price = v.querySelector('[name*="regularPrice"]').value;
-        const stock = v.querySelector('[name*="stock"]').value;
+        const weight = v.querySelector('[name*="weight"]')?.value.trim();
+        const regularPrice = v.querySelector('[name*="regularPrice"]')?.value.trim();
+        const salePrice = v.querySelector('[name*="salePrice"]')?.value.trim();
+        const stock = v.querySelector('[name*="stock"]')?.value.trim();
 
-        if (!weight || weight <= 0)
+        if (!weight || parseFloat(weight) <= 0)
             errors.push(`Variant ${i + 1}: Weight must be positive`);
 
-        if (!price || price <= 0)
+        if (!regularPrice || parseFloat(regularPrice) <= 0)
             errors.push(`Variant ${i + 1}: Regular price must be positive`);
 
-        if (stock === '' || stock < 0)
+        // ✅ SALE PRICE CHECK
+        if (salePrice !== '') {
+            if (parseFloat(salePrice) < 0)
+                errors.push(`Variant ${i + 1}: Sale price cannot be negative`);
+
+            else if (parseFloat(salePrice) > parseFloat(regularPrice))
+                errors.push(`Variant ${i + 1}: Sale price cannot be higher than regular price`);
+        }
+
+        if (stock === '' || parseInt(stock) < 0)
             errors.push(`Variant ${i + 1}: Stock must be 0 or more`);
     });
 
-    const imageCount = Object.keys(selectedImages).length;
+    const imageCount = Object.keys(selectedImages || {}).length;
+
     if (imageCount < 3)
         errors.push('At least 3 product images are required');
 
@@ -1385,8 +1413,10 @@ function validateForm() {
     if (errors.length) {
         Swal.fire({
             icon: 'error',
-            title: 'Validation Error',
-            html: `<ul style="text-align:left">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`
+            title: 'Error',
+            html: `<ul style="text-align:left">
+                   ${errors.map(e => `<li>${e}</li>`).join('')}
+                   </ul>`
         });
         return false;
     }
@@ -1440,15 +1470,7 @@ document.getElementById('addProductForm')
     });
 
 
-    // Close (X) button
-document.querySelector('.btn-close-modal')?.addEventListener('click', () => {
-  window.location.href = '/admin/products';
-});
 
-// Cancel button
-document.querySelector('.btn-cancel')?.addEventListener('click', () => {
-  window.location.href = '/admin/products';
-});
 
 
 function confirmExit() {

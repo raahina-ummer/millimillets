@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Item Unavailable</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    body {
+      background: #ffffff;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .unavailable-wrapper {
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .unavailable-card {
+      text-align: center;
+      padding: 50px 60px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .unavailable-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #111;
+    }
+
+    .gold-line {
+      width: 60px;
+      height: 4px;
+      margin: 0 auto 20px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #8b6f47 0%, #6f5838 100%);
+    }
+
+    .unavailable-text {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 15px;
+    }
+
+    .btn-gold {
+      display: inline-block;
+      padding: 12px 26px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 600;
+      background: linear-gradient(135deg, #8b6f47 0%, #6f5838 100%);
+      transition: 0.2s ease;
+    }
+
+    .btn-gold:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="unavailable-wrapper">
+  <div class="unavailable-card">
+
+    <div class="unavailable-title">Item Unavailable</div>
+
+    <div class="gold-line"></div>
+
+    <p class="unavailable-text">
+      <%= message || "This item is currently unavailable." %>
+    </p>
+
+    <a href="/shop" class="btn-gold">
+      Continue Shopping
+    </a>
+
+  </div>
+</div>
+
+</body>
+</html>

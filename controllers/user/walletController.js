@@ -94,7 +94,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-    /* ================= ADDRESS ================= */
+  
     const userAddress = await Address.findOne({ userId });
     if (!userAddress) {
       return res.status(Status.BAD_REQUEST).json({
@@ -113,7 +113,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-    /* ================= CART ================= */
+  
     const cart = await Cart.findOne({ userId }).populate({
       path: "products.productId",
       populate: "category",
@@ -122,7 +122,7 @@ const walletPayment = async (req, res) => {
     if (!cart || cart.products.length === 0) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: message.CART_EMPTY,
+        message: message.CART.EMPTY,
       });
     }
 
@@ -130,11 +130,11 @@ const walletPayment = async (req, res) => {
     if (validItems.length === 0) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "No valid items in cart",
+        message: message.CART.ITEM_NOT_IN_CART,
       });
     }
 
-    /* ================= TOTALS (SOURCE OF TRUTH) ================= */
+   
     const {
       saleTotal,
       couponDiscount,
@@ -145,7 +145,7 @@ const walletPayment = async (req, res) => {
       cart.couponApplied ? cart.couponDiscount : 0
     );
 
-    /* ================= WALLET CHECK ================= */
+    // WALLET CHECK 
     const wallet = await Wallet.findOne({ userId });
     if (!wallet || wallet.balance < finalAmount) {
       return res.status(Status.BAD_REQUEST).json({
@@ -154,7 +154,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-    /* ================= COUPON SHARE FREEZE ================= */
+  
     let remainingCoupon = couponDiscount;
 
     const orderedProducts = validItems.map((item, index) => {
@@ -163,7 +163,7 @@ const walletPayment = async (req, res) => {
 
       if (couponDiscount > 0 && saleTotal > 0) {
         if (index === validItems.length - 1) {
-          couponShare = remainingCoupon; // absorb rounding diff
+          couponShare = remainingCoupon; 
         } else {
           couponShare = Math.round(
             (itemTotal / saleTotal) * couponDiscount
@@ -184,9 +184,7 @@ const walletPayment = async (req, res) => {
         status: "Processing",
       };
     });
-    /* ============================================================ */
-
-    /* ================= CREATE ORDER ================= */
+  
     const order = new Order({
       orderId: "ORD" + Date.now() + uuidv4().slice(0, 6),
       userId,
@@ -222,7 +220,7 @@ const walletPayment = async (req, res) => {
       },
     });
 
-    /* ================= INVOICE SNAPSHOT ================= */
+   
     order.invoiceSnapshot = {
       items: validItems.map(item => ({
         name: item.productId.productName,
@@ -240,7 +238,7 @@ const walletPayment = async (req, res) => {
 
     await order.save();
 
-    /* ================= WALLET DEDUCTION ================= */
+   
     wallet.balance -= finalAmount;
     wallet.transactions.push({
       type: "debit",
@@ -251,7 +249,7 @@ const walletPayment = async (req, res) => {
     });
     await wallet.save();
 
-    /* ================= STOCK REDUCTION ================= */
+  
     for (const item of validItems) {
       await Product.updateOne(
         {
@@ -263,7 +261,7 @@ const walletPayment = async (req, res) => {
       );
     }
 
-    /* ================= CLEAR CART ================= */
+  
     await Cart.findOneAndUpdate(
       { userId },
       {
@@ -276,7 +274,7 @@ const walletPayment = async (req, res) => {
 
     return res.status(Status.OK).json({
       success: true,
-      message: "Order placed successfully",
+      message: message.ORDER.PLACED_SUCCESS,
       orderId: order.orderId,
       walletUsed: finalAmount,
       newWalletBalance: wallet.balance,

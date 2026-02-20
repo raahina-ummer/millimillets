@@ -597,20 +597,14 @@
                                 <td>
   <% if (product.hasOffer) { %>
     <div class="price-with-offer">
-      <span class="old-price">
-        ₹<%= product.variant[0].regularPrice %>
-      </span>
-      <span class="new-price">
-        ₹<%= product.finalPrice %>
-      </span>
-      <span class="offer-badge">
-        <%= product.activeOffer.discountPercentage %>% OFF
-      </span>
+      <span class="old-price">₹<%= product.strikePrice %></span>
+      <span class="new-price">₹<%= product.finalPrice %></span>
     </div>
   <% } else { %>
-    ₹<%= product.variant[0].regularPrice %>
+    ₹<%= product.basePrice %>
   <% } %>
 </td>
+
 
                                 <td><%= product.gst %></td>
                                 <td><%= product.category?.name || 'N/A' %></td>
@@ -663,7 +657,8 @@
     <% if (totalPages > 1) { %>
         <div class="pagination-container">
             <div class="pagination-info">
-                Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories) %> from <%= totalCategories %>
+                Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalProducts) %> from <%= totalProducts %>
+
             </div>
             <nav>
                 <ul class="pagination">

@@ -1,4 +1,4 @@
-// wishlist.controller.js
+
 import User from "../../models/userSchema.js";
 import Wishlist from "../../models/WishListSchema.js";
 import Product from "../../models/ProductSchema.js";

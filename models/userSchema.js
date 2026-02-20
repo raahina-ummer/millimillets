@@ -50,10 +50,7 @@ const userSchema = new Schema({
     },
   ],
 
-  // wallet: {
-  //   type: Number,
-  //   default: 0,
-  // },
+ 
 
   wishlist: [
     {

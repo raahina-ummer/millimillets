@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-  console.error(" Error:", err.stack || err);
+  console.error("Error:", err.stack || err);
 
   if (res.headersSent) {
     return next(err);
@@ -7,12 +7,12 @@ const errorHandler = (err, req, res, next) => {
 
   const statusCode = err.statusCode || 500;
 
-  const isApiRequest =
+  const isAjax =
     req.xhr ||
-    req.accepts("json") ||
-    req.originalUrl.startsWith("/api");
+    req.headers["content-type"] === "application/json" ||
+    req.headers.accept?.includes("application/json");
 
-  if (isApiRequest) {
+  if (isAjax) {
     return res.status(statusCode).json({
       success: false,
       message: err.message || "Something went wrong",
