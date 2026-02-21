@@ -5,12 +5,15 @@ import dotenv from "dotenv";
 import session from "express-session";
 import Order from "../../models/OrderSchema.js";
 import Address from "../../models/AddressSchema.js";
-import { sendVerificationEmail, generateOtp } from "../../Helpers/emailandaotpservices.js";
+import {
+  sendVerificationEmail,
+  generateOtp,
+} from "../../Helpers/emailandaotpservices.js";
 import uploads from "../../Helpers/multer.js";
 import { debugPort } from "process";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
-
+import logger from "../../utils/logger.js";
 
 dotenv.config();
 
@@ -24,9 +27,9 @@ const securePassword = async (password) => {
 };
 
 //  Forgot Password (Render Page)
- const getForgotPassword = async (req, res) => {
+const getForgotPassword = async (req, res) => {
   try {
-    console.log("hai hel")
+    console.log("hai hel");
     return res.render("forgotpassword");
   } catch (error) {
     return res.redirect("/pageNotFound");
@@ -34,173 +37,224 @@ const securePassword = async (password) => {
 };
 
 // Forgot Password (Email Validation + OTP)
- const forgotEmailValid = async (req, res) => {
+const forgotEmailValid = async (req, res) => {
   try {
     const { email } = req.body;
     const findUser = await User.findOne({ email });
-    console.log("hello from fromget email")
 
-    if (findUser) {
-      const otp = generateOtp();
-      const emailSent = await sendVerificationEmail(email, otp);
-
-      if (emailSent) {
-        req.session.userOtp = otp;
-        req.session.email = email;
-         console.log("OTP:", otp);
-       return res.redirect("/verifyForgotOtp");
-       
-      } else {
-       return res.json({ success: false, message: "Failed to send OTP. Please try again!" });
-      }
-    } else {
-     return  res.render("forgotpassword", { message: "User with this email does not exist" });
+    if (!findUser) {
+      return res.render("forgotpassword", {
+        message: message.AUTH.USER_NOT_FOUND,
+        messageType: "error",
+      });
     }
+
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(email, otp);
+    console.log(otp,'otp')
+
+    if (!emailSent) {
+      return res.render("forgotpassword", {
+        message: message.GENERAL.SERVER_ERROR,
+        messageType: "error",
+      });
+    }
+
+    req.session.userOtp = otp;
+    req.session.email = email;
+    req.session.timer = new Date();
+    console.log("OTP:", otp);
+    return res.redirect("/verifyForgotOtp");
   } catch (error) {
     console.error(error.message);
-    return res.redirect("/pageNotFound");
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 //  Verify OTP Page
- const getVerifyOtp = (req, res) => {
+const getVerifyOtp = (req, res) => {
   try {
-   return  res.render("verifyotp",{
-    otpType: "FORGET_PASSWORD"
-   });
+    return res.render("verifyotp", {
+      otpType: "FORGET_PASSWORD",
+    });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 // Verify OTP Submission
- const verifyForgotOtp = async (req, res) => {
+const verifyForgotOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    const timeDiff = req.session.timer - new Date();
 
-    if (timeDiff > 60000) {
+    if (!req.session.userOtp || !req.session.timer) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.OTP.EXPIRED,
+      });
+    }
+    const now = new Date();
+    const diff = now - new Date(req.session.timer);
+
+    if (diff > 1 * 60 * 1000) {
       delete req.session.userOtp;
       delete req.session.timer;
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "OTP expired. Request a new one." });
+
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.OTP.EXPIRED,
+      });
     }
 
     if (String(req.session.userOtp) === String(otp)) {
       delete req.session.userOtp;
       res.json({ success: true, redirectUrl: "/resetPassword" });
     } else {
-     return res.status(Status.BAD_REQUEST).json({ success: false, message: "Invalid OTP. Try again." });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.OTP.INVALID });
     }
   } catch (error) {
     console.error("OTP Verification Error:", error.message);
-   return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server Error" });
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 
 //  Resend OTP
 const resendOtp = async (req, res) => {
   try {
-    console.log("resendOtop invocked");
-  const email = 
-  req.session?.pendingEmail ||         // Email change 
-  req.session?.userData?.email ||      // During signup
-  req.session?.email ||                // Forgot password
-  req.session?.newEmail;               // Alternative
+    const email =
+      req.session?.pendingEmail ||
+      req.session?.userData?.email ||
+      req.session?.email ||
+      req.session?.newEmail;
 
-
-
-    // Check if email exists
     if (!email || email === undefined || email === null) {
-      console.log("No email found in session");
-      console.log("Session data:", JSON.stringify(req.session, null, 2));
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Session expired. Please start the process again."});
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.AUTH.SESSION_EXPIRED });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log("Invalid email format:", email);
-      return res.status(Status.BAD_REQUEST).json({success: false, message: "Invalid email format in session" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.AUTH.EMAIL_INVALID });
     }
 
-    // Generate new OTP
     const otp = generateOtp();
     console.log("Generated OTP:", otp);
 
-    // Store OTP in session
     req.session.userOtp = otp;
-    req.session.timer = new Date();
+    req.session.timer = new Date(); 
+    
 
-    console.log("About to send email to:", email);
-    console.log("Email type:", typeof email);
-    console.log("Email trimmed:", email.trim());
-
-    // Send verification email - use trimmed email
     const emailSent = await sendVerificationEmail(email.trim(), otp);
-    
-    console.log("Email sent result:", emailSent);
-    
-    if (emailSent) {
-      console.log(" OTP email sent successfully");
-      return res.status(Status.Ok).json({ success: true, message: "OTP resent successfully" });
-    } else {
-      console.log("Failed to send OTP email");
-      return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false, message: "Failed to resend OTP. Please try again." });
+
+    if (!emailSent) {
+      return res.status(Status.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: message.GENERAL.SERVER_ERROR,
+      });
     }
+
+     req.session.save(() => {
+      return res.status(Status.OK).json({
+        success: true,
+        message: message.OTP.SENT,
+      });
+    });
   } catch (error) {
     console.error(" Resend OTP Error:", error);
     console.error("Error stack:", error.stack);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error: " + error.message  });
-  }
-};
-//  Reset Password (Render)
- const getPostNewPassword = async (req, res) => {
-  try {
-    if (!req.session.email) return res.redirect("/forgotPassword");
-    return res.render("resetpassword");
-  } catch (error) {
-    return res.redirect("/pageNotFound");
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-// Reset Password (Submit)
- const postNewPassword = async (req, res) => {
+const getPostNewPassword = async (req, res) => {
+  try {
+    if (!req.session.email) {
+      return res.redirect("/forgotPassword");
+    }
+    return res.render("resetpassword");
+  } catch (error) {
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR,
+    });
+  }
+};
+
+// Reset Password
+const postNewPassword = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
     const email = req.session.email;
 
-    if (password === confirmPassword) {
-      const passwordHash = await securePassword(password);
-      await User.updateOne({ email }, { $set: { password: passwordHash } });
-      return res.json({ success: true, message: "Password updated successfully" });
-    } else {
-      return res.json({ success: false, message: "Passwords do not match" });
+    if (!email) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.AUTH.SESSION_EXPIRED,
+      });
     }
+    if (!password || !confirmPassword) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.AUTH.PASSWORD_REQUIRED,
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.OTP.PASSWORD_MISMATCH,
+      });
+    }
+
+    const passwordHash = await securePassword(password);
+    await User.updateOne({ email }, { $set: { password: passwordHash } });
+
+    delete req.session.email;
+
+    return res.status(Status.OK).json({
+      success: true,
+      message: message.OTP.PASSWORD_RESET_SUCCESS,
+    });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 //  Load User Profile
- const loadProfile = async (req, res) => {
+const loadProfile = async (req, res) => {
   try {
-    const userId = req.session.user.id
-    
-    if (!userId)
-       return res.redirect("/login");
+    const userId = req.session.user.id;
 
-    const userData = await User.findById(userId).select("-password -confirmPassword");
-    if (!userData)
-       return res.redirect("/login");
+    if (!userId) return res.redirect("/login");
 
-    console.log(userData)
+    const userData = await User.findById(userId).select(
+      "-password -confirmPassword",
+    );
+    if (!userData) return res.redirect("/login");
+
+    console.log(userData);
 
     const userAddresses = await Address.findOne({ userId });
-    const addresses = userAddresses?.address || [];
+    const addresses = userAddresses?.addresses || [];
+
     const orders = await Order.find({ userId })
       .populate("orderedProducts.product")
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .limit(10);
 
     return res.render("userprofile", {
@@ -213,79 +267,159 @@ const resendOtp = async (req, res) => {
       walletTransactions: [],
     });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 //  Load Edit Profile
- const loadEditProfile = async (req, res) => {
+const loadEditProfile = async (req, res) => {
   try {
-    const userId = req.session?.user?.id;
-    if (!userId) 
-      return res.redirect("/login");
+    const userId = req.session.user.id;
+    if (!userId) return res.redirect("/login");
 
     const user = await User.findById(userId);
     return res.render("editProfile", { user });
   } catch (error) {
-    return res.redirect("/pageNotFound");
+    res
+      .Status(Status.INTERNAL_SERVER_ERROR)
+      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 //  Load Change Password
 const loadChangePassword = async (req, res) => {
   try {
-    const userId = req.session?.user?.id;
+    const userId = req.session.user.id;
     const user = await User.findById(userId);
-    if (user.password) {
+    if (user.password && user.password.length > 0) {
       return res.render("changepassword", { user });
     } else {
       return res.render("googlechangepassword", { user });
     }
   } catch (error) {
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 // Add Password for Google User
- const addPasswordForGoogle = async (req, res) => {
+const addPasswordForGoogle = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
-    const userId = req.session?.user?.id;
-    if (!userId) 
-      return res.render("login");
+    const userId = req.session.user.id;
+    if (!userId) return res.render("login");
 
     if (password !== confirmPassword) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Passwords don't match" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.OTP.PASSWORD_MISMATCH });
     }
 
     const hashedPassword = await securePassword(password);
-    await User.findByIdAndUpdate(userId, { $set: { password: hashedPassword } });
+    await User.findByIdAndUpdate(userId, {
+      $set: { password: hashedPassword },
+    });
     return res.redirect("/userProfile");
   } catch (error) {
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR});
   }
 };
 
 //  Update Profile
- const updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
-    const { name, dob, phone } = req.body;
-    const userId = req.session?.user?.id;
-    const user = await User.findById(userId);
+    const { name, phone } = req.body;
+    const userId = req.session.user.id;
 
-    user.fullName = name;
-    user.dateOfBirth = dob;
+    if (!userId) {
+      return res.status(Status.UNAUTHORIZED).json({
+        success: false,
+        message: message.AUTH.USER_NOT_LOGGED_IN,
+      });
+    }
+
+    if (!name || !name.trim()) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PROFILE.NAME_REQUIRED,
+      });
+    }
+
+    const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z\s\-'.]+$/;
+
+    if (!nameRegex.test(name.trim())) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.PROFILE.NAME_INVALID,
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(Status.NOT_FOUND).json({
+        success: false,
+        message: message.AUTH.USER_NOT_LOGGED_IN,
+      });
+    }
+
+    user.name = name.trim();
     user.phone = phone;
 
+    if (phone) {
+      const phoneRegex = /^[6-9]\d{9}$/;
+
+      if (!phoneRegex.test(phone)) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: message.PROFILE.PHONE_INVALID,
+        });
+      }
+
+      if (/^(\d)\1{9}$/.test(phone)) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: message.PROFILE.PHONE_INVALID,
+        });
+      }
+    }
+
+    // Image handling
     if (req.file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: message.PROFILE.IMAGE_TYPE_INVALID,
+        });
+      }
+
+      if (req.file.size > 2 * 1024 * 1024) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message: message.PROFILE.IMAGE_SIZE_EXCEEDED,
+        });
+      }
+
       user.profileImage = `uploads/images/${req.file.filename}`;
     }
 
     await user.save();
-    console.log(user,userId,user.dateOfBirth,dob)
-    return res.redirect("/userProfile")
+
+    return res
+      .status(Status.OK)
+      .json({ success: true, message: message.PROFILE.UPDATED_SUCCESS });
   } catch (error) {
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    console.error("Update profile error:", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR,
+    });
   }
 };
 
@@ -295,25 +429,49 @@ const updateChangePassword = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
     if (!currentPassword || !newPassword || !confirmPassword)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "All fields are required" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.GENERAL.INVALID_INPUT });
 
     if (newPassword !== confirmPassword)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Passwords do not match" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.OTP.PASSWORD_MISMATCH });
 
     const user = await User.findById(req.session.user.id);
-    if (!user)
-       return res.status(Status.BAD_REQUEST).redirect("login");
+    if (!user) return res.status(Status.BAD_REQUEST).redirect("login");
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch)
-       return res.status(Status.BAD_REQUEST).json({ success: false, message: "Current password is incorrect" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: "Current password is incorrect" });
+
+    if (newPassword.length < 8) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.AUTH.PASSWORD_MIN_LENGTH,
+      });
+    }
+    if (newPassword.length < 8) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.AUTH.PASSWORD_MIN_LENGTH,
+      });
+    }
 
     const hashedPassword = await securePassword(newPassword);
-    await User.findByIdAndUpdate(req.session.user.id, { $set: { password: hashedPassword } });
+    await User.findByIdAndUpdate(req.session.user.id, {
+      $set: { password: hashedPassword },
+    });
 
-    return res.status(Status.OK).json({ success: true, message: "Password updated successfully" });
+    return res
+      .status(Status.OK)
+      .json({ success: true, message: message.PROFILE.PHONE_REQUIRED });
   } catch (error) {
-   return  res.redirect("/pageNotFound");
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -322,29 +480,35 @@ const loadUpdateEmail = async (req, res) => {
   try {
     console.log("loadUpdateEmail invoked", req.session);
     const email = req.session.user.email;
-   return  res.render("changeemail", { user: req.session.user });
+    return res.render("changeemail", { user: req.session.user });
   } catch (error) {
     console.log(error);
-   return  res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
 // Send OTP to new email
 const updateEmail = async (req, res) => {
   try {
-    console.log("Update Email invocked")
+    console.log("Update Email invocked");
     const { email } = req.body;
 
     if (!email)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Please enter a valid email" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: "Please enter a valid email" });
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email))
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Invalid email format" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: "Invalid email format" });
 
     const existEmail = await User.findOne({ email });
     if (existEmail)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Email already exists" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: "Email already exists" });
 
     // Generate and send OTP
     const otp = generateOtp();
@@ -358,19 +522,21 @@ const updateEmail = async (req, res) => {
     req.session.pendingEmail = email;
     req.session.timer = new Date();
 
-
     console.log("OTP sent:", otp);
-    return res.status(Status.Ok).json({sucess:true,message: "OTP send Sucessfully!!"})
+    return res
+      .status(Status.OK)
+      .json({ sucess: true, message: "OTP send Sucessfully!!" });
   } catch (error) {
     console.log(error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error" });
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-
 // Load Verify OTP Page (after sending OTP)
 const loadChangeEmail = async (req, res) => {
-  console.log("AAAAAAA")
+  console.log("AAAAAAA");
   try {
     // Check if OTP and email are present in session
     if (!req.session.userOtp || !req.session.pendingEmail) {
@@ -378,45 +544,45 @@ const loadChangeEmail = async (req, res) => {
     }
 
     // Render OTP page
-   return res.render("verifyotp", {
+    return res.render("verifyotp", {
       email: req.session.pendingEmail,
-      otpType: "CHANGE_EMAIL"
+      otpType: "CHANGE_EMAIL",
     });
   } catch (error) {
     console.error("Error loading verify OTP page:", error);
-    return res.redirect("/pageNotFound");
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
-
-
 
 // Verify OTP and update email
 const changeEmailVerifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    console.log("Session OTP:", req.session.userOtp, "User entered:", otp);
-  
-
 
     if (!otp)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Please enter the OTP" });
-
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.OTP.INVALID });
 
     if (String(otp) !== String(req.session.userOtp))
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Invalid OTP" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.OTP.INVALID });
 
     const now = new Date();
     const diff = (now - new Date(req.session.timer)) / 1000 / 60;
     if (diff > 5)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "OTP expired" });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.OTP.EXPIRED });
 
     //  Update email in DB
     const updatedUser = await User.findByIdAndUpdate(
       req.session.user.id,
       { $set: { email: req.session.pendingEmail } },
-      { new: true }
-
+      { new: true },
     );
 
     // Update session
@@ -427,21 +593,20 @@ const changeEmailVerifyOtp = async (req, res) => {
     delete req.session.pendingEmail;
     delete req.session.timer;
 
-    return res.status(Status.OK).json({message: 'otp verified successfully',success: true});
+    return res
+      .status(Status.OK)
+      .json({ success: true, message: message.OTP.SENT });
   } catch (error) {
     console.log("Error verifying OTP:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success:false,message: 'otp invalid' })
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
-
-
-
 
 //  Load Address Page
 const loadAddress = async (req, res) => {
   try {
-
     if (!req.session.user.id) return res.redirect("/login");
 
     const userId = req.session.user.id;
@@ -468,30 +633,36 @@ const loadAddress = async (req, res) => {
       totalPages,
       limit,
     });
-
   } catch (error) {
     console.log(error);
-    return res.redirect("pageNotFound");
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-
-//  Load Add Address Page
- const loadAddAddress = async (req, res) => {
+const loadAddAddress = async (req, res) => {
   try {
-    if (!req.session.user.id) return res.redirect("/login");
+    if (!req.session.user?.id) return res.redirect("/login");
+
     const user = await User.findById(req.session.user.id);
-    return res.render("addAddress", { user, redirectPage: req.query.page });
+
+    return res.render("addAddress", {
+      user,
+      redirect: req.query.redirect || "profile",
+    });
   } catch (error) {
-    return res.redirect("pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 };
 
 const addAddress = async (req, res) => {
   try {
-    const userId = req.session?.user?.id;
+    const userId = req.session.user.id;
     if (!userId)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Please login first." });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN });
 
     const {
       firstName,
@@ -506,16 +677,28 @@ const addAddress = async (req, res) => {
       redirect,
     } = req.body;
 
-    const isDefaultFlag = req.body.isDefault === "on"; 
+    const isDefaultFlag = req.body.isDefault === true;
 
-    if (!firstName || !lastName || !phone || !address || !state || !pinCode || !country || !addressType)
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "All fields are required." });
+
+    if (
+      !firstName ||
+      !lastName ||
+      !phone ||
+      !address ||
+      !state ||
+      !pinCode ||
+      !country ||
+      !addressType
+    )
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.GENERAL.INVALID_INPUT });
 
     let userAddress = await Address.findOne({ userId });
 
     // Fix old addresses missing city
     if (userAddress && userAddress.addresses) {
-      userAddress.addresses.forEach(addr => {
+      userAddress.addresses.forEach((addr) => {
         if (!addr.city) addr.city = "Unknown";
       });
     }
@@ -537,7 +720,7 @@ const addAddress = async (req, res) => {
 
     if (userAddress) {
       if (isDefaultFlag) {
-        userAddress.addresses.forEach(addr => (addr.isDefault = false));
+        userAddress.addresses.forEach((addr) => (addr.isDefault = false));
       }
       userAddress.addresses.push(newAddress);
       await userAddress.save();
@@ -547,22 +730,20 @@ const addAddress = async (req, res) => {
         addresses: [newAddress],
       });
 
-      console.log("New Address:", newAddress);
-console.log("All addresses before save:", userAddress.addresses);
       await userAddress.save();
     }
 
     const redirectUrl = redirect === "checkout" ? "/checkout" : "/userProfile";
-    return res.status(Status.OK).json({ success: true, message: "Address added successfully!", redirect: redirectUrl });
 
+    return res.status(Status.OK).json({success:true,message: "Address saved successfully",
+  redirect: redirectUrl});
   } catch (error) {
     console.log("Error message:", error.message);
-     return res.status(Status.INTERNAL_SERVER_ERROR).json({ success:false,message: 'otp invalid' })
-
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
-
 
 const loadEditAddress = async (req, res) => {
   try {
@@ -574,34 +755,29 @@ const loadEditAddress = async (req, res) => {
 
     const userAddress = await Address.findOne(
       { userId, "addresses._id": addressId },
-      { addresses: { $elemMatch: { _id: addressId } } }
+      { addresses: { $elemMatch: { _id: addressId } } },
     );
 
     if (!userAddress || !userAddress.addresses?.length) {
       console.log(" Address not found");
-      return res.redirect("/address"); 
+      return res.redirect("/address");
     }
 
     const user = await User.findById(userId);
     const address = userAddress.addresses[0];
-    
-     const redirectPage = req.query.redirect || "/address";
-    return res.render("editAddress", { user, address,redirectPage });
 
+    const redirectPage = req.query.redirect || "/address";
+    return res.render("editAddress", { user, address, redirectPage });
   } catch (error) {
     console.error("Error loading edit address:", error.message);
     return res.redirect("/address");
   }
 };
 
-
-
 const editAddress = async (req, res) => {
   try {
-    console.log("editAddress Invoked")
-    console.log(req.body,"RequestBody")
     if (!req.session.user.id) {
-     return  res.status(Status.BAD_REQUEST).send("Please login First");
+      return res.status(Status.BAD_REQUEST).send("Please login First");
     }
 
     const {
@@ -627,7 +803,10 @@ const editAddress = async (req, res) => {
       !pinCode ||
       !country ||
       !addressType
-    ) { return res.status(Status.BAD_REQUEST).json({success: false, message: "All fields are required" });
+    ) {
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.GENERAL.INVALID_INPUT });
     }
 
     const user = await User.findById(req.session.user.id);
@@ -638,7 +817,7 @@ const editAddress = async (req, res) => {
     if (isDefault) {
       await Address.updateOne(
         { userId },
-        { $set: { "addresses.$[].isDefault": false } }
+        { $set: { "addresses.$[].isDefault": false } },
       );
     }
 
@@ -658,13 +837,17 @@ const editAddress = async (req, res) => {
           "addresses.$.isDefault": !!isDefault,
           "addresses.$.updatedAt": new Date(),
         },
-      }
+      },
     );
 
-    return res.status(Status.Ok).json({ success: true, message: "Address Updated successfully" });
+    return res
+      .status(Status.OK)
+      .json({ success: true, message: message.ADDRESS.UPDATED });
   } catch (error) {
     console.log(error.message);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -674,13 +857,21 @@ const setDefaultAddress = async (req, res) => {
     const addressId = req.params.id;
 
     if (!userId) {
-      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Please login first." });
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN });
     }
 
     const userAddress = await Address.findOne({ userId });
 
-    if (!userAddress || !userAddress.addresses || userAddress.addresses.length === 0) {
-      return res.status(Status.NOT_FOUND).json({ success: false, message: "No addresses found." });
+    if (
+      !userAddress ||
+      !userAddress.addresses ||
+      userAddress.addresses.length === 0
+    ) {
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.ADDRESS.NOT_FOUND });
     }
 
     // Mark only the selected one as default
@@ -690,36 +881,48 @@ const setDefaultAddress = async (req, res) => {
 
     await userAddress.save();
 
-    return res.status(Status.OK).json({success: true, message: "Default address updated successfully." });
-
+    return res.status(Status.OK).json({
+      success: true,
+      message: message.ADDRESS.UPDATED,
+    });
   } catch (error) {
     console.error("Error setting default address:", error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({success: false,message: "Something went wrong.",error: error.message,});
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
-
 
 const deleteAddress = async (req, res) => {
   try {
     const userId = req.session.user.id;
     if (!userId) {
-     return  res.status(Status.BAD_REQUEST).send("Please login to delete an address");
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN });
     }
 
     const addressId = req.params.id;
     if (!addressId) {
-      return res.status(Status.BAD_REQUEST).send("Invalid address ID");
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.GENERAL.INVALID_INPUT });
     }
 
     // Find the address to check if it exists and is default
     const addressDoc = await Address.findOne(
       { userId, "addresses._id": addressId },
-      { addresses: { $elemMatch: { _id: addressId } } }
+      { addresses: { $elemMatch: { _id: addressId } } },
     );
 
-    if (!addressDoc || !addressDoc.addresses || addressDoc.addresses.length === 0) {
-      res.status(Status.BAD_REQUEST).send("Address not found");
+    if (
+      !addressDoc ||
+      !addressDoc.addresses ||
+      addressDoc.addresses.length === 0
+    ) {
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.ADDRESS.NOT_FOUND });
     }
 
     const isDefault = addressDoc.addresses[0].isDefault;
@@ -727,68 +930,64 @@ const deleteAddress = async (req, res) => {
     // Delete the address
     const deleteResult = await Address.updateOne(
       { userId },
-      { $pull: { addresses: { _id: addressId } } }
+      { $pull: { addresses: { _id: addressId } } },
     );
 
     if (deleteResult.modifiedCount === 0) {
-     return  res.status(Status.BAD_REQUEST).send("Failed to delete address");
+      return res
+        .status(Status.BAD_REQUEST)
+        .json({ success: false, message: message.ADDRESS.DELETE_FAILED });
     }
 
     // If it was default, set the first remaining address as default
     if (isDefault) {
       const updatedDoc = await Address.findOne({ userId });
-      if (updatedDoc && updatedDoc.addresses && updatedDoc.addresses.length > 0) {
+      if (
+        updatedDoc &&
+        updatedDoc.addresses &&
+        updatedDoc.addresses.length > 0
+      ) {
         await Address.updateOne(
           { userId, "addresses._id": updatedDoc.addresses[0]._id },
-          { $set: { "addresses.$.isDefault": true } }
+          { $set: { "addresses.$.isDefault": true } },
         );
       }
     }
 
-    return res.status(Status.OK).json({ success: true, message: "Deleted Successfully" });
-
+    return res
+      .status(Status.OK)
+      .json({ success: true, message: message.ADDRESS.DELETED_SUCCESS });
   } catch (error) {
     console.error("Error deleting address:", error.message);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-export  {
-    getForgotPassword,
-    forgotEmailValid,
-    getVerifyOtp,
-    verifyForgotOtp,
-    resendOtp,
-    getPostNewPassword,
-    postNewPassword,
-    loadProfile,
-    loadEditProfile,
-    loadChangePassword,
-    addPasswordForGoogle,
-    updateProfile,
-    updateChangePassword,
-    loadUpdateEmail,
-    updateEmail,
-    loadAddress,
-    loadAddAddress,
-    addAddress,
-    changeEmailVerifyOtp,
-    loadChangeEmail,
-    loadEditAddress,
-    editAddress,
-    setDefaultAddress,
-    deleteAddress,
-    
-    
-}
+export {
+  getForgotPassword,
+  forgotEmailValid,
+  getVerifyOtp,
+  verifyForgotOtp,
+  resendOtp,
+  getPostNewPassword,
+  postNewPassword,
+  loadProfile,
+  loadEditProfile,
+  loadChangePassword,
+  addPasswordForGoogle,
+  updateProfile,
+  updateChangePassword,
+  loadUpdateEmail,
+  updateEmail,
+  loadAddress,
+  loadAddAddress,
+  addAddress,
+  changeEmailVerifyOtp,
+  loadChangeEmail,
+  loadEditAddress,
+  editAddress,
+  setDefaultAddress,
+  deleteAddress,
+};

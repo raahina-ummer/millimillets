@@ -143,12 +143,9 @@
 
   <div class="container">
      <h2>Add New Address</h2>
-      <form id="addAddressForm" method="POST" action="/addAddress">
-  <input type="hidden" name="redirect" value="<%= redirectPage %>">
-  <!-- rest of your input fields -->
- 
+     <form id="addAddressForm" method="POST" action="/addAddress">
 
-
+  <input type="hidden" name="redirect" value="<%= redirect %>">
       <div class="grid-2">
         <div>
           <label for="firstName">First Name</label>
@@ -229,37 +226,35 @@
   </div>
 
   <script>
-    // --- Validation and Submit Script (same as your version) ---
-    function showError(fieldId, message) {
-      const field = document.getElementById(fieldId);
-      const errorDiv = document.getElementById(fieldId + '-error');
-      if (field) field.classList.add('error-border');
-      if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-      }
-    }
+function showError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  const errorDiv = document.getElementById(fieldId + '-error');
+  field.classList.add('error-border');
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+}
 
-    function clearError(fieldId) {
-      const field = document.getElementById(fieldId);
-      const errorDiv = document.getElementById(fieldId + '-error');
-      if (field) field.classList.remove('error-border');
-      if (errorDiv) errorDiv.style.display = 'none';
-    }
+function clearError(fieldId) {
+  const field = document.getElementById(fieldId);
+  const errorDiv = document.getElementById(fieldId + '-error');
+  field.classList.remove('error-border');
+  errorDiv.style.display = 'none';
+}
 
-    function validateField(fieldId, value, regex, message) {
-      if (!value.trim()) {
-        showError(fieldId, 'This field is required.');
-        return false;
-      } else if (regex && !regex.test(value.trim())) {
-        showError(fieldId, message);
-        return false;
-      }
-      clearError(fieldId);
-      return true;
-    }
+function validateField(fieldId, value, regex, message) {
+  if (!value.trim()) {
+    showError(fieldId, 'This field is required.');
+    return false;
+  }
+  if (regex && !regex.test(value.trim())) {
+    showError(fieldId, message);
+    return false;
+  }
+  clearError(fieldId);
+  return true;
+}
 
-    document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
+document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const nameRegex = /^[A-Za-z\s]{2,50}$/;
@@ -270,32 +265,36 @@
 
   let isValid = true;
 
-  const firstNameVal = firstName.value.trim();
-  const lastNameVal = lastName.value.trim();
-  const phoneVal = phone.value.trim();
-  const addressVal = addressLine1.value.trim();
-  const cityVal = city.value.trim();
-  const stateVal = state.value;
-  const zipVal = zipCode.value.trim();
-  const countryVal = country.value;
-  const addressTypeVal = document.querySelector('input[name="addressType"]:checked').value;
+  const firstNameVal = document.getElementById('firstName').value.trim();
+  const lastNameVal = document.getElementById('lastName').value.trim();
+  const phoneVal = document.getElementById('phone').value.trim();
+  const addressVal = document.getElementById('addressLine1').value.trim();
+  const cityVal = document.getElementById('city').value.trim();
+  const stateVal = document.getElementById('state').value;
+  const zipVal = document.getElementById('zipCode').value.trim();
+  const countryVal = document.getElementById('country').value;
+  const addressTypeVal = document.querySelector('input[name="addressType"]:checked')?.value;
   const isDefaultVal = document.getElementById('isDefault').checked;
 
-  // run validations
   if (!validateField('firstName', firstNameVal, nameRegex, 'Only letters allowed.')) isValid = false;
   if (!validateField('lastName', lastNameVal, nameRegex, 'Only letters allowed.')) isValid = false;
   if (!validateField('phone', phoneVal, phoneRegex, 'Enter valid 10-digit number.')) isValid = false;
   if (!validateField('addressLine1', addressVal, addressRegex, 'Enter valid address.')) isValid = false;
   if (!validateField('city', cityVal, cityRegex, 'Enter valid city.')) isValid = false;
   if (!validateField('zipCode', zipVal, zipRegex, 'Enter valid 6-digit ZIP.')) isValid = false;
-  if (!stateVal) { showError('state', 'Please select state.'); isValid = false; }
-  if (!countryVal) { showError('country', 'Please select country.'); isValid = false; }
+
+  if (!stateVal) { showError('state','Please select state'); isValid = false; } else clearError('state');
+  if (!countryVal) { showError('country','Please select country'); isValid = false; } else clearError('country');
+
+  if (!addressTypeVal) {
+    showError('addressType','Select address type');
+    isValid = false;
+  }
 
   if (!isValid) return;
 
-  //  Send to backend
   try {
-    const response = await fetch("/addAddress", {
+    const res = await fetch("/addAddress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -308,27 +307,34 @@
         pinCode: zipVal,
         country: countryVal,
         addressType: addressTypeVal,
-        isDefault: isDefaultVal
-      }),
+        isDefault: isDefaultVal,
+        redirect: document.querySelector('[name="redirect"]').value
+      })
     });
 
-    const data = await response.json();
-    console.log("Response status:", response.status);
-    console.log(data)
+    const data = await res.json();
 
     if (data.success) {
-      swal("Success", data.message, "success").then(() => {
-        window.location.href = data.redirect;
-      });
+      swal("Success", data.message, "success")
+        .then(()=> window.location.href = data.redirect);
     } else {
       swal("Error", data.message, "error");
     }
+
   } catch (err) {
- console.error("Full error:", err);
-    swal("Error", "Something went wrong. Please try again.", "error");
+    console.error(err);
+    swal("Error", "Server error", "error");
   }
 });
 
-  </script>
+
+// live clear
+["firstName","lastName","phone","addressLine1","city","zipCode"]
+.forEach(id=>{
+  document.getElementById(id)
+    .addEventListener("input", ()=> clearError(id));
+});
+</script>
+
 </body>
 </html>

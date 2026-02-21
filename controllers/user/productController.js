@@ -2,114 +2,147 @@ import Product from "../../models/ProductSchema.js";
 import User from "../../models/userSchema.js";
 import Category from "../../models/CategorySchema.js";
 import Wishlist from "../../models/WishListSchema.js";
-import Status from "../../utils/status.js";
-import message from "../../utils/message.js";
-
+import { applyDiscount } from "../../Helpers/discountApply.js";
+import { calculateFinalPriceForVariant } from "../../utils/offerCalculator.js";
 
 const productDetails = async (req, res) => {
   try {
-    const userId = req.session.user?.id; 
+    const userId = req.session.user?.id;
     const productId = req.params.id;
 
-    
-    if (!productId) {
-      return res.redirect("/pageNotFound");
-    }
+    if (!productId) return res.redirect("/pageNotFound");
 
-    //  Fetch product with category
     const product = await Product.findById(productId).populate("category");
-    if (!product || product.isBlocked) {
-      return res.redirect("/pageNotFound");
-    }
+   if (!product) {
+  return res.status(404).render("product-unavailable", {
+    message: "Product not found",
+    user: req.session.user || null
+  });
+}
 
-    //  Get user data only if logged in
-    let userData = null;
-    let userWishlist = [];
+if (
+  product.isBlocked ||
+  product.status !== "Available" ||
+  !product.category?.isListed
+) {
+  return res.status(410).render("product-unavailable", {
+    message: "This item is currently unavailable",
+    user: req.session.user || null
+  });
+}
+if (!product.variant || product.variant.length === 0) {
+  return res.render("product-unavailable", {
+    message: "This item has no purchasable variants",
+    user: req.session.user || null
+  });
+}
+
+
+    /* Wishlist */
+    let isInWishlist = false;
     if (userId) {
-      userData = await User.findById(userId);
-      //  Get actual wishlist 
-      userWishlist = await Wishlist.find({ userId }).select('productId');
+      isInWishlist = await Wishlist.exists({
+        userId,
+        productId: productId
+      });
     }
 
-    // Get related products from same category, exclude current product
+    /* Related Products */
     const relatedProducts = await Product.find({
       category: product.category._id,
       _id: { $ne: productId },
       isBlocked: false,
-      status: 'Available'
+      status: "Available"
     })
-    .limit(4)
-    .sort({ createdAt: -1 });
+      .limit(4)
+      .sort({ createdAt: -1 });
 
-    const findCategory = product.category;
+    //OFFER LOGIC 
+    const now = new Date();
 
-    //  Calculate offers correctly (use highest offer, not sum)
-    const productOffer = product.productOffer?.discountPercentage || 0;
-    const categoryOffer = findCategory?.categoryOffer || 0;
-    
-    // Use the HIGHER offer, not sum 
-    const totalOffer = Math.max(productOffer, categoryOffer);
+    const isValidOffer = (offer) =>
+      offer &&
+      offer.offerActive &&
+      (!offer.offerStartDate || new Date(offer.offerStartDate) <= now) &&
+      (!offer.offerEndDate || new Date(offer.offerEndDate) >= now);
 
-    //  Get the first available variant or default values
-    const firstVariant = product.variant?.[0] || [];
-    const quantity = firstVariant.stock || 0;
+    const productOffer = isValidOffer(product.productOffer)
+      ? product.productOffer
+      : null;
 
-    res.render("productdetails", {
-      user: userData,
-      product,
-      quantity,
-      totalOffer,
-      category: findCategory,
-      relatedProducts,
-      wishlist: userWishlist,
-    });
+    const categoryOffer = isValidOffer(product.category?.categoryOffer)
+      ? product.category.categoryOffer
+      : null;
+
+  
+    // const maxDiscountAmount = bestOffer?.maxDiscountAmount || null;
+
+    //PRICE CALCULATION 
+const firstVariant =
+  product.variant.find(v => v.stock > 0) || product.variant[0];
+
+const { basePrice, finalPrice, appliedOffer } =
+  calculateFinalPriceForVariant(
+    firstVariant,
+    product,
+    product.category
+  );
+   //TOTAL STOCK 
+    const totalStock = product.variant.reduce(
+      (sum, v) => sum + v.stock,
+      0
+    );
+
+   res.render("productdetails", {
+  user: userId ? await User.findById(userId) : null,
+  product,
+  finalPrice,
+  category: product.category,   
+  strikePrice: basePrice,
+  discountPercentage: appliedOffer.discountPercentage,
+  totalStock,
+  isInWishlist,      
+  relatedProducts, 
+});
+
 
   } catch (error) {
-    console.error("Error fetching product details:", error);
+    console.error("Product details error:", error);
     res.redirect("/pageNotFound");
   }
 };
 
+export const getVariantPrice = async (req, res) => {
+  try {
+    const { productId, variantId } = req.params;
+
+    const product = await Product.findById(productId).populate("category");
+    if (!product) {
+      return res.json({ success: false });
+    }
+
+    const variant = product.variant.id(variantId);
+    if (!variant) {
+      return res.json({ success: false });
+    }
+
+    const { basePrice, finalPrice, appliedOffer } =
+      calculateFinalPriceForVariant(
+        variant,
+        product,
+        product.category
+      );
+res.json({
+  success: true,
+  finalPrice,  
+  strikePrice: basePrice,
+  discountPercentage: appliedOffer.discountPercentage
+});
 
 
+  } catch (err) {
+    res.json({ success: false });
+  }
+};
 
-
-
-
-// const pr
-// oductDetails = async (req, res) => {
-//   try {
-//     const userId = req.session.user.id;
-//     const userData = await User.findById(userId);
-//     const productId = req.query.id;
-
-//     const product = await Product.findById(productId).populate("category");
-//     if (!product) return res.redirect("/pageNotFound");
-
-//     const relatedProducts = await Product.find().limit(4);
-
-//     const findCategory = product.category;
-
-//     const productOffer = product.productOffer?.discountPercentage || 0;
-//     const categoryOffer = findCategory?.categoryOffer || 0;
-
-//     const totalOffer = productOffer + categoryOffer;
-
-//     res.render("productdetails", {
-//       user: userData,
-//       product,
-//       quantity: product.variant?.[0]?.stock || 0,
-//       totalOffer,
-//       category: findCategory,
-//       relatedProducts,
-//       wishlist: [],
-//     });
-
-//   } catch (error) {
-//     console.error("Error fetching product details:", error);
-//     res.redirect("pageNotFound");
-//   }
-// };
-
-
-export  { productDetails };
+export { productDetails }

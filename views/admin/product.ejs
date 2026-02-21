@@ -400,6 +400,88 @@
         pointer-events: none;
     }
 
+
+    .old-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 13px;
+}
+
+.new-price {
+  font-weight: 700;
+  color: #28a745;
+  margin-left: 6px;
+}
+
+.offer-badge {
+  background: #dc3545;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.offer-btn.active-offer {
+  background: #28a745;
+  color: white;
+}
+
+
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* LEFT SIDE */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title-search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* SEARCH */
+.product-search-form {
+  display: flex;
+  gap: 6px;
+}
+
+.product-search-input {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  min-width: 220px;
+}
+
+.btn-search {
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: #8b7355;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* ACTION BUTTONS */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+
     @media (max-width: 768px) {
         .main-content {
             margin-left: 0;
@@ -433,27 +515,51 @@
 <div class="main-content">
     <!-- Page Header -->
     <div class="page-header">
-        <div class="page-header-row">
-            <div>
-                <h1 class="page-title">Product Management</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item">
-                            <a href="/admin/dashboard">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">Products</li>
-                    </ol>
-                </nav>
-            </div>
-            <a href="/admin/addProduct" class="btn-add-product">
-                <i class="fas fa-plus"></i> ADD PRODUCT
-            </a>
-        </div>
+  <div class="page-header-row">
 
-        <button class="refresh-btn" onclick="location.reload()">
-            <i class="fas fa-sync-alt"></i> Refresh
-        </button>
+    <!-- LEFT -->
+    <div class="header-left">
+      <div class="title-search">
+        <h1 class="page-title">Product Management</h1>
+
+        <form method="GET" action="/admin/products" class="product-search-form">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search products..."
+            value="<%= search || '' %>"
+            class="product-search-input"
+          />
+          <button type="submit" class="btn-search">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+      </div>
+
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="/admin/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Products</li>
+        </ol>
+      </nav>
     </div>
+
+    <!-- RIGHT -->
+    <div class="action-buttons">
+      <a href="/admin/addProduct" class="btn-add-product">
+        <i class="fas fa-plus"></i> Add Product
+      </a>
+
+      <button class="refresh-btn" onclick="location.reload()">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
     <!-- Products Table -->
     <div class="table-card">
@@ -488,8 +594,19 @@
                                 </td>
                                 <!-- <td>#<%= product.brand || 'N/A' %></td> -->
                                 <td><%= product.variant && product.variant.length > 0 ? product.variant[0].stock : 0 %></td>
-                                <td>₹<%= product.variant && product.variant.length > 0 ? product.variant[0].salePrice || product.variant[0].regularPrice : '0' %></td>
-                                <td><%= product.gst %>%</td>
+                                <td>
+  <% if (product.hasOffer) { %>
+    <div class="price-with-offer">
+      <span class="old-price">₹<%= product.strikePrice %></span>
+      <span class="new-price">₹<%= product.finalPrice %></span>
+    </div>
+  <% } else { %>
+    ₹<%= product.basePrice %>
+  <% } %>
+</td>
+
+
+                                <td><%= product.gst %></td>
                                 <td><%= product.category?.name || 'N/A' %></td>
                                 <td><%= product.variant && product.variant.length > 0 ? product.variant[0].unitType : 'N/A' %></td>
                                 <td>
@@ -497,9 +614,20 @@
                                         <a href="/admin/editProduct?id=<%= product._id %>" class="icon-btn edit-btn" title="Edit Product">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="icon-btn offer-btn" onclick="openOfferModal('<%= product._id %>', '<%= product.productName %>')" title="Edit Offer">
-                                            <i class="fas fa-tag"></i>
-                                        </button>
+                                       <% if (product.hasOffer) { %>
+  <button class="icon-btn offer-btn active-offer"
+    onclick="openOfferModal('<%= product._id %>', '<%= product.productName %>')"
+    title="Edit Offer">
+    <i class="fas fa-tag"></i>
+  </button>
+<% } else { %>
+  <button class="icon-btn offer-btn add-offer"
+    onclick="openOfferModal('<%= product._id %>', '<%= product.productName %>')"
+    title="Add Offer">
+    <i class="fas fa-plus-circle"></i>
+  </button>
+<% } %>
+
                                         <% if(product.isBlocked === false) { %>
                                             <a href="/admin/blockProduct?id=<%= product._id %>" class="icon-btn block-btn" title="Block Product">
                                                 <i class="fas fa-ban"></i>
@@ -529,13 +657,14 @@
     <% if (totalPages > 1) { %>
         <div class="pagination-container">
             <div class="pagination-info">
-                Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories) %> from <%= totalCategories %>
+                Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalProducts) %> from <%= totalProducts %>
+
             </div>
             <nav>
                 <ul class="pagination">
                     <% for (let i = 1; i <= totalPages; i++) { %>
                         <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                            <a class="page-link" href="/admin/product?page=<%= i %>&search=<%= search || '' %>">
+                            <a class="page-link" href="/admin/products?page=<%= i %>&search=<%= search || '' %>">
                                 <%= i < 10 ? '0' + i : i %>
                             </a>
                         </li>

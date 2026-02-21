@@ -1,464 +1,127 @@
 <%- include('../partials/admin/header.ejs') %>
 
-<style>
-    :root {
-        --primary-bg: #d4c4a8;
-        --card-bg: #ffffff;
-        --text-dark: #2d2d2d;
-        --text-muted: #6c757d;
-        --border-color: #e0e0e0;
-        --accent-color: #8b7355;
-    }
+    <style>
+        :root {
+            --primary-bg: #d4c4a8;
+            --card-bg: #ffffff;
+            --text-dark: #2d2d2d;
+            --text-muted: #6c757d;
+            --border-color: #e0e0e0;
+            --accent-color: #8b7355;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    body {
-        background-color: var(--primary-bg);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .main-content {
-        padding: 20px;
-        margin-left: 140px;
-    }
-
-    .page-header {
-        margin-bottom: 20px;
-    }
-
-    .page-title {
-        font-size: 28px;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 10px;
-    }
-
-    .breadcrumb {
-        background: transparent;
-        padding: 0;
-        margin-bottom: 0;
-        font-size: 14px;
-    }
-
-    .breadcrumb-item {
-        color: var(--text-muted);
-    }
-
-    .breadcrumb-item.active {
-        color: #a89575;
-    }
-
-    .breadcrumb-item + .breadcrumb-item::before {
-        content: "›";
-        color: var(--text-muted);
-        margin: 0 5px;
-    }
-
-    .breadcrumb-item a {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .page-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-    }
-
-    .btn-export {
-        background-color: white;
-        border: 1px solid var(--border-color);
-        color: var(--text-dark);
-        padding: 10px 18px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-
-    .btn-export:hover {
-        background-color: #f8f9fa;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .btn-create {
-        background-color: var(--accent-color);
-        border: none;
-        color: white;
-        padding: 10px 18px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .btn-create:hover {
-        background-color: #75624a;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        color: white;
-    }
-
-    .table-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .table {
-        width: 100%;
-        margin: 0;
-        border-collapse: collapse;
-    }
-
-    .table thead {
-        background-color: #f8f9fa;
-    }
-
-    .table thead th {
-        border-bottom: 2px solid var(--border-color);
-        padding: 14px 16px;
-        font-weight: 600;
-        font-size: 12px;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        text-align: left;
-    }
-
-    .table tbody td {
-        padding: 14px 16px;
-        vertical-align: middle;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 13px;
-        color: var(--text-dark);
-    }
-
-    .table tbody tr {
-        background-color: white;
-        transition: all 0.2s;
-    }
-
-    .table tbody tr:hover {
-        background-color: #fafafa;
-    }
-
-    .table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .category-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .category-image {
-        width: 45px;
-        height: 45px;
-        background-color: #f5f5f5;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .category-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .category-image i {
-        color: #ccc;
-        font-size: 18px;
-    }
-
-    .category-name {
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-
-    .action-icons {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-
-    .action-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s;
-        color: var(--text-muted);
-        background-color: transparent;
-        border: none;
-        font-size: 15px;
-    }
-
-    .action-icon:hover {
-        background-color: #f0f0f0;
-    }
-
-    .action-icon.edit:hover {
-        color: var(--accent-color);
-        background-color: #f5f0eb;
-    }
-
-    .action-icon.offer:hover {
-        color: #f39c12;
-        background-color: #fff3e0;
-    }
-
-    .action-icon.toggle-list:hover {
-        color: var(--accent-color);
-        background-color: #f5f0eb;
-    }
-
-    .action-icon.toggle-list i {
-        font-size: 16px;
-    }
-
-    .action-icon.toggle-list.listed {
-        color: #27ae60 !important;
-    }
-
-    .action-icon.toggle-list.unlisted {
-        color: #e74c3c !important;
-    }
-
-    .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 20px;
-        border-top: 1px solid var(--border-color);
-        background: white;
-        border-radius: 0 0 12px 12px;
-    }
-
-    .pagination-info {
-        font-size: 13px;
-        color: var(--text-muted);
-    }
-
-    .pagination {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 0;
-    }
-
-    .page-link {
-        border: 1px solid var(--border-color);
-        color: var(--text-dark);
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 13px;
-        transition: all 0.3s;
-        text-decoration: none;
-    }
-
-    .page-link:hover {
-        background-color: #f8f9fa;
-        border-color: var(--border-color);
-        color: var(--text-dark);
-    }
-
-    .page-item.active .page-link {
-        background-color: var(--accent-color);
-        border-color: var(--accent-color);
-        color: white;
-    }
-
-    .page-item.disabled .page-link {
-        background-color: white;
-        border-color: var(--border-color);
-        color: #ccc;
-        cursor: not-allowed;
-    }
-
-    .no-data {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--text-muted);
-    }
-
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        overflow: auto;
-    }
-
-    .modal-content {
-        background-color: white;
-        margin: 5% auto;
-        padding: 25px;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-
-    .close {
-        color: #999;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-        line-height: 20px;
-    }
-
-    .close:hover {
-        color: var(--text-dark);
-    }
-
-    .modal h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        font-size: 22px;
-        color: var(--text-dark);
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 15px;
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 600;
-        font-size: 13px;
-        color: #555;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-size: 13px;
-        transition: all 0.3s;
-        font-family: inherit;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-        border-color: var(--accent-color);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .form-group.full {
-        grid-column: 1 / -1;
-    }
-
-    .error-message {
-        color: #e74c3c;
-        font-size: 12px;
-        margin-top: 4px;
-        display: none;
-    }
-
-    .btn-group {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .btn {
-        flex: 1;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .btn-primary {
-        background-color: var(--accent-color);
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: #75624a;
-    }
-
-    .btn-secondary {
-        background-color: #e0e0e0;
-        color: var(--text-dark);
-    }
-
-    .btn-secondary:hover {
-        background-color: #d0d0d0;
-    }
-
-    @media (max-width: 768px) {
         .main-content {
-            margin-left: 0;
             padding: 20px;
+            margin-left: 140px;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-item.active {
+            color: #a89575;
+        }
+
+        .breadcrumb-item+.breadcrumb-item::before {
+            content: "›";
+            color: var(--text-muted);
+            margin: 0 5px;
+        }
+
+        .breadcrumb-item a {
+            text-decoration: none;
+            color: inherit;
         }
 
         .page-header-row {
-            flex-direction: column;
-            align-items: flex-start;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .action-buttons {
-            width: 100%;
-            flex-direction: column;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
         }
 
-        .btn-export, .btn-create {
-            width: 100%;
-            justify-content: center;
+        .btn-export {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-export:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-create {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-create:hover {
+            background-color: #75624a;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .table-responsive {
@@ -466,358 +129,888 @@
         }
 
         .table {
-            min-width: 700px;
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background-color: #f8f9fa;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid var(--border-color);
+            padding: 14px 16px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+
+        .table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: var(--text-dark);
+        }
+
+        .table tbody tr {
+            background-color: white;
+            transition: all 0.2s;
+        }
+
+        .table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-image {
+            width: 45px;
+            height: 45px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .category-image i {
+            color: #ccc;
+            font-size: 18px;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-muted);
+            background-color: transparent;
+            border: none;
+            font-size: 15px;
+        }
+
+        .action-icon:hover {
+            background-color: #f0f0f0;
+        }
+
+        .action-icon.edit:hover {
+            color: var(--accent-color);
+            background-color: #f5f0eb;
+        }
+
+        .action-icon.offer:hover {
+            color: #f39c12;
+            background-color: #fff3e0;
+        }
+
+        .action-icon.toggle-list:hover {
+            color: var(--accent-color);
+            background-color: #f5f0eb;
+        }
+
+        .action-icon.toggle-list i {
+            font-size: 16px;
+        }
+
+        .action-icon.toggle-list.listed {
+            color: #27ae60 !important;
+        }
+
+        .action-icon.toggle-list.unlisted {
+            color: #e74c3c !important;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .pagination {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 0;
+        }
+
+        .page-link {
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .page-link:hover {
+            background-color: #f8f9fa;
+            border-color: var(--border-color);
+            color: var(--text-dark);
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .page-item.disabled .page-link {
+            background-color: white;
+            border-color: var(--border-color);
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #999;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover {
+            color: var(--text-dark);
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: var(--text-dark);
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
         }
 
         .form-row {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
-    }
-</style>
 
-<body>
-    <div class="main-content">
-        <!-- Page Header with Action Buttons -->
-        <div class="page-header">
-            <div class="page-header-row">
-                <div>
-                    <h1 class="page-title">Categories</h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item">
-                                <a href="/admin/dashboard">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">Categories</li>
-                        </ol>
-                    </nav>
-                </div>
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
 
-                <div class="action-buttons">
-                    <button class="btn-export" onclick="exportCategories()">
-                        <i class="fas fa-download"></i>
-                        Export
-                    </button>
-                    <a href="/admin/addCategory" class="btn-create">
-                        <i class="fas fa-plus"></i>
-                        Create Category
-                    </a>
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #75624a;
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+
+        .category-search-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .category-search-input {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            min-width: 220px;
+            font-size: 14px;
+        }
+
+        .btn-search {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: #8b7355;
+            color: #fff;
+            cursor: pointer;
+        }
+
+
+        .page-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        /* LEFT SIDE */
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .title-search {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* SEARCH */
+        .category-search-form {
+            display: flex;
+            gap: 6px;
+        }
+
+        .category-search-input {
+            padding: 7px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            min-width: 220px;
+        }
+
+        .btn-search {
+            padding: 7px 12px;
+            border-radius: 6px;
+            background: #8b7355;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ACTION BUTTONS */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .offer-badge {
+            background: #e53935;
+            color: #fff;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .page-header-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .btn-export,
+            .btn-create {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 700px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <body>
+        <div class="main-content">
+            <!-- Page Header with Action Buttons -->
+            <div class="page-header">
+                <div class="page-header-row">
+
+                    <!-- LEFT SIDE -->
+                    <div class="header-left">
+                        <div class="title-search">
+                            <h1 class="page-title">Categories</h1>
+
+                            <form method="GET" action="/admin/category" class="category-search-form">
+                                <input type="text" name="search" placeholder="Search categories..."
+                                    value="<%= search || '' %>" class="category-search-input" />
+                                <button type="submit" class="btn-search">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    <a href="/admin/dashboard">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Categories</li>
+                            </ol>
+                        </nav>
+                    </div>
+
+                    <!-- RIGHT SIDE -->
+                    <div class="action-buttons">
+                        <button class="btn-export" onclick="exportCategories()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <a href="/admin/addCategory" class="btn-create">
+                            <i class="fas fa-plus"></i> Create Category
+                        </a>
+                    </div>
+
                 </div>
             </div>
-        </div>
 
-        <!-- Table Card -->
-        <div class="table-card">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;"></th>
-                            <th>
-                                Category Name
-                                <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
-                            </th>
-                            <th>
+            <!-- Table Card -->
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;"></th>
+                                <th>
+                                    Category Name
+                                    <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
+                                </th>
+                                <!-- <th>
                                 Sold
                                 <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
                             </th>
                             <th>
                                 Stock
                                 <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
-                            </th>
-                            <th>
-                                Added
-                                <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
-                            </th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (cat && cat.length > 0) { %>
-                            <% cat.forEach((category, index) => { %>
-                                <tr>
-                                    <td></td>
-                                    <td>
-                                        <div class="category-info">
-                                            <div class="category-image">
-                                                <% if (category.image && category.image.length > 0) { %>
-                                                    <img src="/uploads/images/<%= category.image %>" alt="<%= category.name %>" />
-                                                <% } else { %>
-                                                    <i class="fas fa-image"></i>
-                                                <% } %>
-                                            </div>
-                                            <span class="category-name"><%= category.name %></span>
-                                        </div>
-                                    </td>
-                                    <td><%= category.sold || 0 %></td>
-                                    <td><%= category.stock || 0 %></td>
-                                    <td><%= category.createdAt ? new Date(category.createdAt).toLocaleDateString() : "N/A" %></td>
-                                    <td>
-                                        <div class="action-icons">
-                                            <button class="action-icon edit" data-id="<%= category._id %>" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="action-icon offer" data-id="<%= category._id %>" data-name="<%= category.name %>" title="Edit Offer">
-                                                <i class="fas fa-tag"></i>
-                                            </button>
-                                            <button class="action-icon toggle-list <%= category.isListed ? 'listed' : 'unlisted' %>" 
-                                                data-id="<%= category._id %>" 
-                                                data-listed="<%= category.isListed %>"
-                                                title="<%= category.isListed ? 'Unlist Category' : 'List Category' %>">
-                                                <i class="fas <%= category.isListed ? 'fa-toggle-on' : 'fa-toggle-off' %>"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="6" class="no-data">
-                                    <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
-                                    <h3 style="font-size: 18px; margin: 10px 0; color: var(--text-dark); font-weight: 600;">No Categories Found</h3>
-                                    <p style="margin: 0;">Start by creating a new category</p>
-                                </td>
+                            </th> -->
+                                <th>
+                                    Added
+                                    <i class="fas fa-sort ms-1" style="font-size: 12px; color: #999;"></i>
+                                </th>
+                                <th>Action</th>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% if (cat && cat.length> 0) { %>
+                                <% cat.forEach((category, index)=> { %>
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <div class="category-info">
+                                                <div class="category-image">
+                                                    <% if (category.image && category.image.length> 0) { %>
+                                                        <img src="/uploads/images/<%= category.image %>"
+                                                            alt="<%= category.name %>" />
+                                                        <% } else { %>
+                                                            <i class="fas fa-image"></i>
+                                                            <% } %>
+                                                </div>
+                                                <span class="category-name">
+                                                    <%= category.name %>
+                                                </span>
+
+                                                <% if (category.hasOffer) { %>
+                                                    <span class="offer-badge">
+                                                        <%= category.activeOffer.discountPercentage %>% OFF
+                                                    </span>
+                                                    <% } %>
+
+                                            </div>
+                                        </td>
+                                        <!-- <td><%= category.sold || 0 %></td>
+                                    <td><%= category.stock || 0 %></td> -->
+                                        <td>
+                                            <%= category.createdAt ? new Date(category.createdAt).toLocaleDateString()
+                                                : "N/A" %>
+                                        </td>
+                                        <td>
+                                            <div class="action-icons">
+                                                <button type="button" class="action-icon edit"
+                                                    data-id="<%= category._id %>" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+
+
+                                                <% if (category.hasOffer) { %>
+                                                    <!-- Edit Offer -->
+                                                    <button type="button" class="action-icon offer active-offer"
+                                                        data-id="<%= category._id %>" data-name="<%= category.name %>"
+                                                        title="Edit Offer">
+                                                        <i class="fas fa-tag"></i>
+                                                    </button>
+                                                    <% } else { %>
+                                                        <!-- Add Offer -->
+                                                        <button type="button" class="action-icon offer add-offer"
+                                                            data-id="<%= category._id %>"
+                                                            data-name="<%= category.name %>" title="Add Offer">
+                                                            <i class="fas fa-plus-circle"></i>
+                                                        </button>
+                                                        <% } %>
+
+                                                            <button
+                                                                class="action-icon toggle-list <%= category.isListed ? 'listed' : 'unlisted' %>"
+                                                                data-id="<%= category._id %>"
+                                                                data-listed="<%= category.isListed %>"
+                                                                title="<%= category.isListed ? 'Unlist Category' : 'List Category' %>">
+                                                                <i
+                                                                    class="fas <%= category.isListed ? 'fa-toggle-on' : 'fa-toggle-off' %>"></i>
+                                                            </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" class="no-data">
+                                                    <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
+                                                    <h3
+                                                        style="font-size: 18px; margin: 10px 0; color: var(--text-dark); font-weight: 600;">
+                                                        No Categories Found</h3>
+                                                    <p style="margin: 0;">Start by creating a new category</p>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <% if (totalPages> 1) { %>
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories)
+                                    %> from <%= totalCategories %>
+                        </div>
+                        <nav>
+                            <ul class="pagination">
+                                <% for (let i=1; i <=totalPages; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link"
+                                            href="/admin/category?page=<%= i %>&search=<%= search || '' %>">
+                                            <%= i < 10 ? '0' + i : i %>
+                                        </a>
+                                    </li>
+                                    <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                    <% } %>
             </div>
-
-            <!-- Pagination -->
-            <% if (totalPages > 1) { %>
-                <div class="pagination-container">
-                    <div class="pagination-info">
-                        Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCategories) %> from <%= totalCategories %>
-                    </div>
-                    <nav>
-                        <ul class="pagination">
-                            <% for (let i = 1; i <= totalPages; i++) { %>
-                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                    <a class="page-link" href="/admin/category?page=<%= i %>&search=<%= search || '' %>">
-                                        <%= i < 10 ? '0' + i : i %>
-                                    </a>
-                                </li>
-                            <% } %>
-                        </ul>
-                    </nav>
-                </div>
-            <% } %>
         </div>
-    </div>
 
-    <!-- Edit Offer Modal -->
-    <div id="offerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeOfferModal()">&times;</span>
-            <h2>Edit Category Offer</h2>
+        <!-- Edit Offer Modal -->
+        <div id="offerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeOfferModal()">&times;</span>
+                <h2>Edit Category Offer</h2>
 
-            <form id="offerForm">
-                <input type="hidden" id="categoryId" name="categoryId" />
+                <form id="offerForm">
+                    <input type="hidden" id="categoryId" name="categoryId" />
 
-                <div class="form-group full">
-                    <label for="categoryTitle">Category Name</label>
-                    <input type="text" id="categoryTitle" disabled style="background-color: #f5f5f5; cursor: not-allowed;" />
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="discountPercentage">Discount %</label>
-                        <input type="number" id="discountPercentage" name="discountPercentage" min="0" max="100" placeholder="0" />
-                        <div id="discountError" class="error-message">Discount must be between 0 and 100</div>
+                    <div class="form-group full">
+                        <label for="categoryTitle">Category Name</label>
+                        <input type="text" id="categoryTitle" disabled
+                            style="background-color: #f5f5f5; cursor: not-allowed;" />
                     </div>
-                    <div class="form-group">
-                        <label for="maxDiscountAmount">Max Discount (₹)</label>
-                        <input type="number" id="maxDiscountAmount" name="maxDiscountAmount" min="0" placeholder="0" />
-                    </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="offerDescription">Description</label>
-                        <input type="text" id="offerDescription" name="offerDescription" placeholder="e.g., Festival Sale" />
-                    </div>
-                    <div class="form-group">
-                        <label for="offerActive">Status</label>
-                        <select id="offerActive" name="offerActive">
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                        </select>
-                    </div>
-                </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="discountPercentage">Discount %</label>
+                            <input type="number" id="discountPercentage" name="discountPercentage" min="1" max="100"
+                                placeholder="1–100" required />
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="offerStartDate">Start Date</label>
-                        <input type="date" id="offerStartDate" name="offerStartDate" />
+                            <div id="discountError" class="error-message">Discount must be between 0 and 100</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxDiscountAmount">Max Discount (₹)</label>
+                            <input type="number" id="maxDiscountAmount" name="maxDiscountAmount" min="1"
+                                placeholder="> 0" required />
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="offerEndDate">End Date</label>
-                        <input type="date" id="offerEndDate" name="offerEndDate" />
-                    </div>
-                </div>
 
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">Save Offer</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeOfferModal()">Cancel</button>
-                </div>
-            </form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="offerDescription">Description</label>
+                            <input type="text" id="offerDescription" name="offerDescription"
+                                placeholder="e.g., Festival Sale" />
+                        </div>
+                        <div class="form-group">
+                            <label for="offerActive">Status</label>
+                            <select id="offerActive" name="offerActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="offerStartDate">Start Date</label>
+                            <input type="date" id="offerStartDate" name="offerStartDate" />
+                        </div>
+                        <div class="form-group">
+                            <label for="offerEndDate">End Date</label>
+                            <input type="date" id="offerEndDate" name="offerEndDate" />
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">Save Offer</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeOfferModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        const modal = document.getElementById('offerModal');
-        const offerForm = document.getElementById('offerForm');
+        <script>
+            const modal = document.getElementById('offerModal');
+            const offerForm = document.getElementById('offerForm');
 
-        // Edit button
-        document.querySelectorAll(".action-icon.edit").forEach(button => {
-            button.addEventListener("click", function() {
-                const categoryId = this.getAttribute("data-id");
-                window.location.href = `/admin/editCategory?id=${categoryId}`;
-            });
-        });
-
-        // Offer button
-        document.querySelectorAll(".action-icon.offer").forEach(button => {
-            button.addEventListener("click", function() {
-                const categoryId = this.getAttribute("data-id");
-                const categoryName = this.getAttribute("data-name");
-                openOfferModal(categoryId, categoryName);
-            });
-        });
-
-        // Toggle List/Unlist
-        document.querySelectorAll(".action-icon.toggle-list").forEach(button => {
-            button.addEventListener("click", function() {
-                const categoryId = this.getAttribute("data-id");
-                const isListed = this.getAttribute("data-listed") === "true";
-                const action = isListed ? "unlist" : "list";
-                const actionTitle = isListed ? "Unlist Category" : "List Category";
-
-                Swal.fire({
-                    title: actionTitle,
-                    text: `Are you sure you want to ${action} this category?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#8b7355',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: `Yes, ${action} it!`,
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const url = isListed 
-                            ? `/admin/listCategory?id=${categoryId}` 
-                            : `/admin/unlistCategory?id=${categoryId}`;
-                        window.location.href = url;
-                    }
+            // Edit button
+            document.querySelectorAll(".action-icon.edit").forEach(button => {
+                button.addEventListener("click", function () {
+                    const categoryId = this.getAttribute("data-id");
+                    window.location.href = `/admin/editCategory/${categoryId}`;
+                    ;
                 });
             });
-        });
 
-        function openOfferModal(categoryId, categoryName) {
-            document.getElementById('categoryId').value = categoryId;
-            document.getElementById('categoryTitle').value = categoryName;
-            modal.style.display = 'block';
-            fetchOfferData(categoryId);
-        }
+            // Offer button
+            document.querySelectorAll(".action-icon.offer").forEach(button => {
+                button.addEventListener("click", function () {
+                    const categoryId = this.getAttribute("data-id");
+                    const categoryName = this.getAttribute("data-name");
+                    openOfferModal(categoryId, categoryName);
+                });
+            });
 
-        function closeOfferModal() {
-            modal.style.display = 'none';
-            offerForm.reset();
-        }
+            // Toggle List/Unlist
+            document.querySelectorAll(".action-icon.toggle-list").forEach(button => {
+                button.addEventListener("click", function () {
+                    const categoryId = this.getAttribute("data-id");
+                    const isListed = this.getAttribute("data-listed") === "true";
+                    const action = isListed ? "unlist" : "list";
+                    const actionTitle = isListed ? "Unlist Category" : "List Category";
 
-        function fetchOfferData(categoryId) {
-            fetch(`/admin/categoryOffer/${categoryId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.offer) {
-                        document.getElementById('discountPercentage').value = data.offer.discountPercentage || 0;
-                        document.getElementById('maxDiscountAmount').value = data.offer.maxDiscountAmount || 0;
-                        document.getElementById('offerDescription').value = data.offer.offerDescription || '';
-                        document.getElementById('offerActive').value = data.offer.offerActive ? 'true' : 'false';
-                        document.getElementById('offerStartDate').value = data.offer.offerStartDate ? new Date(data.offer.offerStartDate).toISOString().split('T')[0] : '';
-                        document.getElementById('offerEndDate').value = data.offer.offerEndDate ? new Date(data.offer.offerEndDate).toISOString().split('T')[0] : '';
-                    }
-                })
-                .catch(error => console.error('Error fetching offer:', error));
-        }
+                    Swal.fire({
+                        title: actionTitle,
+                        text: `Are you sure you want to ${action} this category?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#8b7355',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: `Yes, ${action} it!`,
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const url = isListed
+                                ? `/admin/unlistCategory?id=${categoryId}`
+                                : `/admin/listCategory?id=${categoryId}`;
 
-        offerForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+                            window.location.href = url;
+                        }
+                    });
+                });
+            });
 
-            const categoryId = document.getElementById('categoryId').value;
-            const discountPercentage = parseInt(document.getElementById('discountPercentage').value);
-            const maxDiscountAmount = parseInt(document.getElementById('maxDiscountAmount').value) || null;
-            const offerDescription = document.getElementById('offerDescription').value;
-            const offerActive = document.getElementById('offerActive').value === 'true';
-            const offerStartDate = document.getElementById('offerStartDate').value;
-            const offerEndDate = document.getElementById('offerEndDate').value;
-
-            if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
-                document.getElementById('discountError').style.display = 'block';
-                return;
+            function openOfferModal(categoryId, categoryName) {
+                document.getElementById('categoryId').value = categoryId;
+                document.getElementById('categoryTitle').value = categoryName;
+                modal.style.display = 'block';
+                fetchOfferData(categoryId);
             }
 
-            document.getElementById('discountError').style.display = 'none';
+            function closeOfferModal() {
+                modal.style.display = 'none';
+                offerForm.reset();
+            }
 
-            try {
-                const response = await fetch(`/admin/categoryOffer/${categoryId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        discountPercentage,
-                        maxDiscountAmount,
-                        offerDescription,
-                        offerActive,
-                        offerStartDate,
-                        offerEndDate
+            function fetchOfferData(categoryId) {
+                fetch(`/admin/category-offer/${categoryId}`)
+
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.offer) {
+                            document.getElementById('discountPercentage').value = data.offer.discountPercentage || 0;
+                            document.getElementById('maxDiscountAmount').value = data.offer.maxDiscountAmount || 0;
+                            document.getElementById('offerDescription').value = data.offer.offerDescription || '';
+                            document.getElementById('offerActive').value = data.offer.offerActive ? 'true' : 'false';
+                            document.getElementById('offerStartDate').value = data.offer.offerStartDate ? new Date(data.offer.offerStartDate).toISOString().split('T')[0] : '';
+                            document.getElementById('offerEndDate').value = data.offer.offerEndDate ? new Date(data.offer.offerEndDate).toISOString().split('T')[0] : '';
+                        }
                     })
-                });
+                    .catch(error => console.error('Error fetching offer:', error));
+            }
 
-                const data = await response.json();
+            offerForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
 
-                if (data.success) {
+                const categoryId = document.getElementById('categoryId').value;
+                const discountPercentage = parseInt(document.getElementById('discountPercentage').value);
+                const maxDiscountAmount = Number(document.getElementById('maxDiscountAmount').value);
+                const offerDescription = document.getElementById('offerDescription').value;
+                const offerActive = document.getElementById('offerActive').value === 'true';
+                const offerStartDate = document.getElementById('offerStartDate').value;
+                const offerEndDate = document.getElementById('offerEndDate').value;
+
+                if (!document.getElementById('discountPercentage').value) {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Offer updated successfully',
+                        icon: 'error',
+                        title: 'Discount Required',
+                        text: 'Please enter a discount percentage.',
                         confirmButtonColor: '#8b7355'
-                    }).then(() => {
-                        closeOfferModal();
-                        location.reload();
                     });
-                } else {
+                    return;
+                }
+
+
+                if (
+                    isNaN(discountPercentage) ||
+                    discountPercentage <= 0 ||
+                    discountPercentage > 100
+                ) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Discount',
+                        text: 'Discount must be between 1 and 100.',
+                        confirmButtonColor: '#8b7355'
+                    });
+                    return;
+                }
+
+                if (
+                    isNaN(maxDiscountAmount) ||
+                    maxDiscountAmount <= 0
+                ) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Max Discount',
+                        text: 'Maximum discount amount must be greater than 0.',
+                        confirmButtonColor: '#8b7355'
+                    });
+                    return;
+                }
+                if (offerStartDate && offerEndDate) {
+                    if (new Date(offerStartDate) > new Date(offerEndDate)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Dates',
+                            text: 'Offer end date must be after start date.',
+                            confirmButtonColor: '#8b7355'
+                        });
+                        return;
+                    }
+                }
+
+
+                document.getElementById('discountError').style.display = 'none';
+
+                try {
+                    const response = await fetch(`/admin/category-offer/${categoryId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            discountPercentage,
+                            maxDiscountAmount,
+                            offerDescription,
+                            offerActive,
+                            offerStartDate,
+                            offerEndDate
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Offer updated successfully',
+                            confirmButtonColor: '#8b7355'
+                        }).then(() => {
+                            closeOfferModal();
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'Failed to update offer',
+                            confirmButtonColor: '#8b7355'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: data.message || 'Failed to update offer',
+                        text: 'An error occurred while updating the offer',
                         confirmButtonColor: '#8b7355'
                     });
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'An error occurred while updating the offer',
-                    confirmButtonColor: '#8b7355'
-                });
+            });
+
+            window.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeOfferModal();
+                }
+            });
+
+            function exportCategories() {
+                Swal.fire('Export', 'Export feature coming soon!', 'info');
             }
-        });
+        </script>
 
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                closeOfferModal();
-            }
-        });
-
-        function exportCategories() {
-            Swal.fire('Export', 'Export feature coming soon!', 'info');
-        }
-    </script>
-
-    <%- include('../partials/admin/footer.ejs') %>
-</body>
+        <%- include('../partials/admin/footer.ejs') %>
+    </body>

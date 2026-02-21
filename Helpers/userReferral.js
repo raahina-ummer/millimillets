@@ -6,12 +6,11 @@ export const generateUniqueReferralCode = async (base = "") => {
   let exists = true;
 
   while (exists) {
-    // Example format: "USER-7C5LQ"
-    const suffix = crypto.randomBytes(3).toString("hex").toUpperCase(); // 6 random chars
+    // Example: USERA-7C5LQF
+    const suffix = crypto.randomBytes(3).toString("hex").toUpperCase();
     code = `${base.toUpperCase().slice(0, 5)}-${suffix}`;
 
-    // Check if this code already exists
-    exists = await User.findOne({ referralCode: code });
+    exists = await User.exists({ referralCode: code });
   }
 
   return code;

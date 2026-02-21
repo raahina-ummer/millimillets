@@ -1,4 +1,4 @@
-// app.js (ESM version)
+
 
 import express from "express";
 import path from "path";
@@ -7,11 +7,12 @@ import session from "express-session";
 import "./config/passport.js";
 import passport from "passport";
 import connectDB from "./config/db.js";
-
+import logger from './utils/logger.js';
 import { router as adminRouter } from "./Routes/adminRouter.js";
 import { router as userRouter } from "./Routes/userRouter.js";
 
 import { fileURLToPath } from "url";
+
 
 
 
@@ -31,11 +32,22 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  console.log("---- Incoming Request ----");
+  console.log("Method:", req.method);
+  console.log("URL:", req.originalUrl);
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+  console.log("--------------------------");
+  next();
+});
+
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: false,
       httpOnly: true,

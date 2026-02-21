@@ -518,7 +518,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="stats-grid">
+    <!-- <div class="stats-grid">
       <div class="stat-card">
         <i class="fas fa-shopping-bag"></i>
         <h3>
@@ -542,7 +542,7 @@
       </div>
 
  
-    </div>
+    </div> -->
 
     <!-- Profile Card -->
     <div class="profile-card">
@@ -551,10 +551,14 @@
 
           <div class="profile-photo-container">
   <label for="profileImageInput" class="upload-label">
-    <img id="profileImagePreview" 
-         src="<%= user.profileImage || '/images/default-avatar.png' %>" 
-         alt="Profile Photo" 
-         class="profile-photo">
+ <img 
+  id="profileImagePreview"
+  src="<%= user.profileImage || '/millimillets-img/default-profile.webp' %>"
+  onerror="this.src=' /default-profile.png'"
+  alt="Profile Photo"
+  class="profile-photo"
+/>
+
     <div class="overlay">Change</div>
   </label>
   <input type="file" id="profileImageInput" onchange="previewImage(event)" accept="image/*" hidden>
@@ -564,19 +568,6 @@
 
 
 
-
-        <!-- <div class="profile-image-section">
-          <div class="profile-image-preview" id="imageContainer">
-            <% if (user.profileImage) { %>
-              <img src="<%= user.profileImage %>" alt="Profile Picture" id="profileImagePreview">
-              <% } else { %>
-                <div class="default-avatar" id="defaultAvatar">
-                  <i class="fas fa-user"></i>
-                </div>
-                <img src="" alt="Profile Picture" id="profileImagePreview" style="display: none;">
-                <% } %>
-          </div>
-        </div> -->
 
 
 
@@ -612,18 +603,6 @@
             </div>
 
 
-            <div class="info-item">
-              <div class="info-icon">
-                <i class="fas fa-birthday-cake"></i>
-              </div>
-              <div class="info-content">
-                <div class="info-label">Date of Birth</div>
-                <div class="info-value">
-                  <%= user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
-                    day: 'numeric' }) : 'Not provided' %>
-                </div>
-              </div>
-            </div>
 
 
 
@@ -644,19 +623,16 @@
       </div>
 
       <!-- Referral Code -->
-      <% if (user.referralCode) { %>
-        <div class="referral-section">
-          <div class="referral-title">Your Referral Code</div>
-          <div class="referral-code-display">
-            <span class="referral-code">
-              <%= user.referralCode %>
-            </span>
-            <button class="copy-btn" onclick="copyReferralCode('<%= user.referralCode %>')">
-              <i class="fas fa-copy"></i> Copy
-            </button>
-          </div>
-        </div>
-        <% } %>
+
+<div class="referral-box">
+  <span class="referral-code" id="referralCode"><%= user.referralCode %></span>
+
+  <button class="copy-btn"
+          onclick="copyReferralCode('<%= user.referralCode %>', event)">
+    <i class="fas fa-copy"></i> Copy
+  </button>
+</div>
+
 
           <!-- Action Buttons -->
           <div class="action-buttons">
@@ -669,17 +645,18 @@
           </div>
     </div>
 
-    <!-- Referral Note
-     <% if (user.referralCode) { %> -->
-      <div class="note-box">
-        <span class="note-icon">💡</span>
-        <p>
-          <strong>Earn Rewards!</strong><br>
-          <span>Share your referral code with friends and earn wallet credits when they make their first
-            purchase.</span>
-        </p>
-      </div>
-      <% } %>
+    <!-- Referral Note-->
+        <% if (user.referralCode) { %>
+  <div class="note-box">
+    <span class="note-icon">💡</span>
+    <p>
+      <strong>Earn Rewards!</strong><br>
+      <span>
+        Share your referral code with friends and earn wallet credits when they make their first purchase.
+      </span>
+    </p>
+  </div>
+<% } %>
 
     <!-- Quick Links -->
     <div class="quick-links-section">
@@ -712,8 +689,9 @@
 
   </div> 
 
-  <script>
-   function copyReferralCode(code, event) {
+
+   <script>
+function copyReferralCode(code, event) {
   navigator.clipboard.writeText(code)
     .then(() => {
       const btn = event.target.closest('.copy-btn');
@@ -725,11 +703,11 @@
         btn.innerHTML = originalHTML;
       }, 2000);
     })
-    .catch(err => {
-      console.error(err);
-      alert('Failed to copy code');
+    .catch(() => {
+      alert('Failed to copy referral code');
     });
 }
+
 
     function confirmLogout(event) {
       event.preventDefault();

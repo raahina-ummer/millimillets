@@ -536,9 +536,12 @@
                     <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
                     <option value="Shipped" <%= status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                    <option value="Canceled" <%= status === 'Canceled' ? 'selected' : '' %>>Cancelled</option>
+                    <option value="Cancelled" <%= status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                     <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
                     <option value="Return Requested" <%= status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                    <option value="Partially Delivered">Partially Delivered</option>
+                    <option value="Partially Returned">Partially Returned</option>
+
                 </select>
             </div>
 
@@ -594,7 +597,7 @@
                                 <div class="order-id">Order #<%= order.orderId %></div>
                                 <div class="order-date">
                                     <i class="far fa-calendar-alt"></i>
-                                    Placed on <%= new Date(order.createdOn).toLocaleDateString('en-US', { 
+                                    Placed on <%= new Date(order.createdAt).toLocaleDateString('en-US', { 
                                         month: 'long', 
                                         day: 'numeric', 
                                         year: 'numeric' 
@@ -602,8 +605,8 @@
                                 </div>
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                <span class="order-status-badge status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
-                                    <%= order.status %>
+                                <span class="order-status-badge status-<%= order.displayStatus.toLowerCase().replace(/\s+/g, '-') %>">
+                                    <%= order.displayStatus %>
                                 </span>
                             </div>
                         </div>
@@ -615,21 +618,28 @@
                         <div class="order-summary">
                             <div class="summary-item">
                                 <div class="summary-label">Total Items</div>
-                                <div class="summary-value"><%= order.orderedProducts.length %> Items</div>
+                                <% 
+  const activeItemCount = order.orderedProducts.filter(
+    item => !['Cancelled', 'Returned'].includes(item.status)
+  ).length; 
+%>
+<%= activeItemCount %> Items
+
                             </div>
                             <div class="summary-item">
                                 <div class="summary-label">Total Price</div>
-                                <div class="summary-value">₹<%= order.totalPrice.toFixed(2) %></div>
+                                <div class="summary-value">₹<%= order.currentAmount.toFixed(2) %></div>
                             </div>
-                            <% if (order.discount > 0) { %>
-                            <div class="summary-item">
-                                <div class="summary-label">Discount</div>
-                                <div class="summary-value" style="color: #28a745;">-₹<%= order.discount.toFixed(2) %></div>
-                            </div>
-                            <% } %>
+                           
                             <div class="summary-item" style="border-left: 4px solid #28a745;">
-                                <div class="summary-label">Final Amount</div>
-                                <div class="summary-value" style="color: #28a745;">₹<%= order.finalAmount.toFixed(2) %></div>
+                               <div class="summary-label">Current Amount</div>
+<div class="summary-value" style="color: #28a745;">
+  ₹<%= order.currentAmount.toFixed(2) %>
+</div>
+<small class="text-muted">
+  Paid: ₹<%= order.finalAmount.toFixed(2) %>
+</small>
+
                             </div>
                         </div>
 
@@ -654,7 +664,10 @@
             </div>
         </div>
         <div class="product-price">
-            ₹<%= (item.price * item.quantity).toFixed(2) %>
+            <div class="product-price <%= ['Cancelled','Returned'].includes(item.status) ? 'text-muted' : '' %>">
+  ₹<%= (item.price * item.quantity).toFixed(2) %>
+</div>
+
         </div>
     </div>
     <% }) %>
@@ -672,16 +685,19 @@
                                 <i class="fas fa-eye"></i> View Details
                             </a>
                             
-                            <% if (order.status === 'Delivered') { %>
-                            <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-action btn-invoice">
-                                <i class="fas fa-download"></i> Download Invoice
-                            </button>
+                             <!-- Invoice button — based on snapshot -->
+    <% if (order.invoiceSnapshot) { %>
+    <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-action btn-invoice">
+        <i class="fas fa-download"></i> Download Invoice
+    </button>
+    <% } %> 
+                             <% if (order.displayStatus === 'Delivered') { %>
                             <button onclick="openReturnModal('<%= order.orderId %>')" class="btn-action btn-return">
                                 <i class="fas fa-undo"></i> Return Order
                             </button>
                             <% } %>
                             
-                            <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                            <% if (order.displayStatus === 'Pending' || order.displayStatus === 'Processing') { %>
                             <button onclick="openCancelModal('<%= order.orderId %>')" class="btn-action btn-cancel">
                                 <i class="fas fa-times-circle"></i> Cancel Order
                             </button>
@@ -857,7 +873,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    swal("Success!", "Order cancelled successfully. Stock has been restored.", "success")
+                    swal("Success!", "Order cancelled successfully.", "success")
                         .then(() => location.reload());
                 } else {
                     swal("Error!", data.message || "Failed to cancel order", "error");
@@ -870,50 +886,58 @@
             bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
         });
 
-        // Return Order Modal
-        function openReturnModal(orderId) {
-            document.getElementById('returnOrderId').value = orderId;
-            const modal = new bootstrap.Modal(document.getElementById('returnModal'));
-            modal.show();
-        }
 
-        // Return Form Submission
-        document.getElementById('returnForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const orderId = document.getElementById('returnOrderId').value;
-            const reason = document.getElementById('returnReason').value;
-            
-            if (!reason.trim()) {
-                swal("Error!", "Please provide a reason for return", "error");
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/orders/${orderId}/return`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ reason })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    swal("Success!", "Return request submitted successfully. We'll process it soon.", "success")
-                        .then(() => location.reload());
-                } else {
-                    swal("Error!", data.message || "Failed to submit return request", "error");
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                swal("Error!", "Something went wrong. Please try again.", "error");
-            }
-            
-            bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+        //return
+        function openReturnModal(orderId) {
+    document.getElementById('returnOrderId').value = orderId;
+    const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+    modal.show();
+}
+
+document.getElementById('returnForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const orderId = document.getElementById('returnOrderId').value;
+    const reason = document.getElementById('returnReason').value.trim();
+
+    if (!reason) {
+        swal("Error!", "Return reason is required", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/orders/${orderId}/return-all`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify({ reason })
         });
 
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.message || "Return request failed");
+        }
+
+        swal("Success!", data.message, "success")
+            .then(() => location.reload());
+
+    } catch (error) {
+        console.error("Return error:", error);
+        swal("Error!", error.message, "error");
+    }
+
+    bootstrap.Modal.getInstance(
+        document.getElementById('returnModal')
+    ).hide();
+});
+
+
+        
+
+       
         // Download Invoice
         async function downloadInvoice(orderId) {
             try {

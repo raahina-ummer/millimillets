@@ -16,6 +16,8 @@ const cartSchema = new Schema(
           ref: "Product",
           required: true,
         },
+
+         variantId: { type: mongoose.Schema.Types.ObjectId ,required:false},
         quantity: {
           type: Number,
           default: 1,
@@ -37,14 +39,6 @@ const cartSchema = new Schema(
           type: Number,
           required: true,
           default: 0,
-        },
-        status: {
-          type: String,
-          default: "Placed",
-        },
-        cancellationReason: {
-          type: String,
-          default: "none",
         },
       },
     ],

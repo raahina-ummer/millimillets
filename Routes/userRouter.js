@@ -1,4 +1,3 @@
-// userRouter.js  (ESM version)
 
 import express from "express";
 import passport from "../config/passport.js";
@@ -28,8 +27,9 @@ router.get("/pageNotFound", userController.pageNotFound);
 // Signup Management
 router.get("/signup", userController.loadSignup);
 router.post("/signup", userController.signup);
+router.get("/verifyOtp", userController.loadVerifyOtp);
 router.post("/verifyOtp", userController.verifyOtp);
-router.post("/resendOtp", userController.resendOtp);
+router.post("/resendSignupOtp", userController.resendOtp);
 
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),
@@ -47,7 +47,7 @@ router.post("/login", userController.login);
 // HomePage and Shopping page
 router.get("/", userController.loadHomepage);
 router.get("/logout", userController.logout);
-router.get("/shop", userAuth, userController.loadShop);
+router.get("/shop",  userController.loadShop);
 
 // Profile management
 router.get("/userProfile", userAuth, profileController.loadProfile);
@@ -77,12 +77,13 @@ router.get("/forgotPassword",profileController.getForgotPassword);
 router.post("/forgotEmailValid", profileController.forgotEmailValid);
 router.get("/verifyForgotOtp",profileController.getVerifyOtp);
 router.post("/verifyForgotOtp",profileController.verifyForgotOtp);
-router.post("/resendOtp",profileController.resendOtp);
+router.post("/resendForgotOtp",profileController.resendOtp);
 router.get("/resetPassword",profileController.getPostNewPassword);
 router.post("/resetPassword",profileController.postNewPassword);
 
 // Product management
 router.get("/product/details/:id",  userAuth,productController.productDetails);
+router.get("/product/variant-price/:productId/:variantId",userAuth,productController.getVariantPrice);
 
 // Cart management
 router.get("/cart", userAuth, cartController.loadCart);
@@ -95,17 +96,20 @@ router.get("/cartCount",userAuth,cartController.getCartCount)
 //checkout
 router.get("/checkOut",userAuth,checkoutController.loadCheckOut);
 router.get("/orderSuccess",userAuth,checkoutController.loadOrderSuccess);
-router.get("/orderFailure",userAuth,checkoutController.loadOrderFaliure);
+router.get("/orderFailure",userAuth,checkoutController.loadOrderFailure);
 
 
 //Order management
 router.get("/orders", userAuth, orderController.loadOrder);
 router.get("/orders/:orderId", userAuth, orderController.loadOrderDetails);
 router.patch("/orders/:orderId/cancel", userAuth, orderController.cancelEntireOrder);
-router.post("/orders/:orderId/items/:productId/cancel", userAuth, orderController.cancelOrderItem);
-router.post("/orders/:orderId/return", userAuth, orderController.returnOrderItem);
+router.post("/orders/:orderId/items/:productId/:variantId/cancel",userAuth,orderController.cancelOrderItem);
+router.post("/orders/:orderId/return/:productId/:variantId", userAuth, orderController.returnOrderItem);
+router.post("/orders/:orderId/return-all",userAuth,orderController. returnEntireOrder);
+
 router.get("/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
-router.post("/placeOrder",userAuth,orderController.placeOrder);
+router.post("/placeOrder",userAuth,orderController.placeCodOrder);
+router.post('/create-retry-order', userAuth,orderController.createRetryOrder);
 
 //wishlist
 router.get("/wishlist",userAuth,wishlistController.loadWishlist)
@@ -115,15 +119,20 @@ router.delete("/removeWishlist/:productId",userAuth,wishlistController.removeFro
 
 //coupon
 // Coupon management
+router.get("/listcoupon",userAuth,couponController.loadCoupon);
 router.post("/applyCoupon", userAuth,couponController.applyCoupon);
 router.post("/removeCoupon", userAuth, couponController.removeCoupon);
 
 //razorpay/payNow
-router.post("/create-order",userAuth, orderController.createOrder);
+router.post("/create-order",userAuth, orderController.createRazorpayOrder);
 router.post("/verify-payment",userAuth, orderController.verifyPayment);
 
 //wallet
 router.get("/wallet",userAuth,walletController.loadWallet);
+router.post("/walletPayment",userAuth,walletController.walletPayment);
+
+//aboutPage
+router.get("/about",userAuth,userController.loadAboutPage)
 
 
 export { router};

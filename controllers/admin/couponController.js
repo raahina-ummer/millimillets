@@ -1,6 +1,7 @@
 import Coupon from "../../models/CouponSchema.js";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
+import logger from "../../utils/logger.js";
 
 const loadCoupon = async (req, res) => {
   try {
@@ -16,13 +17,19 @@ const loadCoupon = async (req, res) => {
     }
 
     const totalCoupons = await Coupon.countDocuments(query);
-    const activeCoupons = await Coupon.countDocuments({ ...query, isActive: true });
-    const expiredCoupons = await Coupon.countDocuments({ 
-      ...query, 
-      expiresAt: { $lt: new Date() } 
+    const activeCoupons = await Coupon.countDocuments({
+      ...query,
+      isActive: true,
     });
-    const usedCoupons = await Coupon.countDocuments({ ...query, usedCount: { $gt: 0 } });
-    
+    const expiredCoupons = await Coupon.countDocuments({
+      ...query,
+      expiresAt: { $lt: new Date() },
+    });
+    const usedCoupons = await Coupon.countDocuments({
+      ...query,
+      usedCount: { $gt: 0 },
+    });
+
     const totalPages = Math.ceil(totalCoupons / limit);
     const skip = (page - 1) * limit;
 
@@ -32,27 +39,27 @@ const loadCoupon = async (req, res) => {
       .limit(limit);
 
     res.render("admincoupon", {
+      title: "Coupons",
+      currentRoute: "coupon",
       coupons,
       currentPage: page,
       totalPages,
       limit,
       search,
       totalCoupons,
-      activeCoupons,      
-      expiredCoupons,     
-      usedCoupons,        
+      activeCoupons,
+      expiredCoupons,
+      usedCoupons,
       user: null,
     });
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+    logger.error("Coupon load error", error);
+    return res.redirect("/pageNotFound");
   }
 };
 
-
- const createCoupon = async (req, res) => {
+const createCoupon = async (req, res) => {
   try {
-    console.log("the add Coupon req.body", req.body);
     const {
       code,
       discountPercent,
@@ -64,64 +71,203 @@ const loadCoupon = async (req, res) => {
       totalUsageLimit,
     } = req.body;
 
-    // Check if already exists
-    const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
+    if (!code || !code.trim()) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.COUPON.CODE_REQUIRED,
+      });
+    }
+
+    if (
+      discountPercent === undefined ||
+      discountPercent === null ||
+      discountPercent === ""
+    ) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Discount percentage is required.",
+      });
+    }
+
+    if (!expiresAt) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Expiry date is required.",
+      });
+    }
+
+    const couponCode = code.trim().toUpperCase();
+    const discount = Number.parseInt(discountPercent,10);
+    const minPurchase = minPurchaseAmount
+      ? Number.parseInt(minPurchaseAmount,10)
+      : 0;
+    const maxDiscount =
+      maxDiscountAmount !== undefined &&
+      maxDiscountAmount !== null &&
+      maxDiscountAmount !== ""
+        ? Number.parseInt(maxDiscountAmount)
+        : null;
+    const perUserLimit = usageLimitPerUser
+      ? Number.parseInt(usageLimitPerUser, 10)
+      : 1;
+    const totalLimit =
+      totalUsageLimit !== undefined &&
+      totalUsageLimit !== null &&
+      totalUsageLimit !== ""
+        ? Number.parseInt(totalUsageLimit, 10)
+        : null;
+    const expiryDate = new Date(expiresAt);
+
+    if (!/^[A-Z0-9_]{4,20}$/.test(couponCode)) {
+  return res.status(Status.BAD_REQUEST).json({
+    success:false,
+    message: "Coupon code must be 4–20 chars (A–Z, 0–9, _)"
+  });
+}
+
+
+    if (Number.isNaN(discount) || discount <= 0) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Discount percentage must be a positive number.",
+      });
+    }
+
+    if (Number.isNaN(minPurchase) || minPurchase < 0) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Minimum purchase amount must be a non-negative number.",
+      });
+    }
+
+    if (
+      maxDiscount !== null &&
+      (Number.isNaN(maxDiscount) || maxDiscount < 0)
+    ) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Maximum discount amount must be a non-negative number.",
+      });
+    }
+
+    if (Number.isNaN(perUserLimit) || perUserLimit < 1) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Usage limit per user must be at least 1.",
+      });
+    }
+
+    if (totalLimit !== null && (Number.isNaN(totalLimit) || totalLimit < 1)) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Total usage limit must be at least 1 or omitted.",
+      });
+    }
+
+    if (discount > 70) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Discount percentage cannot exceed 70%.",
+      });
+    }
+
+
+    if (maxDiscount !== null && maxDiscount > 10000) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Maximum discount amount must be less than ₹10,000.",
+      });
+    }
+
+    // estimated discount check (discount% * minPurchase)
+    if (maxDiscount !== null) {
+      const estimatedDiscount = (discount / 100) * minPurchase;
+      if (estimatedDiscount > maxDiscount) {
+        return res.status(Status.BAD_REQUEST).json({
+          success: false,
+          message:
+            "For the given discount percentage, the minimum purchase amount is too low compared to the maximum discount.",
+        });
+      }
+    }
+
+    if (totalLimit !== null && perUserLimit > totalLimit) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Usage limit per user cannot exceed total usage limit.",
+      });
+    }
+
+    // expiry date validation
+    if (Number.isNaN(expiryDate.getTime())) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid expiry date format.",
+      });
+    }
+
+    // compare dates at midnight to avoid timezone surprises
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiryAtMidnight = new Date(expiryDate);
+    expiryAtMidnight.setHours(0, 0, 0, 0);
+
+    if (expiryAtMidnight < today) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Expiry date cannot be in the past.",
+      });
+    }
+
+    // eligibility types - extended to include vipUsers (matches frontend)
+    const allowedOnlyFor =  ["all","newUsers","vipUsers","specificUsers"]
+    if (onlyFor && !allowedOnlyFor.includes(onlyFor)) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid coupon eligibility type.",
+      });
+    }
+
+    // uniqueness check
+    const existingCoupon = await Coupon.findOne({ code: couponCode });
     if (existingCoupon) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "Coupon code already exists",
+        message: message.COUPON.ALREADY_USED,
       });
-    }
-
-    // Validate expiry date
-    if (new Date(expiresAt) < new Date()) {
-      return res.json({
-        success: false,
-        message: "Expiry date cannot be in the past",
-      });
-    }
-
-    // Validate max discount amount
-    if (maxDiscountAmount > 10000) {
-      throw new Error("The max discount should be below 10000");
-    }
-
-    // Validate min purchase amount
-    if (minPurchaseAmount < 800) {
-      throw new Error("The min purchase amount should be atleast 800 or above");
-    }
-
-    // Validate discount percent
-    if (discountPercent > 70) {
-      throw new Error("The maximum discount amount should be below 70%");
-    }
-
-    // Validate relationship between discount percent and minimum purchase
-    const estimatedDiscount = (discountPercent / 100) * minPurchaseAmount;
-    console.log("The estimatedDiscount is", estimatedDiscount);
-    if (maxDiscountAmount && estimatedDiscount > maxDiscountAmount) {
-      throw new Error("Minimum purchase too low for the discount percent");
     }
 
     const newCoupon = new Coupon({
-      code: code.toUpperCase(),
-      discountPercent: parseInt(discountPercent),
-      maxDiscountAmount: maxDiscountAmount ? parseInt(maxDiscountAmount) : null,
-      minPurchaseAmount: parseInt(minPurchaseAmount) || 0,
-      expiresAt: new Date(expiresAt),
-      onlyFor,
-      usageLimitPerUser: parseInt(usageLimitPerUser) || 1,
-      totalUsageLimit: totalUsageLimit ? parseInt(totalUsageLimit) : null,
+      code: couponCode,
+      discountPercent: discount,
+      maxDiscountAmount: maxDiscount,
+      minPurchaseAmount: minPurchase,
+      expiresAt: expiryDate,
+      onlyFor: onlyFor || "all",
+      usageLimitPerUser: perUserLimit,
+      totalUsageLimit: totalLimit,
+      usedCount: 0,
+      isActive: true,
     });
 
     await newCoupon.save();
-    res.status(Status.CREATED).json({ 
-      success: true, 
-      message: "Coupon added successfully" 
+
+    return res.status(Status.CREATED).json({
+      success: true,
+      message: message.COUPON.CREATED_SUCCESS,
+      coupon: {
+        id: newCoupon._id,
+        code: newCoupon.code,
+        discountPercent: newCoupon.discountPercent,
+        expiresAt: newCoupon.expiresAt,
+      },
     });
   } catch (error) {
-    console.error("Error adding coupon:", error);
-    res.json({ success: false, message: error.message });
+    logger.error("Error adding coupon", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR,
+    });
   }
 };
 
@@ -131,22 +277,22 @@ const loadEditCoupon = async (req, res) => {
     const coupon = await Coupon.findById(id);
 
     if (!coupon) {
-      return res.redirect("/pageerror");
+      throw new Error("Not Coupon");
     }
 
-    return res.render("editcoupon", { 
-        coupon,
-         user: null,
-     });
+    return res.render("editcoupon", {
+      coupon,
+      user: null,
+      currentRoute: "coupon",
+    });
   } catch (error) {
-    console.error(error);
-    return res.redirect("/pageerror");
+    logger.error("Load edit coupon error", error);
+    return res.redirect("/pageNotFound");
   }
 };
 
- const editCoupon = async (req, res) => {
+const editCoupon = async (req, res) => {
   try {
-    console.log(req.body);
     const {
       id,
       code,
@@ -160,116 +306,191 @@ const loadEditCoupon = async (req, res) => {
       isActive,
     } = req.body;
 
-    // Check if coupon code already exists (excluding current coupon)
+    if (!id) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.GENERAL.INVALID_INPUT,
+      });
+    }
+
+    if (!code || !code.trim()) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.GENERAL.INVALID_INPUT,
+      });
+    }
+
     const existingCoupon = await Coupon.findOne({
-      code: code.toUpperCase(),
+      code: code.trim().toUpperCase(),
       _id: { $ne: id },
     });
 
     if (existingCoupon) {
-      return res.json({ 
-        success: false, 
-        message: "Coupon code already exists" 
+      return res.status(Status.CONFLICT).json({
+        success: false,
+        message: message.COUPON.ALREADY_USED,
       });
     }
 
-    // Validate max discount amount
-    if (maxDiscountAmount > 10000) {
-      throw new Error("The max discount should be below 10000");
+  const discount = Number(discountPercent);
+const minPurchase = Number(minPurchaseAmount);
+const maxDiscount = maxDiscountAmount ? Number(maxDiscountAmount) : null;
+
+    const perUserLimit = parseInt(usageLimitPerUser, 10) || 1;
+    const totalLimit = totalUsageLimit ? parseInt(totalUsageLimit, 10) : null;
+
+    if (isNaN(discount) || discount <= 0 || discount > 70) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Discount percentage must be between 1 and 70.",
+      });
     }
 
-    // Validate min purchase amount
-    if (minPurchaseAmount < 800) {
-      throw new Error("The min purchase amount should be atleast 800 or above");
+   
+
+    if (maxDiscount !== null && (isNaN(maxDiscount) || maxDiscount < 0)) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Maximum discount amount must be a non-negative number.",
+      });
     }
 
-    // Validate discount percent
-    if (discountPercent > 70) {
-      throw new Error("The maximum discount amount should be below 70%");
+    if (maxDiscount !== null && maxDiscount > 10000) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Maximum discount amount cannot exceed ₹10,000.",
+      });
     }
 
-    // Validate relationship between discount percent and minimum purchase
-    const estimatedDiscount = (discountPercent / 100) * minPurchaseAmount;
-    if (maxDiscountAmount && estimatedDiscount > maxDiscountAmount) {
-      throw new Error("Minimum purchase too low for the discount percent");
+    const estimatedDiscount = (discount / 100) * minPurchase;
+    if (maxDiscount !== null && estimatedDiscount > maxDiscount) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message:
+          "Minimum purchase amount is too low for the selected discount.",
+      });
+    }
+
+    if (totalLimit !== null && perUserLimit > totalLimit) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Usage limit per user cannot exceed total usage limit.",
+      });
+    }
+
+    const expiryDate = new Date(expiresAt);
+    if (isNaN(expiryDate.getTime())) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid expiry date format.",
+      });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    expiryDate.setHours(0, 0, 0, 0);
+
+    if (expiryDate < today) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Expiry date cannot be in the past.",
+      });
     }
 
     const updateData = {
-      code: code.toUpperCase(),
-      discountPercent: parseInt(discountPercent),
-      maxDiscountAmount: maxDiscountAmount ? parseInt(maxDiscountAmount) : null,
-      minPurchaseAmount: parseInt(minPurchaseAmount) || 0,
-      expiresAt: new Date(expiresAt),
+      code: code.trim().toUpperCase(),
+      discountPercent: discount,
+      maxDiscountAmount: maxDiscount,
+      minPurchaseAmount: minPurchase,
+      expiresAt: expiryDate,
       onlyFor,
-      usageLimitPerUser: parseInt(usageLimitPerUser) || 1,
-      totalUsageLimit: totalUsageLimit ? parseInt(totalUsageLimit) : null,
+      usageLimitPerUser: perUserLimit,
+      totalUsageLimit: totalLimit,
       isActive: isActive === "true",
     };
 
     await Coupon.findByIdAndUpdate(id, updateData);
-    res.status(Status.ACCEPTED).json({success: true,message: "Coupon updated successfully" 
+
+    return res.status(Status.OK).json({
+      success: true,
+      message: message.COUPON.UPDATED_SUCCESS,
     });
   } catch (error) {
-    console.error("Error updating coupon:", error);
-    res.json({ success: false, message: error.message });
+    logger.error("Error updating coupon", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR,
+    });
   }
 };
 
- const deleteCoupon = async (req, res) => {
+const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.body;
     const coupon = await Coupon.findById(id);
 
     if (!coupon) {
-      return res.json({ 
-        success: false, 
-        message: "Coupon not found" 
+      return res.json({
+        success: false,
+        message: message.COUPON.NOT_FOUND,
       });
     }
 
     // Check if coupon has been used
     if (coupon.usedCount > 0) {
-      return res.json({success: false, message:"Cannot delete coupon that has been used. Deactivate it instead.",
+      return res.json({
+        success: false,
+        message: message.COUPON.ALREADY_USED,
       });
     }
 
     await Coupon.findByIdAndDelete(id);
-    res.json({ success: true, message: "Coupon deleted successfully" 
+    res.status(Status.OK).json({
+      success: true,
+      message: message.COUPON.REMOVED,
     });
   } catch (error) {
-    console.error("Error deleting coupon:", error);
-    res.json({success: false,message: message.SERVER_ERROR });
+    logger.error("Error deleting coupon", error);
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
- const activateCoupon = async (req, res) => {
+const activateCoupon = async (req, res) => {
   try {
     const { id } = req.body;
     await Coupon.findByIdAndUpdate(id, { isActive: true });
-    res.json({success: true,message: "Coupon activated successfully"});
+    res.json({ success: true, message: message.COUPON.APPLIED_SUCCESS });
   } catch (error) {
-    console.error("Error activating coupon:", error);
-    res.json({success: false,message: "Error activating coupon"});
+    logger.error("Error activating coupon", error);
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
- const deactivateCoupon = async (req, res) => {
+const deactivateCoupon = async (req, res) => {
   try {
     const { id } = req.body;
     await Coupon.findByIdAndUpdate(id, { isActive: false });
-    res.json({ success: true,message: "Coupon deactivated successfully"});
+    res
+      .status(Status.OK)
+      .json({ success: true, message: message.COUPON.DEACTIVATED_SUCCESS });
   } catch (error) {
-    console.error("Error deactivating coupon:", error);
-    res.json({success: false,message: "Error deactivating coupon"});
+    logger.error("Error deactivating coupon", error);
+    return res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 export {
-      loadCoupon,
-      createCoupon,
-      deleteCoupon,
-      loadEditCoupon,
-      editCoupon,
-      activateCoupon,
-      deactivateCoupon,  
-}
+  loadCoupon,
+  createCoupon,
+  deleteCoupon,
+  loadEditCoupon,
+  editCoupon,
+  activateCoupon,
+  deactivateCoupon,
+};

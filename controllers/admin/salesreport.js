@@ -2,6 +2,10 @@ import Order from "../../models/OrderSchema.js";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 import { calculateStatistics, getDateRange } from "../../Helpers/salesCalculation.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+import logger from '../../utils/logger.js';
+
 
 // Load sales report page
 const loadSalesReport = async (req, res) => {
@@ -26,7 +30,7 @@ const loadSalesReport = async (req, res) => {
     // Fetch orders with pagination
     const orders = await Order.find(query)
       .populate("userId", "name email")
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
@@ -43,7 +47,8 @@ const loadSalesReport = async (req, res) => {
     const statistics = calculateStatistics(allOrders);
 
     res.render("salesreport", {
-      title: "Sales Report",
+        title: "Sales Report",
+      currentRoute: "sales-report",
       orders,
       statistics,
       currentPage: parseInt(page),
@@ -57,7 +62,7 @@ const loadSalesReport = async (req, res) => {
     });
   } catch (error) {
     console.error("Error generating sales report:", error);
-    res.status(500).render("error", { message: "Error generating sales report" });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 
@@ -81,13 +86,13 @@ const downloadSalesReport = async (req, res) => {
 
     const orders = await Order.find(query)
       .populate("userId", "name email")
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .lean();
 
     if (!orders || orders.length === 0) {
-      return res.status(400).json({
+      return res.status(Status.BAD_REQUEST).json({
         success: false,
-        message: "No orders found for the selected filters",
+        message: message.ORDER.NOT_FOUND,
       });
     }
 
@@ -98,11 +103,11 @@ const downloadSalesReport = async (req, res) => {
     } else if (format === "excel") {
       await generateExcel(res, orders, statistics, period, startDate, endDate);
     } else {
-      return res.status(400).json({ success: false, message: "Invalid format" });
+      return res.status(Status.BAD_REQUEST).json({ success: false, message: "Invalid format" });
     }
   } catch (error) {
     console.error("Error downloading sales report:", error);
-    res.status(500).json({ success: false, message: "Error downloading report" });
+    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 
@@ -110,12 +115,13 @@ const downloadSalesReport = async (req, res) => {
 const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
   return new Promise((resolve, reject) => {
     try {
-      console.log("PDF report Invocked")
+      console.log("PDF report Invoked");
+
       const filename = `sales-report-${period}-${new Date().toISOString().split("T")[0]}.pdf`;
       const doc = new PDFDocument({ margin: 40, size: "A4" });
 
       const chunks = [];
-      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("data", c => chunks.push(c));
       doc.on("end", () => {
         const pdfBuffer = Buffer.concat(chunks);
         res.setHeader("Content-Type", "application/pdf");
@@ -125,121 +131,124 @@ const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
       });
       doc.on("error", reject);
 
-      const colors = { primary: "#8b7355", light: "#f9f9f9", dark: "#2d2d2d", success: "#6b8e23" };
+      /* ---------------- HEADER ---------------- */
 
-      // Header
-      doc.fillColor(colors.primary).rect(40, 40, 515, 60).fill();
-      doc.fillColor("#ffffff").fontSize(24).font("Helvetica-Bold").text("SALES REPORT", 60, 55);
-      doc.fontSize(10).text(`Generated: ${new Date().toLocaleString()}`, 60, 85);
+      doc.rect(40, 40, 515, 55).fill("#222");
+      doc.fillColor("#fff")
+        .fontSize(22)
+        .font("Helvetica-Bold")
+        .text("SALES REPORT", 55, 55);
 
-      let yPos = 120;
+      doc.fontSize(10)
+        .font("Helvetica")
+        .text(`Generated: ${new Date().toLocaleString()}`, 55, 78);
 
-      // Summary Section
-      doc.fillColor(colors.dark).fontSize(14).font("Helvetica-Bold").text("SUMMARY", 50, yPos);
-      yPos += 25;
+      let y = 115;
 
-      const summaryData = [
-        ["Total Orders", statistics.totalOrders.toString()],
-        ["Total Revenue", `₹${statistics.totalRevenue.toFixed(2)}`],
-        ["Average Order Value", `₹${statistics.averageOrderValue.toFixed(2)}`],
-        ["Total Discounts", `₹${statistics.totalDiscount.toFixed(2)}`],
-        ["Total Tax", `₹${statistics.totalTax.toFixed(2)}`],
-        ["Total Shipping", `₹${statistics.totalShipping.toFixed(2)}`],
+      /* ---------------- SUMMARY ---------------- */
+
+      doc.fillColor("#000").fontSize(13).font("Helvetica-Bold").text("SUMMARY", 50, y);
+      y += 20;
+
+      const summary = [
+        ["Total Orders", statistics.totalOrders],
+        ["Revenue", `Rs ${statistics.totalRevenue.toFixed(2)}`],
+        ["Avg Order Value", `Rs ${statistics.averageOrderValue.toFixed(2)}`],
+        ["Total Discount", `Rs ${statistics.totalDiscount.toFixed(2)}`],
+        ["Tax", `Rs ${statistics.totalTax.toFixed(2)}`],
+        ["Shipping", `Rs ${statistics.totalShipping.toFixed(2)}`],
+        ["Refunded", `Rs ${statistics.refundedAmount.toFixed(2)}`],
       ];
 
-      doc.fontSize(10);
-      summaryData.forEach((row) => {
-        doc.fillColor(colors.dark).text(row[0], 50, yPos, { width: 200 });
-        doc.text(row[1], 300, yPos, { align: "right" });
-        yPos += 20;
+      doc.font("Helvetica").fontSize(10);
+
+      summary.forEach(([k, v]) => {
+        doc.text(k, 55, y);
+        doc.text(String(v), 350, y, { width: 150, align: "right" });
+        y += 16;
       });
 
-      yPos += 15;
+      y += 20;
 
-      // Discount Breakdown
-      if (yPos > 650) {
-        doc.addPage();
-        yPos = 50;
-      }
+      /* ---------------- TABLE HEADER DRAWER ---------------- */
 
-      doc.fillColor(colors.dark).fontSize(12).font("Helvetica-Bold").text("DISCOUNT BREAKDOWN", 50, yPos);
-      yPos += 20;
+      const drawTableHeader = () => {
+        doc.rect(40, y, 515, 22).fill("#444");
+        doc.fillColor("#fff").fontSize(9).font("Helvetica-Bold");
 
-      const discountData = [
-        ["Product Discounts", `₹${statistics.totalItemDiscount.toFixed(2)}`],
-        ["Coupon Discounts", `₹${statistics.totalCouponDiscount.toFixed(2)}`],
-        ["Total Discounts", `₹${statistics.totalDiscount.toFixed(2)}`],
-      ];
-
-      doc.fontSize(10);
-      discountData.forEach((row) => {
-        doc.fillColor(colors.dark).text(row[0], 50, yPos, { width: 200 });
-        doc.text(row[1], 300, yPos, { align: "right" });
-        yPos += 20;
-      });
-
-      yPos += 15;
-
-      // Order Details Table
-      if (yPos > 650) {
-        doc.addPage();
-        yPos = 50;
-      }
-
-      doc.fillColor(colors.dark).fontSize(12).font("Helvetica-Bold").text("ORDER DETAILS", 50, yPos);
-      yPos += 20;
-
-      // Table Headers
-      doc.fillColor(colors.primary).rect(40, yPos, 515, 25).fill();
-      doc.fillColor("#ffffff").fontSize(9).font("Helvetica-Bold");
-      
-      const headers = ["#", "Order ID", "Date", "Customer", "Amount", "Discount", "Tax", "Status"];
-      const colWidths = [25, 70, 75, 100, 70, 70, 60, 65];
-      let xPos = 50;
-
-      headers.forEach((header, i) => {
-        doc.text(header, xPos, yPos + 7, { width: colWidths[i], align: "center" });
-        xPos += colWidths[i];
-      });
-
-      yPos += 30;
-
-      // Table Rows
-      orders.slice(0, 20).forEach((order, index) => {
-        if (yPos > 720) {
-          doc.addPage();
-          yPos = 50;
-        }
-
-        if (index % 2 === 0) {
-          doc.fillColor(colors.light).rect(40, yPos, 515, 20).fill();
-        }
-
-        doc.fillColor(colors.dark).fontSize(8).font("Helvetica");
-        const discount = order.discount || 0;
-        const rowData = [
-          (index + 1).toString(),
-          order._id.toString().slice(-8),
-          new Date(order.createdOn).toLocaleDateString(),
-          order.userId?.name || "N/A",
-          `₹${(order.totalPrice || 0).toFixed(0)}`,
-          `₹${discount.toFixed(0)}`,
-          `₹${(order.tax || 0).toFixed(0)}`,
-          order.status || "N/A",
-        ];
-
-        xPos = 50;
-        rowData.forEach((data, i) => {
-          doc.text(data, xPos, yPos + 5, { width: colWidths[i], align: "center" });
-          xPos += colWidths[i];
+        headers.forEach((h, i) => {
+          doc.text(h, colX[i], y + 6, {
+            width: colW[i],
+            align: "center",
+            lineBreak: false
+          });
         });
 
-        yPos += 20;
+        y += 26;
+      };
+
+      /* ---------------- TABLE CONFIG ---------------- */
+
+    const headers = ["#", "Order ID", "Date", "Customer", "Final", "Discount", "Tax", "Status"];
+
+const colW = [30, 110, 70, 110, 60, 55, 40, 40]; // ✅ fits page
+
+const colX = [];
+let x = 45;
+colW.forEach(w => {
+  colX.push(x);
+  x += w;
+});
+
+
+      doc.fillColor("#000").fontSize(12).font("Helvetica-Bold").text("ORDER DETAILS", 50, y);
+      y += 18;
+
+      drawTableHeader();
+
+      /* ---------------- TABLE ROWS ---------------- */
+
+      orders.forEach((o, i) => {
+        if (y > 750) {
+          doc.addPage();
+          y = 50;
+          drawTableHeader();
+        }
+
+        if (i % 2 === 0) {
+          doc.rect(40, y - 3, 515, 20).fill("#f2f2f2");
+        }
+
+        doc.fillColor("#000").font("Helvetica").fontSize(9);
+
+        const discount = (o.couponDiscount || 0) + (o.itemDiscount || 0);
+
+        const row = [
+          i + 1,
+          (o.orderId || "").slice(-12),
+          new Date(o.createdAt).toLocaleDateString(),
+          o.userId?.name || "N/A",
+          `Rs ${(o.finalAmount || 0).toFixed(0)}`,
+          `Rs ${discount.toFixed(0)}`,
+          `Rs ${(o.tax || 0).toFixed(0)}`,
+          o.status || "N/A"
+        ];
+
+        row.forEach((cell, c) => {
+          doc.text(String(cell), colX[c], y, {
+            width: colW[c],
+            align: "center",
+            lineBreak: false   
+          });
+        });
+
+        y += 20;
       });
 
       doc.end();
-    } catch (error) {
-      reject(error);
+
+    } catch (err) {
+      reject(err);
     }
   });
 };
@@ -284,45 +293,51 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
 
     // Order Details
     worksheet.addRow(["ORDER DETAILS"]);
-    const headerRow = worksheet.addRow([
-      "S.No",
-      "Order ID",
-      "Date",
-      "Customer",
-      "Email",
-      "Amount",
-      "Item Discount",
-      "Coupon Discount",
-      "Total Discount",
-      "Tax",
-      "Shipping",
-      "Final Amount",
-      "Payment Method",
-      "Status",
-    ]);
+const headerRow = worksheet.addRow([
+  "S.No",
+  "Order ID",
+  "Date",
+  "Customer",
+  "Email",
+  "Order Amount",
+  "Item Discount",
+  "Coupon Discount",
+  "Total Discount",
+  "Tax",
+  "Shipping",
+  "Final Amount",
+  "Payment Method",
+  "Status",
+]);
+
 
     headerRow.font = { bold: true };
     headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF8b7355" } };
     headerRow.font.color = { argb: "FFFFFFFF" };
 
     orders.forEach((order, index) => {
-      const discount = order.discount || 0;
+     const couponDiscount = order.couponDiscount || 0;
+  const itemDiscount = order.itemDiscount || 0;
+  const totalDiscount = couponDiscount + itemDiscount;
+
       worksheet.addRow([
-        index + 1,
-        order._id.toString(),
-        new Date(order.createdOn).toLocaleDateString(),
-        order.userId?.name || "N/A",
-        order.userId?.email || "N/A",
-        order.totalPrice || 0,
-        order.itemDiscount || 0,
-        order.discount || 0,
-        discount,
-        order.tax || 0,
-        0,
-        order.finalAmount || 0,
-        order.paymentMethod || "N/A",
-        order.status || "N/A",
-      ]);
+  index + 1,
+  order.orderId?.toString() || "N/A",
+  new Date(order.createdAt).toLocaleDateString(),
+  order.userId?.name || "N/A",
+  order.userId?.email || "N/A",
+
+  order.totalPrice || 0,        
+ itemDiscount,                                    
+  couponDiscount,               
+  totalDiscount,               
+  order.tax||0,                           
+  order.shippingCost || 0,      
+  order.finalAmount || 0,       
+  order.paymentMethod || "N/A",
+  order.status || "N/A",
+]);
+
     });
 
     // Auto-fit columns
@@ -336,7 +351,7 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
     res.send(buffer);
   } catch (error) {
     console.error("Error generating Excel:", error);
-    res.status(500).json({ success: false, message: "Error generating Excel report" });
+     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
   }
 };
 

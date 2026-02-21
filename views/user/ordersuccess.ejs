@@ -684,6 +684,13 @@
                 </a>
             </div>
             
+
+            <%
+  const orderDate = order.createdAt ;
+  const arrivalDate = new Date(orderDate);
+  arrivalDate.setDate(arrivalDate.getDate() + 7);
+%>
+
             <!-- Success Content -->
             <div class="success-content">
                 <!-- Success Icon -->
@@ -696,7 +703,16 @@
                 <!-- Success Text -->
                 <h2 class="success-title">Your order is Completed</h2>
                 <p class="success-subtitle">Order Completed</p>
-                <p class="success-subtitle">Arriving By Mon, Oct 2024</p>
+                <p class="success-subtitle">
+  Arriving By 
+  <%= arrivalDate.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }) %>
+</p>
+
                 <p class="success-message">
                     Thank You for your order. Sit tight we are processing your order<br>
                     we will update you with your order in email
@@ -715,69 +731,53 @@
                     <div>
                         <div class="order-id">Order ID: #<%= order.orderId %></div>
                         <div class="order-date">
-                            Placed on <%= new Date(order.createdOn).toLocaleDateString('en-US', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            }) %>
+                       Placed on 
+<%= new Date(orderDate).toLocaleDateString('en-US', { 
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+}) %>
+
                         </div>
                     </div>
                     <div class="order-status"><%= order.status %></div>
                 </div>
                 
-                <!-- Order Items -->
-                <div class="order-items-section">
-                   <h3 class="section-title">
-  <i class="fas fa-shopping-bag"></i>
-  Order Items (<%= order.orderedProducts.length %> items)
-</h3>
+  <div class="order-items-section">
+  <h3 class="section-title">
+    <i class="fas fa-shopping-bag"></i>
+    Order Items (<%= order.orderedProducts.length %> items)
+  </h3>
 
-                    
-                    <% order.orderedProducts.forEach((item) => { %>
- <div class="order-item">
-  <div class="item-image">
-    <img src="/uploads/images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
-  </div>
-  <div class="item-details">
-    <h4 class="item-name"><%= item.product.productName %></h4>
-    <p class="item-quantity">Quantity: <%= item.quantity %></p>
-    <p class="item-price">₹<%= item.price %></p>
-  </div>
+  <% order.orderedProducts.forEach(item => { %>
+    <div class="order-item">
+      <div class="item-image">
+        <img
+          src="/uploads/images/<%= item.productImageSnapshot %>"
+          alt="<%= item.productNameSnapshot %>">
+      </div>
+
+      <div class="item-details">
+        <h4><%= item.productNameSnapshot %></h4>
+
+        <p>
+          Variant:
+          <strong><%= item.variantName %></strong>
+        </p>
+
+        <p>Quantity: <%= item.quantity %></p>
+
+        <p class="item-price">
+          ₹<%= item.price.toFixed(2) %>
+        </p>
+      </div>
+    </div>
+  <% }) %>
 </div>
-
-
-                    <% }); %>
-                </div>
-                
-                <!-- Order Total -->
-                <div class="order-total">
-                    <div class="total-row">
-  <span>Subtotal:</span>
-  <span>₹<%= order.totalPrice ? order.totalPrice.toFixed(2) : "0.00" %></span>
-</div>
-
-<% if (order.discount > 0) { %>
-<div class="total-row discount">
-  <span>Discount:</span>
-  <span>-₹<%= order.discount.toFixed(2) %></span>
-</div>
-<% } %>
-
-<div class="total-row">
-  <span>Tax:</span>
-  <span>₹<%= order.tax ? order.tax.toFixed(2) : "0.00" %></span>
-</div>
-
-<div class="total-row final">
-  <span>Total Amount:</span>
-  <span>₹<%= order.finalAmount ? order.finalAmount.toFixed(2) : "0.00" %></span>
-</div>
-
-            </div>
-            
+       
             <!-- Delivery Information -->
             <div class="delivery-info-card">
                 <h3 class="section-title">

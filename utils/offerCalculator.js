@@ -1,11 +1,10 @@
 // utils/offerCalculator.js
 
-/**
- * Calculate the best applicable offer for a product
- * Returns the maximum discount between product offer and category offer
- */
+import { applyDiscount } from "../Helpers/discountApply.js";
+
 export const getBestOfferForProduct = (product, category) => {
   const now = new Date();
+
   let bestOffer = {
     type: "none",
     discountPercentage: 0,
@@ -13,46 +12,83 @@ export const getBestOfferForProduct = (product, category) => {
     offerDescription: "",
   };
 
-  // Check Product Offer
-  if (product.productOffer && product.productOffer.offerActive) {
-    const productOfferStart = new Date(product.productOffer.offerStartDate);
-    const productOfferEnd = new Date(product.productOffer.offerEndDate);
+  //  Product Offer
+  const productOffer = product?.productOffer;
 
-    if (now >= productOfferStart && now <= productOfferEnd) {
-      if (product.productOffer.discountPercentage > bestOffer.discountPercentage) {
-        bestOffer = {
-          type: "product",
-          discountPercentage: product.productOffer.discountPercentage,
-          maxDiscountAmount: product.productOffer.maxDiscountAmount,
-          offerDescription: product.productOffer.offerDescription,
-        };
-      }
-    }
+  if (
+    productOffer &&
+    productOffer.offerActive &&
+    (!productOffer.offerStartDate || new Date(productOffer.offerStartDate) <= now) &&
+    (!productOffer.offerEndDate || new Date(productOffer.offerEndDate) >= now)
+  ) {
+    bestOffer = {
+      type: "product",
+      discountPercentage: productOffer.discountPercentage || 0,
+      maxDiscountAmount: productOffer.maxDiscountAmount ?? null,
+      offerDescription: productOffer.offerDescription || "",
+    };
   }
 
-  // Check Category Offer
-  if (category && category.categoryOffer && category.categoryOffer.offerActive) {
-    const categoryOfferStart = new Date(category.categoryOffer.offerStartDate);
-    const categoryOfferEnd = new Date(category.categoryOffer.offerEndDate);
+  //  Category Offer
+  const categoryOffer = category?.categoryOffer;
 
-    if (now >= categoryOfferStart && now <= categoryOfferEnd) {
-      if (category.categoryOffer.discountPercentage > bestOffer.discountPercentage) {
-        bestOffer = {
-          type: "category",
-          discountPercentage: category.categoryOffer.discountPercentage,
-          maxDiscountAmount: category.categoryOffer.maxDiscountAmount,
-          offerDescription: category.categoryOffer.offerDescription,
-        };
-      }
+  if (
+    categoryOffer &&
+    categoryOffer.offerActive &&
+    (!categoryOffer.offerStartDate || new Date(categoryOffer.offerStartDate) <= now) &&
+    (!categoryOffer.offerEndDate || new Date(categoryOffer.offerEndDate) >= now)
+  ) {
+    if (
+      (categoryOffer.discountPercentage || 0) >
+      (bestOffer.discountPercentage || 0)
+    ) {
+      bestOffer = {
+        type: "category",
+        discountPercentage: categoryOffer.discountPercentage || 0,
+        maxDiscountAmount: categoryOffer.maxDiscountAmount ?? null,
+        offerDescription: categoryOffer.offerDescription || "",
+      };
     }
   }
 
   return bestOffer;
 };
 
-/**
- * Calculate discounted price
- */
+
+export const calculateFinalPriceForVariant = (variant, product, category) => {
+  const regularPrice = Number(variant.regularPrice) || 0;
+  const salePrice = Number(variant.salePrice) || 0;
+
+ 
+  const priceBeforeOffer =
+    salePrice > 0 && salePrice < regularPrice
+      ? salePrice
+      : regularPrice;
+
+  const bestOffer = getBestOfferForProduct(product, category);
+
+  const finalPrice =
+    bestOffer.discountPercentage > 0
+      ? applyDiscount(
+          priceBeforeOffer,
+          bestOffer.discountPercentage,
+          bestOffer.maxDiscountAmount
+        )
+      : priceBeforeOffer;
+
+  return {
+    regularPrice,
+    salePrice,
+    priceBeforeOffer,     
+    finalPrice: Math.round(finalPrice),
+    appliedOffer: bestOffer,
+  };
+};
+
+
+
+//Calculate discounted price
+
 export const calculateDiscountedPrice = (price, discountPercentage, maxDiscount = null) => {
   const discountAmount = (price * discountPercentage) / 100;
   const finalDiscount = maxDiscount ? Math.min(discountAmount, maxDiscount) : discountAmount;

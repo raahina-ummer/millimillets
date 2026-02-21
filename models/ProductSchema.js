@@ -20,10 +20,7 @@ const productSchema = new Schema(
       ref: "Category",
       required: true,
     },
-    date: {
-      type: Date,
-      required: true,
-    },
+  
     isBlocked: {
       type: Boolean,
       default: false,
@@ -35,7 +32,7 @@ const productSchema = new Schema(
       required: true,
     },
     gst: {
-      type: String,
+      type: Number,
       required: true,
     },
     productOffer: {

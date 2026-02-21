@@ -1,0 +1,294 @@
+<%- include('../partials/user/header.ejs') %>
+
+<style>
+  .about-container {
+    background: #f8f5f0;
+    min-height: 100vh;
+    padding: 60px 0;
+  }
+
+  .about-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .about-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .about-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 40px;
+  }
+
+  .about-section {
+    margin-bottom: 30px;
+  }
+
+  .about-section h3 {
+    font-size: 20px;
+    color: #8b7355;
+    margin-bottom: 10px;
+  }
+
+  .about-section p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #444;
+  }
+
+  .about-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .value-box {
+    background: #f8f5f0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .value-box h4 {
+    color: #8b7355;
+    margin-bottom: 8px;
+  }
+
+  .value-box p {
+    font-size: 14px;
+    color: #555;
+  }
+  /* Millet Benefits */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.benefit-box {
+  background: #f8f5f0;
+  border-radius: 12px;
+  padding: 25px 20px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.benefit-box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.benefit-box i {
+  font-size: 32px;
+  color: #8b7355;
+  margin-bottom: 12px;
+}
+
+.benefit-box h4 {
+  font-size: 16px;
+  color: #2c2c2c;
+  margin-bottom: 8px;
+}
+
+.benefit-box p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* CTA Section */
+.about-cta {
+  background: linear-gradient(135deg, #8b7355 0%, #6d5940 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 50px 30px;
+  text-align: center;
+  margin-top: 60px;
+}
+
+.about-cta h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.about-cta p {
+  font-size: 15px;
+  max-width: 600px;
+  margin: 0 auto 25px;
+  line-height: 1.7;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #8b7355;
+  padding: 14px 30px;
+  border-radius: 30px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.cta-btn:hover {
+  background: #f8f5f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+</style>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
+
+<div class="about-container">
+  <div class="container">
+    <div class="about-card">
+      <h1 class="about-title">About Us</h1>
+<p class="about-subtitle">
+  Nourishing lives with the power of millets
+</p>
+
+<div class="about-section">
+  <h3>Who We Are</h3>
+  <p>
+    We are a health-focused brand dedicated to bringing the goodness of
+    traditional millets into modern, everyday food choices. Our products
+    are thoughtfully crafted for people who value nutrition, taste, and
+    sustainability in their daily lifestyle.
+  </p>
+</div>
+
+<div class="about-section">
+  <h3>What We Do</h3>
+  <p>
+    Our ecommerce platform offers a curated range of millet-based foods
+    including wholesome <strong>energy bars</strong>, nutritious
+    <strong>millet muesli</strong>, and other healthy alternatives designed
+    to support active and mindful living. We blend age-old food wisdom
+    with modern processing to deliver clean, convenient nutrition.
+  </p>
+</div>
+
+<div class="about-section">
+  <h3>Why Millets?</h3>
+  <p>
+    Millets are naturally rich in fiber, protein, vitamins, and essential
+    minerals. They are easy to digest, gluten-free, and known to provide
+    sustained energy throughout the day. By choosing millets, you are not
+    just making a healthy choice for yourself, but also supporting
+    environmentally sustainable farming.
+  </p>
+
+  <div class="about-section">
+  <h3>Benefits of Millet-Based Foods</h3>
+
+  <div class="benefits-grid">
+    <div class="benefit-box">
+      <i class="fas fa-bolt"></i>
+      <h4>Sustained Energy</h4>
+      <p>Millets provide slow-release energy, keeping you active and focused throughout the day.</p>
+    </div>
+
+    <div class="benefit-box">
+      <i class="fas fa-leaf"></i>
+      <h4>Rich in Fiber</h4>
+      <p>Supports digestion, gut health, and helps maintain a balanced diet.</p>
+    </div>
+
+    <div class="benefit-box">
+      <i class="fas fa-heartbeat"></i>
+      <h4>Heart Friendly</h4>
+      <p>Low glycemic index foods that support heart health and blood sugar balance.</p>
+    </div>
+
+    <div class="benefit-box">
+      <i class="fas fa-seedling"></i>
+      <h4>Gluten-Free & Natural</h4>
+      <p>Naturally gluten-free and suitable for clean, mindful eating.</p>
+    </div>
+
+    <div class="benefit-box">
+      <i class="fas fa-dumbbell"></i>
+      <h4>Perfect for Active Lifestyles</h4>
+      <p>Ideal for fitness lovers, busy professionals, and growing kids.</p>
+    </div>
+
+   
+  </div>
+</div>
+
+</div>
+
+<div class="about-section">
+  <h3>Our Promise</h3>
+  <div class="about-values">
+    <div class="value-box">
+      <h4>Natural Ingredients</h4>
+      <p>
+        We use carefully sourced millets and natural ingredients with no
+        unnecessary additives.
+      </p>
+    </div>
+
+    <div class="value-box">
+      <h4>Energy & Nutrition</h4>
+      <p>
+        Our millet energy bars and muesli are designed to fuel your day
+        with long-lasting energy.
+      </p>
+    </div>
+
+    <div class="value-box">
+      <h4>Healthy Lifestyle</h4>
+      <p>
+        Perfect for fitness enthusiasts, working professionals, and
+        anyone aiming for balanced nutrition.
+      </p>
+    </div>
+
+    <div class="value-box">
+      <h4>Sustainable Choice</h4>
+      <p>
+        Millets require less water and support eco-friendly agriculture.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="about-section">
+  <h3>Our Vision</h3>
+  <p>
+    We envision a future where nutritious millet-based foods become a
+    natural part of everyday diets, helping people live healthier lives
+    while caring for the planet.
+  </p>
+</div>
+<div class="about-cta">
+  <h2>Ready to Fuel Your Day the Healthy Way?</h2>
+  <p>
+    Explore our range of millet energy bars, millet muesli, and nutritious foods
+    crafted for modern lifestyles.
+  </p>
+  <a href="/shop" class="cta-btn">
+    <i class="fas fa-shopping-bag"></i> Shop Millet Products
+  </a>
+</div>
+
+
+
+<%- include('../partials/user/footer') %>

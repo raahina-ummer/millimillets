@@ -594,69 +594,103 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-      function togglePasswordVisibility(inputId) {
-        const passwordInput = document.getElementById(inputId);
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-        } else {
-          passwordInput.type = 'password';
-        }
+<% if (typeof message !== 'undefined' && message) { %>
+  <script>
+    var serverMessage = '<%= message %>';
+  </script>
+<% } else { %>
+  <script>
+    var serverMessage = null;
+  </script>
+<% } %>
+
+<script>
+  function togglePasswordVisibility(inputId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = passwordInput.nextElementSibling;
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.textContent = '👁️‍🗨️';
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.textContent = '👁️';
+    }
+  }
+
+  function displayError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = message;
+    errorElement.classList.toggle('show', message.length > 0);
+  }
+
+  function validateEmail() {
+    const email = document.getElementById("email").value.trim();
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+    if (email === "") {
+      displayError("emailError", "Email is required");
+      return false;
+    } else if (!emailPattern.test(email)) {
+      displayError("emailError", "Please enter a valid email address");
+      return false;
+    } else {
+      displayError("emailError", "");
+      return true;
+    }
+  }
+
+  function validatePassword() {
+    const password = document.getElementById("password").value;
+
+    if (password.length === 0) {
+      displayError("passwordError", "Password is required");
+      return false;
+    } else if (password.length < 8) {
+      displayError("passwordError", "Password must be at least 8 characters long");
+      return false;
+    } else {
+      displayError("passwordError", "");
+      return true;
+    }
+  }
+
+  function validateLoginForm() {
+    const isValidEmail = validateEmail();
+    const isValidPassword = validatePassword();
+
+    if (isValidEmail && isValidPassword) {
+      return true;
+    } else {
+      const firstError = document.querySelector('.error-message.show');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-
-      function displayError(elementId, message) {
-        const errorElement = document.getElementById(elementId);
-        errorElement.textContent = message;
-        errorElement.classList.toggle('show', message.length > 0);
-      }
-
-      function validateEmail() {
-        const email = document.getElementById("email").value.trim();
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-
-        if (email === "") {
-          displayError("emailError", "Email is required");
-          return false;
-        } else if (!emailPattern.test(email)) {
-          displayError("emailError", "Please enter a valid email address");
-          return false;
-        } else {
-          displayError("emailError", "");
-          return true;
-        }
-      }
-
-      function validatePassword() {
-        const password = document.getElementById("password").value;
-
-        if (password.length === 0) {
-          displayError("passwordError", "Password is required");
-          return false;
-        } else if (password.length < 8) {
-          displayError("passwordError", "Password must be at least 8 characters long");
-          return false;
-        } else {
-          displayError("passwordError", "");
-          return true;
-        }
-      }
-
-      function validateLoginForm() {
-        const isValidEmail = validateEmail();
-        const isValidPassword = validatePassword();
-
-        if (isValidEmail && isValidPassword) {
-          return true;
-        } else {
-          const firstError = document.querySelector('.error-message.show');
-          if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          alert("Please fix the errors in the form before submitting.");
-          return false;
-        }
-      }
-    </script>
-  </body>
-</html>
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please fix the errors in the form before submitting.',
+        confirmButtonColor: '#8b7355',
+        confirmButtonText: 'OK'
+      });
+      
+      return false;
+    }
+  }
+ 
+  // Show server-side error messages with SweetAlert
+  window.addEventListener('DOMContentLoaded', function() {
+    if (serverMessage) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: serverMessage,
+        confirmButtonColor: '#8b7355',
+        confirmButtonText: 'Try Again'
+      });
+    }
+  });
+</script>

@@ -11,6 +11,7 @@ import * as stockController from "../controllers/admin/stockController.js";
 import * as offerManagement from "../controllers/admin/offerManagement.js";
 import * as couponController from  "../controllers/admin/couponController.js";
 import * as salesreport from "../controllers/admin/salesreport.js";
+import * as dashboard from  "../controllers/admin/dashboard.js"
 import multer from "multer";
 import storage from "../Helpers/multer.js";
 import passport from "../config/passport.js";
@@ -27,22 +28,23 @@ router.get("/pageerror", adminController.pageerror);
 // Admin management
 router.get("/login", adminController.loadLogin);
 router.post("/login", adminController.login);
-router.get("/dashboard", adminAuth, adminController.loadDashboard);
 router.get("/logout", adminController.logout);
 
 // Customer management
 router.get("/users", adminAuth, customerController.customerInfo);
-router.get("/blockCustomer", adminAuth, customerController.customerBlocked);
-router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked);
+router.patch("/blockCustomer", adminAuth, customerController.customerBlocked);
+router.patch("/unblockCustomer", adminAuth, customerController.customerunBlocked);
 
 // Category management
 router.get("/category", adminAuth, categoryController.categoryInfo);
 router.get("/addCategory", adminAuth, categoryController.loadAddCategory);
 router.post("/addCategory", adminAuth, categoryController.addCategory);
-router.get("/editCategory", adminAuth, categoryController.getEditCategory);
+router.get("/editCategory/:id", adminAuth, categoryController.getEditCategory);
 router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
 router.get("/listCategory", adminAuth, categoryController.getListCategory);
 router.get("/unlistCategory", adminAuth, categoryController.getUnlistCategory);
+
+
 
 // Product management
 router.get("/addProduct", adminAuth, productController.getProductAddPage);
@@ -59,11 +61,13 @@ router.post("/deleteImage", adminAuth, productController.deleteSingleImage);
 router.get("/adminorder", adminAuth, orderController.loadOrders);
 router.get("/adminorder/:orderId", adminAuth, orderController.loadOrderDetails);
 router.patch("/adminorderStatus/:orderId", adminAuth, orderController.updateOrderStatus);
-router.patch("/adminorderReturn/:orderId", adminAuth, orderController.approveOrRejectReturnRequest);
+router.patch("/adminorder/:orderId/return/:productId/:variantId", adminAuth, orderController.approveOrRejectReturnRequest);
+router.patch("/adminorderdetails/update-item-status", adminAuth,orderController.updateSingleItemStatus);
+
 
 //stock management
 router.get("/stock",adminAuth,stockController.getStockManagement);
-router.get("/update-stock",adminAuth,stockController.updateVariantStock);
+router.post("/update-stock",adminAuth,stockController.updateVariantStock);
 
 
 
@@ -94,25 +98,23 @@ router.delete("/product-offer/remove", adminAuth,  offerManagement.removeProduct
 router.get("/category-offers", adminAuth, offerManagement.getCategoryOffers);
 router.get("/category-offer/:categoryId", adminAuth, offerManagement.getSingleCategoryOffer);
 router.post("/category-offer/add", adminAuth, offerManagement.addCategoryOffer);
-router.put("/category-offer/update", adminAuth, offerManagement.updateCategoryOffer);
+
 router.put("/category-offer/toggle", adminAuth, offerManagement.toggleCategoryOffer);
 router.delete("/category-offer/remove", adminAuth, offerManagement.removeCategoryOffer);
-
-// Referral Offer Routes
-router.get("/referral-offers", adminAuth, offerManagement.getReferralOffers);
-router.post("/referral-offer/create", adminAuth, offerManagement.createReferralOffer);
-router.post("/referral-coupon/generate", adminAuth,offerManagement. generateReferralCoupon);
-router.put("/referral-offer/toggle", adminAuth, offerManagement.toggleReferralOffer); 
-router.delete("/referral-offer/remove", adminAuth, offerManagement.removeReferralOffer);
-router.post("/referral-code/validate", offerManagement.validateReferralCode); // Public - for signup
-router.get("/referral-token/validate/:token", offerManagement.validateReferralToken); // Public - for signup link
-
-
+router.put("/category-offer/:categoryId", adminAuth, offerManagement.updateCategoryOffer);
 
 //sales report
-
 router.get('/sales-report',adminAuth,salesreport.loadSalesReport);
 router.get('/sales-report/download',adminAuth,salesreport.downloadSalesReport);
+
+router.get("/dashboard", adminAuth, dashboard.loadDashboard);
+router.get("/best-products",adminAuth,dashboard.bestSellingProducts);
+router.get("/best-categories", adminAuth,dashboard.bestSellingCategories);
+router.get("/dashboard/sales-chart", adminAuth,dashboard.getSalesChartData);
+router.get("/dashboard/search", adminAuth,dashboard.searchDashboard);
+
+
+
 
 
 
