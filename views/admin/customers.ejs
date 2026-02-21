@@ -1,89 +1,728 @@
-<%-include('../partials/admin/header.ejs') %>
-<section class="content-main">
-    <div class="content-header">
-        <h2 class="content-title">Customer List</h2>
+<%- include('../partials/admin/header.ejs') %>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #d4c4a8;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        padding: 20px;
+        margin-left: 130px;
+    }
+
+    /* Page Header */
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 8px;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+
+    .breadcrumb-item {
+        color: #6c757d;
+    }
+
+    .breadcrumb-item.active {
+        color: #a89575;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+        margin: 0 5px;
+    }
+
+    .breadcrumb-item a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Customers Panel */
+    .customers-panel {
+        background-color: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 20px 25px;
+        border-bottom: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+    }
+
+    .panel-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin: 0;
+    }
+
+    .search-box {
+        position: relative;
+        width: 280px;
+        flex-shrink: 0;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 14px 10px 38px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 13px;
+        transition: all 0.3s;
+        font-family: inherit;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: #8b7355;
+        box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 14px;
+    }
+
+    /* Table */
+    .customers-table {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .customers-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .customers-table thead {
+        background-color: #f8f9fa;
+    }
+
+    .customers-table th {
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .customers-table td {
+        padding: 14px 16px;
+        font-size: 13px;
+        color: #2d2d2d;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .customers-table tbody tr {
+        transition: all 0.2s;
+    }
+
+    .customers-table tbody tr:hover {
+        background-color: #fafafa;
+    }
+
+    .customers-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .customer-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background-color: #8b7355;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        color: #2d2d2d;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .status-active {
+        background-color: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+    }
+
+    .status-blocked {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+
+    .update-btn {
+        padding: 8px 16px;
+        background-color: #8b7355;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .update-btn:hover {
+        background-color: #6d5a47;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(139, 115, 85, 0.3);
+        color: white;
+    }
+
+    /* No Data State */
+    .no-data {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .no-data-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+
+    .no-data h3 {
+        font-size: 18px;
+        color: #2d2d2d;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .no-data p {
+        color: #999;
+        font-size: 13px;
+    }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 25px;
+        border-top: 1px solid #f0f0f0;
+        background-color: #fafafa;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .pagination-info {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 6px;
+        margin: 0;
+        list-style: none;
+    }
+
+    .page-link {
+        background: rgba(139, 115, 85, 0.2);
+        border: 1px solid rgba(139, 115, 85, 0.3);
+        color: #333;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .page-link:hover {
+        background-color: #8b7355;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .page-item.active .page-link {
+        background-color: #8b7355;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .page-item.disabled .page-link {
+        background-color: #eee;
+        color: #aaa;
+        pointer-events: none;
+    }
+
+    /* Stats Cards */
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #8b7355;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: #8b7355;
+    }
+
+    .stat-description {
+        font-size: 12px;
+        color: #999;
+        margin-top: 8px;
+    }
+    .stats-overview {
+    display: grid !important;
+}
+
+.stat-card {
+    background-color: #fff !important;
+    display: block !important;
+}
+
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 20px;
+        }
+
+        .panel-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .customers-table {
+            overflow-x: auto;
+        }
+
+        .customers-table table {
+            min-width: 800px;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stats-overview {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Customers</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="/admin/dashboard">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Customers</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Stats Overview -->
+       
+       <div class="stats-overview">
+    <div class="stat-card">
+        <div class="stat-label">Total Customers</div>
+        <div class="stat-value"><%= totalCustomers %></div>
+        <div class="stat-description">All registered users</div>
     </div>
-    <div class="card mb-4">
-        <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control">
+
+    <div class="stat-card">
+        <div class="stat-label">Active Users</div>
+        <div class="stat-value"><%= activeCustomers %></div>
+        <div class="stat-description">Currently active</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Blocked Users</div>
+        <div class="stat-value"><%= blockedCustomers %></div>
+        <div class="stat-description">Restricted access</div>
+    </div>
+</div>
+
+
+        <!-- Customers Panel -->
+        <div class="customers-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Customers List</h2>
+                <div class="search-box">
+                   <input type="text" id="searchInput" placeholder="Search by name or email…" />
+
+                    <i class="fas fa-search"></i>
                 </div>
             </div>
-        </header> <!-- card-header end// -->
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+
+            <div class="customers-table">
+                <table>
                     <thead>
                         <tr>
-                            <th>Customer</th>
+                            <th>Customer Name</th>
                             <th>Email</th>
+                            <!-- <th>Join Date</th>
+                            <th>Purchases</th> -->
                             <th>Status</th>
-                            <th>Phone Number</th>
-                            <th class="text-end"> Action </th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% for(let i = 0; i < data.length; i++) { %>
-                        <tr>
-                            <td width="40%">
-                                <a href="#" class="itemside">
-                                   
-                                    <div class="info pl-3">
-                                        <h6 class="mb-0 title"><%= data[i].name %></h6>
+                        <% if (data && data.length > 0) { %>
+                            <% data.forEach((customer, index) => { %>
+                                <tr>
+                                    <td>
+                                        <div class="customer-info">
+                                            <div class="customer-avatar">
+                                                <%= customer.name ? customer.name.charAt(0).toUpperCase() : 'U' %>
+                                            </div>
+                                            <span class="customer-name"><%= customer.name || 'Unknown' %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 12px; color: #999;">
+                                            <%= customer.email || '-' %>
+                                        </span>
+                                    </td>
+                                    <!-- <td>
+                                        <%= customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : '-' %>
+                                    </td> -->
+                                    <!-- <td> -->
+                                        <!-- <span style="font-weight: 600; color: #8b7355;">
+                                            <%= customer.purchaseCount || 0 %>
+                                        </span> -->
+                                    <!-- </td> -->
+                                    
+                                    <td>
+                                        <% if (customer.isBlocked) { %>
+                                            <span class="status-badge status-blocked">
+                                                <i class="fas fa-ban"></i> Blocked
+                                            </span>
+                                        <% } else { %>
+                                            <span class="status-badge status-active">
+                                                <i class="fas fa-check-circle"></i> Active
+                                            </span>
+                                        <% } %>
+                                    </td>
+
+                                  <td>
+    <% if (!customer.isBlocked) { %>
+        <button class="update-btn block-customer-btn" data-customer-id="<%= customer._id %>">
+            Block
+        </button>
+    <% } else { %>
+        <button class="update-btn unblock-customer-btn" data-customer-id="<%= customer._id %>">
+            Activate
+        </button>
+    <% } %>
+</td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6">
+                                    <div class="no-data">
+                                        <div class="no-data-icon">👥</div>
+                                        <h3>No Customers Found</h3>
+                                        <p>No customer data available at the moment</p>
                                     </div>
-                                </a>
-                            </td>
-                            <td><%= data[i].email %></td>
-                            <td>
-                                <% if (data[i].isBlocked) { %>
-                                    <span class="badge rounded-pill alert-danger">Blocked</span>
-                                <% } else { %>
-                                    <span class="badge rounded-pill alert-success">Active</span>
-                                <% } %>
-                            </td>
-                            <td><%= data[i].phone%></td>
-                            <td class="text-end">
-                                <% if (!data[i].isBlocked) { %>
-                                    <a href="/admin/blockCustomer?id=<%= data[i]._id %>" class="btn btn-sm btn-brand rounded font-sm mt-15">Block</a>
-                                <% } else { %>
-                                    <a href="/admin/unBlockCustomer?id=<%= data[i]._id %>" class="btn btn-sm btn-brand rounded font-sm mt-15">Activate</a>
-                                <% } %>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         <% } %>
                     </tbody>
-                </table> <!-- table-responsive.// -->
+                </table>
             </div>
-        </div> <!-- card-body end// -->
-    </div> <!-- card end// -->
-    <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <!-- Previous Arrow -->
-                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1" aria-disabled="true">
-                        &laquo;
-                    </a>
-                </li>
-    
-                <!-- Page Numbers -->
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>">
-                            <%= i %>
-                        </a>
-                    </li>
-                <% } %>
-    
-                <!-- Next Arrow -->
-                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>">
-                        &raquo;
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</section> <!-- content-main end// -->
-<%-include('../partials/admin/footer.ejs') %>
+<!--pagination-->
+
+<% if (totalPages > 1) { %>
+  <%
+    const startIndex = (currentPage - 1) * 10 + 1;
+    const endIndex = startIndex + data.length - 1;
+  %>
+
+  <div class="pagination-container">
+    <div class="pagination-info">
+     Showing
+<strong><%= ((currentPage - 1) * 10) + 1 %></strong> -
+<strong><%= Math.min(currentPage * 10, filteredCustomers) %></strong>
+of <strong><%= filteredCustomers %></strong>
+</div>
+
+    <nav>
+    <ul class="pagination">
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+      <a class="page-link"
+         href="/admin/users?page=<%= i %>&search=<%= search || '' %>">
+        <%= i < 10 ? '0' + i : i %>
+      </a>
+    </li>
+  <% } %>
+</ul>
+
+    </nav>
+  </div>
+<% } %>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+    <script>
+/* =========================
+   GLOBAL STATE
+========================= */
+let currentPage = 1;
+let debounceTimer = null;
+
+/* =========================
+   EVENT DELEGATION (BLOCK / UNBLOCK)
+========================= */
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  if (btn.classList.contains("block-customer-btn")) {
+    await toggleUser(btn.dataset.customerId, true);
+  }
+
+  if (btn.classList.contains("unblock-customer-btn")) {
+    await toggleUser(btn.dataset.customerId, false);
+  }
+});
+
+/* =========================
+   TOGGLE USER (BLOCK / UNBLOCK)
+========================= */
+async function toggleUser(userId, block) {
+  const action = block ? "Block" : "Activate";
+
+  const result = await Swal.fire({
+    title: `${action} Customer?`,
+    text: block
+      ? "This customer will be blocked from accessing their account."
+      : "This customer will regain access to their account.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: `Yes, ${action}`,
+    cancelButtonText: "Cancel"
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await fetch(
+      block
+        ? `/admin/blockCustomer?id=${userId}`
+        : `/admin/unblockCustomer?id=${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json"
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Action failed");
+    }
+
+    Swal.fire("Success", `Customer ${action}d successfully`, "success");
+
+    // reload same page + same search
+     window.location.reload();
+
+  } catch (err) {
+    Swal.fire("Error", err.message || "Something went wrong", "error");
+  }
+}
+
+/* =========================
+   SEARCH WITH DEBOUNCE
+========================= */
+let searchTimer;
+
+document.getElementById("searchInput").addEventListener("input", function () {
+  clearTimeout(searchTimer);
+
+  const value = this.value.trim();
+
+  searchTimer = setTimeout(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    params.set("search", value);
+    params.set("page", 1); // reset to first page on search
+
+    window.location.href = `/admin/users?${params.toString()}`;
+  }, 400);
+});
+
+
+/* =========================
+   LOAD CUSTOMERS (FETCH)
+========================= */
+function loadCustomers(page = 1) {
+  currentPage = page;
+
+  const search = document.getElementById("searchInput").value.trim();
+
+  fetch(`/admin/users?page=${page}&search=${encodeURIComponent(search)}`, {
+    headers: { Accept: "application/json" }
+  })
+    .then(res => res.json())
+    .then(data => {
+      renderTable(data.users || []);
+      renderPagination(data.totalPages || 1, page);
+    })
+    .catch(() => {
+      Swal.fire("Error", "Failed to load customers", "error");
+    });
+}
+
+/* =========================
+   RENDER TABLE
+========================= */
+function renderTable(users) {
+  const tbody = document.querySelector(".customers-table tbody");
+  tbody.innerHTML = "";
+
+  if (!users.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="no-data">
+          <h3>No Customers Found</h3>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  users.forEach(user => {
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${user.name || "Unknown"}</td>
+        <td>${user.email || "-"}</td>
+        <td>
+          ${
+            user.isBlocked
+              ? '<span class="status-badge status-blocked">Blocked</span>'
+              : '<span class="status-badge status-active">Active</span>'
+          }
+        </td>
+        <td>
+          ${
+            user.isBlocked
+              ? `<button class="unblock-customer-btn" data-customer-id="${user._id}">Activate</button>`
+              : `<button class="block-customer-btn" data-customer-id="${user._id}">Block</button>`
+          }
+        </td>
+      </tr>
+    `);
+  });
+}
+
+/* =========================
+   RENDER PAGINATION
+========================= */
+function renderPagination(totalPages, page) {
+  const pagination = document.querySelector(".pagination");
+  pagination.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  for (let i = 1; i <= totalPages; i++) {
+    pagination.insertAdjacentHTML("beforeend", `
+      <li class="page-item ${i === page ? "active" : ""}">
+        <a href="#" onclick="event.preventDefault(); loadCustomers(${i})">
+          ${i < 10 ? "0" + i : i}
+        </a>
+      </li>
+    `);
+  }
+}
+</script>
+
+
+    <%- include('../partials/admin/footer.ejs') %>
+</body>

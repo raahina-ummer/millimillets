@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Change Email - Update Your Email</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #E8DCC4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .container {
+        background-color: #ffffff;
+        padding: 40px 35px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        width: 100%;
+        max-width: 450px;
+    }
+    .header-section {
+        margin-bottom: 30px;
+    }
+    .icon-container {
+        margin-bottom: 15px;
+    }
+    .icon-container svg {
+        width: 50px;
+        height: 50px;
+        stroke: #8B7355;
+    }
+    h2 {
+        color: #2d2d2d;
+        font-size: 1.65rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    .subtitle {
+        color: #6b6b6b;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    .current-email {
+        background-color: #f9f6f1;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #8B7355;
+    }
+    .current-email .label {
+        font-size: 0.8rem;
+        color: #6b6b6b;
+        margin-bottom: 4px;
+    }
+    .current-email .email {
+        font-size: 0.95rem;
+        color: #2d2d2d;
+        font-weight: 600;
+    }
+    .input-group {
+        margin-bottom: 25px;
+        text-align: left;
+    }
+    .input-group label {
+        display: block;
+        color: #3d3d3d;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .input-wrapper {
+        position: relative;
+    }
+    .input-wrapper svg {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        stroke: #8B7355;
+    }
+    input[type="email"] {
+        width: 100%;
+        padding: 13px 14px 13px 44px;
+        border: 1.5px solid #d4c5b0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        color: #2d2d2d;
+        background-color: #fafafa;
+    }
+    input[type="email"]:focus {
+        outline: none;
+        border-color: #8B7355;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+    }
+    input[type="email"]::placeholder {
+        color: #b8b8b8;
+    }
+    .update-btn {
+        background-color: #8B7355;
+        color: #ffffff;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(139, 115, 85, 0.2);
+    }
+    .update-btn:hover {
+        background-color: #755e45;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+    }
+    .update-btn:active {
+        transform: translateY(0);
+    }
+    .update-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .back-link {
+        margin-top: 25px;
+        font-size: 0.9rem;
+        color: #6b6b6b;
+    }
+    .back-link a {
+        color: #8B7355;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    .back-link a:hover {
+        color: #755e45;
+        text-decoration: underline;
+    }
+    .info-box {
+        background-color: #F9F6F1;
+        border-left: 4px solid #8B7355;
+        padding: 14px 16px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+        text-align: left;
+    }
+    .info-box p {
+        color: #4a4a4a;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    @media (max-width: 480px) {
+        body {
+            padding: 15px;
+        }
+        .container {
+            padding: 30px 25px;
+            max-width: 100%;
+        }
+        h2 {
+            font-size: 1.45rem;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+        }
+        .icon-container svg {
+            width: 45px;
+            height: 45px;
+        }
+    }
+    @media (max-width: 360px) {
+        .container {
+            padding: 25px 20px;
+        }
+        h2 {
+            font-size: 1.3rem;
+        }
+    }
+  </style>
+  
+</head>
+<body>
+  <div class="container">
+    <div class="header-section">
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+        </svg>
+      </div>
+      <h2>Change Email</h2>
+      <p class="subtitle">Update your email address to keep your account secure</p>
+    </div>
+
+    <div class="current-email">
+      <div class="label">Current Email</div>
+      <div class="email"><%= user.email %></div>
+    </div>
+
+    <div class="info-box">
+      <p>📧 Your new email address will be updated after verification. A verification code will be sent to your new email.</p>
+    </div>
+
+    <form id="emailForm" onsubmit="event.preventDefault(); sendEmail();">
+      <div class="input-group">
+        <label for="email">New Email Address</label>
+        <div class="input-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+          <input type="email" id="email" placeholder="Enter your new email address" required />
+        </div>
+      </div>
+
+      <button type="submit" class="update-btn" id="updateBtn">Update Email</button>
+    </form>
+
+    <div class="back-link">
+      <a href="/userProfile">← Back to Profile</a>
+    </div>
+  </div>
+
+  <script>
+    async function sendEmail() {
+      const emailInput = document.getElementById('email');
+      const email = emailInput.value.trim();
+      const updateBtn = document.getElementById('updateBtn');
+      const currentEmail = '<%= user.email %>';
+
+      if (!email) {
+        return Swal.fire({
+          title: 'Error!',
+          text: 'Please enter your email.',
+          icon: 'error',
+          confirmButtonColor: '#8B7355'
+        });
+      }
+
+      // Check if new email is same as current
+      if (email.toLowerCase() === currentEmail.toLowerCase()) {
+        return Swal.fire({
+          title: 'Same Email!',
+          text: 'The new email is the same as your current email.',
+          icon: 'info',
+          confirmButtonColor: '#8B7355'
+        });
+      }
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        return Swal.fire({
+          title: 'Invalid Email!',
+          text: 'Please enter a valid email address.',
+          icon: 'warning',
+          confirmButtonColor: '#8B7355'
+        });
+      }
+
+      // UI feedback
+      updateBtn.disabled = true;
+      const originalText = updateBtn.textContent;
+      updateBtn.textContent = 'Updating...';
+
+      try {
+        const response = await fetch('/changeEmail', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+        console.log(result)
+
+        if (!response.ok) {
+          throw new Error(result.message || 'Failed to update email.');
+        }
+
+        Swal.fire({
+          title: 'Success!',
+          text: result.message || 'Email updated successfully! Redirecting to profile...',
+          icon: 'success',
+          confirmButtonColor: '#8B7355',
+          timer: 2000,
+          timerProgressBar: true,
+          willClose: () => {
+            window.location.href = '/verifyEmailOtp';
+          }
+        });
+
+      } catch (err) {
+        console.log(err)
+        Swal.fire({
+          title: 'Error!',
+          text: err.message || 'Something went wrong. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#8B7355'
+        });
+        updateBtn.disabled = false;
+        updateBtn.textContent = originalText;
+      }
+    }
+
+    // Allow form submission on Enter key
+    document.getElementById('email').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendEmail();
+      }
+    });
+  </script>
+</body>
+</html>

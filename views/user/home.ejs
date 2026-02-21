@@ -1,534 +1,705 @@
-<%-include("../../views/partials/user/header.ejs")%>
+<!DOCTYPE html>
+<html lang="en">
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MilliMillet - Premium Ancient Grains</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-dark: #6D5A43;
+            --primary-light: #A0826D;
+            --accent: #C4A57B;
+            --text-dark: #2d2d2d;
+            --text-muted: #666;
+            --bg-light: #F9F5F0;
+            --success: #2D5016;
+            --danger: #dc3545;
+        }
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f5f5f5;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Hero Section */
-    .hero {
-        background-image: url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1200');
-        background-size: cover;
-        background-position: center;
-        height: 500px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        margin-bottom: 60px;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #fff;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
 
-    .hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-    }
+        /* Hero Section - Premium & Clean */
+        .hero {
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            background: linear-gradient(135deg, rgba(109, 90, 67, 0.95), rgba(139, 115, 85, 0.9)),
+                url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+        }
 
-    .hero-content {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        color: white;
-        max-width: 800px;
-        padding: 0 20px;
-    }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
 
-    .hero-content h2 {
-        font-size: 42px;
-        font-weight: 600;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        line-height: 1.3;
-    }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5%;
+            color: white;
+        }
 
-    /* Section Title */
-    .section-title {
-        text-align: center;
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 40px;
-        color: #333;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
 
-    /* Best Selling Items */
-    .best-selling {
-        max-width: 1200px;
-        margin: 0 auto 80px;
-        padding: 0 20px;
-    }
+        .hero-content p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            font-weight: 400;
+        }
 
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 30px;
-    }
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            color: var(--primary-dark);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
 
-    .product-card {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            color: var(--primary);
+        }
 
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
+        /* Section Styling */
+        .section {
+            padding: 5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-    .product-image {
-        width: 100%;
-        height: 280px;
-        background: linear-gradient(135deg, #D4AF37 0%, #C4A747 100%);
-        position: relative;
-    }
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
 
-    .product-info {
-        padding: 20px;
-        text-align: center;
-        background-color: #F5E6D3;
-    }
-
-    .product-info h3 {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #5D4E37;
-    }
-
-    .btn-shop {
-        background-color: #8B7355;
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .btn-shop:hover {
-        background-color: #6D5A43;
-    }
-
-    /* Shop By Categories */
-    .categories {
-        max-width: 1200px;
-        margin: 0 auto 80px;
-        padding: 0 20px;
-    }
-
-    .category-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 30px;
-    }
-
-    .category-card {
-        position: relative;
-        height: 400px;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .category-image {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #A0826D 0%, #8B7355 50%, #6D5A43 100%);
-    }
-
-    .category-info {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    /* Summer Offer */
-    .summer-offer {
-        background-color: #F9F5F0;
-        padding: 60px 20px;
-        margin-bottom: 80px;
-    }
-
-    .offer-grid {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 30px;
-    }
-
-    .offer-card {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s;
-    }
-
-    .offer-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .offer-image {
-        width: 100%;
-        height: 280px;
-        background: linear-gradient(135deg, #FFE4B5 0%, #DEB887 100%);
-    }
-
-    .offer-card h3 {
-        padding: 15px 20px 10px;
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .price {
-        padding: 0 20px 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .current-price {
-        font-size: 24px;
-        font-weight: 700;
-        color: #2D5016;
-    }
-
-    .old-price {
-        font-size: 18px;
-        text-decoration: line-through;
-        color: #999;
-    }
-
-    .discount {
-        background-color: #FFE8E8;
-        color: #FF3333;
-        padding: 4px 10px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    /* Testimonials */
-    .testimonials {
-        background-color: #F5EFE7;
-        padding: 60px 20px;
-        margin-bottom: 80px;
-    }
-
-    .testimonials-container {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .testimonials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-    }
-
-    .testimonial-card {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .testimonial-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    .testimonial-name {
-        font-weight: 700;
-        font-size: 18px;
-        color: #333;
-    }
-
-    .verified {
-        background-color: #4CAF50;
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-    }
-
-    .stars {
-        margin-bottom: 15px;
-        color: #FFD700;
-        font-size: 18px;
-    }
-
-    .testimonial-text {
-        color: #666;
-        line-height: 1.6;
-        font-size: 15px;
-    }
-
-    /* Newsletter */
-    .newsletter {
-        background-color: #8B7355;
-        padding: 60px 20px;
-        margin-bottom: 0;
-    }
-
-    .newsletter-container {
-        max-width: 600px;
-        margin: 0 auto;
-        text-align: center;
-    }
-
-    .newsletter-container h3 {
-        color: white;
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 30px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .newsletter-form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .newsletter-input {
-        padding: 15px 20px;
-        border: none;
-        border-radius: 25px;
-        font-size: 16px;
-        outline: none;
-    }
-
-    .btn-subscribe {
-        background-color: white;
-        color: #8B7355;
-        border: none;
-        padding: 15px 30px;
-        border-radius: 25px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .btn-subscribe:hover {
-        background-color: #D4AF37;
-        color: white;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .hero-content h2 {
-            font-size: 28px;
+        .section-tag {
+            display: inline-block;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
 
         .section-title {
-            font-size: 24px;
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
 
-        .products-grid,
-        .category-grid,
-        .offer-grid,
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Product Cards - Modern & Premium */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            border-color: transparent;
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            background: var(--bg-light);
+            overflow: hidden;
+        }
+
+        .product-image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover .product-image-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            min-height: 3rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .product-price-old {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .product-discount {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .btn-shop {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-shop:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Offer Section - Premium Design */
+        .offer-section {
+            background: linear-gradient(135deg, #F9F5F0 0%, #F5E6D3 100%);
+            padding: 5rem 5%;
+        }
+
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .offer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        .offer-image {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            background: var(--bg-light);
+            overflow: hidden;
+        }
+
+        .offer-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .offer-card:hover .offer-image img {
+            transform: scale(1.08);
+        }
+
+        .offer-content {
+            padding: 1.5rem;
+        }
+
+        .offer-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            min-height: 2.5rem;
+        }
+
+        .offer-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Testimonials - Clean & Professional */
+        .testimonials-section {
+            background: white;
+            padding: 5rem 5%;
+        }
+
         .testimonials-grid {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .newsletter-container h3 {
-            font-size: 20px;
+        .testimonial-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
         }
-    }
-</style>
 
-<!-- Hero Section -->
-<section class="hero">
-    <div class="hero-content">
-        <h2>Millets – Nature's ancient superfood, for today's healthy living</h2>
-    </div>
-</section>
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
 
-<!-- Best Selling Items -->
-<section class="best-selling">
-    <h2 class="section-title">BEST SELLING ITEMS*</h2>
-    <div class="products-grid">
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
-            </div>
-            <div class="product-info">
-                <h3>Finger Millet (Ragi)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
-            </div>
-            <div class="product-info">
-                <h3>Pearl Millet (Bajra)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
-            </div>
-            <div class="product-info">
-                <h3>Sorghum Millet (Jowar)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-image">
-                <!-- Product image placeholder -->
-            </div>
-            <div class="product-info">
-                <h3>Foxtail Millet (Korra/korra)</h3>
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-    </div>
-</section>
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
 
-<!-- Shop By Categories -->
-<section class="categories">
-    <h2 class="section-title">Shop By Categories</h2>
-    <div class="category-grid">
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-        <div class="category-card">
-            <div class="category-image"></div>
-            <div class="category-info">
-                <button class="btn-shop">SHOP NOW</button>
-            </div>
-        </div>
-    </div>
-</section>
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
 
-<!-- Summer Offer -->
-<section class="summer-offer">
-    <h2 class="section-title">Summer Offer</h2>
-    <div class="offer-grid">
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Combo Pack</h3>
-            <div class="price">
-                <span class="current-price">₹1,125</span>
-                <span class="old-price">₹1,500</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Multi Millet Health Mix</h3>
-            <div class="price">
-                <span class="current-price">₹2,204</span>
-                <span class="old-price">₹2,939</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Instant Mix Pack</h3>
-            <div class="price">
-                <span class="current-price">₹1,025</span>
-                <span class="old-price">₹1,367</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-        <div class="offer-card">
-            <div class="offer-image"></div>
-            <h3>Energy Bars</h3>
-            <div class="price">
-                <span class="current-price">₹270</span>
-                <span class="old-price">₹360</span>
-                <span class="discount">25% OFF</span>
-            </div>
-        </div>
-    </div>
-</section>
+        .testimonial-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
 
-<!-- Testimonials -->
-<section class="testimonials">
-    <div class="testimonials-container">
-        <h2 class="section-title">OUR HAPPY CUSTOMERS</h2>
+        .testimonial-stars {
+            color: #FFB800;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 0.9375rem;
+        }
+
+        /* Newsletter - Modern */
+        .newsletter-section {
+            background: var(--primary-dark);
+            color: white;
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .newsletter-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .newsletter-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-subtitle {
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-newsletter {
+            padding: 1rem 2rem;
+            background: white;
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-newsletter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+        }
+/* Logged-in primary button */
+.btn-primary {
+    background-color: #8B7355;
+    border-color: #8B7355;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #755f46;
+}
+/* Guest button */
+.btn-guest {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    background-color: #E6DED4;
+    color: #6D5A43 !important;
+    padding: 0.875rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none !important;
+}
+
+.btn-guest:hover {
+    background-color: #D8CFC3;
+    color: #6D5A43 !important;
+}
+
+
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section {
+                padding: 3rem 1.5rem;
+            }
+
+            .products-grid,
+            .offer-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .hero {
+                height: 70vh;
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../partials/user/header.ejs') %>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Nature's Ancient Superfood<br>for Modern Living</h1>
+                <p>Discover the nutritional power of organic millets, sustainably sourced and delivered fresh to your
+                    doorstep.</p>
+                <a href="/shop" class="hero-cta">
+                    Explore Products
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- Best Selling Products -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-tag">Trending Now</span>
+                <h2 class="section-title">Best Selling Products</h2>
+                <p class="section-subtitle">Handpicked selections loved by our community</p>
+            </div>
+            <div class="products-grid">
+                <% if (products && products.length> 0) { %>
+                    <% products.slice(0, 4).forEach(product=> { %>
+                        <div class="product-card">
+                            <div class="product-image-wrapper">
+                                <% if (product.productOffer?.offerActive && product.productOffer?.discountPercentage> 0)
+                                    { %>
+                                    <span class="product-badge">
+                                        <%= product.productOffer.discountPercentage %>% OFF
+                                    </span>
+                                    <% } %>
+                                        <a href="/product/details/<%= product._id %>">
+                                            <img src="/uploads/images/<%= product.productImage[0] %>"
+                                                alt="<%= product.productName %>">
+                                        </a>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-name">
+                                    <%= product.productName %>
+                                </h3>
+                                <div class="product-price-row">
+                                    <span class="product-price">₹<%= product.variant[0].salePrice.toFixed(2) %></span>
+                                    <% if (product.variant[0].regularPrice> product.variant[0].salePrice) { %>
+                                        <span class="product-price-old">₹<%= product.variant[0].regularPrice.toFixed(2)
+                                                %></span>
+                                        <% } %>
+                                </div>
+     <% if (user) { %>
+    <a href="/product/details/<%= product._id %>" class="btn-shop">
+        <i class="fas fa-shopping-bag"></i>
+        View Product
+    </a>
+<% } else { %>
+    <a href="/login" class="btn-guest">
+        <i class="fas fa-lock"></i>
+        Login to View
+    </a>
+<% } %>
+
+
+
+
+
+
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } %>
+            </div>
+        </section>
+
+        <!-- Special Offers -->
+        <section class="offer-section">
+            <div class="section-header">
+                <span class="section-tag">Limited Time</span>
+                <h2 class="section-title">Special Offers</h2>
+                <p class="section-subtitle">Exclusive deals on premium millet products</p>
+            </div>
+            <div class="offer-grid">
+                <% if (offerProducts && offerProducts.length> 0) { %>
+                    <% offerProducts.forEach(product=> { %>
+                        <div class="offer-card">
+                            <div class="offer-image">
+                                <a href="/product/details/<%= product._id %>">
+                                    <img src="/uploads/images/<%= product.productImage[0] %>"
+                                        alt="<%= product.productName %>">
+                                </a>
+                            </div>
+                            <div class="offer-content">
+                                <h3 class="offer-title">
+                                    <%= product.productName %>
+                                </h3>
+                                <% if (product.productOffer?.offerDescription) { %>
+                                    <p class="offer-description">
+                                        <%= product.productOffer.offerDescription %>
+                                    </p>
+                                    <% } %>
+                                        <div class="product-price-row">
+                                            <span class="product-price">₹<%= product.calculateFinalPrice().toFixed(2) %>
+                                                    </span>
+                                            <% if (product.getDiscountPercentage()> 0) { %>
+                                                <span class="product-price-old">₹<%=
+                                                        product.variant[0].salePrice.toFixed(2) %></span>
+                                                <span class="product-discount">
+                                                    <%= product.getDiscountPercentage() %>% OFF
+                                                </span>
+                                                <% } %>
+                                        </div>
+                                        <a href="/product/details/<%= product._id %>" class="btn-shop">
+                                            <i class="fas fa-shopping-bag"></i>
+                                            Shop Now
+                                        </a>
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <div class="offer-card">
+                                    <div class="offer-image"></div>
+                                    <div class="offer-content">
+                                        <h3 class="offer-title">Coming Soon</h3>
+                                        <p class="offer-description">Exciting offers are on the way. Check back soon!
+                                        </p>
+                                    </div>
+                                </div>
+                                <% } %>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <!-- <section class="testimonials-section">
+        <div class="section-header">
+            <span class="section-tag">Customer Stories</span>
+            <h2 class="section-title">What Our Customers Say</h2>
+        </div>
         <div class="testimonials-grid">
             <div class="testimonial-card">
                 <div class="testimonial-header">
-                    <span class="testimonial-name">Sarah M.</span>
-                    <span class="verified">✓</span>
+                    <div class="testimonial-avatar">SM</div>
+                    <div>
+                        <div class="testimonial-name">Sarah M.</div>
+                        <div class="testimonial-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">“I started buying MilliMillet products because I wanted to eat healthier, but now I continue because I believe in what they stand for. They source locally, support farmers, and promote sustainable agriculture — something I truly respect. I’ve tried almost every product, and the consistency is always top-notch. It’s heartwarming to see an Indian brand making traditional grains cool again!”</p>
+                <p class="testimonial-text">"I started buying MilliMillet products because I wanted to eat healthier. The quality is exceptional and I love supporting sustainable agriculture."</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">
-                    <span class="testimonial-name">Alex K.</span>
-                    <span class="verified">✓</span>
+                    <div class="testimonial-avatar">AK</div>
+                    <div>
+                        <div class="testimonial-name">Alex K.</div>
+                        <div class="testimonial-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">“My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!”</p>
+                <p class="testimonial-text">"My kids used to refuse millets. Now they ask for MilliMillet pancakes every Sunday!"</p>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-header">
-                    <span class="testimonial-name">James L.</span>
-                    <span class="verified">✓</span>
+                    <div class="testimonial-avatar">JL</div>
+                    <div>
+                        <div class="testimonial-name">James L.</div>
+                        <div class="testimonial-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
                 <p class="testimonial-text">"I swapped my regular breakfast for MilliMillet porridge – now my mornings feel lighter and fuller!"</p>
             </div>
         </div>
-    </div>
-</section>
+    </section> -->
 
-<!-- Newsletter -->
-<section class="newsletter">
-    <div class="newsletter-container">
-        <h3>STAY UPDATED ABOUT OUR LATEST OFFERS</h3>
-        <form class="newsletter-form">
-            <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
-            <button type="submit" class="btn-subscribe">Subscribe to Newsletter</button>
-        </form>
-    </div>
-</section>
+        <!-- Newsletter -->
+        <!-- <section class="newsletter-section">
+        <div class="newsletter-content">
+            <h3 class="newsletter-title">Stay Updated</h3>
+            <p class="newsletter-subtitle">Get the latest offers and health tips delivered to your inbox</p>
+            <form class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                <button type="submit" class="btn-newsletter">Subscribe</button>
+            </form>
+        </div>
+    </section> -->
 
-<%-include("../../views/partials/user/footer.ejs")%>
+        <%- include('../../views/partials/user/footer.ejs') %>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+2026-01-22 15:06:21 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:26 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:31 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:39 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:06:57 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-22 15:08:02 [[31merror[39m]: ReferenceError: now is not defined
+    at file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:32:69
+    at Array.forEach (<anonymous>)
+    at categoryInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/categoryController.js:26:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 20:39:50 [[31merror[39m]: ReferenceError: count is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:43:29)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 20:40:00 [[31merror[39m]: ReferenceError: count is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:43:29)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 21:42:43 [[31merror[39m]: ReferenceError: count is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:43:29)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:01:23 [[31merror[39m]: ReferenceError: count is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:43:29)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:19:28 [[31merror[39m]: MongoServerSelectionError: getaddrinfo ENOTFOUND ac-mwvfreg-shard-00-00.v7m69bi.mongodb.net
+    at Topology.selectServer (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\sdam\topology.js:327:38)
+    at async tryOperation (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\operations\execute_operation.js:148:18)
+    at async executeOperation (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\operations\execute_operation.js:78:16)
+    at async FindCursor._initialize (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\cursor\abstract_cursor.js:632:27)
+    at async FindCursor.fetchBatch (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\cursor\abstract_cursor.js:666:13)
+    at async FindCursor.next (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\cursor\abstract_cursor.js:342:17)
+    at async [Symbol.asyncIterator] (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\cursor\abstract_cursor.js:250:34)
+    at async FindCursor.toArray (C:\Users\dell\Desktop\Project01\node_modules\mongodb\lib\cursor\abstract_cursor.js:422:26)
+    at async model.Query._find (C:\Users\dell\Desktop\Project01\node_modules\mongoose\lib\query.js:2430:14)
+    at async model.Query.exec (C:\Users\dell\Desktop\Project01\node_modules\mongoose\lib\query.js:4627:63)
+    at async customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:20:22)
+2026-01-31 22:51:47 [[31merror[39m]: ReferenceError: totalPages is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:51:58 [[31merror[39m]: ReferenceError: totalPages is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:52:10 [[31merror[39m]: ReferenceError: totalPages is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:52:16 [[31merror[39m]: ReferenceError: totalPages is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:52:19 [[31merror[39m]: ReferenceError: totalPages is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-31 22:52:19 [[31merror[39m]: ReferenceError: totalPages is not defined
+    at customerInfo (file:///C:/Users/dell/Desktop/Project01/controllers/admin/customerController.js:31:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

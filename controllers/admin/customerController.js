@@ -1,68 +1,128 @@
-const User = require("../../models/userSchema.js");
+import User from "../../models/userSchema.js";
+import Status from "../../utils/status.js";
+import message from "../../utils/message.js";
+import logger from "../../utils/logger.js";
+import mongoose from "mongoose";
 
 const customerInfo = async (req, res) => {
   try {
-    let search = "";
-    if (req.query.search) {
-      search = req.query.search;
-    }
-    let page = 1;
-    if (req.query.page) {
-      page = req.query.page;
-    }
-    const limit = 3;
-    const userData = await User.find({
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+
+    const query = {
       isAdmin: false,
       $or: [
-        { name: { $regex: ".*" + search + ".*" } },
-        { email: { $regex: ".*" + search + ".*" } },
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ],
-    })
+    };
 
-      .limit(limit * 1)
+    const userData = await User.find(query)
+      .limit(limit)
       .skip((page - 1) * limit)
-      .exec();
+      .lean();
 
-    const count = await User.find({
+      
+    const filteredCustomers = await User.countDocuments(query);
+    const totalPages = Math.ceil(filteredCustomers / limit);
+
+
+    if (req.headers.accept?.includes("application/json")) {
+      return res.status(Status.OK).json({
+        success: true,
+        userData,
+        totalPages,
+      });
+    }
+
+
+
+    const totalCustomers = await User.countDocuments({ isAdmin: false });
+    
+    const activeCustomers = await User.countDocuments({
       isAdmin: false,
-      $or: [
-        { name: { $regex: ".*" + search + ".*" } },
-        { email: { $regex: ".*" + search + ".*" } },
-      ],
-    }).countDocuments();
+      isBlocked: false,
+    });
+    const blockedCustomers = await User.countDocuments({
+      isAdmin: false,
+      isBlocked: true,
+    });
 
-    res.render("customers");
-  } catch (error) {}
+    res.render("customers", {
+      title: "Customers",
+      currentRoute: "users",
+      data: userData,
+      currentPage: page,
+      totalCustomers,
+      filteredCustomers,
+      totalPages: Math.ceil(filteredCustomers/limit),
+      totalCustomers,
+      activeCustomers,
+      blockedCustomers,
+      search,
+    });
+  } catch (error) {
+    logger.error("Error loading customers", error);
+      if (req.headers.accept?.includes("application/json")) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to load customers",
+      });
+    }
+    return res.redirect("/pageerror");
+  }
 };
 
-
-const customerBlocked = async(req,res)=>{
-    try {
-
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:true}})
-        res.redirect("/admin/users");
-        
-    } catch (error) {
-        res.redirect("/pageerror")
-    }
+const customerBlocked = async (req, res) => {
+  try {
+    const id = req.query.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(Status.BAD_REQUEST).json({
+    success: false,
+    message: message.AUTH.INVALID_CREDENTIALS
+  });
 }
 
+    await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
 
-const customerunBlocked = async(req,res)=>{
-    try {
-        
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:false}})
-        res.redirect("/admin/users");
-        
-    } catch (error) {
-         res.redirect("/pageerror")
+    if (req.session.user && req.session.user._id === id) {
+      delete req.session.user;
     }
-}
 
-module.exports = {
-  customerInfo,
-  customerBlocked,
-  customerunBlocked
+    res
+      .status(Status.OK)
+      .json({ success: true, message: message.CUSTOMER.BLOCKED_SUCCESS });
+  } catch (error) {
+    logger.error("Error blocking user", error);
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
+  }
 };
+
+const customerunBlocked = async (req, res) => {
+  try {
+    const id = req.query.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(Status.BAD_REQUEST).json({
+    success: false,
+    message: message.AUTH.INVALID_CREDENTIALS
+  });
+}
+
+    await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
+
+    res
+      .status(Status.OK)
+      .json({ success: true, message: message.CUSTOMER.UNBLOCKED_SUCCESS });
+  } catch (error) {
+    logger.error("Error unblocking user", error);
+
+    res
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
+  }
+};
+
+export { customerInfo, customerBlocked, customerunBlocked };

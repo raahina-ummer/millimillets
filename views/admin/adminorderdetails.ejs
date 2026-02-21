@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Details - <%= order.orderId %> | MilliMillet Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f9f6f1 0%, #E8DCC4 100%);
+      min-height: 100vh;
+      padding: 20px 0;
+    }
+
+    .page-header {
+  background: linear-gradient(135deg, #6D5A43 0%, #8B7355 50%, #A0826D 100%);
+  color: white;
+  padding: 20px 28px;              /* reduce vertical height */
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(117, 94, 69, 0.25);
+
+  display: flex;                   /* KEY FIX */
+  align-items: center;             /* vertical centering */
+  gap: 20px;
+}
+
+
+  .page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;                       /* IMPORTANT */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+   .order-id-badge {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(117, 94, 69, 0.1);
+      border: 1px solid #E8DCC4;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #6D5A43;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #E8DCC4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: #8B7355;
+    }
+
+ .info-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f2ede6;
+}
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #6D5A43;
+      font-size: 14px;
+    }
+
+    .info-value {
+      color: #4a403a;
+      font-size: 14px;
+      text-align: left;
+    }
+.container {
+  max-width: 1200px;
+}
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+      display: inline-block;
+    }
+
+    .status-badge.pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .status-badge.processing {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .status-badge.shipped {
+      background: #e0e7ff;
+      color: #5b21b6;
+    }
+
+    .status-badge.delivered {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .status-badge.cancelled, .status-badge.cancelled {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .status-badge.active {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .status-badge.returned {
+      background: #f3e8ff;
+      color: #7c3aed;
+    }
+
+    .status-badge.return-requested {
+      background: #fed7aa;
+      color: #c2410c;
+    }
+
+    .product-item {
+      display: flex;
+      gap: 15px;
+      padding: 15px;
+      background: #f9f6f1;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      align-items: center;
+      border: 1px solid #E8DCC4;
+      transition: all 0.3s ease;
+    }
+
+    .product-item:hover {
+      box-shadow: 0 4px 12px rgba(117, 94, 69, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .product-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #E8DCC4;
+    }
+
+    .product-details {
+      flex: 1;
+    }
+
+    .product-name {
+      font-weight: 600;
+      color: #6D5A43;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .product-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+      color: #8B7355;
+      flex-wrap: wrap;
+    }
+
+    .product-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .product-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .amount-summary {
+      background: linear-gradient(135deg, #f9f6f1 0%, #E8DCC4 50%, #f9f6f1 100%);
+      padding: 20px;
+      border-radius: 12px;
+      border: 2px solid #d4c5b0;
+    }
+
+    .amount-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 14px;
+      color: #6D5A43;
+    }
+
+    .amount-row.total {
+      border-top: 2px solid #8B7355;
+      margin-top: 10px;
+      padding-top: 15px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #5D4E37;
+    }
+
+    .amount-row.discount {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, #8B7355 0%, #6D5A43 100%);
+      color: white;
+    }
+
+    .action-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(117, 94, 69, 0.4);
+    }
+
+    .action-btn.success {
+      background: #10b981;
+      color: white;
+    }
+
+    .action-btn.success:hover {
+      background: #059669;
+    }
+
+    .action-btn.danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .action-btn.danger:hover {
+      background: #dc2626;
+    }
+
+    .status-update-section {
+      background: #f9f6f1;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #E8DCC4;
+    }
+
+    .status-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #E8DCC4;
+      border-radius: 10px;
+      background: white;
+      color: #6D5A43;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 12px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .status-select:focus {
+      border-color: #8B7355;
+      box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.15);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #E8DCC4;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #8B7355;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px #E8DCC4;
+    }
+
+    .timeline-item.active::before {
+      background: #059669;
+      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.2);
+    }
+
+    .timeline-content {
+      background: white;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border-left: 3px solid #8B7355;
+    }
+
+    .timeline-content.active {
+      border-left-color: #059669;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      color: #6D5A43;
+      font-size: 14px;
+    }
+
+    .timeline-date {
+      font-size: 12px;
+      color: #8B7355;
+      margin-top: 4px;
+    }
+      /* Address Card Styles - Millet Theme */
+
+.address-card {
+    background: linear-gradient(135deg, #f9f6f1 0%, #E8DCC4 100%);
+    border-radius: 12px;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #d4c5b0;
+    transition: all 0.3s ease;
+}
+
+.address-card:hover {
+    border-color: #8B7355;
+    box-shadow: 0 5px 20px rgba(139, 115, 85, 0.15);
+}
+
+.address-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #8B7355 0%, #755e45 100%);
+}
+
+.address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(212, 197, 176, 0.5);
+}
+
+.recipient-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.recipient-info h4 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+    font-weight: 700;
+}
+
+/* Badge Styles - Millet Theme */
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.badge-home {
+    background: linear-gradient(135deg, #8B7355 0%, #755e45 100%);
+    color: white;
+}
+
+.badge-work {
+    background: linear-gradient(135deg, #d4c5b0 0%, #c4b5a0 100%);
+    color: #333;
+}
+
+.badge-other {
+    background: linear-gradient(135deg, #E8DCC4 0%, #d4c5b0 100%);
+    color: #755e45;
+    border: 2px solid #8B7355;
+}
+
+/* Address Details */
+.address-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px 0;
+}
+
+.detail-item i {
+    color: #8B7355;
+    font-size: 18px;
+    margin-top: 3px;
+    min-width: 22px;
+    flex-shrink: 0;
+}
+
+.detail-item span {
+    color: #755e45;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.address-text {
+    flex: 1;
+}
+
+.address-text p {
+    color: #755e45;
+    line-height: 1.8;
+    margin: 0 0 5px 0;
+    font-size: 0.95rem;
+}
+
+.address-text p:last-child {
+    margin-bottom: 0;
+}
+
+/* No Address State */
+.no-address {
+    text-align: center;
+    padding: 50px 20px;
+    background: #f9f6f1;
+    border-radius: 12px;
+    border: 2px dashed #d4c5b0;
+}
+
+.no-address i {
+    font-size: 56px;
+    margin-bottom: 20px;
+    color: #d4c5b0;
+    display: block;
+}
+
+.no-address p {
+    margin: 0;
+    font-size: 16px;
+    color: #8B7355;
+    font-weight: 600;
+}
+
+/* Alternative Simplified Address Box (matching existing theme better) */
+.address-box-simple {
+    background: #f9f6f1;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid #8B7355;
+    transition: all 0.3s ease;
+}
+
+.address-box-simple:hover {
+    background: #f0eae0;
+    box-shadow: 0 3px 15px rgba(139, 115, 85, 0.1);
+}
+
+.address-box-simple h4 {
+    margin: 0 0 15px;
+    color: #333;
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.address-box-simple .address-type-tag {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: #8B7355;
+    color: white;
+    border-radius: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.address-box-simple p {
+    margin: 0 0 10px;
+    color: #666;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.address-box-simple p:last-child {
+    margin-bottom: 0;
+}
+
+.address-box-simple p strong {
+    color: #8B7355;
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.address-box-simple p i {
+    color: #8B7355;
+    margin-right: 8px;
+    width: 18px;
+    display: inline-block;
+}
+
+.address-box-simple a {
+    color: #8B7355;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.address-box-simple a:hover {
+    color: #755e45;
+    text-decoration: underline;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .address-card,
+    .address-box-simple {
+        padding: 20px;
+    }
+    
+    .recipient-info h4 {
+        font-size: 18px;
+    }
+    
+    .address-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .detail-item {
+        flex-direction: row;
+        gap: 12px;
+    }
+    
+    .no-address {
+        padding: 30px 15px;
+    }
+    
+    .no-address i {
+        font-size: 42px;
+    }
+}
+
+    @media (max-width: 768px) {
+      .page-header h1 {
+        font-size: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .info-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+      .info-value {
+        text-align: left;
+      }
+
+      .product-item {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .product-actions {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/admin/header') %>
+
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <a href="/admin/adminorder" class="back-btn mb-3">
+        <i class="fas fa-arrow-left"></i> Back to Orders
+      </a>
+      <h1>
+        <i class="fas fa-receipt"></i>
+        Order Details
+        <span class="order-id-badge">#<%= order.orderId.substring(0, 8).toUpperCase() %></span>
+      </h1>
+    </div>
+
+    <div class="row">
+      <!-- Left Column -->
+      <div class="col-lg-8">
+        <!-- Order Information -->
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-info-circle"></i>
+            Order Information
+          </h3>
+          <div class="info-row">
+            <span class="info-label">Order ID</span>
+            <span class="info-value"><strong><%= order.orderId %></strong></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Order Date</span>
+            <span class="info-value"><%= new Date(order.createdAt).toLocaleString('en-US', { 
+              month: 'short', day: 'numeric', year: 'numeric', 
+              hour: '2-digit', minute: '2-digit' 
+            }) %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Payment Method</span>
+            <span class="info-value" style="text-transform: uppercase;">
+              <i class="fas fa-credit-card"></i> <%= order.paymentMethod %>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Payment Status</span>
+            <span class="info-value">
+              <span class="status-badge <%= (order.paymentStatus || 'pending').toLowerCase() %>">
+                <%= order.paymentStatus || 'Pending' %>
+              </span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Order Status</span>
+            <span class="info-value">
+              <span class="status-badge <%= (order.status || 'pending').toLowerCase() %>">
+                <%= order.status || 'Pending' %>
+              </span>
+            </span>
+          </div>
+          <% if (order.couponApplied) { %>
+          <div class="info-row">
+            <span class="info-label">Coupon Applied</span>
+            <span class="info-value">
+              <i class="fas fa-tag text-success"></i> Yes
+            </span>
+          </div>
+          <% } %>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-user"></i>
+            Customer Information
+          </h3>
+          <div class="info-row">
+            <span class="info-label">Name</span>
+            <span class="info-value"><%= order.userId?.fullName || order.userId?.name || "Unknown User" %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">
+              <i class="fas fa-envelope"></i> <%= order.userId?.email || "No email" %>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Phone</span>
+            <span class="info-value">
+              <i class="fas fa-phone"></i> <%= order.userId?.phone || "No phone" %>
+            </span>
+          </div>
+        </div>
+
+      
+
+        <div class="detail-section shipping-address">
+    <div class="section-header">
+        <h3><i class="fas fa-map-marker-alt"></i> Shipping Address</h3>
+    </div>
+    <div class="section-content">
+        <% if (order.address) { %>
+            <div class="address-card">
+                <div class="address-header">
+                    <div class="recipient-info">
+                        <h4><%= order.address.name %></h4>
+                        <% if (order.address.addressType) { %>
+                            <span class="badge badge-<%= order.address.addressType.toLowerCase() %>">
+                                <%= order.address.addressType %>
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="address-details">
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span><%= order.address.mobile %></span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="address-text">
+                            <p><%= order.address.addressLine1 %></p>
+                            <% if (order.address.addressLine2 && order.address.addressLine2.trim()) { %>
+                                <p><%= order.address.addressLine2 %></p>
+                            <% } %>
+                            <p><%= order.address.city %>, <%= order.address.state %></p>
+                            <p><%= order.address.country %> - <%= order.address.pincode %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="no-address">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Address information is not available for this order</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+
+        <!-- Order Items -->
+        <div class="info-card">
+  <h3 class="card-title">
+    <i class="fas fa-box"></i>
+    Order Items
+  </h3>
+  <% if (order.orderedProducts && order.orderedProducts.length > 0) { %>
+    <% order.orderedProducts.forEach(item => { %>
+     <div class="product-item">
+  <% if (item.product?.productImage?.[0]) { %>
+    <img
+      src="/uploads/images/<%= item.product.productImage[0] %>"
+      alt="<%= item.product.productName %>"
+      class="product-image"
+    />
+  <% } else { %>
+    <div class="product-image"
+      style="background:#E8DCC4;display:flex;align-items:center;justify-content:center;">
+      <i class="fas fa-image" style="color:#8B7355;font-size:24px;"></i>
+    </div>
+  <% } %>
+
+
+        
+        <div class="product-details">
+          <div class="product-name"><%= item.product?.productName || 'Product' %></div>
+          <div class="product-meta">
+            <span><i class="fas fa-layer-group"></i> Qty: <%= item.quantity %></span>
+            <span><i class="fas fa-rupee-sign"></i> <%= item.price.toFixed(2) %></span>
+            <span><strong>Total: ₹<%= (item.price * item.quantity).toFixed(2) %></strong></span>
+          </div>
+         <div class="mt-2">
+
+  <!-- Current Status Badge -->
+  <span class="status-badge <%= (item.status || 'pending').toLowerCase().replace(/\s+/g, '-') %>">
+    <%= item.status %>
+  </span>
+
+  <!-- 🔥 NEW — Per Item Status Update -->
+<div class="mt-2">
+
+<% if (!['Delivered','Cancelled','Returned','Partially Returned','Partially Delivered']
+      .includes(item.status)) { %>
+
+  <select class="status-select"
+    onchange="updateItemStatus('<%= order._id %>','<%= item._id %>',this.value)">
+
+    <option value="">Update</option>
+
+    <% if (item.status === 'Pending' || item.status === 'Processing') { %>
+        <option value="Shipped">→ Shipped</option>
+        <option value="Cancelled">✕ Cancel</option>
+
+    <% } else if (item.status === 'Shipped') { %>
+        <option value="Delivered">✓ Delivered</option>
+        <option value="Cancelled">✕ Cancel</option>
+    <% } %>
+
+  </select>
+
+<% } %>
+
+</div>
+
+
+</div>
+
+     <% if (item.status === 'Return Requested') { %>
+  <div class="mt-3" style="display:flex; gap:10px;">
+    <button
+      class="btn btn-success btn-sm"
+      onclick="handleReturnAction(
+        '<%= order.orderId %>',
+        '<%= item.product._id %>',
+        '<%= item.variantId %>',
+        'approve'
+      )">
+      ✔ Approve Return
+    </button>
+
+    <button
+      class="btn btn-danger btn-sm"
+      onclick="handleReturnAction(
+        '<%= order.orderId %>',
+        '<%= item.product._id %>',
+        '<%= item.variantId %>',
+        'reject'
+      )">
+      ✖ Reject Return
+    </button>
+  </div>
+<% } else if (item.status === 'Returned') { %>
+  <small class="text-muted">Return processed</small>
+<% } %>
+
+
+
+          <% if (item.cancelReason) { %>
+            <div style="font-size: 12px; color: #dc2626; margin-top: 8px;">
+              <i class="fas fa-exclamation-circle"></i> Reason: <%= item.cancelReason %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="text-center text-muted">No items found</p>
+  <% } %>
+</div>
+        <!-- Order Summary -->
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-calculator"></i>
+            Order Summary
+          </h3>
+          <div class="amount-summary">
+            <div class="amount-row">
+              <span>Subtotal</span>
+              ₹<%= order.adminSummary.subtotal.toFixed(2) %>
+            </div>
+            <% if (order.discount > 0) { %>
+            <div class="amount-row discount">
+              <span>Discount</span>
+              <span>-₹<%= order.discount.toFixed(2) %></span>
+            </div>
+            <% } %>
+            <% if (order.couponApplied && order.couponDiscount > 0) { %>
+            <div class="amount-row discount">
+              <span>Coupon Discount</span>
+           
+-₹<%= order.adminSummary.couponDiscount.toFixed(2) %>
+            </div>
+            <% } %>
+            <div class="amount-row total">
+              <span>Final Amount</span>
+             
+₹<%= order.adminSummary.finalAmount.toFixed(2) %>
+            </div>
+          </div>
+          <% if (order.refundAmount > 0) { %>
+  <div class="amount-row discount">
+    <span>Refunded</span>
+    <span>₹<%= order.refundAmount.toFixed(2) %> (Wallet)</span>
+  </div>
+<% } %>
+
+        </div>
+
+        <!-- Order Timeline -->
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-clock"></i>
+            Order Timeline
+          </h3>
+          <div class="timeline">
+            <div class="timeline-item active">
+              <div class="timeline-content active">
+                <div class="timeline-title">Order Placed</div>
+                <div class="timeline-date">
+                  <%= new Date(order.createdAt).toLocaleString() %>
+                </div>
+              </div>
+            </div>
+            <% if (['Processing', 'Shipped', 'Delivered'].includes(order.status)) { %>
+            <div class="timeline-item <%= ['Processing', 'Shipped', 'Delivered'].includes(order.status) ? 'active' : '' %>">
+              <div class="timeline-content <%= ['Processing', 'Shipped', 'Delivered'].includes(order.status) ? 'active' : '' %>">
+                <div class="timeline-title">Processing</div>
+              </div>
+            </div>
+            <% } %>
+            <% if (['Shipped', 'Delivered'].includes(order.status)) { %>
+            <div class="timeline-item <%= ['Shipped', 'Delivered'].includes(order.status) ? 'active' : '' %>">
+              <div class="timeline-content <%= ['Shipped', 'Delivered'].includes(order.status) ? 'active' : '' %>">
+                <div class="timeline-title">Shipped</div>
+              </div>
+            </div>
+            <% } %>
+            <% if (order.status === 'Delivered') { %>
+            <div class="timeline-item active">
+              <div class="timeline-content active">
+                <div class="timeline-title">Delivered</div>
+              </div>
+            </div>
+            <% } %>
+            <% if (order.status === 'Cancelled') { %>
+            <div class="timeline-item">
+              <div class="timeline-content" style="border-left-color: #dc2626;">
+                <div class="timeline-title" style="color: #dc2626;">Cancelled</div>
+              </div>
+            </div>
+            <% } %>
+            <% if (order.status === 'Return Requested') { %>
+<div class="timeline-item active">
+  <div class="timeline-content active">
+    <div class="timeline-title">Return Requested</div>
+  </div>
+</div>
+<% } %>
+
+<% if (order.status === 'Returned') { %>
+<div class="timeline-item active">
+  <div class="timeline-content active">
+    <div class="timeline-title">Returned</div>
+  </div>
+</div>
+<% } %>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin/adminNav.js"></script>
+  <script>
+// 
+async function handleReturnAction(orderId, productId, variantId, action) {
+  // disable all return buttons immediately
+  document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
+
+  const { value: notes } = await Swal.fire({
+    title: action === 'approve' ? 'Approve Return?' : 'Reject Return?',
+    input: 'textarea',
+    inputPlaceholder: 'Admin notes (optional)',
+    showCancelButton: true,
+    confirmButtonText: 'Confirm',
+    confirmButtonColor: '#8B7355'
+  });
+
+  if (notes === undefined) {
+    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `/admin/adminorder/${orderId}/return/${productId}/${variantId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, notes })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire('Success', data.message, 'success')
+        .then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+      document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Something went wrong', 'error');
+    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+  }
+}
+
+
+async function updateItemStatus(orderId, itemId, status) {
+
+  const confirm = await Swal.fire({
+    title: "Update item status?",
+    text: "Change status to " + status + " ?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    confirmButtonColor: "#8B7355"
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await fetch("/admin/adminorderdetails/update-item-status", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        orderId,
+        itemId,
+        status
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      await Swal.fire("Updated", "Item status updated", "success");
+      location.reload();
+    } else {
+      Swal.fire("Error", data.message || "Update failed", "error");
+    }
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Server error", "error");
+  }
+}
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add New Address | MilliMillet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
+  <style>
+    body {
+      font-family: "Nunito Sans", sans-serif;
+      background-color: #E8DCC4;
+      color: #2d2d2d;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 50px auto;
+      background-color: #ffffff;
+      border: 1px solid #d4c5b0;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      padding: 40px 50px;
+    }
+
+    h2 {
+      color: #8B7355;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 800;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #5a4935;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d4c5b0;
+      border-radius: 8px;
+      background-color: #f9f6f1;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #8B7355;
+      box-shadow: 0 0 0 2px rgba(139,115,85,0.25);
+      background-color: #fff;
+    }
+
+    .error-border {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .address-type {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .form-check-label {
+      color: #5a4935;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: #8B7355;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background-color: #755e45;
+    }
+
+    .btn-secondary {
+      background-color: #f9f6f1;
+      border: 1px solid #d4c5b0;
+      color: #8B7355;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e8dfd0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    @media(max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 25px;
+      }
+    }
+  </style>
+   <%- include("../partials/user/header.ejs") %>
+</head>
+<body>
+
+  <div class="container">
+     <h2>Add New Address</h2>
+     <form id="addAddressForm" method="POST" action="/addAddress">
+
+  <input type="hidden" name="redirect" value="<%= redirect %>">
+      <div class="grid-2">
+        <div>
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" name="firstName" required />
+          <div class="error-message" id="firstName-error"></div>
+        </div>
+        <div>
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" name="lastName" required />
+          <div class="error-message" id="lastName-error"></div>
+        </div>
+      </div>
+
+      <div>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" required />
+        <div class="error-message" id="phone-error"></div>
+      </div>
+
+     <div>
+        <label for="addressLine1">Address</label>
+        <input type="text" id="addressLine1" name="address" placeholder="House number, street name" required />
+        <div class="error-message" id="addressLine1-error"></div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" required />
+          <div class="error-message" id="city-error"></div>
+        </div>
+        <div>
+          <label for="state">State</label>
+          <select id="state" name="state" required>
+            <option value="">Select State</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Tamil Nadu">Tamil Nadu</option>
+            <option value="Karnataka">Karnataka</option>
+          </select>
+          <div class="error-message" id="state-error"></div>
+        </div>
+      </div>
+ 
+      <div class="grid-2">
+        <div>
+          <label for="zipCode">ZIP/Postal Code</label>
+          <input type="text" id="zipCode" name="pinCode" required />
+          <div class="error-message" id="zipCode-error"></div>
+        </div>
+        <div>
+          <label for="country">Country</label>
+          <select id="country" name="country" required>
+            <option value="">Select Country</option>
+            <option value="india" selected>India</option>
+          </select>
+          <div class="error-message" id="country-error"></div>
+        </div>
+      </div>
+
+      <h4 style="color:#8B7355; margin-top:25px;">Address Type</h4>
+      <div class="address-type">
+        <label><input type="radio" name="addressType" value="home" checked /> Home</label>
+        <label><input type="radio" name="addressType" value="work" /> Work</label>
+      </div>
+      <div class="error-message" id="addressType-error"></div>
+
+      <div style="margin-top:15px;">
+        <label><input type="checkbox" id="isDefault" name="isDefault" value="1" /> Set as default address</label>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <i class="fas fa-save"></i> Save Address
+        </button>
+        <a href="/address" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+function showError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  const errorDiv = document.getElementById(fieldId + '-error');
+  field.classList.add('error-border');
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+}
+
+function clearError(fieldId) {
+  const field = document.getElementById(fieldId);
+  const errorDiv = document.getElementById(fieldId + '-error');
+  field.classList.remove('error-border');
+  errorDiv.style.display = 'none';
+}
+
+function validateField(fieldId, value, regex, message) {
+  if (!value.trim()) {
+    showError(fieldId, 'This field is required.');
+    return false;
+  }
+  if (regex && !regex.test(value.trim())) {
+    showError(fieldId, message);
+    return false;
+  }
+  clearError(fieldId);
+  return true;
+}
+
+document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nameRegex = /^[A-Za-z\s]{2,50}$/;
+  const phoneRegex = /^[6-9]\d{9}$/;
+  const addressRegex = /^[A-Za-z0-9\s,.-]{5,100}$/;
+  const cityRegex = /^[A-Za-z\s]{2,50}$/;
+  const zipRegex = /^\d{6}$/;
+
+  let isValid = true;
+
+  const firstNameVal = document.getElementById('firstName').value.trim();
+  const lastNameVal = document.getElementById('lastName').value.trim();
+  const phoneVal = document.getElementById('phone').value.trim();
+  const addressVal = document.getElementById('addressLine1').value.trim();
+  const cityVal = document.getElementById('city').value.trim();
+  const stateVal = document.getElementById('state').value;
+  const zipVal = document.getElementById('zipCode').value.trim();
+  const countryVal = document.getElementById('country').value;
+  const addressTypeVal = document.querySelector('input[name="addressType"]:checked')?.value;
+  const isDefaultVal = document.getElementById('isDefault').checked;
+
+  if (!validateField('firstName', firstNameVal, nameRegex, 'Only letters allowed.')) isValid = false;
+  if (!validateField('lastName', lastNameVal, nameRegex, 'Only letters allowed.')) isValid = false;
+  if (!validateField('phone', phoneVal, phoneRegex, 'Enter valid 10-digit number.')) isValid = false;
+  if (!validateField('addressLine1', addressVal, addressRegex, 'Enter valid address.')) isValid = false;
+  if (!validateField('city', cityVal, cityRegex, 'Enter valid city.')) isValid = false;
+  if (!validateField('zipCode', zipVal, zipRegex, 'Enter valid 6-digit ZIP.')) isValid = false;
+
+  if (!stateVal) { showError('state','Please select state'); isValid = false; } else clearError('state');
+  if (!countryVal) { showError('country','Please select country'); isValid = false; } else clearError('country');
+
+  if (!addressTypeVal) {
+    showError('addressType','Select address type');
+    isValid = false;
+  }
+
+  if (!isValid) return;
+
+  try {
+    const res = await fetch("/addAddress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: firstNameVal,
+        lastName: lastNameVal,
+        phone: phoneVal,
+        address: addressVal,
+        city: cityVal,
+        state: stateVal,
+        pinCode: zipVal,
+        country: countryVal,
+        addressType: addressTypeVal,
+        isDefault: isDefaultVal,
+        redirect: document.querySelector('[name="redirect"]').value
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      swal("Success", data.message, "success")
+        .then(()=> window.location.href = data.redirect);
+    } else {
+      swal("Error", data.message, "error");
+    }
+
+  } catch (err) {
+    console.error(err);
+    swal("Error", "Server error", "error");
+  }
+});
+
+
+// live clear
+["firstName","lastName","phone","addressLine1","city","zipCode"]
+.forEach(id=>{
+  document.getElementById(id)
+    .addEventListener("input", ()=> clearError(id));
+});
+</script>
+
+</body>
+</html>

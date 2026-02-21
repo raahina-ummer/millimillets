@@ -1,33 +1,60 @@
-const mongoose = require("mongoose");
-const {Schema} = mongoose;
+import mongoose from "mongoose";
+
+const { Schema } = mongoose;
 
 const categorySchema = new Schema({
-    name:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    description:{
-        type:String,
-        required:true
-    },
-    isListed:{
-        type:Boolean,
-        default:true,
-    },
-    categoryOffer:{
-        type:Number,
-        default:0,
-    },
-    image:{
-        type:String,
-        required:true,
-    },
-    createdAt :{
-        type:Date,
-        default: Date.now
-    }
-})
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+  },
+  isListed: {
+    type: Boolean,
+    default: true,
+  },
 
-const Category = mongoose.model("Category",categorySchema)
-module.exports = Category
+  // 🔥 Correct category offer object
+  categoryOffer: {
+    discountPercentage: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    maxDiscountAmount: {
+      type: Number,
+      default: null,
+    },
+    offerDescription: {
+      type: String,
+      default: null,
+    },
+    offerActive: {
+      type: Boolean,
+      default: false,
+    },
+    offerStartDate: {
+      type: Date,
+      default: null,
+    },
+    offerEndDate: {
+      type: Date,
+      default: null,
+    },
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Category = mongoose.model("Category", categorySchema);
+export default Category;

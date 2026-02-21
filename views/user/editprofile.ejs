@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profile | MilliMillet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Nunito Sans", sans-serif;
+            background-color: #e8dcc4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        h2 {
+            color: #2d2d2d;
+            font-size: 1.75rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #6b6b6b;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .profile-image-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f5f0e8;
+        }
+
+        .profile-image-preview {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid #f9f6f1;
+            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.15);
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .profile-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image-preview::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 115, 85, 0.1);
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .upload-btn {
+            border: 2px solid #8b7355;
+            color: #8b7355;
+            background-color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: "Nunito Sans", sans-serif;
+        }
+
+        .upload-btn:hover {
+            background-color: #8b7355;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.2);
+        }
+
+        .upload-btn-wrapper input[type="file"] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-info {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #3d3d3d;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1.5px solid #d4c5b0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            color: #2d2d2d;
+            background-color: #fafafa;
+            font-family: "Nunito Sans", sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #8b7355;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #b8b8b8;
+        }
+
+        .btn-primary {
+            background-color: #8b7355;
+            color: #ffffff;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(139, 115, 85, 0.2);
+            font-family: "Nunito Sans", sans-serif;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #755e45;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6b6b6b;
+        }
+
+        .back-link a {
+            color: #8b7355;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: #755e45;
+            text-decoration: underline;
+        }
+
+        .required {
+            color: #c53030;
+            margin-left: 2px;
+        }
+
+        .default-avatar {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f9f6f1 0%, #f5f0e8 100%);
+        }
+
+        .default-avatar i {
+            font-size: 4rem;
+            color: #8b7355;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .profile-image-preview {
+                width: 110px;
+                height: 110px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 25px 20px;
+            }
+
+            h2 {
+                font-size: 1.35rem;
+            }
+
+            .profile-image-preview {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+    
+</head> 
+
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h2>Edit Profile</h2>
+            <p class="subtitle">Update your personal information</p>
+        </div>
+
+        <form id="editProfileForm" action="/editProfile" method="POST" enctype="multipart/form-data">
+            <!-- Profile Image Upload -->
+            <div class="profile-image-upload">
+                <div class="profile-image-preview" id="imageContainer">
+                    <% if (user.profileImage) { %>
+                        <img src="/<%= user.profileImage %>" alt="Profile Picture" id="profileImagePreview" />
+                        <% } else { %>
+                            <div class="default-avatar" id="defaultAvatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <img src="" alt="Profile Picture" id="profileImagePreview" style="display: none" />
+                            <% } %>
+                </div>
+                <div class="upload-btn-wrapper">
+                    <button type="button" class="upload-btn">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </button>
+                    <input type="file" name="profileImage" id="profileImageInput"
+                        accept="image/jpeg,image/png,image/jpg" />
+                </div>
+                <p class="upload-info">Maximum file size: 2MB | JPG, PNG formats</p>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name <span class="required">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>"
+                    placeholder="Enter your full name" required />
+            </div>
+
+
+
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.phone || '' %>"
+                    placeholder="Enter phone number" pattern="[0-9]{10}" maxlength="10" />
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary">
+                <i class="fas fa-save"></i> Update Profile
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="/userprofile"><i class="fas fa-arrow-left"></i> Back to Profile</a>
+        </div>
+    </div>
+
+    
+     <script>
+document.getElementById("editProfileForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const form = this;
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+
+  const formData = new FormData(form);
+
+const phoneValue = document.getElementById("phone").value.trim();
+
+if (phoneValue) {
+  if (!/^[6-9]\d{9}$/.test(phoneValue)) {
+    swal(
+      "Invalid Phone Number",
+      "Phone number must be 10 digits and start with 6–9",
+      "error"
+    );
+    submitBtn.disabled = false;
+    return;
+  }
+
+  // 🔥 THIS IS THE MISSING PART
+  if (/^(\d)\1{9}$/.test(phoneValue)) {
+    swal(
+      "Invalid Phone Number",
+      "Phone number cannot contain all identical digits",
+      "error"
+    );
+    submitBtn.disabled = false;
+    return;
+  }
+}
+
+
+  try {
+    const response = await fetch("/editProfile", {
+  method: "POST",
+  credentials: "include",
+  body: formData,
+});
+
+let data = {};
+try {
+  data = await response.json();
+} catch (e) {
+  // response body was empty — this is OK
+}
+
+if (response.ok) {
+  swal(
+    "Success",
+    data.message || "Profile updated successfully",
+    "success"
+  ).then(() => {
+    window.location.href = "/userProfile";
+  });
+} else {
+  swal(
+    "Error",
+    data.message || "Profile update failed",
+    "error"
+  );
+  submitBtn.disabled = false;
+}
+
+
+  } catch (err) {
+    console.error(err);
+    swal("Error", "Something went wrong", "error");
+    submitBtn.disabled = false;
+  }
+});
+
+/* IMAGE PREVIEW + VALIDATION */
+document.getElementById("profileImageInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    swal("Error", "File size must be less than 2MB", "error");
+    e.target.value = "";
+    return;
+  }
+
+  const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+  if (!validTypes.includes(file.type)) {
+    swal("Error", "Only JPG and PNG images are allowed", "error");
+    e.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = document.getElementById("profileImagePreview");
+    const defaultAvatar = document.getElementById("defaultAvatar");
+
+    img.src = event.target.result;
+    img.style.display = "block";
+    if (defaultAvatar) defaultAvatar.style.display = "none";
+  };
+  reader.readAsDataURL(file);
+});
+
+/* NAME VALIDATION */
+document.getElementById("name").addEventListener("input", function (e) {
+  e.target.value = e.target.value.replace(/[^a-zA-Z\s\-'.]/g, "");
+});
+
+/* PHONE VALIDATION */
+document.getElementById("phone").addEventListener("input", function (e) {
+  e.target.value = e.target.value.replace(/[^0-9]/g, "");
+});
+</script>
+
+
+
+
+
+   
+</body>
+
+</html>

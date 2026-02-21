@@ -1,0 +1,1506 @@
+<%- include('../partials/admin/header.ejs') %>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+</head>
+
+<style>
+/* Product Management Container */
+.product-management-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc4 100%);
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content-wrapper {
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Page Header */
+.page-header {
+    background: linear-gradient(to right, #8b7355, #6d5940);
+    padding: 25px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    font-size: 28px;
+    color: #ffffff;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.btn-back {
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* add Product Modal */
+.add-product-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+    margin: 30px 40px;
+    overflow: hidden;
+    border: 1px solid #e0d5c7;
+}
+
+
+.modal-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 35px;
+    background: linear-gradient(135deg, #8b7355 0%, #6d5940 100%);
+    border-bottom: none;
+}
+
+.modal-header-custom h3 {
+    font-size: 24px;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+
+
+.btn-close-modal:hover {
+    background: rgba(139, 115, 85, 0.2);
+    color: #6d5940;
+    transform: rotate(90deg);
+}
+
+/* Modal Body Layout */
+.modal-body {
+    display: grid;
+    grid-template-columns: 450px 1fr;
+    gap: 0;
+    padding: 35px;
+}
+
+
+/* Image Upload Section */
+.image-upload-section {
+    gap: 20px;
+    padding-right: 30px;
+    border-right: 2px solid #f0f0f0;
+}
+
+.form-fields-section {
+    padding-left: 30px;
+}
+
+
+/* Existing Images Display */
+.existing-images {
+    background: linear-gradient(135deg, #f8f6f1 0%, #f0ebe0 100%);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(139, 115, 85, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.existing-images-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.existing-images-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.existing-image-item {
+    position: relative;
+    height: 110px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(139, 115, 85, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.existing-image-item:hover {
+    border-color: #8b7355;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.existing-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.delete-image-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(220, 53, 69, 0.95);
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.delete-image-btn:hover {
+    background: #c82333;
+    transform: scale(1.15);
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+}
+
+.main-image-upload {
+    width: 100%;
+    height: 340px;
+    background: linear-gradient(135deg, #fafaf8 0%, #f5f3ee 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 2px dashed rgba(139, 115, 85, 0.3);
+    transition: all 0.3s ease;
+}
+
+.main-image-upload:hover {
+    border-color: #8b7355;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f6f1 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.image-upload-label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+}
+
+.image-upload-label img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #8b7355;
+}
+
+.upload-placeholder::before {
+    content: "📁";
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.upload-text {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #5a4a3a;
+}
+
+.upload-subtext {
+    font-size: 12px;
+    margin: 8px 0 0;
+    color: #999;
+}
+
+/* Additional Images Grid */
+.additional-images-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.additional-image-upload {
+    height: 120px;
+    background: linear-gradient(135deg, #fafaf8 0%, #f5f3ee 100%);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 2px dashed rgba(139, 115, 85, 0.3);
+    transition: all 0.3s ease;
+}
+
+.additional-image-upload:hover {
+    border-color: #8b7355;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f6f1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.image-upload-label-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+}
+
+.image-upload-label-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.browse-text {
+    font-size: 13px;
+    color: #8b7355;
+    font-weight: 600;
+}
+
+.browse-text::before {
+    content: "+";
+    display: block;
+    font-size: 28px;
+    margin-bottom: 5px;
+    opacity: 0.7;
+}
+
+/* Image Cropper Container */
+.image-cropper {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+}
+
+.image-cropper.active {
+    display: flex;
+}
+
+.image-cropper img {
+    max-width: 90%;
+    max-height: 70vh;
+    border-radius: 8px;
+}
+
+.image-cropper button {
+    margin-top: 20px;
+    padding: 12px 35px;
+    background: #8b7355;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-cropper button:hover {
+    background: #6d5940;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(139, 115, 85, 0.4);
+}
+
+/* Description */
+.form-group-description {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-description label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group-description textarea {
+    background: #fafaf8;
+    border: 2px solid rgba(139, 115, 85, 0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #2c2c2c;
+    resize: vertical;
+    line-height: 1.7;
+    min-height: 130px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group-description textarea:focus {
+    outline: none;
+    border-color: #8b7355;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
+/* Form Fields Section */
+.form-fields-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control {
+    padding: 14px 16px;
+    border: 2px solid rgba(139, 115, 85, 0.2);
+    border-radius: 10px;
+    background: #fafaf8;
+    font-size: 14px;
+    color: #2c2c2c;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    background: #ffffff;
+    border-color: #8b7355;
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
+.form-control:hover {
+    border-color: rgba(139, 115, 85, 0.4);
+}
+
+.form-select {
+    padding: 14px 16px;
+    border: 2px solid rgba(139, 115, 85, 0.2);
+    border-radius: 10px;
+    background: #fafaf8;
+    font-size: 14px;
+    color: #2c2c2c;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-select:focus {
+    background: #ffffff;
+    border-color: #8b7355;
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+}
+
+.form-select:hover {
+    border-color: rgba(139, 115, 85, 0.4);
+}
+
+/* Form Row for multiple fields */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+/* Variant Section Styles */
+.variant-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid #e9ecef;
+    margin-top: 10px;
+}
+
+.variant-title {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+
+
+.btn-add-variant {
+    padding: 8px 18px;
+    background: #8b7355;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-add-variant:hover {
+    background: #6d5940;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+.variant-item {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 15px;
+    border: 2px solid rgba(139, 115, 85, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.variant-item:hover {
+    border-color: rgba(139, 115, 85, 0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.btn-remove-variant {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove-variant:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+}
+
+#variants-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.variant-item {
+    padding-top: 45px;
+}
+
+.variant-label {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8b7355;
+    text-transform: uppercase;
+}
+
+
+
+/* Action Buttons */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid rgba(139, 115, 85, 0.1);
+}
+
+.btn-save,
+.btn-cancel {
+    flex: 1;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #8b7355 0%, #6d5940 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+}
+
+.btn-save:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+}
+
+.btn-save:active {
+    transform: translateY(-1px);
+}
+
+.btn-save:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #f0ebe0 0%, #e8dcc4 100%);
+    color: #5a4a3a;
+    border: 2px solid rgba(139, 115, 85, 0.3);
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #e8dcc4 0%, #d4c5a9 100%);
+    border-color: #8b7355;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Error Messages */
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 6px;
+    display: block;
+    font-weight: 600;
+}
+
+/* Pagination Styles */
+
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border-color);
+        background: white;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .pagination-info {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .pagination {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 0;
+    }
+
+    .page-link {
+        border: 1px solid var(--border-color);
+        color: var(--text-dark);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .page-link:hover {
+        background-color: #f8f9fa;
+        border-color: var(--border-color);
+        color: var(--text-dark);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        background-color: white;
+        border-color: var(--border-color);
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+    }
+
+    .btn-save {
+    background: #5a4a3a;
+    color: white;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .pagination-info {
+        text-align: center;
+    }
+    
+    .page-link {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Page Container */
+.page-container {
+    padding: 0;
+}
+
+/* Loading Spinner */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .modal-body {
+        grid-template-columns: 380px 1fr;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .modal-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .additional-images-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .edit-product-modal {
+        padding: 28px;
+        margin: 25px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+        padding: 20px 25px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+    }
+    
+    .modal-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row,
+    .form-row-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .additional-images-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .existing-images-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .edit-product-modal {
+        padding: 20px;
+        margin: 20px;
+        border-radius: 12px;
+    }
+    
+    .modal-header-custom h3 {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .additional-images-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .existing-images-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .main-image-upload {
+        height: 280px;
+    }
+    
+    .additional-image-upload {
+        height: 140px;
+    }
+}
+</style>
+
+<div class="product-management-container">
+    <div class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Product Management</h2>
+            
+          
+        </div>
+
+        <!-- Page Container -->
+        <div class="page-container">
+            <!-- Refresh Button -->
+            <!-- <button class="btn-refresh" style="margin-left: 30px;">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button> -->
+
+            <!-- Add Product Modal/Form -->
+            <div class="add-product-modal">
+                <div class="modal-header-custom">
+                    <h3>Add Product</h3>
+                    <button class="btn-close-modal" type="button">&times;</button>
+                </div>
+
+                <form id="addProductForm" action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                       <!-- Left Section: Image Uploads & Description -->
+<div class="image-upload-section">
+
+    <!-- Main Image -->
+    <div class="main-image-upload">
+        <input type="file" id="input1" name="images" accept="image/*" hidden>
+
+        <label for="input1" class="image-upload-label">
+            <img id="imgView1" src="" alt="" style="display: none;">
+            <div class="upload-placeholder">
+                <p class="upload-text">Browse Image</p>
+                <p class="upload-subtext">Click to upload main product image</p>
+            </div>
+        </label>
+    </div>
+
+    <!-- Cropper for Image 1 -->
+    <div class="image-cropper" id="cropperContainer1">
+        <img src="" id="croppedImg1" alt="Cropped Image 1">
+        <button type="button" id="saveButton1">Save</button>
+<button type="button" id="cancelCrop1">Cancel</button>
+
+
+    </div>
+
+    <!-- Additional Images Grid -->
+    <div class="additional-images-grid">
+        <div class="additional-image-upload">
+            <input type="file" id="input2" name="images" accept="image/*" hidden>
+            <label for="input2" class="image-upload-label-small">
+                <img id="imgView2" src="" alt="" style="display: none;">
+                <span class="browse-text">Browse Image</span>
+            </label>
+        </div>
+
+        <div class="additional-image-upload">
+            <input type="file" id="input3" name="images" accept="image/*" hidden>
+            <label for="input3" class="image-upload-label-small">
+                <img id="imgView3" src="" alt="" style="display: none;">
+                <span class="browse-text">Browse Image</span>
+            </label>
+        </div>
+
+        <div class="additional-image-upload">
+            <input type="file" id="input4" name="images" accept="image/*" hidden>
+            <label for="input4" class="image-upload-label-small">
+                <img id="imgView4" src="" alt="" style="display: none;">
+                <span class="browse-text">Browse Image</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Cropper for Image 2 -->
+    <div class="image-cropper" id="cropperContainer2">
+        <img src="" id="croppedImg2" alt="Cropped Image 2">
+        <button type="button" id="saveButton2">Save</button>
+<button type="button" id="cancelCrop2">Cancel</button>
+
+    </div>
+
+    <!-- Cropper for Image 3 -->
+    <div class="image-cropper" id="cropperContainer3">
+        <img src="" id="croppedImg3" alt="Cropped Image 3">
+       <button type="button" id="saveButton3">Save</button>
+<button type="button" id="cancelCrop3">Cancel</button>
+
+    </div>
+
+    <!-- Cropper for Image 4 -->
+    <div class="image-cropper" id="cropperContainer4">
+        <img src="" id="croppedImg4" alt="Cropped Image 4">
+       <button type="button" id="saveButton4">Save</button>
+<button type="button" id="cancelCrop4">Cancel</button>
+
+    </div>
+
+    <!-- Description -->
+    <div class="form-group-description">
+        <label>Description</label>
+        <textarea
+            name="description"
+            id="description"
+            class="form-control"
+            placeholder="Enter product description..."></textarea>
+    </div>
+
+</div>
+
+                        <!-- Right Section: Form Fields -->
+                        <div class="form-fields-section">
+                           
+
+                            <!-- Product Name -->
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" name="productName" id="productName" class="form-control" placeholder="Enter product name">
+                                <div id="productName-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">Select category</option>
+                                    <% if(typeof cat !== 'undefined' && cat.length > 0) { %>
+                                        <% for(let i=0; i<cat.length; i++) { %>
+                                            <option value="<%= cat[i].name %>"><%= cat[i].name %></option>
+                                        <% } %>
+                                    <% } %>
+                                </select>
+                                <div id="category-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Date and GST Row -->
+                          <div class="form-row">
+  <div class="form-group">
+    <label>GST (%)</label>
+    <input 
+      type="number" 
+      name="gst" 
+      id="gst" 
+      class="form-control"
+      placeholder="18"
+      min="0"
+      max="100"
+      step="0.01"
+      required
+    >
+    <div id="gst-error" class="error-message"></div>
+  </div>
+</div>
+
+
+                           
+
+                     <!-- VARIANTS SECTION -->
+<!-- VARIANTS SECTION -->
+<div class="variant-section">
+  <div class="variant-header">
+    <h4 class="variant-title">Product Variants</h4>
+    <button type="button" class="btn-add-variant" onclick="addVariant()">
+      <i class="fas fa-plus"></i> Add Variant
+    </button>
+  </div>
+
+  <div id="variants-container">
+    <!-- Default Variant -->
+    <div class="variant-item" data-variant-index="0">
+      <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="variant-label">Variant 1</div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Weight</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            name="variants[0][weight]"
+            class="form-control"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Unit</label>
+          <select
+            name="variants[0][unit]"
+            class="form-select"
+            required
+          >
+            <option value="grm">grm</option>
+            <option value="kg">kg</option>
+            <option value="ml">ml</option>
+            <option value="ltr">ltr</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Regular Price</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            name="variants[0][regularPrice]"
+            class="form-control"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Sale Price</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            name="variants[0][salePrice]"
+            class="form-control"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Stock</label>
+          <input
+            type="number"
+            step="1"
+            min="0"
+            name="variants[0][stock]"
+            class="form-control"
+            required
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="variants-error" class="error-message"></div>
+</div>
+
+                            <!-- Submit Error -->
+                            <div id="submit-error" class="error-message"></div>
+
+                            <!-- Action Buttons -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn-save">Add Product</button>
+
+                                <button type="button" class="btn-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add this pagination section at the bottom of your product list (before closing container) -->
+<!-- Pagination -->
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+/* ===============================
+   GLOBALS
+================================ */
+let croppers = {};
+let selectedImages = {};
+  const gstInput = document.getElementById("gst");
+
+/* ===============================
+   IMAGE PREVIEW + CROPPER
+================================ */
+function viewImage(event, index) {
+  const input = event.target;
+  if (!input.files || !input.files[0]) return;
+
+  const image = document.getElementById(`imgView${index}`);
+  const cropperContainer = document.getElementById(`cropperContainer${index}`);
+  const croppedImage = document.getElementById(`croppedImg${index}`);
+  const saveBtn = document.getElementById(`saveButton${index}`);
+  const cancelBtn = document.getElementById(`cancelCrop${index}`);
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    // Show preview image
+    image.src = reader.result;
+    image.style.display = "block";
+
+    // Hide placeholder
+    const placeholder = image.parentElement.querySelector(
+      ".upload-placeholder, .browse-text"
+    );
+    if (placeholder) placeholder.style.display = "none";
+
+    // Prepare cropper image
+    croppedImage.src = reader.result;
+    cropperContainer.classList.add("active");
+
+    // Track image as selected
+    selectedImages[index] = true;
+    showRemoveIcon(index);
+
+    // Destroy old cropper if exists
+    if (croppers[index]) croppers[index].destroy();
+
+    // 🔥 PROFESSIONAL CROPPER CONFIG
+    croppers[index] = new Cropper(croppedImage, {
+      viewMode: 1,
+      autoCropArea: 0.9,
+      responsive: true,
+      background: false,
+      movable: true,
+      zoomable: true,
+      rotatable: false,
+      scalable: false,
+      cropBoxResizable: true,   // 👈 rectangle or square
+      cropBoxMovable: true
+      // ❌ NO aspectRatio → free resize
+    });
+
+    // SAVE CROP
+    saveBtn.onclick = () => {
+      const canvas = croppers[index].getCroppedCanvas({
+        width: 800,
+        height: 800,
+        imageSmoothingQuality: "high"
+      });
+
+      image.src = canvas.toDataURL("image/jpeg", 0.9);
+
+      canvas.toBlob(blob => {
+        const file = new File(
+          [blob],
+          `product-${Date.now()}.jpg`,
+          { type: "image/jpeg" }
+        );
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+
+        cleanupCropper(index);
+      });
+    };
+
+    // CANCEL CROP
+    cancelBtn.onclick = () => cancelCrop(index);
+  };
+
+  reader.readAsDataURL(input.files[0]);
+}
+function cancelCrop(index) {
+  const input = document.getElementById(`input${index}`);
+  const image = document.getElementById(`imgView${index}`);
+  const croppedImage = document.getElementById(`croppedImg${index}`);
+  const cropperContainer = document.getElementById(`cropperContainer${index}`);
+
+  // Destroy cropper
+  if (croppers[index]) {
+    croppers[index].destroy();
+    delete croppers[index];
+  }
+
+  // Reset input
+  input.value = "";
+
+  // Hide images
+  image.src = "";
+  image.style.display = "none";
+  croppedImage.src = "";
+
+  // Remove selection
+  delete selectedImages[index];
+
+  // Hide cropper UI
+  cropperContainer.classList.remove("active");
+
+  // Restore placeholder
+  const placeholder = image.parentElement.querySelector(
+    ".upload-placeholder, .browse-text"
+  );
+  if (placeholder) placeholder.style.display = "block";
+
+  // Remove ❌ icon
+  const btn = document.getElementById(`removeImage${index}`);
+  if (btn) btn.remove();
+}
+function cleanupCropper(index) {
+  const cropperContainer = document.getElementById(`cropperContainer${index}`);
+
+  if (croppers[index]) {
+    croppers[index].destroy();
+    delete croppers[index];
+  }
+
+  cropperContainer.classList.remove("active");
+}
+
+function showRemoveIcon(index) {
+    let btn = document.getElementById(`removeImage${index}`);
+    if (btn) return;
+
+    btn = document.createElement('span');
+    btn.id = `removeImage${index}`;
+    btn.innerHTML = '❌';
+    btn.style.cssText = `
+        cursor:pointer;
+        position:absolute;
+        top:5px;
+        right:5px;
+        font-size:18px;
+    `;
+btn.onclick = (e) => {
+  e.stopPropagation();
+  removeImage(index);
+};
+
+    document.getElementById('imgView' + index).parentElement.appendChild(btn);
+}
+
+function removeImage(index) {
+    const input = document.getElementById('input' + index);
+    const image = document.getElementById('imgView' + index);
+    const cropperContainer = document.getElementById(`cropperContainer${index}`);
+
+    if (input) input.value = '';
+
+    if (image) {
+        image.src = '';
+        image.style.display = 'none';
+
+        const placeholder = image.parentElement.querySelector('.browse-text');
+        if (placeholder) placeholder.style.display = 'block';
+    }
+
+    if (croppers[index]) {
+        croppers[index].destroy();
+        delete croppers[index];
+    }
+
+    if (cropperContainer) {
+        cropperContainer.classList.remove('active');
+    }
+
+    delete selectedImages[index];
+
+    document.getElementById(`removeImage${index}`)?.remove();
+}
+
+['1','2','3','4'].forEach(i => {
+    document.getElementById('input' + i)
+        ?.addEventListener('change', e => viewImage(e, i));
+});
+
+/* ===============================
+   VARIANTS
+================================ */
+let variantCount = document.querySelectorAll('.variant-item').length || 1;
+
+function addVariant() {
+    const container = document.getElementById('variants-container');
+
+    container.insertAdjacentHTML('beforeend', `
+        <div class="variant-item" data-variant-index="${variantCount}">
+            <button type="button" class="btn-remove-variant" onclick="removeVariant(this)">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="variant-label">Variant ${variantCount + 1}</div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Weight</label>
+                    <input type="text"
+                        name="variants[${variantCount}][weight]"
+                        class="form-control variant-weight">
+                </div>
+
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select name="variants[${variantCount}][unit]"
+                        class="form-select variant-unit">
+                        <option value="grm">grm</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="ltr">ltr</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Regular Price</label>
+                    <input type="text"
+                        name="variants[${variantCount}][regularPrice]"
+                        class="form-control">
+                </div>
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Sale Price</label>
+                    <input type="text"
+                        name="variants[${variantCount}][salePrice]"
+                        class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="text"
+                        name="variants[${variantCount}][stock]"
+                        class="form-control">
+                </div>
+            </div>
+        </div>
+    `);
+
+    variantCount++;
+}
+
+
+function removeVariant(btn) {
+    const variants = document.querySelectorAll('.variant-item');
+    if (variants.length <= 1) {
+        Swal.fire('At least one variant is required');
+        return;
+    }
+    btn.closest('.variant-item').remove();
+}
+
+/* ===============================
+   FORM VALIDATION (FIXED)
+================================ */
+function validateForm() {
+    const productName = document.getElementById('productName');
+    const description = document.getElementById('description');
+
+    let errors = [];
+
+    if (!productName?.value.trim())
+        errors.push('Product name is required');
+
+    if (!description?.value.trim())
+        errors.push('Description is required');
+
+    const gstVal = gstInput?.value.trim();
+    if (!gstVal || isNaN(gstVal) || gstVal < 0 || gstVal > 100)
+        errors.push('GST must be between 0 and 100');
+
+    document.querySelectorAll('.variant-item').forEach((v, i) => {
+        const weight = v.querySelector('[name*="weight"]')?.value.trim();
+        const regularPrice = v.querySelector('[name*="regularPrice"]')?.value.trim();
+        const salePrice = v.querySelector('[name*="salePrice"]')?.value.trim();
+        const stock = v.querySelector('[name*="stock"]')?.value.trim();
+
+        if (!weight || parseFloat(weight) <= 0)
+            errors.push(`Variant ${i + 1}: Weight must be positive`);
+
+        if (!regularPrice || parseFloat(regularPrice) <= 0)
+            errors.push(`Variant ${i + 1}: Regular price must be positive`);
+
+        // ✅ SALE PRICE CHECK
+        if (salePrice !== '') {
+            if (parseFloat(salePrice) < 0)
+                errors.push(`Variant ${i + 1}: Sale price cannot be negative`);
+
+            else if (parseFloat(salePrice) > parseFloat(regularPrice))
+                errors.push(`Variant ${i + 1}: Sale price cannot be higher than regular price`);
+        }
+
+        if (stock === '' || parseInt(stock) < 0)
+            errors.push(`Variant ${i + 1}: Stock must be 0 or more`);
+    });
+
+    const imageCount = Object.keys(selectedImages || {}).length;
+
+    if (imageCount < 3)
+        errors.push('At least 3 product images are required');
+
+    if (imageCount > 4)
+        errors.push('Maximum 4 images allowed');
+
+    if (errors.length) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            html: `<ul style="text-align:left">
+                   ${errors.map(e => `<li>${e}</li>`).join('')}
+                   </ul>`
+        });
+        return false;
+    }
+
+    return true;
+}
+
+/* ===============================
+   FORM SUBMIT
+================================ */
+document.getElementById('addProductForm')
+    .addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!validateForm()) return;
+
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('/admin/addProduct', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Failed to add product'
+                });
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: data.message || 'Product added successfully'
+            }).then(() => {
+                window.location.href = '/admin/products';
+            });
+
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Server Error',
+                text: 'Please try again later'
+            });
+        }
+    });
+
+
+
+
+
+function confirmExit() {
+  Swal.fire({
+    title: 'Discard changes?',
+    text: 'Any unsaved data will be lost.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, leave',
+    cancelButtonText: 'Stay'
+  }).then(result => {
+    if (result.isConfirmed) {
+      window.location.href = '/admin/products';
+    }
+  });
+}
+
+document.querySelector('.btn-close-modal')?.addEventListener('click', confirmExit);
+document.querySelector('.btn-cancel')?.addEventListener('click', confirmExit);
+
+gstInput.addEventListener("input", () => {
+  const value = parseFloat(gstInput.value);
+  const error = document.getElementById("gst-error");
+
+  if (isNaN(value) || value < 0 || value > 100) {
+    error.innerText = "GST must be between 0 and 100";
+  } else {
+    error.innerText = "";
+  }
+});
+
+
+</script>
