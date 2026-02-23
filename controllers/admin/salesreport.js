@@ -6,52 +6,94 @@ import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import logger from '../../utils/logger.js';
 
-
 // Load sales report page
 const loadSalesReport = async (req, res) => {
   try {
-    const { period = "daily", startDate, endDate, page = 1, paymentMethod, status } = req.query;
-    const limit = 10;
-    const skip = (page - 1) * limit;
+    const {
+      period = "daily",
+      startDate,
+      endDate,
+      page = 1,
+      paymentMethod,
+      status
+    } = req.query;
 
+    const limit = 10;
+    const currentPage = parseInt(page) || 1;
+    const skip = (currentPage - 1) * limit;
+
+  
+    if (period === "custom") {
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Start and End date required"
+        });
+      }
+
+      const todayStr = new Date().toLocaleDateString("en-CA"); 
+      // en-CA gives YYYY-MM-DD in LOCAL timezone
+
+      // Safe string comparison
+      if (startDate > todayStr || endDate > todayStr) {
+        return res.status(400).json({
+          success: false,
+          message: "Future dates not allowed"
+        });
+      }
+
+      if (startDate > endDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Start date cannot be after End date"
+        });
+      }
+    }
+
+  
     const dateFilter = getDateRange(period, startDate, endDate);
-    
-    // Build query with optional filters
-    let query = { ...dateFilter };
-    
+
+   
+    const query = { ...dateFilter };
+
     if (paymentMethod && paymentMethod !== "all") {
       query.paymentMethod = paymentMethod;
     }
-    
+
     if (status && status !== "all") {
       query.status = status;
     }
 
-    // Fetch orders with pagination
-    const orders = await Order.find(query)
-      .populate("userId", "name email")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
 
-    // Get total count for pagination
-    const totalOrders = await Order.countDocuments(query);
+    const [orders, totalOrders, allOrders] = await Promise.all([
+
+      Order.find(query)
+        .populate("userId", "name email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      Order.countDocuments(query),
+
+      Order.find(query)
+        .populate("userId", "name email")
+        .lean()
+
+    ]);
+
     const totalPages = Math.ceil(totalOrders / limit);
-
-    // Fetch all orders for statistics (without pagination)
-    const allOrders = await Order.find(query)
-      .populate("userId", "name email")
-      .lean();
 
     const statistics = calculateStatistics(allOrders);
 
-    res.render("salesreport", {
-        title: "Sales Report",
+   
+    return res.render("salesreport", {
+      title: "Sales Report",
       currentRoute: "sales-report",
       orders,
       statistics,
-      currentPage: parseInt(page),
+      currentPage,
       totalPages,
       totalOrders,
       period,
@@ -60,11 +102,17 @@ const loadSalesReport = async (req, res) => {
       paymentMethod: paymentMethod || "all",
       status: status || "all",
     });
+
   } catch (error) {
     console.error("Error generating sales report:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
   }
 };
+
 
 // Download sales report
 const downloadSalesReport = async (req, res) => {

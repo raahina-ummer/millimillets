@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sales Report – Admin Dashboard</title>
-    <link rel="stylesheet" href="/css/admin/admin.css" />
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -554,7 +554,8 @@
             <!-- Filter Section -->
             <div class="filter-card">
                 <h3>🔍 Report Filters</h3>
-                <form method="GET" action="/admin/sales-report" class="filter-form">
+                <form id="salesForm" class="filter-form">
+
                     <div class="form-group">
                         <label>Report Period</label>
                         <select name="period" id="periodSelect" onchange="toggleCustomDates()">
@@ -569,14 +570,20 @@
                     <div class="form-group" id="startDateGroup"
                         style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
                         <label>Start Date</label>
-                        <input type="date" name="startDate" value="<%= startDate || '' %>" />
+                        <input type="date" name="startDate" value="<%= startDate || '' %>" max="<%= new Date().toLocaleDateString('en-CA') %>"
+
+/>
+
+
                     </div>
 
                     <div class="form-group" id="endDateGroup"
                         style="display: <%= period === 'custom' ? 'flex' : 'none' %>">
 
                         <label>End Date</label>
-                        <input type="date" name="endDate" value="<%= endDate || '' %>" />
+                       <input type="date" name="endDate"  value="<%= endDate || '' %>" max="<%= new Date().toLocaleDateString('en-CA') %>"
+
+ />
                     </div>
 
                     <div class="form-group">
@@ -886,6 +893,58 @@
         <%- include('../partials/admin/footer.ejs') %>
 
             <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const salesForm = document.getElementById("salesForm");
+
+    if (salesForm) {
+        salesForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            const url = `/admin/sales-report?${params.toString()}`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    const data = await response.json();
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Input',
+                        text: data.message || 'Something went wrong',
+                        confirmButtonColor: '#8b7355'
+                    });
+
+                    return;
+                }
+
+                window.location.href = url;
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Server error. Please try again.',
+                    confirmButtonColor: '#8b7355'
+                });
+            }
+        });
+    }
+
+    toggleCustomDates();
+
+    const periodSelect = document.getElementById('periodSelect');
+    if (periodSelect) {
+        periodSelect.addEventListener('change', toggleCustomDates);
+    }
+
+});
+
+
                 function toggleCustomDates() {
                     const period = document.getElementById('periodSelect').value;
                     const startDateGroup = document.getElementById('startDateGroup');
@@ -901,25 +960,34 @@
 
                     updateDateConstraints();
                 }
+function updateDateConstraints() {
+    const startDateInput = document.querySelector('input[name="startDate"]');
+    const endDateInput = document.querySelector('input[name="endDate"]');
 
-                function updateDateConstraints() {
-                    const startDateInput = document.querySelector('input[name="startDate"]');
-                    const endDateInput = document.querySelector('input[name="endDate"]');
+    if (startDateInput && endDateInput) {
 
-                    if (startDateInput && endDateInput) {
-                        startDateInput.addEventListener('change', () => {
-                            if (startDateInput.value) {
-                                endDateInput.min = startDateInput.value;
-                            }
-                        });
+        // 🔥 SET MAX DATE TO TODAY
+        const today = new Date().toISOString().split('T')[0];
+        startDateInput.max = today;
+        endDateInput.max = today;
 
-                        endDateInput.addEventListener('change', () => {
-                            if (endDateInput.value) {
-                                startDateInput.max = endDateInput.value;
-                            }
-                        });
-                    }
-                }
+        // When start date changes → update end min
+        startDateInput.addEventListener('change', () => {
+            if (startDateInput.value) {
+                endDateInput.min = startDateInput.value;
+            }
+        });
+
+        // When end date changes → update start max
+        endDateInput.addEventListener('change', () => {
+            if (endDateInput.value) {
+                startDateInput.max = endDateInput.value > today
+                    ? today
+                    : endDateInput.value;
+            }
+        });
+    }
+}
 
                 async function downloadReport(format) {
                     try {

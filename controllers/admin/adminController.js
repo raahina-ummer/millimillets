@@ -50,7 +50,7 @@ const login = async (req, res) => {
       });
 
   } catch (error) {
-    console.log("Login error:", error);
+    logger.error("Login error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message:message.GENERAL.SERVER_ERROR
@@ -75,7 +75,7 @@ const logout = (req, res) => {
     });
 
   } catch (error) {
-    console.log("Unexpected error during admin logout:", error);
+  logger.error("Unexpected error during admin logout:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR

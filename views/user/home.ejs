@@ -617,13 +617,13 @@
                                     </p>
                                     <% } %>
                                         <div class="product-price-row">
-                                            <span class="product-price">₹<%= product.calculateFinalPrice().toFixed(2) %>
+                                            <span class="product-price">₹<%= product.finalPrice.toFixed(2) %>
                                                     </span>
-                                            <% if (product.getDiscountPercentage()> 0) { %>
+                                            <% if (product.discountPercentage > 0) { %>
                                                 <span class="product-price-old">₹<%=
                                                         product.variant[0].salePrice.toFixed(2) %></span>
                                                 <span class="product-discount">
-                                                    <%= product.getDiscountPercentage() %>% OFF
+                                                    <%= product.basePrice %>% OFF
                                                 </span>
                                                 <% } %>
                                         </div>

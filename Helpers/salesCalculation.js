@@ -29,11 +29,13 @@ export const getDateRange = (period, startDate, endDate) => {
       end = new Date(now.getFullYear() + 1, 0, 1);
       break;
 
-    case "custom":
-      start = new Date(startDate);
-      end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      break;
+case "custom": {
+  start = new Date(startDate + "T00:00:00");
+  end = new Date(endDate + "T23:59:59.999");
+  break;
+}
+
+
 
     default:
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -43,14 +45,13 @@ export const getDateRange = (period, startDate, endDate) => {
   return {
     createdAt: {
       $gte: start,
-      $lt: end,
+      $lte: end,
     },
   };
 };
 
 //Calculate sales statistics from orders
 export const calculateStatistics = (orders = []) => {
-
   const stats = {
     totalOrders: orders.length,
 
@@ -74,16 +75,11 @@ export const calculateStatistics = (orders = []) => {
     refundedAmount: 0,
   };
 
-  const REVENUE_STATUSES = [
-    "Delivered",
-    "Shipped",
-    "Processing"
-  ];
+  const REVENUE_STATUSES = ["Delivered", "Shipped", "Processing"];
 
   let revenueOrderCount = 0;
 
-  orders.forEach(order => {
-
+  orders.forEach((order) => {
     const itemDiscount = order.itemDiscount || 0;
     const couponDiscount = order.couponDiscount || 0;
     const totalDiscount = itemDiscount + couponDiscount;
@@ -115,19 +111,15 @@ export const calculateStatistics = (orders = []) => {
 
     // ---- REAL REVENUE ----
     if (REVENUE_STATUSES.includes(order.status)) {
-      stats.totalRevenue += (finalAmount - refund);
+      stats.totalRevenue += finalAmount - refund;
       revenueOrderCount++;
     }
-
   });
 
-  stats.totalDiscount =
-    stats.totalItemDiscount + stats.totalCouponDiscount;
+  stats.totalDiscount = stats.totalItemDiscount + stats.totalCouponDiscount;
 
   stats.averageOrderValue =
-    revenueOrderCount > 0
-      ? stats.totalRevenue / revenueOrderCount
-      : 0;
+    revenueOrderCount > 0 ? stats.totalRevenue / revenueOrderCount : 0;
 
   return stats;
 };

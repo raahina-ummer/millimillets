@@ -1,17 +1,13 @@
-
-
-
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import Product from "../../models/ProductSchema.js";
 import Category from "../../models/CategorySchema.js";
- import * as offerService from "../../Services/offerService.js"
-import { calculateBestOffer,getCategoriesWithOffers,getProductsWithOffers } from "../../Services/offerService.js";
-
-
-
-
-
+import * as offerService from "../../Services/offerService.js";
+import {
+  calculateBestOffer,
+  getCategoriesWithOffers,
+  getProductsWithOffers,
+} from "../../Services/offerService.js";
 
 export const loadOffer = async (req, res) => {
   try {
@@ -20,7 +16,7 @@ export const loadOffer = async (req, res) => {
 
     res.render("offer", {
       title: "Offers",
-currentRoute: "offer",
+      currentRoute: "offer",
       currentRoute: "offer",
       title: "Offers Management - MILLIMILLET",
       categories: categories || [],
@@ -126,7 +122,7 @@ export const getCategoryOffers = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const categories = await offerService.getCategoriesWithOffers();
-    const paginatedCategories = categories.slice(skip, skip + limit)
+    const paginatedCategories = categories.slice(skip, skip + limit);
     const totalCategories = categories.length;
 
     // Calculate stats
@@ -178,9 +174,7 @@ export const getSingleCategoryOffer = async (req, res) => {
 export const addCategoryOffer = async (req, res) => {
   try {
     await offerService.addCategoryOffer(req.body.categoryId, req.body);
-    res
-      .status(Status.OK)
-      .json({ message: message.CATEGORY.CREATED_SUCCESS });
+    res.status(Status.OK).json({ message: message.CATEGORY.CREATED_SUCCESS });
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
@@ -197,13 +191,11 @@ export const updateCategoryOffer = async (req, res) => {
       categoryId,
       req.body,
     );
-    res
-      .status(Status.OK)
-      .json({
-        success: true,
-        message: message.CATEGORY.OFFER_UPDATED_SUCCESS,
-        category,
-      });
+    res.status(Status.OK).json({
+      success: true,
+      message: message.CATEGORY.OFFER_UPDATED_SUCCESS,
+      category,
+    });
   } catch (error) {
     console.log("updateCategoryOffer", error);
     res
@@ -245,14 +237,13 @@ export const removeCategoryOffer = async (req, res) => {
     await offerService.removeCategoryOffer(req.body.categoryId);
     res
       .status(Status.OK)
-      .json({ message:message.CATEGORY.OFFER_DELETED_SUCCESS  });
+      .json({ message: message.CATEGORY.OFFER_DELETED_SUCCESS });
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
-
 
 // OFFER CALCULATION CONTROLLERS
 export const calculateProductOffer = async (req, res) => {

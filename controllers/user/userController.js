@@ -13,6 +13,8 @@ import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import Cart from "../../models/CartSchema.js";
 import Wallet from "../../models/WalletSchema.js";
+
+import { calculateFinalPrice, calculateBestOffer } from "../../Services/offerService.js";
 import ReferralOffer from "../../models/referralSchema.js"
 import logger from '../../utils/logger.js';
 
@@ -40,68 +42,169 @@ const loadHomepage = async (req, res) => {
       user = await User.findById(userId);
     }
 
-    // Get best selling products 
-   
-    const products = await Product.find({
+    // Featured products
+    const productsRaw = await Product.find({
       isBlocked: false,
       status: "Available"
     })
-      .populate('category')
+      .populate("category")
       .sort({ createdAt: -1 })
       .limit(3);
 
-    // if (products.length > 0) {
-    //   console.log('First product:', products[0].productName);
-    //   console.log('Image path stored:', products[0].productImage);
-    //   console.log('First image:', products[0].productImage[0]);
-    // }
+    const products = productsRaw.map(product => {
+      const finalPrice = calculateFinalPrice(product, product.category);
+      const bestOffer = calculateBestOffer(product, product.category);
 
-   
+      const variant = product.variant?.[0];
+      const basePrice =
+        variant.salePrice && variant.salePrice < variant.regularPrice
+          ? variant.salePrice
+          : variant.regularPrice;
+
+      return {
+        ...product.toObject(),
+        finalPrice,
+        basePrice,
+        discountPercentage: bestOffer?.discountPercentage || 0
+      };
+    });
+
+    // Categories
     const categories = await Category.find({ isListed: true })
       .sort({ name: 1 })
       .limit(3);
 
-   
+    // Offer products
     const currentDate = new Date();
-    const offerProducts = await Product.find({
+
+    let offerProductsRaw = await Product.find({
       isBlocked: false,
       status: "Available",
-      'productOffer.offerActive': true,
-      'productOffer.discountPercentage': { $gt: 0 },
+      "productOffer.offerActive": true,
+      "productOffer.discountPercentage": { $gt: 0 },
       $or: [
-        { 'productOffer.offerEndDate': { $gte: currentDate } },
-        { 'productOffer.offerEndDate': null }
+        { "productOffer.offerEndDate": { $gte: currentDate } },
+        { "productOffer.offerEndDate": null }
       ]
     })
-      .populate('category')
-      .sort({ 'productOffer.discountPercentage': -1 }) 
+      .populate("category")
+      .sort({ "productOffer.discountPercentage": -1 })
       .limit(4);
 
-    // If less than 4 offer products, fill with regular products
-    if (offerProducts.length < 4) {
-      const additionalProducts = await Product.find({
+    // Fill remaining if less than 4
+    if (offerProductsRaw.length < 4) {
+      const additional = await Product.find({
         isBlocked: false,
         status: "Available",
-        _id: { $nin: offerProducts.map(p => p._id) }
+        _id: { $nin: offerProductsRaw.map(p => p._id) }
       })
-        .populate('category')
+        .populate("category")
         .sort({ createdAt: -1 })
-        .limit(4 - offerProducts.length);
+        .limit(4 - offerProductsRaw.length);
 
-      offerProducts.push(...additionalProducts);
+      offerProductsRaw.push(...additional);
     }
 
-    res.render('home', {
+    const offerProducts = offerProductsRaw.map(product => {
+      const finalPrice = calculateFinalPrice(product, product.category);
+      const bestOffer = calculateBestOffer(product, product.category);
+
+      const variant = product.variant?.[0];
+      const basePrice =
+        variant.salePrice && variant.salePrice < variant.regularPrice
+          ? variant.salePrice
+          : variant.regularPrice;
+
+      return {
+        ...product.toObject(),
+        finalPrice,
+        basePrice,
+        discountPercentage: bestOffer?.discountPercentage || 0
+      };
+    });
+
+    res.render("home", {
       user,
       products,
       categories,
       offerProducts
     });
+
   } catch (error) {
-    console.error('Error loading homepage:', error);
-    return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
+    console.error("Error loading homepage:", error);
+    return res.status(Status.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: message.GENERAL.SERVER_ERROR
+    });
   }
 };
+
+
+// const loadHomepage = async (req, res) => {
+//   try {
+//     const userId = req.session.user?.id;
+//     let user = null;
+
+//     if (userId) {
+//       user = await User.findById(userId);
+//     }
+
+//     // Get best selling products 
+
+//     const products = await Product.find({
+//       isBlocked: false,
+//       status: "Available"
+//     })
+//       .populate('category')
+//       .sort({ createdAt: -1 })
+//       .limit(3);
+
+
+//     const categories = await Category.find({ isListed: true })
+//       .sort({ name: 1 })
+//       .limit(3);
+
+
+//     const currentDate = new Date();
+//     const offerProducts = await Product.find({
+//       isBlocked: false,
+//       status: "Available",
+//       'productOffer.offerActive': true,
+//       'productOffer.discountPercentage': { $gt: 0 },
+//       $or: [
+//         { 'productOffer.offerEndDate': { $gte: currentDate } },
+//         { 'productOffer.offerEndDate': null }
+//       ]
+//     })
+//       .populate('category')
+//       .sort({ 'productOffer.discountPercentage': -1 }) 
+//       .limit(4);
+
+//     // If less than 4 offer products, fill with regular products
+//     if (offerProducts.length < 4) {
+//       const additionalProducts = await Product.find({
+//         isBlocked: false,
+//         status: "Available",
+//         _id: { $nin: offerProducts.map(p => p._id) }
+//       })
+//         .populate('category')
+//         .sort({ createdAt: -1 })
+//         .limit(4 - offerProducts.length);
+
+//       offerProducts.push(...additionalProducts);
+//     }
+
+//     res.render('home', {
+//       user,
+//       products,
+//       categories,
+//       offerProducts
+//     });
+//   } catch (error) {
+//     console.error('Error loading homepage:', error);
+//     return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
+//   }
+// };
 
 const loadSignup = async (req, res) => {
   try {
@@ -173,7 +276,7 @@ const signup = async (req, res) => {
     }
 
     const otp = generateOtp();
-    console.log("otp",otp)
+    console.log("otp", otp)
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
@@ -213,7 +316,7 @@ const signup = async (req, res) => {
 
 const loadVerifyOtp = async (req, res) => {
   try {
-    
+
     if (!req.session.email || !req.session.userOtp) {
       return res.redirect("/signup");
     }
@@ -255,7 +358,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-   
+
     const sessionUser = req.session.userData;
 
     if (!sessionUser) {
@@ -265,7 +368,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-  
+
     const newUserReferralCode = await generateUniqueReferralCode(sessionUser.name);
 
     const newUser = await User.create({
@@ -273,7 +376,7 @@ const verifyOtp = async (req, res) => {
       email: sessionUser.email,
       phone: sessionUser.phone,
       password: sessionUser.passwordHash,
-      referralCode: newUserReferralCode, 
+      referralCode: newUserReferralCode,
     });
 
     let wallet = await Wallet.findOne({ userId: newUser._id });
@@ -286,7 +389,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    
+
     if (sessionUser.referralCode) {
       const referrer = await User.findOne({
         referralCode: sessionUser.referralCode,
@@ -317,12 +420,12 @@ const verifyOtp = async (req, res) => {
       }
     }
 
-    
+
     req.session.user = {
       id: newUser._id,
     };
 
-   
+
     delete req.session.userOtp;
     delete req.session.otpExpiry;
     delete req.session.userData;
@@ -388,7 +491,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const findUser = await User.findOne({ email, isAdmin: false }) 
+    const findUser = await User.findOne({ email, isAdmin: false })
 
 
     if (!findUser) {
@@ -411,11 +514,11 @@ const login = async (req, res) => {
       });
     }
 
-    req.session.user = { id: findUser._id ,name: findUser.name};
+    req.session.user = { id: findUser._id, name: findUser.name };
 
 
     req.session.loginSuccess = true;
-        console.log("SESSION AFTER LOGIN:", req.session.user);
+    console.log("SESSION AFTER LOGIN:", req.session.user);
     res.redirect("/");
 
   } catch (error) {
@@ -434,7 +537,7 @@ const logout = (req, res) => {
       console.log("Logout error:", err);
       return res.redirect("/pageNotFound");
     }
-    res.clearCookie("connect.sid"); 
+    res.clearCookie("connect.sid");
     res.redirect("/login");
   });
 };
@@ -448,7 +551,7 @@ const loadShop = async (req, res) => {
 
     const userId = req.session?.user?.id || null;
 
-   
+
     const { category, sort = "newest", search = "", minPrice, maxPrice } = req.query;
 
     const now = new Date();
@@ -608,11 +711,11 @@ const loadShop = async (req, res) => {
         $match: {
           ...(minPrice || maxPrice
             ? {
-                finalPrice: {
-                  ...(minPrice && { $gte: Number(minPrice) }),
-                  ...(maxPrice && { $lte: Number(maxPrice) }),
-                },
-              }
+              finalPrice: {
+                ...(minPrice && { $gte: Number(minPrice) }),
+                ...(maxPrice && { $lte: Number(maxPrice) }),
+              },
+            }
             : {}),
         },
       },
@@ -677,7 +780,7 @@ const loadShop = async (req, res) => {
       search,
       user: req.session.user || null,
       cartCount,
-    
+
     });
   } catch (error) {
     console.error("Error loading shop:", error);
@@ -686,10 +789,10 @@ const loadShop = async (req, res) => {
 };
 
 
- const loadAboutPage = async (req, res) => {
+const loadAboutPage = async (req, res) => {
   try {
     const user = req.session.user.id
-    res.render("about",{user});
+    res.render("about", { user });
   } catch (error) {
     console.error("Error loading about page:", error);
     res.redirect("/pageNotFound");

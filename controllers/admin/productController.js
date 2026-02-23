@@ -282,13 +282,14 @@ const addProducts = async (req, res) => {
     });
   }
 };
-
+//if product has category offer or product offer , product shouldnot be blocked?
 
 
 
 const blockProduct = async (req, res) => {
   try {
     const id = req.query.id;
+  
     await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/products");
   } catch (error) {
