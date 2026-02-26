@@ -13,8 +13,8 @@
       :root {
         --primary-color: #8b6f47;
         --secondary-color: #4a4a4a;
-        --background-color: #D0C19A;
-        --body-background: #D0C19A;
+        --background-color: #d0c19a;
+        --body-background: #d0c19a;
         --text-color-dark: #333;
         --text-color-light: #666;
         --button-color: #8b6f47;
@@ -27,7 +27,7 @@
       }
 
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: var(--body-background);
         color: var(--text-color-dark);
         line-height: 1.6;
@@ -35,7 +35,7 @@
         display: flex;
         flex-direction: column;
       }
-      
+
       /* Header and Branding */
       .header-section {
         padding: 50px 0 30px 0;
@@ -75,7 +75,7 @@
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         margin: 40px 0 50px 0;
       }
-      
+
       .form-section h2 {
         font-size: 28px;
         font-weight: 700;
@@ -111,7 +111,7 @@
         background-color: #fafafa;
         transition: all 0.3s ease;
       }
-      
+
       .form-control:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 0.25rem rgba(139, 111, 71, 0.1);
@@ -180,7 +180,7 @@
         border-color: #ccc;
         transform: translateY(-1px);
       }
-      
+
       /* Password Toggle */
       .password-container {
         position: relative;
@@ -202,9 +202,9 @@
       .password-toggle:hover {
         color: var(--primary-color);
       }
-      
+
       .password-container .form-control {
-        padding-right: 50px; 
+        padding-right: 50px;
       }
 
       /* Error Messages */
@@ -215,7 +215,7 @@
         margin-top: 6px;
         font-weight: 500;
       }
-      
+
       .error-message.show {
         display: block;
       }
@@ -230,7 +230,7 @@
 
       .divider::before,
       .divider::after {
-        content: '';
+        content: "";
         flex: 1;
         border-bottom: 1px solid #ddd;
       }
@@ -304,7 +304,7 @@
       .footer-section a:hover {
         color: var(--primary-color);
       }
-      
+
       .footer-about p {
         font-size: 14px;
         line-height: 1.8;
@@ -334,7 +334,7 @@
         background: var(--primary-color);
         transform: translateY(-2px);
       }
-      
+
       .copyright {
         font-size: 13px;
         margin-top: 20px;
@@ -413,10 +413,11 @@
 
       <div class="form-section">
         <h2 class="text-center">CREATE ACCOUNT</h2>
-        <p class="text-center form-subtitle">Join us for a healthier lifestyle</p>
+        <p class="text-center form-subtitle">
+          Join us for a healthier lifestyle
+        </p>
 
         <form id="signForm">
-        
           <div class="mb-3">
             <label for="name" class="form-label">Full Name</label>
             <input
@@ -430,7 +431,7 @@
             />
             <span id="nameError" class="error-message"></span>
           </div>
-          
+
           <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
             <input
@@ -447,18 +448,18 @@
 
           <div class="mb-3">
             <label for="phone" class="form-label">Mobile Number</label>
-         <input
-  type="tel"
-  class="form-control"
-  id="phone"
-  name="phone"
-  placeholder="10-digit mobile number"
-  maxlength="10"
-  pattern="[6-9][0-9]{9}"
-  oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-  onblur="validatePhone()"
-  required
-/>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone"
+              name="phone"
+              placeholder="10-digit mobile number"
+              maxlength="10"
+              pattern="[6-9][0-9]{9}"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+              onblur="validatePhone()"
+              required
+            />
 
             <span id="phoneError" class="error-message"></span>
           </div>
@@ -474,7 +475,11 @@
               onblur="validatePassword()"
               required
             />
-            <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
+            <span
+              class="password-toggle"
+              onclick="togglePasswordVisibility('password')"
+              >👁️</span
+            >
             <span id="passwordError" class="error-message"></span>
           </div>
 
@@ -489,12 +494,18 @@
               onblur="validateConfirmPassword()"
               required
             />
-            <span class="password-toggle" onclick="togglePasswordVisibility('cPassword')">👁️</span>
+            <span
+              class="password-toggle"
+              onclick="togglePasswordVisibility('cPassword')"
+              >👁️</span
+            >
             <span id="cPasswordError" class="error-message"></span>
           </div>
 
           <div class="mb-4">
-            <label for="referralCode" class="form-label">Referral Code (Optional)</label>
+            <label for="referralCode" class="form-label"
+              >Referral Code (Optional)</label
+            >
             <div class="input-group">
               <span class="input-group-text">🎁</span>
               <input
@@ -503,24 +514,29 @@
                 id="referralCode"
                 name="referralcode"
                 placeholder="Enter referral code"
-                style="text-transform: uppercase;"
+                style="text-transform: uppercase"
               />
             </div>
-            <small class="text-muted" style="font-size: 12px;">Have a referral code? Enter it to claim your reward!</small>
-            <small id="referralMsg" class="mt-1 d-block" style="font-size: 12px;"></small>
-
+            <small class="text-muted" style="font-size: 12px"
+              >Have a referral code? Enter it to claim your reward!</small
+            >
+            <small
+              id="referralMsg"
+              class="mt-1 d-block"
+              style="font-size: 12px"
+            ></small>
           </div>
 
           <div class="d-grid">
-          <button type="submit" class="btn submit-btn">
-  Create Account
-</button>
-
+            <button type="submit" class="btn submit-btn" id="signupBtn">
+              Create Account
+            </button>
           </div>
         </form>
 
         <div class="text-center mt-4">
-          <span class="text-muted">Already have an account?</span> <a href="/login">Log in</a>
+          <span class="text-muted">Already have an account?</span>
+          <a href="/login">Log in</a>
         </div>
 
         <div class="divider">
@@ -530,7 +546,7 @@
         <div class="d-grid">
           <button
             class="btn google-btn"
-            onclick="window.location.href='/auth/google'"
+            onclick="window.location.href = '/auth/google'"
           >
             <svg width="20" height="20" viewBox="0 0 18 18">
               <path
@@ -557,114 +573,125 @@
         <div class="referral-info-box">
           <div class="icon">🎁</div>
           <h4>Get Rewards</h4>
-          <p>Have a friend who shops with us? Enter their referral code above and get exclusive discounts on your first order!</p>
+          <p>
+            Have a friend who shops with us? Enter their referral code above and
+            get exclusive discounts on your first order!
+          </p>
         </div>
       </div>
     </div>
 
-   <%- include('../partials/user/footer.ejs') %>
+    <%- include('../partials/user/footer.ejs') %>
 
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+      document
+        .getElementById("signForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-document.getElementById("signForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+          // frontend validation first
+          if (
+            !validateName() ||
+            !validateEmail() ||
+            !validatePhone() ||
+            !validatePassword() ||
+            !validateConfirmPassword()
+          ) {
+            Swal.fire({
+              icon: "error",
+              title: "Invalid Form",
+              text: "Please fix the highlighted errors",
+            });
+            return;
+          }
 
-  // frontend validation first
-  if (
-    !validateName() ||
-    !validateEmail() ||
-    !validatePhone() ||
-    !validatePassword() ||
-    !validateConfirmPassword()
-  ) {
-    Swal.fire({
-      icon: "error",
-      title: "Invalid Form",
-      text: "Please fix the highlighted errors",
-    });
-    return;
-  }
+          const formData = new URLSearchParams(new FormData(this));
 
-  const formData = new URLSearchParams(new FormData(this));
+          const signupBtn = document.getElementById("signupBtn");
 
-  try {
-    const response = await fetch("/signup", {
-      method: "POST",
-      headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-  },
-      body: formData,
-    });
+          // Start processing
+          signupBtn.disabled = true;
+          signupBtn.innerText = "Processing...";
+          try {
+            const response = await fetch("/signup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: formData,
+            });
 
-    const data = await response.json();
+            const data = await response.json();
 
-    if (!data.success) {
-      Swal.fire({
-        icon: "error",
-        title: "Signup Failed",
-        text: data.message,
-      });
-      return;
-    }
+            if (!data.success) {
+              Swal.fire({
+                icon: "error",
+                title: "Signup Failed",
+                text: data.message,
+              });
+              return;
+            }
 
-    // success → go to OTP page
-    Swal.fire({
-      icon: "success",
-      title: "OTP Sent",
-      text: "Please verify the OTP sent to your email",
-      timer: 1500,
-      showConfirmButton: false,
-    }).then(() => {
-      window.location.href = "/verifyOtp";
-    });
-
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Server Error",
-      text: "Something went wrong. Please try again.",
-    });
-  }
-});
-
+            // success → go to OTP page
+            Swal.fire({
+              icon: "success",
+              title: "OTP Sent",
+              text: "Please verify the OTP sent to your email",
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.href = "/verifyOtp";
+            });
+          } catch (err) {
+            Swal.fire({
+              icon: "error",
+              title: "Server Error",
+              text: "Something went wrong. Please try again.",
+            });
+          } finally {
+            // stop loading if staying on same page
+            signupBtn.disabled = false;
+            signupBtn.innerText = "Create Account";
+          }
+        });
 
       function togglePasswordVisibility(inputId) {
         const passwordInput = document.getElementById(inputId);
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
         } else {
-          passwordInput.type = 'password';
+          passwordInput.type = "password";
         }
       }
 
       function displayError(elementId, message) {
         const errorElement = document.getElementById(elementId);
         errorElement.textContent = message;
-        errorElement.classList.toggle('show', message.length > 0); 
+        errorElement.classList.toggle("show", message.length > 0);
       }
 
       function validateName() {
-        const nameInput = document.getElementById('name');
+        const nameInput = document.getElementById("name");
         const name = nameInput.value.trim();
-        const namePattern = /^[A-Za-z\s]+$/; 
-        
+        const namePattern = /^[A-Za-z\s]+$/;
+
         if (name === "") {
-          displayError('nameError', "Name is required");
+          displayError("nameError", "Name is required");
           return false;
         } else if (!namePattern.test(name)) {
-          displayError('nameError', "Name can only contain letters and spaces");
+          displayError("nameError", "Name can only contain letters and spaces");
           return false;
         } else {
-          displayError('nameError', "");
+          displayError("nameError", "");
           return true;
         }
       }
 
       function validateEmail() {
         const email = document.getElementById("email").value.trim();
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; 
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         const isValid = emailPattern.test(email);
 
         if (email === "") {
@@ -679,24 +706,24 @@ document.getElementById("signForm").addEventListener("submit", async function (e
         }
       }
 
-  function validatePhone() {
-  const phone = document.getElementById("phone").value.trim();
-  const phonePattern = /^[6-9]\d{9}$/;
+      function validatePhone() {
+        const phone = document.getElementById("phone").value.trim();
+        const phonePattern = /^[6-9]\d{9}$/;
 
-  if (phone === "") {
-    displayError("phoneError", "Phone number is required");
-    return false;
-  } else if (!phonePattern.test(phone)) {
-    displayError(
-      "phoneError",
-      "Enter a valid 10-digit mobile number starting with 6–9"
-    );
-    return false;
-  } else {
-    displayError("phoneError", "");
-    return true;
-  }
-}
+        if (phone === "") {
+          displayError("phoneError", "Phone number is required");
+          return false;
+        } else if (!phonePattern.test(phone)) {
+          displayError(
+            "phoneError",
+            "Enter a valid 10-digit mobile number starting with 6–9",
+          );
+          return false;
+        } else {
+          displayError("phoneError", "");
+          return true;
+        }
+      }
 
       function validatePassword() {
         const password = document.getElementById("password").value;
@@ -715,22 +742,22 @@ document.getElementById("signForm").addEventListener("submit", async function (e
         } else if (!hasLetter || !hasNumber) {
           errorMessage = "Should contain both letters and numbers";
           isValid = false;
-        } 
+        }
 
         displayError("passwordError", errorMessage);
-        
+
         if (document.getElementById("cPassword").value.length > 0) {
           validateConfirmPassword();
         }
 
         return isValid;
       }
-      
+
       function validateConfirmPassword() {
         const password = document.getElementById("password").value;
         const cPassword = document.getElementById("cPassword").value;
         const isValid = password === cPassword && cPassword.length > 0;
-        
+
         if (cPassword.length === 0) {
           displayError("cPasswordError", "Confirm password is required");
           return false;
@@ -742,8 +769,6 @@ document.getElementById("signForm").addEventListener("submit", async function (e
           return true;
         }
       }
-
-      
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>

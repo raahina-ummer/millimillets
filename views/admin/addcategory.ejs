@@ -232,6 +232,21 @@
             padding-left: 45px;
         }
 
+.spinner {
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-top: 3px solid black;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  margin-right: 6px;
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
@@ -364,10 +379,14 @@
         <i class="fas fa-redo"></i>
         Reset
     </button>
-    <button type="submit" class="btn btn-submit">
-        <i class="fas fa-check"></i>
+<button type="submit" class="btn btn-submit" id="categoryBtn">
+    <span id="btnText">
         Create Category
-    </button>
+    </span>
+    <span id="btnLoader" style="display:none;">
+        <span class="spinner"></span> Creating...
+    </span>
+</button>
     <a href="/admin/category" class="btn btn-cancel">
         <i class="fas fa-times"></i>
         Cancel
@@ -395,6 +414,13 @@
             const description = document.getElementById('description').value;
 
             console.log("name,description", name, description);
+            const btn = document.getElementById("categoryBtn");
+const btnText = document.getElementById("btnText");
+const btnLoader = document.getElementById("btnLoader");
+
+btn.disabled = true;
+btnText.style.display = "none";
+btnLoader.style.display = "inline";
 
        fetch('/admin/addCategory', {
   method: 'POST',
@@ -412,19 +438,17 @@
     throw new Error(data.message);
   }
 
-  Swal.fire({
-    icon: 'success',
-    title: 'Success',
-    text: data.message,
-    toast: true,
-    position: 'top-end',
-    timer: 2000,
-    showConfirmButton: false,
-  });
-
-  setTimeout(() => {
-    window.location.href = '/admin/category';
-  }, 2000);
+Swal.fire({
+  icon: 'success',
+  title: 'Success',
+  text: data.message,
+  toast: true,
+  position: 'top-end',
+  timer: 2000,
+  showConfirmButton: false,
+}).then(() => {
+  window.location.href = '/admin/category';
+});
 })
 .catch((error) => {
   Swal.fire({
@@ -436,7 +460,11 @@
     timer: 2000,
     showConfirmButton: false,
   });
-});
+    btn.disabled = false;
+  btnText.style.display = "inline";
+  btnLoader.style.display = "none";
+})
+
 
         }
 

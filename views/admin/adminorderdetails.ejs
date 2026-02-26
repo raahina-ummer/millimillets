@@ -876,7 +876,7 @@
         '<%= order.orderId %>',
         '<%= item.product._id %>',
         '<%= item.variantId %>',
-        'approve'
+        'approve',this
       )">
       ✔ Approve Return
     </button>
@@ -887,7 +887,7 @@
         '<%= order.orderId %>',
         '<%= item.product._id %>',
         '<%= item.variantId %>',
-        'reject'
+        'reject',this
       )">
       ✖ Reject Return
     </button>
@@ -1017,9 +1017,9 @@
   <script src="/js/admin/adminNav.js"></script>
   <script>
 // 
-async function handleReturnAction(orderId, productId, variantId, action) {
-  // disable all return buttons immediately
-  document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
+async function handleReturnAction(orderId, productId, variantId, action,btn) {
+ 
+  btn.disabled = true;
 
   const { value: notes } = await Swal.fire({
     title: action === 'approve' ? 'Approve Return?' : 'Reject Return?',
@@ -1031,11 +1031,16 @@ async function handleReturnAction(orderId, productId, variantId, action) {
   });
 
   if (notes === undefined) {
-    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+   btn.disabled = false;
     return;
   }
 
   try {
+    Swal.fire({
+  title: "Processing...",
+  allowOutsideClick: false,
+  didOpen: () => Swal.showLoading()
+});
     const res = await fetch(
       `/admin/adminorder/${orderId}/return/${productId}/${variantId}`,
       {
@@ -1076,6 +1081,11 @@ async function updateItemStatus(orderId, itemId, status) {
   if (!confirm.isConfirmed) return;
 
   try {
+    Swal.fire({
+  title: "Updating...",
+  allowOutsideClick: false,
+  didOpen: () => Swal.showLoading()
+});
     const res = await fetch("/admin/adminorderdetails/update-item-status", {
       method: "PATCH",
       headers: {

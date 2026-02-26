@@ -12,7 +12,7 @@
       :root {
         --primary-color: #8b6f47;
         --secondary-color: #4a4a4a;
-        --background-color: #D0C19A;
+        --background-color: #d0c19a;
         --text-color-dark: #333;
         --text-color-light: #666;
         --button-color: #8b6f47;
@@ -25,7 +25,7 @@
       }
 
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: var(--background-color);
         color: var(--text-color-dark);
         line-height: 1.6;
@@ -177,29 +177,26 @@
       /* Password Container */
       .password-container {
         position: relative;
-        
       }
-.password-toggle {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+      .password-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
 
-  cursor: pointer;
-  color: #999;
-  font-size: 18px;
-  z-index: 20;
-  background: none;
-  border: none;
+        cursor: pointer;
+        color: #999;
+        font-size: 18px;
+        z-index: 20;
+        background: none;
+        border: none;
 
-  display: flex;
-  align-items: center;
-  height: 50px;  
-  pointer-events: auto;
-  line-height: 1;
-
-}
-
+        display: flex;
+        align-items: center;
+        height: 50px;
+        pointer-events: auto;
+        line-height: 1;
+      }
 
       .password-toggle:hover {
         color: var(--primary-color);
@@ -295,7 +292,7 @@
 
       .divider::before,
       .divider::after {
-        content: '';
+        content: "";
         flex: 1;
         border-bottom: 1px solid #ddd;
       }
@@ -425,19 +422,20 @@
         margin-bottom: 15px;
       }
 
-
       .server-error {
-  color: #dc3545;
-  background: #f8d7da;
-  border: 1px solid #f5c2c7;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  text-align: center;
-  font-weight: 500;
-}
-
-
+        color: #dc3545;
+        background: #f8d7da;
+        border: 1px solid #f5c2c7;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 500;
+      }
+      .submit-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
       /* Responsive Design */
       @media (max-width: 768px) {
         .form-section {
@@ -476,14 +474,19 @@
         }
       }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!-- Promo Banner -->
     <div class="promo-banner">
       Admin Portal - Secure Access Only
-      <button class="close-banner" onclick="this.parentElement.style.display='none'">
+      <button
+        class="close-banner"
+        onclick="this.parentElement.style.display = 'none'"
+      >
         &times;
       </button>
     </div>
@@ -498,10 +501,16 @@
 
       <div class="form-section">
         <h2 class="text-center">ADMIN LOGIN</h2>
-        <p class="text-center form-subtitle">Secure access to your administration panel</p>
+        <p class="text-center form-subtitle">
+          Secure access to your administration panel
+        </p>
 
-       <form id="loginForm" action="/admin/login" method="POST" onsubmit="return handleAdminLogin(event)">
-
+        <form
+          id="loginForm"
+          action="/admin/login"
+          method="POST"
+          onsubmit="return handleAdminLogin(event);"
+        >
           <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
             <input
@@ -527,22 +536,21 @@
               onblur="validatePassword()"
               required
             />
-           <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password', this)">
-  <i class="bi bi-eye"></i>
-</button>
+            <button
+              type="button"
+              class="password-toggle"
+              onclick="togglePasswordVisibility('password', this)"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
 
             <span id="passwordError" class="error-message"></span>
           </div>
 
-          <div class="form-options">
-            <div class="remember-me">
-              <input type="checkbox" id="rememberMe" name="rememberMe" />
-              <label for="rememberMe">Remember me</label>
-            </div>
-          </div>
-
           <div class="d-grid">
-            <button type="submit" class="submit-btn">Admin Login</button>
+            <button type="submit" class="submit-btn" id="adminLoginBtn">
+              Admin Login
+            </button>
           </div>
         </form>
 
@@ -557,8 +565,17 @@
       <div class="container">
         <div class="row">
           <div class="col-md-3 footer-about mb-4 mb-md-0">
-            <div class="brand-name" style="font-size: 18px; letter-spacing: 2px; margin-bottom: 15px;">MILLIMILLET</div>
-            <p>Millets are nutrient-dense, low-carb alternatives to traditional grains that boost your daily nutrition. They're a great source of protein, minerals, and dietary fiber for a healthier lifestyle.</p>
+            <div
+              class="brand-name"
+              style="font-size: 18px; letter-spacing: 2px; margin-bottom: 15px"
+            >
+              MILLIMILLET
+            </div>
+            <p>
+              Millets are nutrient-dense, low-carb alternatives to traditional
+              grains that boost your daily nutrition. They're a great source of
+              protein, minerals, and dietary fiber for a healthier lifestyle.
+            </p>
             <div class="social-links">
               <a href="#" aria-label="Facebook">F</a>
               <a href="#" aria-label="Instagram">I</a>
@@ -600,13 +617,17 @@
           </div>
         </div>
 
-        <hr class="mt-4 mb-3"/>
+        <hr class="mt-4 mb-3" />
         <div class="row align-items-center">
           <div class="col-md-6">
-            <p class="copyright mb-0">MilliMillet © 2000-2025, All Rights Reserved</p>
+            <p class="copyright mb-0">
+              MilliMillet © 2000-2025, All Rights Reserved
+            </p>
           </div>
           <div class="col-md-6 text-md-end">
-            <span class="text-muted" style="font-size: 13px;">Secure Admin Access</span>
+            <span class="text-muted" style="font-size: 13px"
+              >Secure Admin Access</span
+            >
           </div>
         </div>
       </div>
@@ -615,130 +636,125 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script>
+      async function handleAdminLogin(event) {
+        event.preventDefault();
 
-   
-<script>
-  async function handleAdminLogin(event) {
-    event.preventDefault();
+        if (!validateLoginForm()) return false;
 
-    if (!validateLoginForm()) return false;
+        const loginBtn = document.getElementById("adminLoginBtn");
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+        // Start loading
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Logging in...";
 
-    try {
-      const response = await fetch("/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-      const data = await response.json();
+        try {
+          const response = await fetch("/admin/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
 
-      if (data.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful",
-          text: "Redirecting to dashboard...",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Invalid credentials");
+          }
+
           window.location.href = "/admin/dashboard";
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: data.message || "Invalid credentials",
-        });
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Login Failed",
+            text: error.message || "Something went wrong.",
+          });
+
+          // Re-enable button on error
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Admin Login";
+        }
+
+        return false;
       }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Something went wrong. Please try again.",
-      });
-    }
 
-    return false;
-  }
+      function togglePasswordVisibility(inputId, button) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = button.querySelector("i");
 
-function togglePasswordVisibility(inputId, button) {
-  const passwordInput = document.getElementById(inputId);
-  const icon = button.querySelector("i");
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          icon.classList.replace("bi-eye", "bi-eye-slash");
+        } else {
+          passwordInput.type = "password";
+          icon.classList.replace("bi-eye-slash", "bi-eye");
+        }
+      }
 
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    icon.classList.replace("bi-eye", "bi-eye-slash");
-  } else {
-    passwordInput.type = "password";
-    icon.classList.replace("bi-eye-slash", "bi-eye");
-  }
-}
+      function displayError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.classList.toggle("show", message.length > 0);
+      }
 
+      function validateEmail() {
+        const email = document.getElementById("email").value.trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+        if (!email) {
+          displayError("emailError", "Email is required");
+          return false;
+        }
 
+        if (!emailPattern.test(email)) {
+          displayError("emailError", "Invalid email address");
+          return false;
+        }
 
-function displayError(elementId, message) {
-  const errorElement = document.getElementById(elementId);
-  errorElement.textContent = message;
-  errorElement.classList.toggle("show", message.length > 0);
-}
+        displayError("emailError", "");
+        return true;
+      }
 
-function validateEmail() {
-  const email = document.getElementById("email").value.trim();
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      // Password validation
+      function validatePassword() {
+        const password = document.getElementById("password").value;
 
-  if (!email) {
-    displayError("emailError", "Email is required");
-    return false;
-  }
+        if (!password) {
+          displayError("passwordError", "Password is required");
+          return false;
+        }
 
-  if (!emailPattern.test(email)) {
-    displayError("emailError", "Invalid email address");
-    return false;
-  }
+        if (password.length < 8) {
+          displayError(
+            "passwordError",
+            "Password must be at least 8 characters long",
+          );
+          return false;
+        }
 
-  displayError("emailError", "");
-  return true;
-}
+        displayError("passwordError", "");
+        return true;
+      }
 
-// Password validation
-function validatePassword() {
-  const password = document.getElementById("password").value;
+      // Form validation
+      function validateLoginForm() {
+        const isValidEmail = validateEmail();
+        const isValidPassword = validatePassword();
 
-  if (!password) {
-    displayError("passwordError", "Password is required");
-    return false;
-  }
+        if (!isValidEmail || !isValidPassword) {
+          const firstError = document.querySelector(".error-message.show");
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          return false;
+        }
 
-  if (password.length < 8) {
-    displayError("passwordError", "Password must be at least 8 characters long");
-    return false;
-  }
-
-  displayError("passwordError", "");
-  return true;
-}
-
-// Form validation
-function validateLoginForm() {
-  const isValidEmail = validateEmail();
-  const isValidPassword = validatePassword();
-
-  if (!isValidEmail || !isValidPassword) {
-    const firstError = document.querySelector(".error-message.show");
-    if (firstError) {
-      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-    return false;
-  }
-
-  return true;
-}
-</script>
-
+        return true;
+      }
+    </script>
   </body>
 </html>

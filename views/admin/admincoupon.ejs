@@ -842,121 +842,146 @@
     }
 
     couponForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let submitBtn = document.getElementById('submitAddCoupon');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Loading...';
+    e.preventDefault();
 
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData);
+    const submitBtn = document.getElementById('submitAddCoupon');
 
-        fetch('/admin/addCoupon', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire('Success!', data.message, 'success').then(() => {
-                    modal.style.display = 'none';
-                    location.reload();
-                });
-            } else {
-                let submitBtn = document.getElementById('submitAddCoupon');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Add Coupon';
-                Swal.fire('Failed!', data.message, 'error');
-            }
-        })
-        .catch(error => {
-            Swal.fire('Error!', 'An error occurred while adding the coupon.', 'error');
-            console.error('Error:', error);
-            let submitBtn = document.getElementById('submitAddCoupon');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Add Coupon';
+    // Start loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Loading...';
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+
+    fetch('/admin/addCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.success) {
+            Swal.fire('Success!', data.message, 'success')
+            .then(() => {
+                modal.style.display = 'none';
+                location.reload();
+            });
+        } else {
+            throw new Error(data.message);
+        }
+
+    })
+    .catch(error => {
+        Swal.fire('Error!', error.message || 
+        'An error occurred while adding the coupon.', 'error');
+
+        // Re-enable button ONLY on error
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Coupon';
+    });
+});
+document.addEventListener('click', function(e) {
+
+    // ACTIVATE / DEACTIVATE
+    if (e.target.matches('.activate-btn-action, .deactivate-btn-action')) {
+
+        const button = e.target;
+        const couponId = button.getAttribute('data-id');
+        const isActivate = button.classList.contains('activate-btn-action');
+        const action = isActivate ? 'activateCoupon' : 'deactivateCoupon';
+
+        Swal.fire({
+            title: isActivate ? 'Activate Coupon?' : 'Deactivate Coupon?',
+            text: isActivate
+                ? 'This coupon will be available for use.'
+                : 'This coupon will no longer be available.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: isActivate ? '#27ae60' : '#e74c3c',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: isActivate ? 'Yes, activate it' : 'Yes, deactivate it',
+            reverseButtons: true
+        }).then(result => {
+
+            if (!result.isConfirmed) return;
+
+            Swal.fire({
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            fetch(`/admin/${action}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: couponId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Success!', data.message, 'success')
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Failed!', data.message, 'error');
+                }
+            })
+            .catch(() => {
+                Swal.fire('Error!', 'Something went wrong.', 'error');
+            });
+
         });
-    });
+    }
 
-    document.addEventListener('click', function(e) {
-        if (e.target.matches('.activate-btn-action, .deactivate-btn-action')) {
-            const button = e.target;
-            const couponId = button.getAttribute('data-id');
-            const isActivate = button.classList.contains('activate-btn-action');
+    // DELETE
+    if (e.target.matches('.delete-btn-action')) {
 
-            Swal.fire({
-                title: isActivate ? 'Activate Coupon?' : 'Deactivate Coupon?',
-                text: isActivate 
-                    ? 'This coupon will be available for use.' 
-                    : 'This coupon will no longer be available for use.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: isActivate ? '#27ae60' : '#e74c3c',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: isActivate ? 'Yes, activate it' : 'Yes, deactivate it',
-                reverseButtons: true
-            }).then(result => {
-                if (result.isConfirmed) {
-                    const action = isActivate ? 'activateCoupon' : 'deactivateCoupon';
-                    fetch(`/admin/${action}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ id: couponId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Success!', data.message, 'success').then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire('Failed!', data.message, 'error');
-                        }
-                    });
-                }
-            });
-        }
+        const couponId = e.target.getAttribute('data-id');
 
-        if (e.target.matches('.delete-btn-action')) {
-            const button = e.target;
-            const couponId = button.getAttribute('data-id');
+        Swal.fire({
+            title: 'Delete Coupon?',
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            reverseButtons: true
+        }).then(result => {
+
+            if (!result.isConfirmed) return;
 
             Swal.fire({
-                title: 'Delete Coupon?',
-                text: "This action cannot be undone!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
-                reverseButtons: true
-            }).then(result => {
-                if (result.isConfirmed) {
-                    fetch('/admin/deleteCoupon', {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ id: couponId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Deleted!', data.message, 'success').then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire('Failed!', data.message, 'error');
-                        }
-                    });
-                }
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
             });
-        }
-    });
+
+            fetch('/admin/deleteCoupon', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: couponId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Deleted!', data.message, 'success')
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Failed!', data.message, 'error');
+                }
+            })
+            .catch(() => {
+                Swal.fire('Error!', 'Something went wrong.', 'error');
+            });
+
+        });
+    }
+
+});
+
 </script>
 
 <%- include('../partials/admin/footer.ejs') %>

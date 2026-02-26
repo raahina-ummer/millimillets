@@ -704,7 +704,22 @@
     background: #5a4a3a;
     color: white;
 }
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  margin-right: 5px;
+}
 
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -1078,7 +1093,12 @@
 
                             <!-- Action Buttons -->
                             <div class="form-actions">
-                                <button type="submit" class="btn-save">Add Product</button>
+                              <button type="submit" class="btn-save" id="addProductBtn">
+  <span id="btnText">Add Product</span>
+  <span id="btnLoader" style="display:none;">
+    <span class="spinner"></span> Adding...
+  </span>
+</button>
 
                                 <button type="button" class="btn-cancel">Cancel</button>
                             </div>
@@ -1434,6 +1454,14 @@ document.getElementById('addProductForm')
         if (!validateForm()) return;
 
         const formData = new FormData(this);
+        const addBtn = document.getElementById("addProductBtn");
+const btnText = document.getElementById("btnText");
+const btnLoader = document.getElementById("btnLoader");
+
+// Start loading
+addBtn.disabled = true;
+btnText.style.display = "none";
+btnLoader.style.display = "inline";
 
         try {
             const response = await fetch('/admin/addProduct', {
@@ -1466,7 +1494,11 @@ document.getElementById('addProductForm')
                 title: 'Server Error',
                 text: 'Please try again later'
             });
-        }
+        }finally {
+  addBtn.disabled = false;
+  btnText.style.display = "inline";
+  btnLoader.style.display = "none";
+}
     });
 
 
