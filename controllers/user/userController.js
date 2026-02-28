@@ -24,7 +24,6 @@ const pageNotFound = async (req, res) => {
   try {
     return res.render("p-404");
   } catch (error) {
-    console.log("Homepage Not Found");
     res.redirect("/pageNotFound");
     res
       .status(Status.INTERNAL_SERVER_ERROR)
@@ -42,8 +41,9 @@ const loadHomepage = async (req, res) => {
       user = await User.findById(userId);
     }
 
-    // Featured products
-    const productsRaw = await Product.find({
+    // Get best selling products
+
+    const products = await Product.find({
       isBlocked: false,
       status: "Available"
     })
@@ -51,30 +51,10 @@ const loadHomepage = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(3);
 
-    const products = productsRaw.map(product => {
-      const finalPrice = calculateFinalPrice(product, product.category);
-      const bestOffer = calculateBestOffer(product, product.category);
-
-      const variant = product.variant?.[0];
-      const basePrice =
-        variant.salePrice && variant.salePrice < variant.regularPrice
-          ? variant.salePrice
-          : variant.regularPrice;
-
-      return {
-        ...product.toObject(),
-        finalPrice,
-        basePrice,
-        discountPercentage: bestOffer?.discountPercentage || 0
-      };
-    });
-
-    // Categories
     const categories = await Category.find({ isListed: true })
       .sort({ name: 1 })
       .limit(3);
 
-    // Offer products
     const currentDate = new Date();
 
     let offerProductsRaw = await Product.find({
@@ -87,8 +67,8 @@ const loadHomepage = async (req, res) => {
         { "productOffer.offerEndDate": null }
       ]
     })
-      .populate("category")
-      .sort({ "productOffer.discountPercentage": -1 })
+      .populate('category')
+      .sort({ 'productOffer.discountPercentage': -1 })
       .limit(4);
 
     // Fill remaining if less than 4
@@ -516,9 +496,8 @@ const login = async (req, res) => {
 
     req.session.user = { id: findUser._id, name: findUser.name };
 
-
     req.session.loginSuccess = true;
-    console.log("SESSION AFTER LOGIN:", req.session.user);
+
     res.redirect("/");
 
   } catch (error) {

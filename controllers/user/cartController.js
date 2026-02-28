@@ -8,7 +8,7 @@ import message from "../../utils/message.js";
 import { calculateTotals } from "../../utils/calculateTotals.js";
 import logger from "../../utils/logger.js";
 import { calculateFinalPriceForVariant } from "../../utils/offerCalculator.js";
-import { isValidCartItem,getValidCartItems } from "../../Helpers/cartHelper.js";
+import { isValidCartItem, getValidCartItems } from "../../Helpers/cartHelper.js";
 import { calculateOrderTotals } from "../../Helpers/orderTotal.js";
 
 
@@ -35,43 +35,43 @@ const loadCart = async (req, res) => {
         .status(404)
         .json({ success: false, message: message.CART.LOGIN_REQUIRED });
     }
-  let cartUpdated = false;
-  let removedUnavailable = false; 
-  const cartWarning = req.session.cartWarning || null;  
+    let cartUpdated = false;
+    let removedUnavailable = false;
+    const cartWarning = req.session.cartWarning || null;
 
- const validItems = getValidCartItems(cart);
+    const validItems = getValidCartItems(cart);
 
-if (validItems.length !== cart.products.length) {
+    if (validItems.length !== cart.products.length) {
       cart.products = validItems;
       cartUpdated = true;
-      removedUnavailable = true; 
+      removedUnavailable = true;
     }
     if (removedUnavailable) {
-  req.session.cartWarning =
-    "Some unavailable or blocked products were removed from your cart.";
-}
+      req.session.cartWarning =
+        "Some unavailable or blocked products were removed from your cart.";
+    }
 
 
 
-for (const cartItem of cart.products) {
-  
-    const variant = cartItem.productId.variant.find(
-      v => v._id.toString() === cartItem.variantId.toString()
-    );
+    for (const cartItem of cart.products) {
 
-    if (!variant) continue;
+      const variant = cartItem.productId.variant.find(
+        v => v._id.toString() === cartItem.variantId.toString()
+      );
 
-    const { finalPrice } = calculateFinalPriceForVariant(
-      variant,
-      cartItem.productId,
-      cartItem.productId.category
-    );
+      if (!variant) continue;
 
-        if (cartItem.price !== finalPrice) {
+      const { finalPrice } = calculateFinalPriceForVariant(
+        variant,
+        cartItem.productId,
+        cartItem.productId.category
+      );
+
+      if (cartItem.price !== finalPrice) {
         cartItem.price = finalPrice;
         cartUpdated = true;
       }
-  }
+    }
 
 
     const totals = calculateTotals(cart.products, 0);
@@ -80,7 +80,7 @@ for (const cartItem of cart.products) {
       await cart.save();
     }
 
-    req.session.cartWarning = null; 
+    req.session.cartWarning = null;
 
     res.render("cart", {
       user,
@@ -106,7 +106,7 @@ const maxItemLimit = 10;
 const addToCart = async (req, res) => {
   try {
 
-      if (!req.session.user) {
+    if (!req.session.user) {
       return res.status(401).json({
         success: false,
         message: "Login required",
@@ -206,7 +206,6 @@ const addToCart = async (req, res) => {
         if (productIndex > -1) {
           wishlist.products.splice(productIndex, 1);
           await wishlist.save();
-          console.log("Product removed from wishlist");
         }
       }
     } catch (wishlistError) {

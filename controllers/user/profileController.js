@@ -29,7 +29,6 @@ const securePassword = async (password) => {
 //  Forgot Password (Render Page)
 const getForgotPassword = async (req, res) => {
   try {
-    console.log("hai hel");
     return res.render("forgotpassword");
   } catch (error) {
     return res.redirect("/pageNotFound");
@@ -51,7 +50,7 @@ const forgotEmailValid = async (req, res) => {
 
     const otp = generateOtp();
     const emailSent = await sendVerificationEmail(email, otp);
-    console.log(otp,'otp')
+    console.log(otp, 'otp')
 
     if (!emailSent) {
       return res.render("forgotpassword", {
@@ -152,8 +151,8 @@ const resendOtp = async (req, res) => {
     console.log("Generated OTP:", otp);
 
     req.session.userOtp = otp;
-    req.session.timer = new Date(); 
-    
+    req.session.timer = new Date();
+
 
     const emailSent = await sendVerificationEmail(email.trim(), otp);
 
@@ -164,7 +163,7 @@ const resendOtp = async (req, res) => {
       });
     }
 
-     req.session.save(() => {
+    req.session.save(() => {
       return res.status(Status.OK).json({
         success: true,
         message: message.OTP.SENT,
@@ -247,8 +246,6 @@ const loadProfile = async (req, res) => {
     );
     if (!userData) return res.redirect("/login");
 
-    console.log(userData);
-
     const userAddresses = await Address.findOne({ userId });
     const addresses = userAddresses?.addresses || [];
 
@@ -326,7 +323,7 @@ const addPasswordForGoogle = async (req, res) => {
   } catch (error) {
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: message.GENERAL.SERVER_ERROR});
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -478,7 +475,6 @@ const updateChangePassword = async (req, res) => {
 // Load Update Email Page
 const loadUpdateEmail = async (req, res) => {
   try {
-    console.log("loadUpdateEmail invoked", req.session);
     const email = req.session.user.email;
     return res.render("changeemail", { user: req.session.user });
   } catch (error) {
@@ -490,7 +486,6 @@ const loadUpdateEmail = async (req, res) => {
 // Send OTP to new email
 const updateEmail = async (req, res) => {
   try {
-    console.log("Update Email invocked");
     const { email } = req.body;
 
     if (!email)
@@ -536,7 +531,6 @@ const updateEmail = async (req, res) => {
 
 // Load Verify OTP Page (after sending OTP)
 const loadChangeEmail = async (req, res) => {
-  console.log("AAAAAAA");
   try {
     // Check if OTP and email are present in session
     if (!req.session.userOtp || !req.session.pendingEmail) {
@@ -735,8 +729,10 @@ const addAddress = async (req, res) => {
 
     const redirectUrl = redirect === "checkout" ? "/checkout" : "/userProfile";
 
-    return res.status(Status.OK).json({success:true,message: "Address saved successfully",
-  redirect: redirectUrl});
+    return res.status(Status.OK).json({
+      success: true, message: "Address saved successfully",
+      redirect: redirectUrl
+    });
   } catch (error) {
     console.log("Error message:", error.message);
     return res
@@ -759,7 +755,6 @@ const loadEditAddress = async (req, res) => {
     );
 
     if (!userAddress || !userAddress.addresses?.length) {
-      console.log(" Address not found");
       return res.redirect("/address");
     }
 

@@ -26,9 +26,9 @@ const getAllProducts = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const productList = [];
-    let tP=0;
+    let tP = 0;
 
-   
+
     productData.forEach((product) => {
 
       product.variant.forEach((variant) => {
@@ -45,13 +45,13 @@ const getAllProducts = async (req, res) => {
         const hasOffer =
           priceCalc.appliedOffer.discountPercentage > 0;
 
-          
-         const finalPrice = hasOffer ? priceCalc.finalPrice : basePrice;
 
-          if(variant.stock === 0){
-            tP += finalPrice
-          }
-          console.log(tP,"PricesofZeroStock");
+        const finalPrice = hasOffer ? priceCalc.finalPrice : basePrice;
+
+        if (variant.stock === 0) {
+          tP += finalPrice
+        }
+
 
         productList.push({
           _id: product._id,
@@ -74,16 +74,16 @@ const getAllProducts = async (req, res) => {
           strikePrice: hasOffer ? basePrice : null
 
 
-        
+
 
         });
 
 
-      }); 
+      });
 
-    }); 
+    });
 
-    
+
 
 
     const totalCount = productList.length;
@@ -120,7 +120,7 @@ const getAllProducts = async (req, res) => {
 const getProductAddPage = async (req, res) => {
   try {
     const category = await Category.find({ isListed: true });
-    res.render("add-product", { cat: category,currentRoute: "products", });
+    res.render("add-product", { cat: category, currentRoute: "products", });
   } catch (error) {
     console.log("Error: " + error);
     res
@@ -132,12 +132,12 @@ const getProductAddPage = async (req, res) => {
 
 const addProducts = async (req, res) => {
   try {
-    console.log("Add Product invoked");
+
 
     const { productName, description, category, gst, variants } = req.body;
     const images = req.files;
 
-   
+
     if (!productName || !description || !category || !gst) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -160,7 +160,7 @@ const addProducts = async (req, res) => {
       });
     }
 
-    
+
     const existingProduct = await Product.findOne({
       productName: productName.trim(),
     });
@@ -172,7 +172,7 @@ const addProducts = async (req, res) => {
       });
     }
 
-   
+
     if (!images || images.length < 3) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
@@ -200,7 +200,7 @@ const addProducts = async (req, res) => {
       imageFilenames.push(file.filename);
     }
 
-    
+
     let parsedVariants = variants;
 
     if (variants && !Array.isArray(variants)) {
@@ -339,7 +339,7 @@ const editProduct = async (req, res) => {
       throw new Error("Product not found");
     }
 
-    
+
     const variantsArray = [];
 
     if (!variants || Object.keys(variants).length === 0) {
@@ -375,7 +375,7 @@ const editProduct = async (req, res) => {
       throw new Error("At least one variant is required");
     }
 
-    
+
     for (let i = 0; i < variantsArray.length; i++) {
       const v = variantsArray[i];
       const weight = parseFloat(v.unitType.split(" ")[0]);
@@ -423,7 +423,7 @@ const editProduct = async (req, res) => {
       throw new Error("Maximum 4 images allowed");
     }
 
-    
+
     const updateData = {
       productName,
       description,
@@ -432,7 +432,7 @@ const editProduct = async (req, res) => {
       variant: variantsArray,
     };
 
-    
+
     if (images && images.length > 0) {
       const newImages = images.map((f) => f.filename);
       updateData.productImage = [...(product.productImage || []), ...newImages];
@@ -460,7 +460,7 @@ const deleteSingleImage = async (req, res) => {
   try {
     const { imageNameToServer, productIdToServer } = req.body;
 
-   
+
     if (!productIdToServer || !productIdToServer.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(Status.BAD_REQUEST).json({
         status: false,
@@ -479,7 +479,7 @@ const deleteSingleImage = async (req, res) => {
       });
     }
 
-    
+
     const product = await Product.findById(productIdToServer);
     if (!product) {
       return res.status(Status.BAD_REQUEST).json({
@@ -575,7 +575,7 @@ const updateProductOffer = async (req, res) => {
 
     const discount = Number(discountPercentage);
 
-if (isNaN(discount) || discount < 0 || discount > 100) {
+    if (isNaN(discount) || discount < 0 || discount > 100) {
       return res.status(Status.BAD_REQUEST).json({
         success: false,
         message: "Discount must be between 0 and 100",
@@ -610,19 +610,19 @@ if (isNaN(discount) || discount < 0 || discount > 100) {
       { new: true },
     );
 
-   if (!product) {
-  return res.status(Status.BAD_REQUEST).json({
-    success: false,
-    message: "Product not found",
-  });
-}
+    if (!product) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
 
 
-    
+
 
     res.status(Status.OK).json({
       success: true,
-      message:message.PRODUCT.OFFER_UPDATED_SUCCESS,
+      message: message.PRODUCT.OFFER_UPDATED_SUCCESS,
       product,
     });
   } catch (error) {

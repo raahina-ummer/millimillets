@@ -9,9 +9,8 @@ import logger from '../../utils/logger.js';
 
 const loadCoupon = async (req, res) => {
   try {
-    console.log("COupon page");
     const userId = req.session.user.id;
-    
+
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
@@ -33,7 +32,7 @@ const loadCoupon = async (req, res) => {
     const couponsWithStatus = coupons.map(coupon => {
       const isExpired = new Date(coupon.expiresAt) < currentDate;
 
-     
+
       const usageLimitReached = coupon.totalUsageLimit && coupon.usedCount >= coupon.totalUsageLimit;
 
       // Check user eligibility based on onlyFor field
@@ -49,11 +48,11 @@ const loadCoupon = async (req, res) => {
       };
     });
 
-    
+
     const activeCoupons = couponsWithStatus.filter(c => c.isActive);
     const expiredCoupons = couponsWithStatus.filter(c => !c.isActive);
 
-   
+
     const sortedCoupons = [...activeCoupons, ...expiredCoupons];
 
     res.render('listcoupon', {
@@ -68,7 +67,7 @@ const loadCoupon = async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching coupons:', error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -76,15 +75,13 @@ const loadCoupon = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
   try {
-    console.log("applyCoupon controller INVOKED");
-
     const userId = req.session.user?.id;
     const { couponCode } = req.body;
 
     if (!userId) {
       return res
         .status(Status.BAD_REQUEST)
-        .json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN});
+        .json({ success: false, message: message.AUTH.USER_NOT_LOGGED_IN });
     }
 
     if (!couponCode) {
@@ -101,35 +98,33 @@ const applyCoupon = async (req, res) => {
         .json({ success: false, message: message.CART.EMPTY });
     }
 
-  
-const validItems = cart.products.filter(p => {
-  const item = p.productId;
-  if (!item || item.isBlocked || !Array.isArray(item.variant)) return false;
 
-  if (!p.variantId) return false;
+    const validItems = cart.products.filter(p => {
+      const item = p.productId;
+      if (!item || item.isBlocked || !Array.isArray(item.variant)) return false;
 
-  const variant = item.variant.find(
-    v => v._id.toString() === p.variantId.toString()
-  );
+      if (!p.variantId) return false;
 
-  return variant && variant.stock > 0;
-});
+      const variant = item.variant.find(
+        v => v._id.toString() === p.variantId.toString()
+      );
+
+      return variant && variant.stock > 0;
+    });
 
     if (!validItems.length) {
       return res
         .status(Status.BAD_REQUEST)
         .json({ success: false, message: message.COUPON.NO_VALID_ITEMS });
     }
-const saleTotal = validItems.reduce(
-  (total, p) => total + (p.price * p.quantity),
-  0
-);
-
-    console.log("Sale Total:", saleTotal);
+    const saleTotal = validItems.reduce(
+      (total, p) => total + (p.price * p.quantity),
+      0
+    );
 
     //  Find coupon
     const coupon = await Coupon.findOne({
-      code:couponCode.trim().toUpperCase(),
+      code: couponCode.trim().toUpperCase(),
 
       isActive: true,
     });
@@ -137,7 +132,7 @@ const saleTotal = validItems.reduce(
     if (!coupon) {
       return res
         .status(Status.BAD_REQUEST)
-        .json({ success: false, message: message.COUPON.INVALID});
+        .json({ success: false, message: message.COUPON.INVALID });
     }
 
     if (coupon.minPurchaseAmount && saleTotal < coupon.minPurchaseAmount) {
@@ -148,36 +143,36 @@ const saleTotal = validItems.reduce(
     }
 
     if (coupon.usedBy?.includes(userId)) {
-  return res.status(Status.BAD_REQUEST).json({
-    success: false,
-    message: message.COUPON.ALREADY_USED
-  });
-}
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.COUPON.ALREADY_USED
+      });
+    }
 
-if (coupon.expiresAt && coupon.expiresAt < new Date()) {
-  return res.status(Status.BAD_REQUEST).json({
-    success: false,
-    message: message.COUPON.EXPIRED || "Coupon expired",
-  });
-}
-if (
-  coupon.totalUsageLimit &&
-  coupon.usedCount >= coupon.totalUsageLimit
-) {
-  return res.status(Status.BAD_REQUEST).json({
-    success:false,
-    message: "Coupon usage limit reached"
-  });
-}
-const usedCountByUser =
-  coupon.usedBy?.filter(id => id.toString() === userId.toString()).length || 0;
+    if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.COUPON.EXPIRED || "Coupon expired",
+      });
+    }
+    if (
+      coupon.totalUsageLimit &&
+      coupon.usedCount >= coupon.totalUsageLimit
+    ) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Coupon usage limit reached"
+      });
+    }
+    const usedCountByUser =
+      coupon.usedBy?.filter(id => id.toString() === userId.toString()).length || 0;
 
-if (usedCountByUser >= coupon.usageLimitPerUser) {
-  return res.status(Status.BAD_REQUEST).json({
-    success:false,
-    message: message.COUPON.ALREADY_USED
-  });
-}
+    if (usedCountByUser >= coupon.usageLimitPerUser) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.COUPON.ALREADY_USED
+      });
+    }
 
     let couponDiscount = (saleTotal * coupon.discountPercent) / 100;
 
@@ -188,10 +183,10 @@ if (usedCountByUser >= coupon.usageLimitPerUser) {
       );
     }
 
-    
+
     const shipping = saleTotal >= 1000 ? 0 : 50;
 
-    
+
     const newTotal = Math.max(
       saleTotal - couponDiscount + shipping,
       0
@@ -203,8 +198,8 @@ if (usedCountByUser >= coupon.usageLimitPerUser) {
     cart.couponDiscount = couponDiscount;
     cart.total = newTotal;
     cart.couponMinPurchase = coupon.minPurchaseAmount;
-cart.couponPercent = coupon.discountPercent;
-cart.couponMaxDiscount = coupon.maxDiscountAmount;
+    cart.couponPercent = coupon.discountPercent;
+    cart.couponMaxDiscount = coupon.maxDiscountAmount;
 
 
 
@@ -234,7 +229,7 @@ cart.couponMaxDiscount = coupon.maxDiscountAmount;
 
 const removeCoupon = async (req, res) => {
   try {
-   
+
 
     const userId = req.session.user?.id;
     if (!userId) {
@@ -246,7 +241,7 @@ const removeCoupon = async (req, res) => {
       return res.status(Status.BAD_REQUEST).json({ success: false, message: message.COUPON.CART_EMPTY });
     }
 
-  
+
     let saleTotal = 0;
 
     cart.products.forEach(p => {
@@ -299,7 +294,7 @@ const removeCoupon = async (req, res) => {
 
 
 
-export{
+export {
   loadCoupon,
   applyCoupon,
   removeCoupon
