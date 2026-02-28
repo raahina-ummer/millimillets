@@ -22,7 +22,6 @@ const pageNotFound = async (req, res) => {
   try {
     return res.render("p-404");
   } catch (error) {
-    console.log("Homepage Not Found");
     res.redirect("/pageNotFound");
     res
       .status(Status.INTERNAL_SERVER_ERROR)
@@ -41,7 +40,7 @@ const loadHomepage = async (req, res) => {
     }
 
     // Get best selling products 
-   
+
     const products = await Product.find({
       isBlocked: false,
       status: "Available"
@@ -50,18 +49,11 @@ const loadHomepage = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(3);
 
-    // if (products.length > 0) {
-    //   console.log('First product:', products[0].productName);
-    //   console.log('Image path stored:', products[0].productImage);
-    //   console.log('First image:', products[0].productImage[0]);
-    // }
-
-   
     const categories = await Category.find({ isListed: true })
       .sort({ name: 1 })
       .limit(3);
 
-   
+
     const currentDate = new Date();
     const offerProducts = await Product.find({
       isBlocked: false,
@@ -74,7 +66,7 @@ const loadHomepage = async (req, res) => {
       ]
     })
       .populate('category')
-      .sort({ 'productOffer.discountPercentage': -1 }) 
+      .sort({ 'productOffer.discountPercentage': -1 })
       .limit(4);
 
     // If less than 4 offer products, fill with regular products
@@ -173,7 +165,7 @@ const signup = async (req, res) => {
     }
 
     const otp = generateOtp();
-    console.log("otp",otp)
+    console.log("otp", otp)
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
@@ -213,7 +205,7 @@ const signup = async (req, res) => {
 
 const loadVerifyOtp = async (req, res) => {
   try {
-    
+
     if (!req.session.email || !req.session.userOtp) {
       return res.redirect("/signup");
     }
@@ -255,7 +247,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-   
+
     const sessionUser = req.session.userData;
 
     if (!sessionUser) {
@@ -265,7 +257,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-  
+
     const newUserReferralCode = await generateUniqueReferralCode(sessionUser.name);
 
     const newUser = await User.create({
@@ -273,7 +265,7 @@ const verifyOtp = async (req, res) => {
       email: sessionUser.email,
       phone: sessionUser.phone,
       password: sessionUser.passwordHash,
-      referralCode: newUserReferralCode, 
+      referralCode: newUserReferralCode,
     });
 
     let wallet = await Wallet.findOne({ userId: newUser._id });
@@ -286,7 +278,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    
+
     if (sessionUser.referralCode) {
       const referrer = await User.findOne({
         referralCode: sessionUser.referralCode,
@@ -317,12 +309,12 @@ const verifyOtp = async (req, res) => {
       }
     }
 
-    
+
     req.session.user = {
       id: newUser._id,
     };
 
-   
+
     delete req.session.userOtp;
     delete req.session.otpExpiry;
     delete req.session.userData;
@@ -388,7 +380,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const findUser = await User.findOne({ email, isAdmin: false }) 
+    const findUser = await User.findOne({ email, isAdmin: false })
 
 
     if (!findUser) {
@@ -411,11 +403,10 @@ const login = async (req, res) => {
       });
     }
 
-    req.session.user = { id: findUser._id ,name: findUser.name};
-
+    req.session.user = { id: findUser._id, name: findUser.name };
 
     req.session.loginSuccess = true;
-        console.log("SESSION AFTER LOGIN:", req.session.user);
+
     res.redirect("/");
 
   } catch (error) {
@@ -434,7 +425,7 @@ const logout = (req, res) => {
       console.log("Logout error:", err);
       return res.redirect("/pageNotFound");
     }
-    res.clearCookie("connect.sid"); 
+    res.clearCookie("connect.sid");
     res.redirect("/login");
   });
 };
@@ -448,7 +439,7 @@ const loadShop = async (req, res) => {
 
     const userId = req.session?.user?.id || null;
 
-   
+
     const { category, sort = "newest", search = "", minPrice, maxPrice } = req.query;
 
     const now = new Date();
@@ -608,11 +599,11 @@ const loadShop = async (req, res) => {
         $match: {
           ...(minPrice || maxPrice
             ? {
-                finalPrice: {
-                  ...(minPrice && { $gte: Number(minPrice) }),
-                  ...(maxPrice && { $lte: Number(maxPrice) }),
-                },
-              }
+              finalPrice: {
+                ...(minPrice && { $gte: Number(minPrice) }),
+                ...(maxPrice && { $lte: Number(maxPrice) }),
+              },
+            }
             : {}),
         },
       },
@@ -677,7 +668,7 @@ const loadShop = async (req, res) => {
       search,
       user: req.session.user || null,
       cartCount,
-    
+
     });
   } catch (error) {
     console.error("Error loading shop:", error);
@@ -686,10 +677,10 @@ const loadShop = async (req, res) => {
 };
 
 
- const loadAboutPage = async (req, res) => {
+const loadAboutPage = async (req, res) => {
   try {
     const user = req.session.user.id
-    res.render("about",{user});
+    res.render("about", { user });
   } catch (error) {
     console.error("Error loading about page:", error);
     res.redirect("/pageNotFound");

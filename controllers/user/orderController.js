@@ -149,7 +149,7 @@ const loadOrderDetails = async (req, res) => {
       )
     };
 
-     order.displayStatus = resolveOrderStatus(order);
+    order.displayStatus = resolveOrderStatus(order);
 
     res.render("orderdetails", {
       order,
@@ -325,7 +325,6 @@ const loadOrder = async (req, res) => {
 
 const cancelEntireOrder = async (req, res) => {
   try {
-    console.log("cancelEntireOrder");
     const { orderId } = req.params;
     const { reason } = req.body;
     const userId = req.session.user.id;
@@ -391,8 +390,6 @@ const cancelEntireOrder = async (req, res) => {
         date: new Date()
       });
       await wallet.save();
-
-      console.log(" Wallet refund completed. New balance:", wallet.balance);
     }
 
     return res.status(Status.OK).json({
@@ -469,8 +466,6 @@ const cancelOrderItem = async (req, res) => {
 
           return sum + (basePrice * i.quantity);
         }, 0);
-
-      console.log("Remaining subtotal before discount:", remainingValue);
 
       if (remainingValue < order.couponMinPurchase) {
         return res.status(Status.BAD_REQUEST).json({
@@ -559,14 +554,6 @@ const cancelOrderItem = async (req, res) => {
       ? ` ₹${refundAmount} refunded to wallet.`
       : "";
 
-
-    console.log("CANCEL CHECK:", {
-      couponApplied: order.couponApplied,
-      couponMinPurchase: order.couponMinPurchase,
-      couponCode: order.couponCode
-    });
-
-
     res.status(Status.OK).json({
       success: true,
       message: message + refundMessage,
@@ -587,8 +574,6 @@ const returnOrderItem = async (req, res) => {
     const { orderId, productId, variantId } = req.params;
     const { reason } = req.body;
     const userId = req.session.user.id;
-
-    console.log("Return request for order:", orderId, "product:", productId);
 
     const order = await Order.findOne({ orderId, userId })
       .populate("orderedProducts.product");
@@ -651,8 +636,6 @@ const returnOrderItem = async (req, res) => {
           return sum + (basePrice * i.quantity);
         }, 0);
 
-      console.log("Remaining subtotal before discount:", remainingValue);
-
       if (remainingValue < order.couponMinPurchase) {
         return res.status(Status.BAD_REQUEST).json({
           success: false,
@@ -687,11 +670,11 @@ const returnOrderItem = async (req, res) => {
       item => item.status === "Returned"
     );
 
-   if (allReturned) {
-  order.status = "Returned";
-} else if (anyReturnRequested) {
-  order.status = "Partially Returned";
-}
+    if (allReturned) {
+      order.status = "Returned";
+    } else if (anyReturnRequested) {
+      order.status = "Partially Returned";
+    }
 
 
 
@@ -942,13 +925,13 @@ const downloadInvoice = async (req, res) => {
 
     y += 18;
 
-   
 
-doc.text("Shipping:", 360, y)
-  .text(`Rs ${shipping.toFixed(2)}`,
+
+    doc.text("Shipping:", 360, y)
+      .text(`Rs ${shipping.toFixed(2)}`,
         totalValueX, y,
         { width: totalWidth, align: "right" });
-         y += 18;
+    y += 18;
 
 
     if (invoice.couponDiscount > 0) {

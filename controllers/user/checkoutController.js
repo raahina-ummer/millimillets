@@ -44,58 +44,58 @@ const loadCheckOut = async (req, res) => {
 
     const user = await User.findById(userId);
 
-   // -------- validate cart items --------
+    // -------- validate cart items --------
 
-const removedItems = [];
+    const removedItems = [];
 
-const filteredProducts = cart.products.filter(item => {
-  const product = item.productId;
-  let valid = true;
+    const filteredProducts = cart.products.filter(item => {
+      const product = item.productId;
+      let valid = true;
 
-  if (!product) valid = false;
-  else if (product.isBlocked) valid = false;
-  else if (!product.category?.isListed) valid = false;
-  else if (!Array.isArray(product.variant)) valid = false;
-  else {
-    const variant =
-      product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
-      product.variant[0];
+      if (!product) valid = false;
+      else if (product.isBlocked) valid = false;
+      else if (!product.category?.isListed) valid = false;
+      else if (!Array.isArray(product.variant)) valid = false;
+      else {
+        const variant =
+          product.variant.find(v => v._id?.toString() === item.variantId?.toString()) ||
+          product.variant[0];
 
-    if (!variant || Number(variant.stock) <= 0) valid = false;
-  }
+        if (!variant || Number(variant.stock) <= 0) valid = false;
+      }
 
-  if (!valid && product?.productName) {
-    removedItems.push(product.productName);
-  }
+      if (!valid && product?.productName) {
+        removedItems.push(product.productName);
+      }
 
-  return valid;
-});
-
-
-// all invalid → go back to cart
-if (filteredProducts.length === 0) {
-  req.session.cartWarning =
-    "All items in your cart are unavailable or out of stock.";
-  return res.redirect("/cart");
-}
+      return valid;
+    });
 
 
-// some removed → show checkout warning
-if (removedItems.length > 0) {
-  req.session.checkoutWarning =
-    `Some items were removed because they are unavailable: ${removedItems.join(", ")}`;
-}
+    // all invalid → go back to cart
+    if (filteredProducts.length === 0) {
+      req.session.cartWarning =
+        "All items in your cart are unavailable or out of stock.";
+      return res.redirect("/cart");
+    }
 
 
-// save only if changed
-if (filteredProducts.length !== cart.products.length) {
-  cart.products = filteredProducts;
-  await cart.save();
-}
+    // some removed → show checkout warning
+    if (removedItems.length > 0) {
+      req.session.checkoutWarning =
+        `Some items were removed because they are unavailable: ${removedItems.join(", ")}`;
+    }
 
 
-const checkoutWarning = req.session.checkoutWarning || null;
-req.session.checkoutWarning = null;
+    // save only if changed
+    if (filteredProducts.length !== cart.products.length) {
+      cart.products = filteredProducts;
+      await cart.save();
+    }
+
+
+    const checkoutWarning = req.session.checkoutWarning || null;
+    req.session.checkoutWarning = null;
 
 
     cart.products = filteredProducts;
@@ -105,33 +105,33 @@ req.session.checkoutWarning = null;
     const saletotal = Number(initialTotals.saletotal) || 0;
 
     let coupon = null;
-let couponDiscount = 0;
+    let couponDiscount = 0;
 
-if (cart.couponApplied && cart.couponCode) {
-  coupon = await Coupon.findOne({ code: cart.couponCode });
+    if (cart.couponApplied && cart.couponCode) {
+      coupon = await Coupon.findOne({ code: cart.couponCode });
 
-  const invalidCoupon =
-    !coupon ||
-    !coupon.isActive ||
-    (coupon.expiresAt && coupon.expiresAt < new Date()) ||
-    (coupon.minAmount && saletotal < coupon.minAmount);
+      const invalidCoupon =
+        !coupon ||
+        !coupon.isActive ||
+        (coupon.expiresAt && coupon.expiresAt < new Date()) ||
+        (coupon.minAmount && saletotal < coupon.minAmount);
 
-  if (invalidCoupon) {
-    cart.couponApplied = false;
-    cart.couponCode = null;
-    cart.couponDiscount = 0;
-    await cart.save();
-  } else {
-    
-    couponDiscount = Number(cart.couponDiscount) || 0;
+      if (invalidCoupon) {
+        cart.couponApplied = false;
+        cart.couponCode = null;
+        cart.couponDiscount = 0;
+        await cart.save();
+      } else {
 
-    
-    couponDiscount = Math.min(couponDiscount, saletotal);
+        couponDiscount = Number(cart.couponDiscount) || 0;
 
-    cart.couponDiscount = couponDiscount;
-    await cart.save();
-  }
-}
+
+        couponDiscount = Math.min(couponDiscount, saletotal);
+
+        cart.couponDiscount = couponDiscount;
+        await cart.save();
+      }
+    }
 
 
     const finalTotals = calculateTotals(filteredProducts, couponDiscount);
@@ -148,20 +148,7 @@ if (cart.couponApplied && cart.couponCode) {
 
       subtotal += regularPrice * item.quantity;
       discount += Math.max(regularPrice - item.price, 0) * item.quantity;
-    });console.log({
-  saletotal,
-  couponDiscount,
-  shipping,
-  tax,
-  finalAmount
-});
-
-console.log("COUPON CHECK:", {
-  code: cart.couponCode,
-  minAmount: coupon?.minAmount,
-  saleTotal: saletotal
-});
-
+    });
 
     return res.render("checkout", {
       user,
@@ -191,30 +178,28 @@ console.log("COUPON CHECK:", {
 
 const loadOrderSuccess = async (req, res) => {
   try {
-    console.log(req.query);
     const { orderId } = req.query;
     const userId = req.session.user.id;
 
-   const user = await User.findById(userId);
+    const user = await User.findById(userId);
 
-    console.log(user);
 
     if (!orderId) {
       return res.redirect("/");
     }
 
-   const order = await Order.findOne({ orderId })
-  .populate({
-    path: "orderedProducts.product",
-    select: "productName productImage",
-  })
- 
+    const order = await Order.findOne({ orderId })
+      .populate({
+        path: "orderedProducts.product",
+        select: "productName productImage",
+      })
+
 
     if (!order) {
       return res.redirect("/");
     }
 
-    const tax = order.finalAmount * 0.05; 
+    const tax = order.finalAmount * 0.05;
 
 
     res.render("ordersuccess", {
@@ -226,7 +211,7 @@ const loadOrderSuccess = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading order success:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -235,27 +220,26 @@ const loadOrderFailure = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const reason = req.query.reason || 'Payment failed';
-    const orderId = req.query.orderId; 
+    const orderId = req.query.orderId;
 
-    
+
     const user = await User.findById(userId);
-    
+
     let order = null;
     if (orderId) {
       order = await Order.findOne({ orderId: orderId }).populate("orderedProducts.product");
-      console.log("Order found:", order); 
     }
 
-    res.render("orderfailure", { 
-      user, 
+    res.render("orderfailure", {
+      user,
       reason,
-      order: order  
+      order: order
     });
 
   } catch (error) {
     console.error("Error loading failure page:", error);
-    res.render("orderfailure", { 
-      user: null, 
+    res.render("orderfailure", {
+      user: null,
       reason: 'Payment failed',
       order: null
     });
@@ -268,6 +252,6 @@ const loadOrderFailure = async (req, res) => {
 export {
   loadCheckOut,
   loadOrderSuccess,
- loadOrderFailure,
+  loadOrderFailure,
 };
 

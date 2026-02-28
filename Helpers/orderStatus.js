@@ -9,11 +9,13 @@ export function resolveOrderStatus(order) {
   if (all("Returned")) return "Returned";
   if (all("Delivered")) return "Delivered";
   if (all("Shipped")) return "Shipped";
+  if (all("Return Requested")) return "Return Requested";
 
+  if (some("Return Requested")) return "Return Requested";
   if (some("Returned")) return "Partially Returned";
   if (some("Delivered")) return "Partially Delivered";
 
-  if (some("Return Requested")) return "Return Requested";
+
   if (some("Shipped")) return "Processing";
   if (some("Processing")) return "Processing";
 

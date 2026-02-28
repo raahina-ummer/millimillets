@@ -15,14 +15,14 @@ const loadSalesReport = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const dateFilter = getDateRange(period, startDate, endDate);
-    
+
     // Build query with optional filters
     let query = { ...dateFilter };
-    
+
     if (paymentMethod && paymentMethod !== "all") {
       query.paymentMethod = paymentMethod;
     }
-    
+
     if (status && status !== "all") {
       query.status = status;
     }
@@ -47,7 +47,7 @@ const loadSalesReport = async (req, res) => {
     const statistics = calculateStatistics(allOrders);
 
     res.render("salesreport", {
-        title: "Sales Report",
+      title: "Sales Report",
       currentRoute: "sales-report",
       orders,
       statistics,
@@ -62,24 +62,23 @@ const loadSalesReport = async (req, res) => {
     });
   } catch (error) {
     console.error("Error generating sales report:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
 // Download sales report
 const downloadSalesReport = async (req, res) => {
   try {
-    console.log("download Invocked")
     const { format, period = "daily", startDate, endDate, paymentMethod, status } = req.query;
 
     const dateFilter = getDateRange(period, startDate, endDate);
-    
+
     let query = { ...dateFilter };
-    
+
     if (paymentMethod && paymentMethod !== "all") {
       query.paymentMethod = paymentMethod;
     }
-    
+
     if (status && status !== "all") {
       query.status = status;
     }
@@ -107,7 +106,7 @@ const downloadSalesReport = async (req, res) => {
     }
   } catch (error) {
     console.error("Error downloading sales report:", error);
-    res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -115,8 +114,6 @@ const downloadSalesReport = async (req, res) => {
 const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
   return new Promise((resolve, reject) => {
     try {
-      console.log("PDF report Invoked");
-
       const filename = `sales-report-${period}-${new Date().toISOString().split("T")[0]}.pdf`;
       const doc = new PDFDocument({ margin: 40, size: "A4" });
 
@@ -189,16 +186,16 @@ const generatePDF = (res, orders, statistics, period, startDate, endDate) => {
 
       /* ---------------- TABLE CONFIG ---------------- */
 
-    const headers = ["#", "Order ID", "Date", "Customer", "Final", "Discount", "Tax", "Status"];
+      const headers = ["#", "Order ID", "Date", "Customer", "Final", "Discount", "Tax", "Status"];
 
-const colW = [30, 110, 70, 110, 60, 55, 40, 40]; // ✅ fits page
+      const colW = [30, 110, 70, 110, 60, 55, 40, 40]; // ✅ fits page
 
-const colX = [];
-let x = 45;
-colW.forEach(w => {
-  colX.push(x);
-  x += w;
-});
+      const colX = [];
+      let x = 45;
+      colW.forEach(w => {
+        colX.push(x);
+        x += w;
+      });
 
 
       doc.fillColor("#000").fontSize(12).font("Helvetica-Bold").text("ORDER DETAILS", 50, y);
@@ -238,7 +235,7 @@ colW.forEach(w => {
           doc.text(String(cell), colX[c], y, {
             width: colW[c],
             align: "center",
-            lineBreak: false   
+            lineBreak: false
           });
         });
 
@@ -256,7 +253,6 @@ colW.forEach(w => {
 // Generate Excel Report
 const generateExcel = async (res, orders, statistics, period, startDate, endDate) => {
   try {
-    console.log("generate Excel invocked")
     const filename = `sales-report-${period}-${new Date().toISOString().split("T")[0]}.xlsx`;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sales Report");
@@ -293,22 +289,22 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
 
     // Order Details
     worksheet.addRow(["ORDER DETAILS"]);
-const headerRow = worksheet.addRow([
-  "S.No",
-  "Order ID",
-  "Date",
-  "Customer",
-  "Email",
-  "Order Amount",
-  "Item Discount",
-  "Coupon Discount",
-  "Total Discount",
-  "Tax",
-  "Shipping",
-  "Final Amount",
-  "Payment Method",
-  "Status",
-]);
+    const headerRow = worksheet.addRow([
+      "S.No",
+      "Order ID",
+      "Date",
+      "Customer",
+      "Email",
+      "Order Amount",
+      "Item Discount",
+      "Coupon Discount",
+      "Total Discount",
+      "Tax",
+      "Shipping",
+      "Final Amount",
+      "Payment Method",
+      "Status",
+    ]);
 
 
     headerRow.font = { bold: true };
@@ -316,27 +312,27 @@ const headerRow = worksheet.addRow([
     headerRow.font.color = { argb: "FFFFFFFF" };
 
     orders.forEach((order, index) => {
-     const couponDiscount = order.couponDiscount || 0;
-  const itemDiscount = order.itemDiscount || 0;
-  const totalDiscount = couponDiscount + itemDiscount;
+      const couponDiscount = order.couponDiscount || 0;
+      const itemDiscount = order.itemDiscount || 0;
+      const totalDiscount = couponDiscount + itemDiscount;
 
       worksheet.addRow([
-  index + 1,
-  order.orderId?.toString() || "N/A",
-  new Date(order.createdAt).toLocaleDateString(),
-  order.userId?.name || "N/A",
-  order.userId?.email || "N/A",
+        index + 1,
+        order.orderId?.toString() || "N/A",
+        new Date(order.createdAt).toLocaleDateString(),
+        order.userId?.name || "N/A",
+        order.userId?.email || "N/A",
 
-  order.totalPrice || 0,        
- itemDiscount,                                    
-  couponDiscount,               
-  totalDiscount,               
-  order.tax||0,                           
-  order.shippingCost || 0,      
-  order.finalAmount || 0,       
-  order.paymentMethod || "N/A",
-  order.status || "N/A",
-]);
+        order.totalPrice || 0,
+        itemDiscount,
+        couponDiscount,
+        totalDiscount,
+        order.tax || 0,
+        order.shippingCost || 0,
+        order.finalAmount || 0,
+        order.paymentMethod || "N/A",
+        order.status || "N/A",
+      ]);
 
     });
 
@@ -351,7 +347,7 @@ const headerRow = worksheet.addRow([
     res.send(buffer);
   } catch (error) {
     console.error("Error generating Excel:", error);
-     res.status(Status.INTERNAL_SERVER_ERROR).json({success:false,message:message.GENERAL.SERVER_ERROR});
+    res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 

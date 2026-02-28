@@ -23,17 +23,18 @@ const loadDashboard = async (req, res) => {
       };
     }
 
-const totalOrders = await Order.countDocuments({
-  status: { $nin: ["Cancelled", "Returned"] },
-  ...dateFilter,
-});
+    const totalOrders = await Order.countDocuments({
+      status: { $nin: ["Cancelled", "Returned"] },
+      ...dateFilter,
+    });
 
 
     const totalRevenueAgg = await Order.aggregate([
-      {$match: {
-  status: "Delivered",
-  ...(dateFilter.createdAt && { createdAt: dateFilter.createdAt }),
-}
+      {
+        $match: {
+          status: "Delivered",
+          ...(dateFilter.createdAt && { createdAt: dateFilter.createdAt }),
+        }
 
       },
       {
@@ -50,8 +51,8 @@ const totalOrders = await Order.countDocuments({
 
     // status metrics
     const liveOrders = await Order.countDocuments({
-  status: { $in: ["Pending", "Processing"] },
-  ...dateFilter
+      status: { $in: ["Pending", "Processing"] },
+      ...dateFilter
 
     });
 
@@ -172,8 +173,6 @@ const totalOrders = await Order.countDocuments({
 
     // Business target
     const targetCustomerPercent = 90;
-
-    console.log("BEST PRODUCTS ", bestProducts);
 
     res.render("dashboard", {
       title: "Admin Dashboard",

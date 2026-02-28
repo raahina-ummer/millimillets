@@ -5,8 +5,8 @@ import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import Product from "../../models/ProductSchema.js";
 import Category from "../../models/CategorySchema.js";
- import * as offerService from "../../Services/offerService.js"
-import { calculateBestOffer,getCategoriesWithOffers,getProductsWithOffers } from "../../Services/offerService.js";
+import * as offerService from "../../Services/offerService.js"
+import { calculateBestOffer, getCategoriesWithOffers, getProductsWithOffers } from "../../Services/offerService.js";
 
 
 
@@ -20,7 +20,7 @@ export const loadOffer = async (req, res) => {
 
     res.render("offer", {
       title: "Offers",
-currentRoute: "offer",
+      currentRoute: "offer",
       currentRoute: "offer",
       title: "Offers Management - MILLIMILLET",
       categories: categories || [],
@@ -108,7 +108,6 @@ export const toggleProductOffer = async (req, res) => {
 export const removeProductOffer = async (req, res) => {
   try {
     await offerService.removeProductOffer(req.body.productId);
-    console.log("hair hello from delete");
     res
       .status(Status.OK)
       .json({ message: "Product offer removed successfully" });
@@ -190,7 +189,6 @@ export const addCategoryOffer = async (req, res) => {
 
 export const updateCategoryOffer = async (req, res) => {
   try {
-    console.log("Update category offer Invocked");
     const categoryId = req.params.categoryId;
 
     const category = await offerService.updateCategoryOffer(
@@ -227,9 +225,8 @@ export const toggleCategoryOffer = async (req, res) => {
 
     res.status(Status.OK).json({
       success: true,
-      message: `Category offer ${
-        offerActive ? "activated" : "deactivated"
-      } successfully`,
+      message: `Category offer ${offerActive ? "activated" : "deactivated"
+        } successfully`,
     });
   } catch (error) {
     console.error("Category toggle error:", error);
@@ -245,7 +242,7 @@ export const removeCategoryOffer = async (req, res) => {
     await offerService.removeCategoryOffer(req.body.categoryId);
     res
       .status(Status.OK)
-      .json({ message:message.CATEGORY.OFFER_DELETED_SUCCESS  });
+      .json({ message: message.CATEGORY.OFFER_DELETED_SUCCESS });
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)

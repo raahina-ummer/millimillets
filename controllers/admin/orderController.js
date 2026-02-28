@@ -17,7 +17,7 @@ const OrderStatus = {
   CANCELLED: "Cancelled",
   RETURN_REQUEST: "Return Requested",
   RETURNED: "Returned",
-  PARTIALLY_RETURNED : "Partially Returned",
+  PARTIALLY_RETURNED: "Partially Returned",
   PARTIALLY_DELIVERED: "Partially Delivered",
 
 };
@@ -28,24 +28,28 @@ const loadOrders = async (req, res) => {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    
+
     const status = req.query.status || "";
     const sort = req.query.sort || "date_desc";
     const search = req.query.search || "";
 
-    
+
     let filter = {};
 
-  if (status === "Delivered") {
-  filter.status = { $in: ["Delivered", "Partially Delivered"] };
-} else if (status === "Returned") {
-  filter.status = { $in: ["Returned", "Partially Returned"] };
-} else if (status) {
-  filter.status = status;
-}
+    if (status === "Delivered") {
+      filter.status = { $in: ["Delivered", "Partially Delivered"] };
+    } else if (status === "Returned") {
+      filter.status = { $in: ["Returned", "Partially Returned"] };
+    } else if (status === "Return Requested") {
+      filter.status = {
+        $in: ["Return Requested"]
+      };
+    } else if (status) {
+      filter.status = status;
+    }
 
 
-    
+
     if (search) {
       const users = await User.find({
         $or: [
@@ -63,7 +67,7 @@ const loadOrders = async (req, res) => {
       ];
     }
 
-   
+
     let sortQuery = {};
     switch (sort) {
       case "date_asc":
@@ -93,29 +97,29 @@ const loadOrders = async (req, res) => {
       .limit(limit)
       .lean();
 
-      orders.forEach(order => {
+    orders.forEach(order => {
 
-         order.displayStatus = resolveOrderStatus(order);
+      order.displayStatus = resolveOrderStatus(order);
 
-  const originalSubtotal = order.orderedProducts.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+      const originalSubtotal = order.orderedProducts.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
 
-  const activeItemsTotal = order.orderedProducts
-    .filter(item => !['Cancelled', 'Returned'].includes(item.status))
-    .reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const activeItemsTotal = order.orderedProducts
+        .filter(item => !['Cancelled', 'Returned'].includes(item.status))
+        .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const activeCouponUsed =
-    order.couponApplied && originalSubtotal > 0
-      ? (activeItemsTotal / originalSubtotal) * order.couponDiscount
-      : 0;
+      const activeCouponUsed =
+        order.couponApplied && originalSubtotal > 0
+          ? (activeItemsTotal / originalSubtotal) * order.couponDiscount
+          : 0;
 
-  order.currentAmount = Math.max(
-    activeItemsTotal - activeCouponUsed + (order.shippingCost || 0),
-    0
-  );
-});
+      order.currentAmount = Math.max(
+        activeItemsTotal - activeCouponUsed + (order.shippingCost || 0),
+        0
+      );
+    });
 
 
     const totalOrders = await Order.countDocuments(filter);
@@ -123,7 +127,7 @@ const loadOrders = async (req, res) => {
 
     return res.render("adminorder", {
       title: "Orders",
-currentRoute: "orders",
+      currentRoute: "orders",
       orders,
       currentPage: page,
       totalPages,
@@ -182,7 +186,7 @@ const updateOrderStatus = async (req, res) => {
       Processing: ["Shipped", "Cancelled"],
       Shipped: ["Delivered"],
       Delivered: ["Return Requested"],
-      "Return Requested": ["Returned","Partially Returned"],
+      "Return Requested": ["Returned", "Partially Returned"],
       'Partially Delivered': ['Delivered'],
     };
 
@@ -199,23 +203,23 @@ const updateOrderStatus = async (req, res) => {
     const now = new Date();
 
     if (status === "Delivered") {
-  order.status = "Delivered";
-  order.deliveredAt = now;
-  order.InvoiceDate ??= now;
+      order.status = "Delivered";
+      order.deliveredAt = now;
+      order.InvoiceDate ??= now;
 
-  // sync item status
-  order.orderedProducts.forEach(item => {
-    if (!["Cancelled", "Returned", "Return Requested"]
-        .includes(item.status)) {
-      item.status = "Delivered";
+      // sync item status
+      order.orderedProducts.forEach(item => {
+        if (!["Cancelled", "Returned", "Return Requested"]
+          .includes(item.status)) {
+          item.status = "Delivered";
+        }
+      });
+
+      order.invoiceSnapshot = buildInvoiceSnapshot(order);
     }
-  });
-
-  order.invoiceSnapshot = buildInvoiceSnapshot(order);
-}
 
 
-    
+
     else if (status === "Cancelled") {
       order.status = "Cancelled";
       order.cancelledAt = now;
@@ -225,17 +229,17 @@ const updateOrderStatus = async (req, res) => {
       for (const item of order.orderedProducts) {
         if (!item.product) continue;
 
-const productId = item.product._id || item.product;
+        const productId = item.product._id || item.product;
 
-      await Product.updateOne(
-  { _id: productId, "variant._id": item.variantId },
-  { $inc: { "variant.$.stock": item.quantity } }
-);
+        await Product.updateOne(
+          { _id: productId, "variant._id": item.variantId },
+          { $inc: { "variant.$.stock": item.quantity } }
+        );
 
-item.status = "Cancelled";
+        item.status = "Cancelled";
 
       }
-            if (["Razorpay", "Wallet", "Card", "UPI"].includes(order.paymentMethod)) {
+      if (["Razorpay", "Wallet", "Card", "UPI"].includes(order.paymentMethod)) {
         let wallet = await Wallet.findOne({ userId: order.userId });
 
         if (!wallet) {
@@ -246,9 +250,9 @@ item.status = "Cancelled";
           });
         }
 
-         let refundAmount = 0;
+        let refundAmount = 0;
 
-               order.orderedProducts.forEach(item => {
+        order.orderedProducts.forEach(item => {
           const base = item.price * item.quantity;
           const coupon = item.couponShare || 0;
           refundAmount += base - coupon;
@@ -269,19 +273,19 @@ item.status = "Cancelled";
         order.refundAmount = refundAmount;
         order.refundMethod = "wallet";
         order.refundStatus = "Completed";
-         order.paymentStatus = "Refunded";
+        order.paymentStatus = "Refunded";
       }
 
-    } else{
+    } else {
       order.status = status;
 
       if (status === "Shipped") {
         order.shippedAt = now;
       }
-    
-    
 
-   order.orderedProducts.forEach(item => {
+
+
+      order.orderedProducts.forEach(item => {
         if (
           !["Cancelled", "Returned", "Return Requested"]
             .includes(item.status)
@@ -290,6 +294,8 @@ item.status = "Cancelled";
         }
       });
     }
+    order.status = resolveOrderStatus(order);
+
     await order.save({ validateModifiedOnly: true });
 
     return res.status(Status.OK).json({
@@ -309,20 +315,18 @@ item.status = "Cancelled";
 
 const updateSingleItemStatus = async (req, res) => {
   try {
-    console.log("STEP 1 — body:", req.body);
-
     const { orderId, itemId, status } = req.body;
 
-   const allowed = [
-  "Processing",
-  "Shipped",
-  "Delivered",
-  "Cancelled",
-  "Returned",
-  "Return Requested",
-  "Partially Returned",
-  "Partially Delivered"
-];
+    const allowed = [
+      "Processing",
+      "Shipped",
+      "Delivered",
+      "Cancelled",
+      "Returned",
+      "Return Requested",
+      "Partially Returned",
+      "Partially Delivered"
+    ];
 
     if (!allowed.includes(status)) {
       return res.status(400).json({
@@ -350,12 +354,12 @@ const updateSingleItemStatus = async (req, res) => {
       });
     }
 
-   const transitions = {
+    const transitions = {
       Pending: ["Processing", "Cancelled"],
       Processing: ["Shipped", "Cancelled"],
       Shipped: ["Delivered"],
       Delivered: ["Return Requested"],
-      "Return Requested": ["Returned","Partially Returned"],
+      "Return Requested": ["Returned", "Partially Returned"],
       'Partially Delivered': ['Delivered'],
     };
 
@@ -386,52 +390,47 @@ const updateSingleItemStatus = async (req, res) => {
     if (status === "Returned") {
       item.returnedAt = now;
     }
-  
-   
-if (status === "Cancelled" || status === "Returned") {
 
-  console.log("REFUND TRIGGERED");
 
-  if (!item.refundProcessed &&
-      ["Razorpay", "Wallet", "Card", "UPI"].includes(order.paymentMethod)) {
+    if (status === "Cancelled" || status === "Returned") {
 
-    const base = item.price * item.quantity;
-    const coupon = item.couponShare || 0;
-    const refundAmount = base - coupon;
+      if (!item.refundProcessed &&
+        ["Razorpay", "Wallet", "Card", "UPI"].includes(order.paymentMethod)) {
 
-    console.log("Refund amount:", refundAmount);
+        const base = item.price * item.quantity;
+        const coupon = item.couponShare || 0;
+        const refundAmount = base - coupon;
 
-    let wallet = await Wallet.findOne({ userId: order.userId });
+        let wallet = await Wallet.findOne({ userId: order.userId });
 
-    if (!wallet) {
-      console.log("Creating wallet");
-      wallet = await Wallet.create({
-        userId: order.userId,
-        balance: 0,
-        transactions: [],
-      });
+        if (!wallet) {
+          wallet = await Wallet.create({
+            userId: order.userId,
+            balance: 0,
+            transactions: [],
+          });
+        }
+
+        wallet.balance += refundAmount;
+
+        wallet.transactions.push({
+          type: "credit",
+          amount: refundAmount,
+          reason: `Item ${status}`,
+          orderId: order.orderId,
+          itemId: item._id,
+          date: new Date()
+        });
+
+        await wallet.save();
+        item.refundProcessed = true;
+      }
+
     }
 
-    wallet.balance += refundAmount;
-
-    wallet.transactions.push({
-      type: "credit",
-      amount: refundAmount,
-      reason: `Item ${status}`,
-      orderId: order.orderId,
-      itemId: item._id,
-      date: new Date()
-    });
-
-    await wallet.save();
-    console.log("Wallet saved");
-
-    item.refundProcessed = true;
-  }
-
-}
-    
     order.invoiceSnapshot = buildInvoiceSnapshot(order);
+    order.status = resolveOrderStatus(order);
+
     order.status = resolveOrderStatus(order);
 
     await order.save({ validateModifiedOnly: true });
@@ -459,6 +458,7 @@ const loadOrderDetails = async (req, res) => {
           "productName productImage salePrice regularPrice description category variant stock",
       })
       .lean();
+    order.status = resolveOrderStatus(order);
 
     if (!order) {
       return res
@@ -470,33 +470,33 @@ const loadOrderDetails = async (req, res) => {
     const isAdmin = req.originalUrl.includes("/adminorder");
 
     const originalSubtotal = order.orderedProducts.reduce(
-  (sum, item) => sum + item.price * item.quantity,
-  0
-);
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
-const activeSubtotal = order.orderedProducts
-  .filter(item => !['Cancelled', 'Returned'].includes(item.status))
-  .reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const activeSubtotal = order.orderedProducts
+      .filter(item => !['Cancelled', 'Returned'].includes(item.status))
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-const activeCouponUsed =
-  order.couponApplied && originalSubtotal > 0
-    ? Math.round((activeSubtotal / originalSubtotal) * order.couponDiscount)
-    : 0;
+    const activeCouponUsed =
+      order.couponApplied && originalSubtotal > 0
+        ? Math.round((activeSubtotal / originalSubtotal) * order.couponDiscount)
+        : 0;
 
-order.adminSummary = {
-  subtotal: activeSubtotal,
-  couponDiscount: activeCouponUsed,
-  shipping: order.shippingCost || 0,
-  finalAmount: Math.max(
-    activeSubtotal - activeCouponUsed + (order.shippingCost || 0),
-    0
-  )
-};
+    order.adminSummary = {
+      subtotal: activeSubtotal,
+      couponDiscount: activeCouponUsed,
+      shipping: order.shippingCost || 0,
+      finalAmount: Math.max(
+        activeSubtotal - activeCouponUsed + (order.shippingCost || 0),
+        0
+      )
+    };
 
 
     return res.render(isAdmin ? "adminorderdetails" : "orderdetails", {
       order,
-       currentRoute: isAdmin ? "orders" : null
+      currentRoute: isAdmin ? "orders" : null
     });
   } catch (error) {
     console.error("Error loading order details:", error);
@@ -549,7 +549,7 @@ const approveOrRejectReturnRequest = async (req, res) => {
     if (action === "reject") {
       item.status = "Delivered";
       order.returnStatus = "Rejected";
-      order.status = "Return Requested"; 
+      order.status = resolveOrderStatus(order);
       order.returnRejectedReason = notes || "Return rejected by admin";
       order.returnRejectedAt = new Date();
 
@@ -569,7 +569,7 @@ const approveOrRejectReturnRequest = async (req, res) => {
 
     //  APPROVE RETURN
     const itemSaleValue = item.price * item.quantity;
-    const orderSaleTotal = order.totalPrice ;
+    const orderSaleTotal = order.totalPrice;
 
     let couponShare = 0;
     if (order.couponDiscount && orderSaleTotal > 0) {
@@ -608,7 +608,7 @@ const approveOrRejectReturnRequest = async (req, res) => {
     item.status = "Returned";
     item.returnedAt = new Date();
 
-   
+
     order.refundAmount += refundAmount;
     order.refundMethod = "wallet";
     order.refundStatus = "Completed";
@@ -618,9 +618,9 @@ const approveOrRejectReturnRequest = async (req, res) => {
     order.totalPrice = Math.max(order.totalPrice - itemSaleValue, 0);
     order.finalAmount = Math.max(
       order.totalPrice -
-        order.discount -
-        order.couponDiscount +
-        order.shippingCost,
+      order.discount -
+      order.couponDiscount +
+      order.shippingCost,
       0,
     );
 
@@ -636,6 +636,7 @@ const approveOrRejectReturnRequest = async (req, res) => {
 
     order.invoiceSnapshot = buildInvoiceSnapshot(order);
 
+    order.status = resolveOrderStatus(order);
 
     await order.save({ validateModifiedOnly: true });
 
