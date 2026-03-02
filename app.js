@@ -28,6 +28,8 @@ connectDB();
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 // Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -49,12 +51,14 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 72 * 60 * 60 * 1000, // 72 hours
     },
   })
 );
+
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -83,7 +87,7 @@ app.use("/", userRouter);
 
 // Start server
 app.listen(process.env.PORT, () => {
-  console.log(`Server started on port ${process.env.PORT}`);
+  logger.info(`Server started on port ${process.env.PORT}`);
 });
 
 export default app;

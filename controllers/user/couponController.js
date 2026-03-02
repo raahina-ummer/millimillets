@@ -66,7 +66,7 @@ const loadCoupon = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching coupons:', error);
+    logger.error('Error fetching coupons:', error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -217,7 +217,7 @@ const applyCoupon = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error in applyCoupon:", error);
+    logger.error("Error in applyCoupon:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -283,7 +283,7 @@ const removeCoupon = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error in removeCoupon:", error);
+    logger.error("Error in removeCoupon:", error);
     return res.status(500).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,

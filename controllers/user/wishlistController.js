@@ -53,7 +53,7 @@ const loadWishlist = async (req, res) => {
       user: user || null,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -96,7 +96,7 @@ const addToWishList = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -124,7 +124,7 @@ const deleteWishlist = async (req, res) => {
       .status(Status.OK)
       .json({ success: true, message: message.WISHLIST.CLEARED });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -159,7 +159,7 @@ const removeFromWishlist = async (req, res) => {
       .status(Status.OK)
       .json({ success: true, message: message.WISHLIST.ITEM_REMOVED });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });

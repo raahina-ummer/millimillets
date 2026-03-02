@@ -111,7 +111,7 @@ const getAllProducts = async (req, res) => {
     });
 
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.render("500");
   }
 };
@@ -122,7 +122,7 @@ const getProductAddPage = async (req, res) => {
     const category = await Category.find({ isListed: true });
     res.render("add-product", { cat: category, currentRoute: "products", });
   } catch (error) {
-    console.log("Error: " + error);
+    logger.error("Error: " + error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -275,7 +275,7 @@ const addProducts = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Add product error:", error);
+    logger.error("Add product error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -289,7 +289,7 @@ const addProducts = async (req, res) => {
 const blockProduct = async (req, res) => {
   try {
     const id = req.query.id;
-  
+
     await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/products");
   } catch (error) {
@@ -449,7 +449,7 @@ const editProduct = async (req, res) => {
       product: updatedProduct,
     });
   } catch (error) {
-    console.error("Edit product error:", error);
+    logger.error("Edit product error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -522,7 +522,7 @@ const deleteSingleImage = async (req, res) => {
         await fs.promises.unlink(imagePath);
       }
     } catch (fileError) {
-      console.error("File deletion error:", fileError);
+      logger.error("File deletion error:", fileError);
     }
 
     return res.status(Status.OK).json({
@@ -530,7 +530,7 @@ const deleteSingleImage = async (req, res) => {
       message: "Image deleted successfully",
     });
   } catch (error) {
-    console.error("Delete image error:", error);
+    logger.error("Delete image error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -553,7 +553,7 @@ export const getProductOffer = async (req, res) => {
       offer: product.productOffer || {},
     });
   } catch (error) {
-    console.error("Error fetching offer:", error);
+    logger.error("Error fetching offer:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -626,7 +626,7 @@ const updateProductOffer = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error("Error updating offer:", error);
+    logger.error("Error updating offer:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -649,7 +649,7 @@ const loadProductOffer = async (req, res) => {
       offer: product.productOffer || {},
     });
   } catch (error) {
-    console.error("Error fetching offer:", error);
+    logger.error("Error fetching offer:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });

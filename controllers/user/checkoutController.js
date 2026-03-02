@@ -168,7 +168,7 @@ const loadCheckOut = async (req, res) => {
       checkoutWarning,
     });
   } catch (error) {
-    console.error("Error loading checkout page:", error);
+    logger.error("Error loading checkout page:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -210,7 +210,7 @@ const loadOrderSuccess = async (req, res) => {
       tax,
     });
   } catch (error) {
-    console.error("Error loading order success:", error);
+    logger.error("Error loading order success:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -237,7 +237,7 @@ const loadOrderFailure = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error loading failure page:", error);
+    logger.error("Error loading failure page:", error);
     res.render("orderfailure", {
       user: null,
       reason: 'Payment failed',

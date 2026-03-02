@@ -24,7 +24,7 @@ export const loadOffer = async (req, res) => {
       products: products || [],
     });
   } catch (error) {
-    console.error("Error loading offer page:", error);
+    logger.error("Error loading offer page:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -151,7 +151,7 @@ export const getCategoryOffers = async (req, res) => {
       expiredOffers,
     });
   } catch (error) {
-    console.error("Error fetching category offers:", error);
+    logger.error("Error fetching category offers:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -196,7 +196,7 @@ export const updateCategoryOffer = async (req, res) => {
       category,
     });
   } catch (error) {
-    console.log("updateCategoryOffer", error);
+    logger.error("updateCategoryOffer", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -222,7 +222,7 @@ export const toggleCategoryOffer = async (req, res) => {
         } successfully`,
     });
   } catch (error) {
-    console.error("Category toggle error:", error);
+    logger.error("Category toggle error:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,

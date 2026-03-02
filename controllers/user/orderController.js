@@ -159,7 +159,7 @@ const loadOrderDetails = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error loading order details:", error);
+    logger.error("Error loading order details:", error);
 
 
     if (res.headersSent) {
@@ -316,7 +316,7 @@ const loadOrder = async (req, res) => {
       sort,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -400,7 +400,7 @@ const cancelEntireOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error cancelling order:", error);
+    logger.error("Error cancelling order:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -561,7 +561,7 @@ const cancelOrderItem = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error cancelling item:", error);
+    logger.error("Error cancelling item:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -687,7 +687,7 @@ const returnOrderItem = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error submitting return:", error);
+    logger.error("Error submitting return:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -757,7 +757,7 @@ const returnEntireOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Return entire order error:", error);
+    logger.error("Return entire order error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -782,7 +782,7 @@ const getPendingReturns = async (req, res) => {
       data: returns
     });
   } catch (error) {
-    console.error("Error fetching returns:", error);
+    logger.error("Error fetching returns:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -970,7 +970,7 @@ const downloadInvoice = async (req, res) => {
     doc.end();
 
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).send("Invoice generation failed");
   }
 };
@@ -999,7 +999,7 @@ const placeCodOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("COD Order Error:", error);
+    logger.error("COD Order Error:", error);
 
     if (error.isBusinessError && error.message === "COD_LIMIT_EXCEEDED") {
       return res.status(Status.BAD_REQUEST).json({
@@ -1048,7 +1048,7 @@ const createRazorpayOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Create Razorpay Order Error:", error);
+    logger.error("Create Razorpay Order Error:", error);
 
 
     if (error.message === "No valid items in cart") {
@@ -1086,7 +1086,7 @@ const createRetryOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Retry Razorpay Error:", error);
+    logger.error("Retry Razorpay Error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -1127,7 +1127,7 @@ const verifyPayment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Payment Verification Error:", error);
+    logger.error("Payment Verification Error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR

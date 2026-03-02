@@ -41,19 +41,19 @@ const login = async (req, res) => {
     }
 
     req.session.admin = {
-  id: admin._id,
-  email: admin.email
-}
+      id: admin._id,
+      email: admin.email
+    }
 
     return res.status(Status.OK).json({
-       success: true ,message:message.AUTH.LOGIN_SUCCESS
-      });
+      success: true, message: message.AUTH.LOGIN_SUCCESS
+    });
 
   } catch (error) {
     logger.error("Login error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message:message.GENERAL.SERVER_ERROR
+      message: message.GENERAL.SERVER_ERROR
     });
   }
 };
@@ -63,19 +63,19 @@ const logout = (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        console.log("Admin logout error:", err);
+        logger.error("Admin logout error:", err);
         return res.status(Status.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: message.GENERAL.SERVER_ERROR
         });
       }
 
-      res.clearCookie("connect.sid"); 
+      res.clearCookie("connect.sid");
       return res.redirect("/admin/login");
     });
 
   } catch (error) {
-  logger.error("Unexpected error during admin logout:", error);
+    logger.error("Unexpected error during admin logout:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR

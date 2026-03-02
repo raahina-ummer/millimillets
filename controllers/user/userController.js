@@ -13,12 +13,24 @@ import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import Cart from "../../models/CartSchema.js";
 import Wallet from "../../models/WalletSchema.js";
-
 import { calculateFinalPrice, calculateBestOffer } from "../../Services/offerService.js";
-import ReferralOffer from "../../models/referralSchema.js"
+import rateLimit from "express-rate-limit";
 import logger from '../../utils/logger.js';
 
 dotenv.config();
+
+export const otpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 5,
+  message: "Too many OTP requests. Please try again later.",
+});
+
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: "Too many login attempts. Please try again after 15 minutes.",
+});
+
 
 const pageNotFound = async (req, res) => {
   try {
@@ -111,7 +123,7 @@ const loadHomepage = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error loading homepage:", error);
+    logger.error("Error loading homepage:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR
@@ -120,77 +132,11 @@ const loadHomepage = async (req, res) => {
 };
 
 
-// const loadHomepage = async (req, res) => {
-//   try {
-//     const userId = req.session.user?.id;
-//     let user = null;
-
-//     if (userId) {
-//       user = await User.findById(userId);
-//     }
-
-//     // Get best selling products 
-
-//     const products = await Product.find({
-//       isBlocked: false,
-//       status: "Available"
-//     })
-//       .populate('category')
-//       .sort({ createdAt: -1 })
-//       .limit(3);
-
-
-//     const categories = await Category.find({ isListed: true })
-//       .sort({ name: 1 })
-//       .limit(3);
-
-
-//     const currentDate = new Date();
-//     const offerProducts = await Product.find({
-//       isBlocked: false,
-//       status: "Available",
-//       'productOffer.offerActive': true,
-//       'productOffer.discountPercentage': { $gt: 0 },
-//       $or: [
-//         { 'productOffer.offerEndDate': { $gte: currentDate } },
-//         { 'productOffer.offerEndDate': null }
-//       ]
-//     })
-//       .populate('category')
-//       .sort({ 'productOffer.discountPercentage': -1 }) 
-//       .limit(4);
-
-//     // If less than 4 offer products, fill with regular products
-//     if (offerProducts.length < 4) {
-//       const additionalProducts = await Product.find({
-//         isBlocked: false,
-//         status: "Available",
-//         _id: { $nin: offerProducts.map(p => p._id) }
-//       })
-//         .populate('category')
-//         .sort({ createdAt: -1 })
-//         .limit(4 - offerProducts.length);
-
-//       offerProducts.push(...additionalProducts);
-//     }
-
-//     res.render('home', {
-//       user,
-//       products,
-//       categories,
-//       offerProducts
-//     });
-//   } catch (error) {
-//     console.error('Error loading homepage:', error);
-//     return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
-//   }
-// };
-
 const loadSignup = async (req, res) => {
   try {
     return res.render("signup");
   } catch (error) {
-    console.log("Something went wrong while signup!", error);
+    logger.error("Something went wrong while signup!", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -200,7 +146,7 @@ const securePassword = async (password) => {
     const passwordHash = await bcrypt.hash(password, 10);
     return passwordHash;
   } catch (error) {
-    console.log(error);
+    logger.error(error);
   }
 };
 
@@ -256,7 +202,7 @@ const signup = async (req, res) => {
     }
 
     const otp = generateOtp();
-    console.log("otp", otp)
+
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
@@ -269,7 +215,7 @@ const signup = async (req, res) => {
     const passwordHash = await securePassword(password);
 
     req.session.userOtp = otp;
-    req.session.otpExpiry = Date.now() + 60 * 1000;
+    req.session.otpExpiry = Date.now() + 5 * 60 * 1000;;
     req.session.userData = {
       name,
       phone,
@@ -286,7 +232,7 @@ const signup = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Signup error:", error);
+    logger.error("Signup error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -306,7 +252,7 @@ const loadVerifyOtp = async (req, res) => {
       otpType: "SIGNUP_OTP",
     });
   } catch (error) {
-    console.error("Load Verify OTP Error:", error);
+    logger.error("Load Verify OTP Error:", error);
     res.redirect("/pageNotFound");
   }
 };
@@ -416,7 +362,7 @@ const verifyOtp = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Verify OTP Error:", error);
+    logger.error("Verify OTP Error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -438,7 +384,7 @@ const resendOtp = async (req, res) => {
 
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {
-      console.log("Resend OTP", otp);
+
       res.status(Status.OK).json({ success: true, message: message.OTP.SENT });
     } else {
       return res.status(Status.BAD_REQUEST).json({
@@ -449,7 +395,7 @@ const resendOtp = async (req, res) => {
 
     }
   } catch (error) {
-    console.error("Error resending OTP", error);
+    logger.error("Error resending OTP", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR, });
   }
 };
@@ -501,7 +447,7 @@ const login = async (req, res) => {
     res.redirect("/");
 
   } catch (error) {
-    console.error("Login error", error);
+    logger.error("Login error", error);
     res.render("login", {
       message: "Login failed. Please try again later."
     });
@@ -513,7 +459,7 @@ const login = async (req, res) => {
 const logout = (req, res) => {
   req.session.destroy(err => {
     if (err) {
-      console.log("Logout error:", err);
+      logger.error("Logout error:", err);
       return res.redirect("/pageNotFound");
     }
     res.clearCookie("connect.sid");
@@ -762,7 +708,7 @@ const loadShop = async (req, res) => {
 
     });
   } catch (error) {
-    console.error("Error loading shop:", error);
+    logger.error("Error loading shop:", error);
     res.redirect("/pageNotFound");
   }
 };
@@ -773,7 +719,7 @@ const loadAboutPage = async (req, res) => {
     const user = req.session.user.id
     res.render("about", { user });
   } catch (error) {
-    console.error("Error loading about page:", error);
+    logger.error("Error loading about page:", error);
     res.redirect("/pageNotFound");
   }
 };

@@ -1,28 +1,34 @@
 import User from "../../models/userSchema.js";
-import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import session from "express-session";
 import Order from "../../models/OrderSchema.js";
 import Address from "../../models/AddressSchema.js";
 import {
   sendVerificationEmail,
   generateOtp,
 } from "../../Helpers/emailandaotpservices.js";
-import uploads from "../../Helpers/multer.js";
+
 import { debugPort } from "process";
 import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 import logger from "../../utils/logger.js";
-
+import rateLimit from "express-rate-limit";
 dotenv.config();
+
+export const otpLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: "Too many requests, please try again later.",
+});
+
+
 
 //  Secure password hash helper
 const securePassword = async (password) => {
   try {
     return await bcrypt.hash(password, 10);
   } catch (error) {
-    console.error("Error securing password:", error.message);
+    logger.error("Error securing password:", error.message);
   }
 };
 
@@ -50,7 +56,7 @@ const forgotEmailValid = async (req, res) => {
 
     const otp = generateOtp();
     const emailSent = await sendVerificationEmail(email, otp);
-    console.log(otp, 'otp')
+
 
     if (!emailSent) {
       return res.render("forgotpassword", {
@@ -62,13 +68,13 @@ const forgotEmailValid = async (req, res) => {
     req.session.userOtp = otp;
     req.session.email = email;
     req.session.timer = new Date();
-    console.log("OTP:", otp);
+
     return res.redirect("/verifyForgotOtp");
   } catch (error) {
-    console.error(error.message);
+    logger.error(error.message);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -81,7 +87,7 @@ const getVerifyOtp = (req, res) => {
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -89,6 +95,19 @@ const getVerifyOtp = (req, res) => {
 const verifyForgotOtp = async (req, res) => {
   try {
     const { otp } = req.body;
+    req.session.otpAttempts = req.session.otpAttempts || 0;
+    req.session.otpAttempts++;
+
+    if (req.session.otpAttempts > 5) {
+      delete req.session.userOtp;
+      delete req.session.timer;
+      delete req.session.otpAttempts;
+
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: "Too many attempts. OTP expired.",
+      });
+    }
 
     if (!req.session.userOtp || !req.session.timer) {
       return res.status(Status.BAD_REQUEST).json({
@@ -99,7 +118,7 @@ const verifyForgotOtp = async (req, res) => {
     const now = new Date();
     const diff = now - new Date(req.session.timer);
 
-    if (diff > 1 * 60 * 1000) {
+    if (diff > 5 * 60 * 1000) {
       delete req.session.userOtp;
       delete req.session.timer;
 
@@ -110,7 +129,10 @@ const verifyForgotOtp = async (req, res) => {
     }
 
     if (String(req.session.userOtp) === String(otp)) {
+      req.session.isOtpVerified = true;
       delete req.session.userOtp;
+      delete req.session.timer;
+      delete req.session.otpAttempts;
       res.json({ success: true, redirectUrl: "/resetPassword" });
     } else {
       return res
@@ -118,7 +140,7 @@ const verifyForgotOtp = async (req, res) => {
         .json({ success: false, message: message.OTP.INVALID });
     }
   } catch (error) {
-    console.error("OTP Verification Error:", error.message);
+    logger.error("OTP Verification Error:", error.message);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -148,7 +170,6 @@ const resendOtp = async (req, res) => {
     }
 
     const otp = generateOtp();
-    console.log("Generated OTP:", otp);
 
     req.session.userOtp = otp;
     req.session.timer = new Date();
@@ -170,8 +191,8 @@ const resendOtp = async (req, res) => {
       });
     });
   } catch (error) {
-    console.error(" Resend OTP Error:", error);
-    console.error("Error stack:", error.stack);
+    logger.error(" Resend OTP Error:", error);
+    logger.error("Error stack:", error.stack);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -180,7 +201,7 @@ const resendOtp = async (req, res) => {
 
 const getPostNewPassword = async (req, res) => {
   try {
-    if (!req.session.email) {
+    if (!req.session.email || !req.session.isOtpVerified) {
       return res.redirect("/forgotPassword");
     }
     return res.render("resetpassword");
@@ -218,10 +239,17 @@ const postNewPassword = async (req, res) => {
       });
     }
 
+    if (password.length < 8) {
+      return res.status(Status.BAD_REQUEST).json({
+        success: false,
+        message: message.AUTH.PASSWORD_MIN_LENGTH,
+      });
+    }
     const passwordHash = await securePassword(password);
     await User.updateOne({ email }, { $set: { password: passwordHash } });
 
     delete req.session.email;
+    delete req.session.isOtpVerified;
 
     return res.status(Status.OK).json({
       success: true,
@@ -230,7 +258,7 @@ const postNewPassword = async (req, res) => {
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -266,7 +294,7 @@ const loadProfile = async (req, res) => {
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -280,8 +308,8 @@ const loadEditProfile = async (req, res) => {
     return res.render("editProfile", { user });
   } catch (error) {
     res
-      .Status(Status.INTERNAL_SERVER_ERROR)
-      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
+      .status(Status.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -289,6 +317,8 @@ const loadEditProfile = async (req, res) => {
 const loadChangePassword = async (req, res) => {
   try {
     const userId = req.session.user.id;
+    if (!userId) return res.redirect("/login");
+
     const user = await User.findById(userId);
     if (user.password && user.password.length > 0) {
       return res.render("changepassword", { user });
@@ -298,7 +328,7 @@ const loadChangePassword = async (req, res) => {
   } catch (error) {
     res
       .status(Status.INTERNAL_SERVER_ERROR)
-      .json({ sucess: false, message: message.GENERAL.SERVER_ERROR });
+      .json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
 
@@ -412,7 +442,7 @@ const updateProfile = async (req, res) => {
       .status(Status.OK)
       .json({ success: true, message: message.PROFILE.UPDATED_SUCCESS });
   } catch (error) {
-    console.error("Update profile error:", error);
+    logger.error("Update profile error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -450,12 +480,6 @@ const updateChangePassword = async (req, res) => {
         message: message.AUTH.PASSWORD_MIN_LENGTH,
       });
     }
-    if (newPassword.length < 8) {
-      return res.status(Status.BAD_REQUEST).json({
-        success: false,
-        message: message.AUTH.PASSWORD_MIN_LENGTH,
-      });
-    }
 
     const hashedPassword = await securePassword(newPassword);
     await User.findByIdAndUpdate(req.session.user.id, {
@@ -464,7 +488,7 @@ const updateChangePassword = async (req, res) => {
 
     return res
       .status(Status.OK)
-      .json({ success: true, message: message.PROFILE.PHONE_REQUIRED });
+      .json({ success: true, message: message.PASSWORD_RESET_SUCCESS });
   } catch (error) {
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
@@ -478,7 +502,7 @@ const loadUpdateEmail = async (req, res) => {
     const email = req.session.user.email;
     return res.render("changeemail", { user: req.session.user });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res.redirect("/pageNotFound");
   }
 };
@@ -517,12 +541,11 @@ const updateEmail = async (req, res) => {
     req.session.pendingEmail = email;
     req.session.timer = new Date();
 
-    console.log("OTP sent:", otp);
     return res
       .status(Status.OK)
-      .json({ sucess: true, message: "OTP send Sucessfully!!" });
+      .json({ success: true, message: "OTP send Sucessfully!!" });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -543,7 +566,7 @@ const loadChangeEmail = async (req, res) => {
       otpType: "CHANGE_EMAIL",
     });
   } catch (error) {
-    console.error("Error loading verify OTP page:", error);
+    logger.error("Error loading verify OTP page:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -591,7 +614,7 @@ const changeEmailVerifyOtp = async (req, res) => {
       .status(Status.OK)
       .json({ success: true, message: message.OTP.SENT });
   } catch (error) {
-    console.log("Error verifying OTP:", error);
+    logger.error("Error verifying OTP:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -628,7 +651,7 @@ const loadAddress = async (req, res) => {
       limit,
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -734,7 +757,7 @@ const addAddress = async (req, res) => {
       redirect: redirectUrl
     });
   } catch (error) {
-    console.log("Error message:", error.message);
+    logger.error("Error message:", error.message);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -764,7 +787,7 @@ const loadEditAddress = async (req, res) => {
     const redirectPage = req.query.redirect || "/address";
     return res.render("editAddress", { user, address, redirectPage });
   } catch (error) {
-    console.error("Error loading edit address:", error.message);
+    logger.error("Error loading edit address:", error.message);
     return res.redirect("/address");
   }
 };
@@ -839,7 +862,7 @@ const editAddress = async (req, res) => {
       .status(Status.OK)
       .json({ success: true, message: message.ADDRESS.UPDATED });
   } catch (error) {
-    console.log(error.message);
+    logger.error(error.message);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -881,7 +904,7 @@ const setDefaultAddress = async (req, res) => {
       message: message.ADDRESS.UPDATED,
     });
   } catch (error) {
-    console.error("Error setting default address:", error);
+    logger.error("Error setting default address:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -953,7 +976,7 @@ const deleteAddress = async (req, res) => {
       .status(Status.OK)
       .json({ success: true, message: message.ADDRESS.DELETED_SUCCESS });
   } catch (error) {
-    console.error("Error deleting address:", error.message);
+    logger.error("Error deleting address:", error.message);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });

@@ -94,7 +94,7 @@ const loadCart = async (req, res) => {
       cartWarning,
     });
   } catch (error) {
-    console.error("Error loading cart page:", error);
+    logger.error("Error loading cart page:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -209,7 +209,7 @@ const addToCart = async (req, res) => {
         }
       }
     } catch (wishlistError) {
-      console.error("Failed to remove from wishlist:", wishlistError);
+      logger.error("Failed to remove from wishlist:", wishlistError);
     }
 
     return res.status(Status.OK).json({
@@ -219,7 +219,7 @@ const addToCart = async (req, res) => {
       cartCount: cart.products.length,
     });
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    logger.error("Error adding to cart:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -307,7 +307,7 @@ const updateCartQuantity = async (req, res) => {
       total: totals.finalAmount,
     });
   } catch (error) {
-    console.error("Error updating cart quantity:", error);
+    logger.error("Error updating cart quantity:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -352,7 +352,7 @@ const removeCartItem = async (req, res) => {
       message: message.CART.ITEM_REMOVED,
     });
   } catch (error) {
-    console.error("Error removing cart item:", error);
+    logger.error("Error removing cart item:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -385,7 +385,7 @@ const clearCart = async (req, res) => {
       total: 0,
     });
   } catch (error) {
-    console.error("Error clearing cart:", error);
+    logger.error("Error clearing cart:", error);
     return res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });

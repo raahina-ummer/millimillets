@@ -138,7 +138,7 @@ const loadOrders = async (req, res) => {
       search,
     });
   } catch (error) {
-    console.error("Error loading orders:", error);
+    logger.error("Error loading orders:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -304,7 +304,7 @@ const updateOrderStatus = async (req, res) => {
       order,
     });
   } catch (error) {
-    console.error("Error updating order status:", error);
+    logger.error("Error updating order status:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
@@ -438,7 +438,7 @@ const updateSingleItemStatus = async (req, res) => {
     return res.json({ success: true });
 
   } catch (err) {
-    console.error("Single item status crash:", err);
+    logger.error("Single item status crash:", err);
     return res.status(500).json({
       success: false,
       error: err.message
@@ -499,7 +499,7 @@ const loadOrderDetails = async (req, res) => {
       currentRoute: isAdmin ? "orders" : null
     });
   } catch (error) {
-    console.error("Error loading order details:", error);
+    logger.error("Error loading order details:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -645,7 +645,7 @@ const approveOrRejectReturnRequest = async (req, res) => {
       message: message.ORDER.RETURN_APPROVED,
     });
   } catch (error) {
-    console.error("Return approval error:", error);
+    logger.error("Return approval error:", error);
     return res.status(500).json({
       success: false,
       message: message.ORDER.RETURN_PROCESS_FAILED,

@@ -13,29 +13,29 @@ const productDetails = async (req, res) => {
     if (!productId) return res.redirect("/pageNotFound");
 
     const product = await Product.findById(productId).populate("category");
-   if (!product) {
-  return res.status(404).render("product-unavailable", {
-    message: "Product not found",
-    user: req.session.user || null
-  });
-}
+    if (!product) {
+      return res.status(404).render("product-unavailable", {
+        message: "Product not found",
+        user: req.session.user || null
+      });
+    }
 
-if (
-  product.isBlocked ||
-  product.status !== "Available" ||
-  !product.category?.isListed
-) {
-  return res.status(410).render("product-unavailable", {
-    message: "This item is currently unavailable",
-    user: req.session.user || null
-  });
-}
-if (!product.variant || product.variant.length === 0) {
-  return res.render("product-unavailable", {
-    message: "This item has no purchasable variants",
-    user: req.session.user || null
-  });
-}
+    if (
+      product.isBlocked ||
+      product.status !== "Available" ||
+      !product.category?.isListed
+    ) {
+      return res.status(410).render("product-unavailable", {
+        message: "This item is currently unavailable",
+        user: req.session.user || null
+      });
+    }
+    if (!product.variant || product.variant.length === 0) {
+      return res.render("product-unavailable", {
+        message: "This item has no purchasable variants",
+        user: req.session.user || null
+      });
+    }
 
 
     /* Wishlist */
@@ -74,40 +74,40 @@ if (!product.variant || product.variant.length === 0) {
       ? product.category.categoryOffer
       : null;
 
-  
+
     // const maxDiscountAmount = bestOffer?.maxDiscountAmount || null;
 
     //PRICE CALCULATION 
-const firstVariant =
-  product.variant.find(v => v.stock > 0) || product.variant[0];
+    const firstVariant =
+      product.variant.find(v => v.stock > 0) || product.variant[0];
 
-const { basePrice, finalPrice, appliedOffer } =
-  calculateFinalPriceForVariant(
-    firstVariant,
-    product,
-    product.category
-  );
-   //TOTAL STOCK 
+    const { basePrice, finalPrice, appliedOffer } =
+      calculateFinalPriceForVariant(
+        firstVariant,
+        product,
+        product.category
+      );
+    //TOTAL STOCK 
     const totalStock = product.variant.reduce(
       (sum, v) => sum + v.stock,
       0
     );
 
-   res.render("productdetails", {
-  user: userId ? await User.findById(userId) : null,
-  product,
-  finalPrice,
-  category: product.category,   
-  strikePrice: basePrice,
-  discountPercentage: appliedOffer.discountPercentage,
-  totalStock,
-  isInWishlist,      
-  relatedProducts, 
-});
+    res.render("productdetails", {
+      user: userId ? await User.findById(userId) : null,
+      product,
+      finalPrice,
+      category: product.category,
+      strikePrice: basePrice,
+      discountPercentage: appliedOffer.discountPercentage,
+      totalStock,
+      isInWishlist,
+      relatedProducts,
+    });
 
 
   } catch (error) {
-    console.error("Product details error:", error);
+    logger.error("Product details error:", error);
     res.redirect("/pageNotFound");
   }
 };
@@ -132,12 +132,12 @@ export const getVariantPrice = async (req, res) => {
         product,
         product.category
       );
-res.json({
-  success: true,
-  finalPrice,  
-  strikePrice: basePrice,
-  discountPercentage: appliedOffer.discountPercentage
-});
+    res.json({
+      success: true,
+      finalPrice,
+      strikePrice: basePrice,
+      discountPercentage: appliedOffer.discountPercentage
+    });
 
 
   } catch (err) {

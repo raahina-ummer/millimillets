@@ -103,7 +103,7 @@ const loadSalesReport = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error generating sales report:", error);
+    logger.error("Error generating sales report:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -148,7 +148,7 @@ const downloadSalesReport = async (req, res) => {
       return res.status(Status.BAD_REQUEST).json({ success: false, message: "Invalid format" });
     }
   } catch (error) {
-    console.error("Error downloading sales report:", error);
+    logger.error("Error downloading sales report:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };
@@ -389,7 +389,7 @@ const generateExcel = async (res, orders, statistics, period, startDate, endDate
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.send(buffer);
   } catch (error) {
-    console.error("Error generating Excel:", error);
+    logger.error("Error generating Excel:", error);
     res.status(Status.INTERNAL_SERVER_ERROR).json({ success: false, message: message.GENERAL.SERVER_ERROR });
   }
 };

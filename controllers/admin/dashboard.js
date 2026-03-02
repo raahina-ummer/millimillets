@@ -7,6 +7,7 @@ import Status from "../../utils/status.js";
 import message from "../../utils/message.js";
 
 const loadDashboard = async (req, res) => {
+
   if (!req.session.admin) {
     return res.redirect("/admin/login");
   }
@@ -194,7 +195,7 @@ const loadDashboard = async (req, res) => {
       toDate,
     });
   } catch (error) {
-    console.error("Dashboard Error:", error);
+    logger.error("Dashboard Error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -238,7 +239,7 @@ const bestSellingProducts = async (req, res) => {
 
     res.render("admin/bestProducts", { bestProducts });
   } catch (error) {
-    console.error("Best Selling Products Error:", error);
+    logger.error("Best Selling Products Error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -291,7 +292,7 @@ const bestSellingCategories = async (req, res) => {
 
     res.render("admin/bestCategories", { categories });
   } catch (error) {
-    console.error("Best Selling Categories Error:", error);
+    logger.error("Best Selling Categories Error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -359,7 +360,7 @@ const getSalesChartData = async (req, res) => {
 
     res.json({ success: true, data: sales });
   } catch (error) {
-    console.error("Chart API Error:", error);
+    logger.error("Chart API Error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });
@@ -375,7 +376,7 @@ const searchDashboard = async (req, res) => {
     }
 
     const results = await Order.find({
-      $or: [{ orderId: { $regex: q, $options: "i" } }],
+      orderId: { $regex: q, $options: "i" },
     })
       .limit(10)
       .select("orderId status finalAmount createdAt")
@@ -383,7 +384,7 @@ const searchDashboard = async (req, res) => {
 
     res.json({ success: true, results });
   } catch (error) {
-    console.error("Dashboard search error:", error);
+    logger.error("Dashboard search error:", error);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: message.GENERAL.SERVER_ERROR });

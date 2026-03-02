@@ -9,7 +9,7 @@ import Order from "../../models/OrderSchema.js";
 import { getPendingReturns } from "./orderController.js";
 import { calculateOrderTotals } from "../../Helpers/orderTotal.js";
 import logger from "../../utils/logger.js";
-import { isValidCartItem ,resolveVariant} from "../../Helpers/cartHelper.js";
+import { isValidCartItem, resolveVariant } from "../../Helpers/cartHelper.js";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
 dotenv.config();
@@ -76,7 +76,7 @@ const loadWallet = async (req, res) => {
       totalPages,
     });
   } catch (error) {
-    console.error("Error fetching wallet page:", error.message);
+    logger.error("Error fetching wallet page:", error.message);
     res
       .status(Status.INTERNAL_SERVER_ERROR)
       .json("error", { message: message.GENERAL.SERVER_ERROR });
@@ -94,7 +94,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-  
+
     const userAddress = await Address.findOne({ userId });
     if (!userAddress) {
       return res.status(Status.BAD_REQUEST).json({
@@ -113,7 +113,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-  
+
     const cart = await Cart.findOne({ userId }).populate({
       path: "products.productId",
       populate: "category",
@@ -134,7 +134,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-   
+
     const {
       saleTotal,
       couponDiscount,
@@ -154,7 +154,7 @@ const walletPayment = async (req, res) => {
       });
     }
 
-  
+
     let remainingCoupon = couponDiscount;
 
     const orderedProducts = validItems.map((item, index) => {
@@ -163,7 +163,7 @@ const walletPayment = async (req, res) => {
 
       if (couponDiscount > 0 && saleTotal > 0) {
         if (index === validItems.length - 1) {
-          couponShare = remainingCoupon; 
+          couponShare = remainingCoupon;
         } else {
           couponShare = Math.round(
             (itemTotal / saleTotal) * couponDiscount
@@ -184,7 +184,7 @@ const walletPayment = async (req, res) => {
         status: "Processing",
       };
     });
-  
+
     const order = new Order({
       orderId: "ORD" + Date.now() + uuidv4().slice(0, 6),
       userId,
@@ -220,7 +220,7 @@ const walletPayment = async (req, res) => {
       },
     });
 
-   
+
     order.invoiceSnapshot = {
       items: validItems.map(item => ({
         name: item.productId.productName,
@@ -238,7 +238,7 @@ const walletPayment = async (req, res) => {
 
     await order.save();
 
-   
+
     wallet.balance -= finalAmount;
     wallet.transactions.push({
       type: "debit",
@@ -249,7 +249,7 @@ const walletPayment = async (req, res) => {
     });
     await wallet.save();
 
-  
+
     for (const item of validItems) {
       await Product.updateOne(
         {
@@ -261,7 +261,7 @@ const walletPayment = async (req, res) => {
       );
     }
 
-  
+
     await Cart.findOneAndUpdate(
       { userId },
       {
@@ -281,7 +281,7 @@ const walletPayment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Wallet Payment Error:", error);
+    logger.error("Wallet Payment Error:", error);
     return res.status(Status.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: message.GENERAL.SERVER_ERROR,
