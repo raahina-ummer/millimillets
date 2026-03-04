@@ -11,7 +11,7 @@ import * as wishlistController from "../controllers/user/wishlistController.js";
 import * as walletController from "../controllers/user/walletController.js";
 import * as couponController from "../controllers/user/couponController.js";
 import { userAuth, adminAuth } from "../middleware/auth.js";
-import { otpLimiter } from "../controllers/userController.js";
+import { otpLimiter } from "../controllers/user/userController.js";
 
 
 import multer from "multer";
